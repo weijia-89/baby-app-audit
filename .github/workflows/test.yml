@@ -14,7 +14,6 @@ concurrency:
 env:
   HARNESS_VERSION: "3.1.0"
   PROXY_PORT: "8080"
-  PERF_BUDGET_MINUTES: "120"
 
 jobs:
   lint-and-validate:
@@ -117,7 +116,7 @@ jobs:
     name: Test ${{ matrix.app }}
     runs-on: macos-latest
     needs: canary-test
-    timeout-minutes: ${{ fromJSON(env.PERF_BUDGET_MINUTES) }}
+    timeout-minutes: 120
     strategy:
       fail-fast: false
       matrix:
