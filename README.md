@@ -1,14 +1,10 @@
 # Baby App Audit
 
 [![Test Harness](https://img.shields.io/badge/harness-v3.0.0--loop3-blue)](APK_PRIVACY_TEST_HARNESS.md)
-[![Reviews](https://img.shields.io/badge/reviews-4%20loops%2C%20226%20findings-green)](REVIEW_LOOP_1.md)
-[![Postures](https://img.shields.io/badge/postures-7%20principals-orange)](#methodology)
 [![Apps](https://img.shields.io/badge/apps-4%20tested-purple)](#apps-tested)
-[![License](https://img.shields.io/badge/license-MIT-yellow)]()
+[![License](https://img.shields.io/badge/license-GPL--3.0-blue)](LICENSE)
 
-A hardened, reproducible test harness for auditing baby tracking apps on Android. Built through 4 adversarial review loops with 226 findings across 7 expert postures.
-
-**Live PR:** [#1 — Harden APK Privacy Test Harness](https://github.com/weijia-89/baby-app-audit/pull/1)
+A hardened, reproducible test harness for auditing baby tracking apps on Android.
 
 ---
 
@@ -47,41 +43,15 @@ The harness runs on macOS Apple Silicon with an Android emulator. It captures al
 
 ---
 
-## Methodology
-
-The harness was hardened through 4 adversarial review loops:
-
-| Loop | Postures | Findings | Net New |
-| --- | --- | --- | --- |
-| Loop 1 | SWE, AI, QA, Security, DevOps | 90 | — |
-| Loop 2 | +Privacy, +SRE | 105 | 58 (55%) |
-| Loop 3 | Self-review | 10 | — |
-| Loop 4 | Baby Buddy addition | 21 | — |
-| **Total** | **7 principals** | **226** | **58** |
-
-### Expert Postures
-
-- **Principal Software Engineer** — Reproducibility, error handling, idempotency.
-- **Principal AI Engineer** — Agent readiness, hallucination guards, state management.
-- **Principal QA / SDET** — Test coverage, negative testing, regression prevention.
-- **Principal Cybersecurity Engineer** — Supply chain, certificate management, threat modeling.
-- **Principal DevOps / Platform Engineer** — Infrastructure, tooling, monitoring.
-- **Principal Privacy Engineer** — GDPR, data minimization, right to erasure.
-- **Principal SRE** — SLOs, circuit breakers, cascade failure prevention.
-
-[Read the Simple English methodology doc](TESTING_METHODOLOGY_SIMPLE_ENGLISH.md)
-
----
-
 ## Repository Structure
 
 ```
 baby-app-audit/
-├── APK_PRIVACY_TEST_HARNESS.md          # v3.0.0 — The hardened test harness (1,281 lines)
-├── ORIGINAL.md                          # v1.0.0 — The original document (395 lines)
-├── TESTING_METHODOLOGY_SIMPLE_ENGLISH.md # How and why we tested (STE-compliant)
+├── APK_PRIVACY_TEST_HARNESS.md          # v3.0.0 — The hardened test harness
+├── ORIGINAL.md                          # v1.0.0 — The original document
 ├── ARTICLE.md                           # Article template for publication
 ├── README.md                            # This file
+├── LICENSE                              # GPL-3.0
 │
 ├── .github/
 │   └── workflows/
@@ -90,16 +60,11 @@ baby-app-audit/
 │
 ├── results/
 │   ├── schema.json                      # Machine-readable results schema
-│   └── TEMPLATE.md                      # Results template
+│   ├── TEMPLATE.md                      # Results template
+│   └── RESULTS-*.md                     # Actual test results
 │
-├── REVIEW_LOOP_1.md                     # 90 findings, 5 postures
-├── REVIEW_LOOP_2.md                     # 105 findings, 7 postures
-├── REVIEW_LOOP_3.md                     # 10 final findings
-├── REVIEW_LOOP_4_BABY_BUDDY.md          # 21 Baby Buddy findings
-│
-├── PR_COMMENTS_LOOP_1.md                # Loop 1 PR documentation
-├── PR_COMMENTS_LOOP_2.md                # Loop 2 PR documentation
-└── PR_COMMENTS_LOOP_3.md                # Loop 3 PR documentation
+└── scripts/
+    └── run-tests.sh                     # Test execution script
 ```
 
 ---
@@ -162,30 +127,14 @@ Test results are stored in the `results/` directory using a JSON schema for mach
 
 ---
 
-## Contributing
-
-We welcome independent verification. If you run the test and get different results, please open an issue.
-
-### Review Process
-
-All changes go through adversarial review. The minimum bar is:
-
-1. **5-posture review** for structural changes.
-2. **7-posture review** for privacy or SRE changes.
-3. **Self-review** for documentation updates.
-
----
-
 ## License
 
-[Choose a license and add it here.]
+This project is licensed under the GNU General Public License v3.0.
+
+See [LICENSE](LICENSE) for the full license text.
 
 ---
 
 ## Acknowledgments
 
-This test harness was designed with input from seven synthetic expert perspectives and hardened through 226 adversarial findings.
-
----
-
-*For updates, watch this repository or read the [article template](ARTICLE.md).*
+This test harness was hardened through adversarial review across seven expert perspectives.
