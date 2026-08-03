@@ -1,12 +1,25 @@
 # APK Privacy Test Harness — Baby Tracking Apps (macOS + Agent-Ready)
 
-**Version:** 2.0.0-loop1-hardened  
+**Version:** 3.0.0-loop2-deep-hardened  
 **Revision date:** 2026-08-03  
-**Previous version:** 1.0.0 (see `ORIGINAL.md`)  
-**Author:** Multi-posture adversarial review (SWE / AI / QA / Security / DevOps)  
-**Change type:** Hardening — P0–P3 fixes from Loop 1 review (90 findings)  
+**Previous version:** 2.0.0-loop1-hardened  
+**Author:** Multi-posture adversarial review (SWE / AI / QA / Security / DevOps / Privacy / SRE)  
+**Change type:** Deep hardening — P0–P3 fixes from Loop 2 review (105 findings, 58 net new)  
+**Migration note:** If upgrading from v1.0.0, see "Migration from v1.0.0" below before starting.  
 
-META: Reproducible test steps · plain STE-style English · one action per line · runs locally on macOS Apple Silicon · includes a machine-readable agent plan · for an ADHD/ASD reader and for an autonomous IDE LLM · hardened against false negatives, supply-chain tampering, and automation failure
+META: Reproducible test steps · plain STE-style English · one action per line · runs locally on macOS Apple Silicon · includes a machine-readable agent plan · for an ADHD/ASD reader and for an autonomous IDE LLM · hardened against false negatives, supply-chain tampering, automation failure, privacy liability, and cascading infrastructure failure
+
+---
+
+## Migration from v1.0.0
+
+If you previously used v1.0.0 of this harness, these breaking changes affect your workflow:
+
+1. **Environment variables required:** All configuration is now via env vars (lines 45–70). You must define them before starting.
+2. **Working directory structure:** All artifacts go under `~/apk-privacy-test-<timestamp>/artifacts/`. Do not run from arbitrary directories.
+3. **Bash required:** This harness assumes `bash` (for `set -euo pipefail`). zsh/fish users must invoke `bash` explicitly.
+4. **Tool versions pinned:** Specific versions are now required. Update your tools before starting.
+5. **Cleanup mandatory:** CA removal and app uninstall are now required steps (Part 7). Skipping them leaves the device compromised.
 
 ---
 
@@ -22,14 +35,36 @@ META: Reproducible test steps · plain STE-style English · one action per line 
 
 ---
 
+## Shell requirement and safety
+
+**This harness requires `bash`.** Do not run under `zsh`, `fish`, or other shells without explicit translation.
+
+**Signal handling:** The harness installs `trap` handlers for SIGINT and SIGTERM to prevent orphaned processes:
+
+```bash
+cleanup() {
+    echo "Catching signal; cleaning up..."
+    kill "${MITM_PID}" 2>/dev/null || true
+    kill "${TCPDUMP_PID}" 2>/dev/null || true
+    kill "${EMULATOR_PID}" 2>/dev/null || true
+    # Note: CA removal is NOT automatic on SIGINT to prevent partial removal.
+    # Run Part 7 manually after interruption.
+}
+trap cleanup INT TERM
+```
+
+---
+
 ## Configuration and environment variables
 
 Define these once before starting. They eliminate magic numbers and hardcoded paths.
 
 ```bash
+#!/usr/bin/env bash
 set -euo pipefail
-export HARNESS_VERSION="2.0.0-loop1-hardened"
-export WORK_DIR="${HOME}/apk-privacy-test-$(date +%Y%m%d-%H%M%S)"
+
+export HARNESS_VERSION="3.0.0-loop2-deep-hardened"
+export WORK_DIR="${HOME}/apk-privacy-test-$(date -u +%Y%m%d-%H%M%S)"
 export PROXY_HOST="10.0.2.2"
 export PROXY_PORT="8080"
 export PREFERRED_API_LEVEL="28"
@@ -37,20 +72,34 @@ export PREFERRED_IMAGE="system-images;android-28;google_apis;arm64-v8a"
 export AVD_NAME="apk-test-api28"
 export EMULATOR_ARCH="arm64"
 export MITMPROXY_CERT="${HOME}/.mitmproxy/mitmproxy-ca-cert.pem"
+# Pinned SHA-256 digest for reproducibility. Update only after verifying new digest.
 export EXODUS_IMAGE="exodusprivacy/exodus-standalone@sha256:7f8d9a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2"
 export MAX_RETRIES="2"
 export RETRY_BACKOFF_SEC="5"
 export PROVISIONAL_PASS_MINUTES="30"
 export PERF_BUDGET_MINUTES="120"
 export DISK_MIN_GB="10"
+export MODEL_TEMPERATURE="0.0"  # For subagent deterministic tasks
 ```
 
-Create the working directory:
+Create the working directory and artifact structure:
 
 ```bash
 mkdir -p "${WORK_DIR}"
 cd "${WORK_DIR}"
 mkdir -p artifacts/{apks,reports,logs,captures}
+
+# Prevent accidental git inclusion of sensitive artifacts
+cat > .gitignore <<'EOF'
+artifacts/
+*.apk
+*.ab
+*.pcap
+*.mitm
+*.tar.gz
+secrets/
+.env
+EOF
 ```
 
 ---
@@ -95,7 +144,15 @@ You do everything on the Mac. No cloud. No other computer.
 
 **Security warning:** This procedure requires `adb root`, `adb remount`, and installing a custom CA certificate into the emulator system store. These actions fundamentally compromise the security model of the test device. Only run this on a dedicated test emulator. Never on a personal device.
 
+**Privacy warning:** This test captures baby data (names, dates of birth, feeding/sleep/diaper patterns). Before testing, ensure you have:
+1. A completed Data Protection Impact Assessment (DPIA) if required by jurisdiction.
+2. Consent from the parent/guardian of the baby whose data will be entered.
+3. A documented purpose limitation: data is used ONLY for privacy testing.
+4. A commitment to data minimization: capture ONLY app traffic, not all emulator traffic.
+
 **Resource requirements:** 4 CPU cores, 8 GB RAM, 20 GB free disk (10 GB minimum).
+
+**SLO target:** 95% of test runs should complete successfully within 120 minutes.
 
 Step 1. Verify disk space before starting:
 
@@ -155,7 +212,14 @@ adb shell 'while [[ -z $(getprop sys.boot_completed) ]]; do sleep 1; done'
 echo "Emulator booted OK (PID: ${EMULATOR_PID})"
 ```
 
-\[ \] Homebrew ready. \[ \] All tools smoke-tested. \[ \] Disk space >= 10 GB. \[ \] Emulator with an arm64 image ready and booted.
+Step 9. Verify Android Verified Boot (AVB) state:
+
+```bash
+adb shell getprop ro.boot.verifiedbootstate | grep -q "green" || \
+    { echo "WARNING: Verified Boot not green. Bootloader may be unlocked."; }
+```
+
+\[ \] Homebrew ready. \[ \] All tools smoke-tested. \[ \] Disk space >= 10 GB. \[ \] Emulator booted. \[ \] AVB checked.
 
 Gotcha to know now: exodus-standalone only ships for linux/amd64. On Apple Silicon you must run it through Rosetta emulation. The command in Part 3 already includes the flag for this.
 
@@ -166,6 +230,8 @@ Gotcha to know now: exodus-standalone only ships for linux/amd64. On Apple Silic
 Best way: pull it from a real device or your emulator. This gives clean proof of where it came from.
 
 **Supply-chain warning:** `adb pull` transfers files over USB without cryptographic integrity protection. A compromised host or USB intermediary could swap files. For legal or disclosure use, pull from two independent sources and compare hashes.
+
+**Atomicity warning:** `adb pull` is not atomic. If the USB connection drops mid-transfer, the file on disk will be truncated. Always verify file size on host matches source before hashing.
 
 Step 1. Start the emulator, or plug in the phone with USB debugging on.
 
@@ -193,11 +259,22 @@ adb shell pm path com.angry.shark.studio.nurturelock > artifacts/apks/nurtureloc
 
 Step 6. You will see one or more file paths. Copy each one.
 
-Step 7. Pull each file. Run this once for each path:
+Step 7. Pull each file atomically with verification:
 
 ```bash
 while read -r path; do
-    adb pull "${path}" "artifacts/apks/"
+    local_name="artifacts/apks/$(basename "${path}")"
+    adb pull "${path}" "${local_name}.tmp"
+    remote_size=$(adb shell stat -c%s "${path}" 2>/dev/null || echo "0")
+    local_size=$(stat -f%z "${local_name}.tmp" 2>/dev/null || echo "0")
+    if [[ "${remote_size}" == "${local_size}" ]]; then
+        mv "${local_name}.tmp" "${local_name}"
+        echo "OK: ${local_name} (${local_size} bytes)"
+    else
+        echo "FAIL: size mismatch for ${path}"
+        rm -f "${local_name}.tmp"
+        exit 1
+    fi
 done < artifacts/apks/nurturelock.paths.txt
 ```
 
@@ -205,10 +282,14 @@ Step 8. Some apps come in more than one file (split APKs). This is normal. Pull 
 
 **Boundary test:** If zero paths are returned, the app may not be installed. If more than 5 paths are returned, verify each split is expected (base + config + architecture + density + language).
 
-Step 9. Compute and record SHA-256 hashes with timestamps:
+Step 9. Deduplication: if re-running acquisition, skip files already present with matching hash:
 
 ```bash
 for f in artifacts/apks/*.apk; do
+    if [[ -f "${f}.sha256" ]]; then
+        echo "SKIP: ${f} already acquired"
+        continue
+    fi
     shasum -a 256 "${f}" > "${f}.sha256"
     echo "$(date -u +%Y-%m-%dT%H:%M:%SZ) $(basename "${f}") $(cat "${f}.sha256")" >> artifacts/apks/hashes.log
 done
@@ -220,7 +301,7 @@ Step 10. Write down proof for your records:
 * Android version
 * App version number
 * Today's date
-* The SHA-256 hash of each APK file (run: `shasum -a 256 artifacts/apks/*.apk`)
+* The SHA-256 hash of each APK file
 
 \[ \] APK files are in `artifacts/apks/`. \[ \] Proof details are written down. \[ \] Hashes are timestamped.
 
@@ -239,6 +320,8 @@ This is the fast test. Do it before the deep tests.
 
 **Idempotency note:** If you already installed the mitmproxy CA in a prior run, skip Step 3 (cert installation) unless you restored a clean emulator snapshot.
 
+**Rate limiting:** Do not send more than 5 `adb shell` commands per second to avoid overwhelming the emulator ADB daemon.
+
 Step 1. Verify the mitmproxy certificate exists and compute its hash for integrity:
 
 ```bash
@@ -247,13 +330,18 @@ openssl x509 -in "${MITMPROXY_CERT}" -noout -sha256 -fingerprint > artifacts/log
 echo "mitmproxy CA integrity: $(cat artifacts/logs/mitmproxy-cert-fingerprint.log)"
 ```
 
-Step 2. Start mitmproxy on the Mac:
+Step 2. Start mitmproxy on the Mac with port collision detection:
 
 ```bash
+if lsof -Pi :"${PROXY_PORT}" -sTCP:LISTEN -t >/dev/null 2>&1; then
+    echo "FAIL: port ${PROXY_PORT} already in use. Kill the process or change PROXY_PORT."
+    exit 1
+fi
 mitmweb --listen-port "${PROXY_PORT}" --web-port 8081 --save-stream-file "artifacts/captures/offline-test.mitm" &
 MITM_PID=$!
 sleep 2
-curl -sf http://localhost:8081 || { echo "FAIL: mitmweb not responding"; kill "${MITM_PID}"; exit 1; }
+curl -sf --retry 3 --connect-timeout 5 --max-time 10 http://localhost:8081 || \
+    { echo "FAIL: mitmweb not responding"; kill "${MITM_PID}"; exit 1; }
 echo "mitmweb running (PID: ${MITM_PID})"
 ```
 
@@ -272,9 +360,10 @@ adb shell "su -c 'ls /system/etc/security/cacerts/'" | grep -i "mitm" || { echo 
 
 Step 5. Open the app.
 
-Step 6. Do these actions, one at a time:
+Step 6. Do these actions, one at a time. Use **adversarial test data** to trigger edge cases:
 
 * Create a baby profile (use reproducible test data: name = "TestBaby", DOB = 2024-01-01).
+* **Metamorphic variant:** Also test with name = "あいうえお" (Unicode), DOB = 2030-01-01 (future date), and empty name.
 * Log a feed.
 * Log a sleep.
 * Log a diaper change.
@@ -287,11 +376,22 @@ Step 8. Wait an additional 60 seconds for background/idle traffic, then ask: did
 
 **Background coverage:** Apps often phone home when idle. If zero traffic was seen during active use, wait another 60 seconds with the app in the foreground but idle.
 
+**Android Doze / App Standby test:** Put the device in Doze mode and wait for a maintenance window:
+
+```bash
+adb shell dumpsys deviceidle force-idle
+sleep 60
+adb shell dumpsys deviceidle unforce
+```
+
 Step 9. Export the mitmproxy flow list to a structured file:
 
 ```bash
-curl -s http://localhost:8081/flows > artifacts/captures/offline-test-flows.json
+curl -sf --retry 3 --connect-timeout 5 --max-time 10 \
+    http://localhost:8081/flows > artifacts/captures/offline-test-flows.json
 ```
+
+**Flow integrity check:** Count flows in mitmweb UI and compare to JSON array length. If counts differ, mitmproxy may have dropped packets.
 
 The result:
 
@@ -299,7 +399,7 @@ The result:
 * Nurture Lock: zero outbound requests = claim holds so far. Write it down.
 * **Provisional pass time-bound:** A provisional pass is valid for `${PROVISIONAL_PASS_MINUTES}` minutes. Re-test if the app updates or if the device state changes.
 
-\[ \] Offline test done. \[ \] Result written down. \[ \] Flows exported to JSON. \[ \] Background idle period observed.
+\[ \] Offline test done. \[ \] Result written down. \[ \] Flows exported to JSON. \[ \] Background idle period observed. \[ \] Doze mode tested.
 
 ---
 
@@ -315,11 +415,12 @@ docker run --platform linux/amd64 \
   --rm -i \
   --read-only \
   --tmpfs /tmp:noexec,nosuid,size=100m \
+  --cap-drop ALL \
   "${EXODUS_IMAGE}" \
   /app/<your-file>.apk
 ```
 
-**Sandboxing:** The container runs with `--read-only` and a restricted tmpfs to limit host exposure.
+**Sandboxing:** The container runs with `--read-only`, `--cap-drop ALL`, and a restricted tmpfs to limit host exposure.
 
 To save a JSON report instead of text, add `-j` and `-o`:
 
@@ -329,6 +430,7 @@ docker run --platform linux/amd64 \
   --rm -i \
   --read-only \
   --tmpfs /tmp:noexec,nosuid,size=100m \
+  --cap-drop ALL \
   "${EXODUS_IMAGE}" \
   /app/<your-file>.apk -j -o /app/report.json
 ```
@@ -345,6 +447,7 @@ Why this matters:
 
 * The public exodus website has NO report for the Nurture Lock package. This was confirmed: the site returns an empty list and a 404 for that package.
 * Running exodus yourself makes the report that does not exist yet.
+* **False positive warning:** exodus relies on signature matching. New or obfuscated trackers may be missed. Treat zero trackers as "no known trackers," not "no trackers."
 
 Step 4. Decompile the app to read strings:
 
@@ -358,10 +461,11 @@ Step 5. Search the decompiled files for clues with an **improved, obfuscation-aw
 grep -rEi \
   'https?://[^"\s]+|firebase|analytics|crashlytics|unity3d|facebook|mixpanel| amplitude|segment|appsflyer|bugsnag|sentry|adjust|mParticle|localytics|collect|track|telemetry|metrics' \
   artifacts/reports/jadx-out/ \
+  | sort -u \
   > artifacts/reports/string-hits.txt
 ```
 
-**Obfuscation note:** This grep catches common SDK names but misses encrypted strings, native code (`.so`), and reflection-based loading. If zero hits are found but the APK requests `INTERNET` permission, escalate to dynamic analysis or memory dump.
+**Obfuscation note:** This grep catches common SDK names but misses encrypted strings, native code (`.so`), reflection-based loading, and runtime-decrypted strings. If zero hits are found but the APK requests `INTERNET` permission, escalate to dynamic analysis or memory dump.
 
 \[ \] Static scan done. \[ \] Tracker names and permissions written down. \[ \] Report saved to `artifacts/reports/`.
 
@@ -375,7 +479,7 @@ Step 1. Make sure mitmweb is still running and the emulator still points at `${P
 
 Step 2. Open the app.
 
-Step 3. Do the same actions as Part 2 (profile, feed, sleep, diaper).
+Step 3. Do the same actions as Part 2 (profile, feed, sleep, diaper) — including the metamorphic variants.
 
 Step 4. Look at every request in mitmproxy.
 
@@ -386,11 +490,15 @@ Step 5. For each request, write down:
 * What data was in the request body?
 * **Protocol:** HTTP, HTTPS, DNS, WebSocket, or other?
 * **DoH/DoT check:** If destination is a known DoH provider (Cloudflare 1.1.1.1, Google 8.8.8.8, Quad9), flag for deeper inspection.
+* **ECH check:** TLS 1.3 Encrypted Client Hello may hide the true SNI. If you see TLS 1.3 with ECH, note that the destination domain may be concealed.
+
+**Tracker provenance:** When marking an address as "known tracker," cite the database source (e.g., Exodus tracker list, DuckDuckGo Tracker Radar). Do not rely on memory or hallucination.
 
 Step 6. Export flows to structured JSON:
 
 ```bash
-curl -s http://localhost:8081/flows > artifacts/captures/dynamic-test-flows.json
+curl -sf --retry 3 --connect-timeout 5 --max-time 10 \
+    http://localhost:8081/flows > artifacts/captures/dynamic-test-flows.json
 ```
 
 **Flow integrity check:** Count flows in mitmweb UI and compare to JSON array length. If counts differ, mitmproxy may have dropped packets.
@@ -404,19 +512,33 @@ objection -g com.angry.shark.studio.nurturelock explore
 android sslpinning disable
 ```
 
-**Pinning bypass warning:** Disabling certificate pinning weakens the security of the test device. Only do this on a dedicated test emulator. Restore the emulator to a clean snapshot after testing.
+**Pinning bypass warning:** Disabling certificate pinning weakens the security of the test device. Only do this on a dedicated test emulator. Restore the emulator to a clean snapshot after testing. **Delete any repacked APK immediately** to prevent accidental installation on a real device.
 
 Step 9. Try the actions again and watch mitmproxy.
+
+**Memory forensics note:** If static scan shows `INTERNET` permission but dynamic capture shows nothing even after pinning bypass, the app may be encrypting traffic in-memory or using a custom protocol. Consider a memory dump with `frida-trace` or ` objection memory search `.
 
 **Covert channel check:** Even if HTTP/HTTPS shows nothing, check for:
 * ICMP traffic (ping tunneling)
 * DNS queries with long subdomains (DNS tunneling)
 * UDP traffic on non-standard ports
+* Bluetooth Low Energy (BLE) beacon broadcasts
+* NFC transmissions
+* Ultrasonic audio signals (SilverPush-style cross-device tracking)
 
 Use `tcpdump` or Wireshark on the host to capture all Layer 3 traffic if mitmproxy shows nothing:
 
 ```bash
 sudo tcpdump -i any -w artifacts/captures/all-traffic.pcap host 10.0.2.2 &
+TCPDUMP_PID=$!
+```
+
+**Sudo restriction:** If possible, configure `sudoers` to allow only `tcpdump` without a password, or use a dedicated packet-capture user.
+
+**SafetyNet / Play Integrity:** Check if the app sends integrity API responses:
+
+```bash
+adb logcat -d | grep -iE "safetynet|playintegrity|integrity" > artifacts/reports/integrity-log.txt || true
 ```
 
 Two 2026 gotchas for pinning:
@@ -425,7 +547,7 @@ Two 2026 gotchas for pinning:
 * For split APKs, the Frida gadget must be placed in the arm64_v8a split before you repack. If the patched app does not start, this is usually why.
 * **Max retry bound:** If pinning bypass fails after `${MAX_RETRIES}` attempts with `${RETRY_BACKOFF_SEC}`-second backoff, record "could not decrypt" and stop. Do not loop indefinitely.
 
-\[ \] Dynamic capture done. \[ \] Every destination written down. \[ \] Covert channel check performed (or noted as skipped). \[ \] Flow integrity verified.
+\[ \] Dynamic capture done. \[ \] Every destination written down. \[ \] Covert channel check performed (or noted as skipped). \[ \] Flow integrity verified. \[ \] BLE/NFC/ultrasound checked or noted.
 
 ---
 
@@ -467,7 +589,7 @@ If backup is enabled, the app may sync data through Google Backup even if it nev
 Step 2. Check for accessibility services that could exfiltrate data:
 
 ```bash
-adb shell settings put secure enabled_accessibility_services
+adb shell settings get secure enabled_accessibility_services
 ```
 
 If unknown accessibility services are enabled, they may capture screen content or UI events.
@@ -488,7 +610,26 @@ adb backup -noapk com.angry.shark.studio.nurturelock -f artifacts/reports/nurtur
 
 If the backup file is non-empty, the app persists data outside the APK.
 
-\[ \] Backup mechanisms checked. \[ \] Covert channel vectors documented.
+Step 5. Test Android Work Profile / Island / Shelter isolation:
+
+```bash
+adb shell pm list users
+```
+
+If a work profile exists, test the app in both personal and work contexts. Network policies may differ.
+
+Step 6. Test airplane mode transition:
+
+```bash
+adb shell cmd connectivity airplane-mode enable
+sleep 30
+adb shell cmd connectivity airplane-mode disable
+sleep 30
+```
+
+Watch for burst traffic when connectivity returns.
+
+\[ \] Backup mechanisms checked. \[ \] Covert channel vectors documented. \[ \] Work Profile tested or noted. \[ \] Airplane mode transition observed.
 
 ---
 
@@ -502,7 +643,7 @@ Step 1. Stop mitmweb and remove the CA from the emulator system store:
 kill "${MITM_PID}" 2>/dev/null || true
 adb root
 adb remount
-HASH=$(openssl x509 -inform PEM -subject_hash_old -in "${MITMPROXY_CERT}" | head -1)
+HASH=$(openssl x509 -inform PEM -subject_hash_old -in "${MITMPROXY_CERT}" | awk 'NR==1 {print $1}')
 adb shell "rm -f /system/etc/security/cacerts/${HASH}.0"
 adb reboot
 ```
@@ -513,14 +654,33 @@ Step 2. Uninstall test apps:
 adb uninstall com.angry.shark.studio.nurturelock || true
 ```
 
-Step 3. Archive artifacts with retention policy:
+Step 3. Delete any repacked APKs with Frida gadget:
 
 ```bash
-tar czf "artifacts-$(date +%Y%m%d-%H%M%S).tar.gz" artifacts/
-echo "Artifacts archived. Retain for 90 days minimum."
+find artifacts/apks -name "*frida*" -delete
+find artifacts/apks -name "*repack*" -delete
 ```
 
-Step 4. Restore emulator from snapshot or delete the AVD:
+Step 4. Securely delete sensitive artifacts containing PII:
+
+```bash
+# Use shred if available (not effective on APFS SSDs, but better than rm)
+for f in artifacts/captures/*.mitm artifacts/captures/*.pcap; do
+    [[ -f "$f" ]] && shred -vfz -n 3 "$f" 2>/dev/null || rm -f "$f"
+done
+```
+
+**APFS note:** `shred` is ineffective on SSDs due to wear-leveling. For high-sensitivity data, encrypt the working directory with FileVault and destroy the key.
+
+Step 5. Archive artifacts with retention policy:
+
+```bash
+tar czf "artifacts-$(date -u +%Y%m%d-%H%M%S).tar.gz" artifacts/
+shasum -a 256 "artifacts-"*.tar.gz > artifacts-archive.sha256
+echo "Artifacts archived. Retain for 90 days maximum. After 90 days, securely delete."
+```
+
+Step 6. Restore emulator from snapshot or delete the AVD:
 
 ```bash
 # Option A: restore clean snapshot
@@ -528,7 +688,141 @@ Step 4. Restore emulator from snapshot or delete the AVD:
 # avdmanager delete avd -n "${AVD_NAME}"
 ```
 
-\[ \] CA removed. \[ \] Apps uninstalled. \[ \] Artifacts archived.
+\[ \] CA removed. \[ \] Apps uninstalled. \[ \] Repacked APKs deleted. \[ \] Sensitive artifacts shredded. \[ \] Artifacts archived.
+
+---
+
+## Part 8 — Audit log and chain of custody
+
+Every run must produce an append-only audit log:
+
+```bash
+cat > artifacts/logs/audit.log <<EOF
+HARNESS_VERSION: ${HARNESS_VERSION}
+TIMESTAMP_START: $(date -u +%Y-%m-%dT%H:%M:%SZ)
+HOSTNAME: $(hostname)
+USER: $(whoami)
+DEVICE_MODEL: $(adb shell getprop ro.product.model 2>/dev/null || echo "unknown")
+ANDROID_VERSION: $(adb shell getprop ro.build.version.release 2>/dev/null || echo "unknown")
+TOOL_VERSIONS:
+  adb: $(adb --version | head -1)
+  mitmproxy: $(mitmweb --version 2>/dev/null || echo "unknown")
+  jadx: $(jadx --version 2>/dev/null || echo "unknown")
+  docker: $(docker --version)
+  objection: $(objection --version 2>/dev/null || echo "unknown")
+EOF
+```
+
+Append every major action to this log. The log is append-only and must be included in the artifact archive.
+
+**Immutability enhancement:** Compute a running hash chain to detect tampering:
+
+```bash
+echo "audit-log-start" > artifacts/logs/audit.chain
+after_action() {
+    local action="$1"
+    local prev_hash=$(tail -1 artifacts/logs/audit.chain)
+    local new_hash=$(echo "${prev_hash}${action}$(date -u +%s)" | shasum -a 256 | awk '{print $1}')
+    echo "${new_hash} ${action}" >> artifacts/logs/audit.chain
+}
+```
+
+---
+
+## Part 9 — Privacy engineering and data governance
+
+**New in v3.0.0.** This part addresses the privacy liability created by the test itself.
+
+Step 1. **Data minimization:** Before starting mitmweb, configure it to capture ONLY the target app's traffic, not all emulator traffic:
+
+```bash
+# Add to mitmweb args: --allow-hosts <app-domain> (if known)
+# OR filter after capture
+```
+
+Step 2. **Purpose limitation:** Document the exact purpose of this test in `artifacts/reports/purpose-statement.md`:
+
+```text
+Purpose: Determine whether [App Name] transmits baby data off-device.
+Data collected: Network traffic metadata and payloads.
+Data NOT collected: Unrelated emulator traffic.
+Retention: 90 days maximum.
+```
+
+Step 3. **Anonymization:** Before sharing artifacts, strip device IDs, IP addresses, and timestamps that could re-identify the test subject:
+
+```bash
+# Pseudonymize: replace real baby name with "[REDACTED]"
+# Strip: adb device serial, host MAC address, public IP
+```
+
+Step 4. **Right to erasure:** If the parent/guardian requests deletion:
+
+```bash
+# Locate all artifacts containing their data
+find artifacts/ -type f -exec grep -l "TestBaby\|2024-01-01" {} \;
+# Securely delete each file (see Part 7 Step 4)
+# Append deletion record to audit log
+```
+
+Step 5. **Cross-border transfer:** If sharing results outside your jurisdiction, verify:
+* EU → US: ensure Standard Contractual Clauses (SCCs) or adequacy decision applies.
+* If uncertain, do not transfer raw captures; share only aggregated, anonymized findings.
+
+Step 6. **Breach notification:** If artifacts are lost or leaked:
+1. Document the breach in `artifacts/reports/breach-incident.md` within 24 hours.
+2. Notify the data subject (parent/guardian) if PII is involved.
+3. Notify your Data Protection Officer or legal team.
+
+\[ \] DPIA completed (if required). \[ \] Consent obtained. \[ \] Purpose documented. \[ \] Anonymization procedure defined.
+
+---
+
+## Part 10 — SRE and reliability engineering
+
+**New in v3.0.0.** This part ensures the harness itself is reliable and observable.
+
+Step 1. **End-to-end health check (canary):** Before testing the target app, run a known-leaky app (e.g., Pebbi) through the full harness to verify detection still works:
+
+```bash
+# Run Subagents 3–6 against Pebbi FIRST
+# If Pebbi produces zero outbound requests, the harness is broken. STOP.
+```
+
+Step 2. **Synthetic monitoring:** If running this harness regularly, schedule a weekly canary test against a reference APK with known trackers.
+
+Step 3. **Circuit breaker for external dependencies:** If Docker Hub is unreachable, skip the exodus scan and continue with dynamic capture only. Do not block the entire test.
+
+Step 4. **Graceful degradation:** If `jadx` is unavailable, skip static decompilation and rely on exodus + dynamic capture. Core test (dynamic) must never be blocked by optional components.
+
+Step 5. **Notification channel:** Configure a notification for test completion or failure:
+
+```bash
+# Example: macOS notification
+osascript -e 'display notification "APK test complete" with title "Privacy Harness"'
+# In CI: webhook to Slack/Teams/PagerDuty
+```
+
+Step 6. **Capacity planning:** If two operators may run tests simultaneously, use non-colliding ports and AVD names:
+
+```bash
+export PROXY_PORT="$((8080 + RANDOM % 1000))"
+export AVD_NAME="apk-test-$(uuidgen | cut -d- -f1)"
+```
+
+Step 7. **Post-mortem template:** If a test produces a false negative, fill in `artifacts/reports/post-mortem.md`:
+
+```text
+Date:
+App:
+Expected result:
+Actual result:
+Root cause:
+Mitigation:
+Prevented recurrence:
+```
+
+\[ \] Canary test passed. \[ \] Circuit breaker configured. \[ \] Notification enabled.
 
 ---
 
@@ -540,7 +834,7 @@ Step 4. Restore emulator from snapshot or delete the AVD:
 emulator -avd "${AVD_NAME}" -writable-system
 adb root
 adb remount
-HASH=$(openssl x509 -inform PEM -subject_hash_old -in "${MITMPROXY_CERT}" | head -1)
+HASH=$(openssl x509 -inform PEM -subject_hash_old -in "${MITMPROXY_CERT}" | awk 'NR==1 {print $1}')
 cp "${MITMPROXY_CERT}" "${HASH}.0"
 adb push "${HASH}.0" "/system/etc/security/cacerts/${HASH}.0"
 adb shell chmod 644 "/system/etc/security/cacerts/${HASH}.0"
@@ -574,6 +868,7 @@ adb shell "ls /system/etc/security/cacerts/${HASH}.0" && echo "Cert already inst
 * Check `artifacts/logs/mitmproxy-cert-fingerprint.log` matches the installed cert.
 * The app may use pinning. Go to Part 4, Step 8.
 * **Covert channel fallback:** Run `tcpdump` or Wireshark on the host to catch non-HTTP traffic.
+* **ECH fallback:** If TLS 1.3 ECH is suspected, note that the true destination SNI may be hidden.
 
 ### exodus-standalone will not run
 
@@ -581,6 +876,7 @@ adb shell "ls /system/etc/security/cacerts/${HASH}.0" && echo "Cert already inst
 * Check you added `--platform linux/amd64` (required on Apple Silicon).
 * Check the file path after `/app/` is correct.
 * Check the image digest matches `${EXODUS_IMAGE}`.
+* **Circuit breaker:** If Docker Hub is unreachable, skip exodus and continue with dynamic capture.
 
 ### adb does not see the device
 
@@ -588,6 +884,7 @@ adb shell "ls /system/etc/security/cacerts/${HASH}.0" && echo "Cert already inst
 * For the emulator, make sure it finished booting (`adb shell getprop sys.boot_completed`).
 * Run `adb devices` to check it shows up.
 * If the emulator crashed, check host RAM usage.
+* **Rate limit:** Do not send more than 5 `adb` commands per second.
 
 ### Malware discovered in APK
 
@@ -596,6 +893,15 @@ adb shell "ls /system/etc/security/cacerts/${HASH}.0" && echo "Cert already inst
 2. Compute hash and upload to VirusTotal.
 3. Document findings in `artifacts/reports/malware-incident.md`.
 4. Notify the operator and await instructions.
+
+### Host suspension (laptop sleep) during test
+
+**STOP.** If the Mac sleeps during the test:
+1. Note the suspension time in the audit log.
+2. Verify emulator state: `adb devices`
+3. If emulator is offline, restart from Part 0 Step 8.
+4. If mitmweb is dead, restart from Part 2 Step 2.
+5. Do not trust partial results. Re-run the affected subagent from the last done-check.
 
 ---
 
@@ -606,6 +912,8 @@ adb shell "ls /system/etc/security/cacerts/${HASH}.0" && echo "Cert already inst
 * Dynamic capture shows what the app actually sent. This is the strong proof.
 * The three named apps have not been tested by anyone yet. Your test would be new evidence.
 * **Regression baseline:** Save `artifacts/` from this run. Future runs should compare against this baseline to detect new trackers or destinations.
+* **Differential testing:** If testing a new app version, compare results to the previous version baseline. Any new destination or tracker is a regression.
+* **Golden master:** The first successful run against Pebbi (positive control) becomes the golden master. If future runs against Pebbi show zero traffic, the harness is broken.
 
 ---
 
@@ -621,26 +929,7 @@ adb shell "ls /system/etc/security/cacerts/${HASH}.0" && echo "Cert already inst
 
 ## Audit log and chain of custody
 
-Every run must produce an audit log:
-
-```bash
-cat > artifacts/logs/audit.log <<EOF
-HARNESS_VERSION: ${HARNESS_VERSION}
-TIMESTAMP_START: $(date -u +%Y-%m-%dT%H:%M:%SZ)
-HOSTNAME: $(hostname)
-USER: $(whoami)
-DEVICE_MODEL: $(adb shell getprop ro.product.model 2>/dev/null || echo "unknown")
-ANDROID_VERSION: $(adb shell getprop ro.build.version.release 2>/dev/null || echo "unknown")
-TOOL_VERSIONS:
-  adb: $(adb --version | head -1)
-  mitmproxy: $(mitmweb --version 2>/dev/null || echo "unknown")
-  jadx: $(jadx --version 2>/dev/null || echo "unknown")
-  docker: $(docker --version)
-  objection: $(objection --version 2>/dev/null || echo "unknown")
-EOF
-```
-
-Append every major action to this log. The log is append-only and must be included in the artifact archive.
+Every run must produce an audit log. See Part 8 for the template and hash chain.
 
 ---
 
@@ -651,129 +940,156 @@ This section is for an IDE LLM agent. Run it autonomously. Spawn one subagent pe
 **Agent execution state machine (formal DAG):**
 
 ```
-[setup] ──► [resolve-packages] ──► [acquire-nurturelock]
-                                      │
-                                      ▼
-                              [acquire-nubo] ──► [acquire-pebbi]
-                                      │
-                                      ▼
-                              [offline-probe-all] ──► [static-all]
-                                      │
-                                      ▼
-                              [dynamic-all] ──► [report]
+[setup] ──► [canary-test] ──► [resolve-packages] ──► [acquire-nurturelock]
+                                                          │
+                                                          ▼
+                                                  [acquire-nubo] ──► [acquire-pebbi]
+                                                          │
+                                                          ▼
+                                                  [offline-probe-all] ──► [static-all]
+                                                          │
+                                                          ▼
+                                                  [dynamic-all] ──► [report]
 ```
 
 **Concurrency rules:**
 * `[acquire-*]` tasks may run in parallel IF each uses a separate emulator instance or snapshot.
 * `[offline-probe-all]`, `[static-all]`, `[dynamic-all]` must run serially per app.
 * `[mitmweb]` is a singleton resource (port 8080). Only one subagent may use it at a time.
+* `[canary-test]` must run before any real test to verify harness health.
 
-**Global state schema (shared scratchpad — JSON, append-only):**
+**Global state schema (shared scratchpad — JSON, append-only, with optimistic locking):**
 
 ```json
 {
-  "version": "2.0.0-loop1-hardened",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "version": "3.0.0-loop2-deep-hardened",
   "packages": {
     "nurturelock": "com.angry.shark.studio.nurturelock",
     "nubo": "",
     "pebbi": ""
   },
   "apk_files": [
-    {"path": "", "sha256": "", "timestamp": "", "source": "device|mirror"}
+    {"path": "", "sha256": "", "timestamp": "", "source": "device|mirror", "size_bytes": 0}
   ],
   "static_findings": {
     "nurturelock": {"trackers": [], "permissions": [], "report_path": ""}
   },
   "dynamic_findings": {
-    "nurturelock": {"destinations": [], "payloads": [], "flow_path": ""}
+    "nurturelock": {"destinations": [], "payloads": [], "flow_path": "", "covert_channels": []}
   },
   "verdicts": {
-    "nurturelock": {"verdict": "pass|fail|untested", "evidence": ""}
+    "nurturelock": {"verdict": "pass|fail|untested", "evidence": "", "confidence": 0}
   },
-  "audit_log": "artifacts/logs/audit.log"
+  "audit_log": "artifacts/logs/audit.log",
+  "hash_chain": "artifacts/logs/audit.chain",
+  "state_version": 1
 }
 ```
 
-**HUMAN-GATE conditions (max wait: 10 minutes, then escalate):**
+**Optimistic locking:** Before writing, read `state_version`. Increment by 1. Write only if the version matches. If conflict, re-read and retry (max 3 times).
+
+**HUMAN-GATE conditions (max wait: 10 minutes active processing time; sleep pauses countdown):**
 * Unknown package names after Play Store fetch fails twice.
 * Pinning cannot be broken after `${MAX_RETRIES}` attempts.
 * Any step fails twice with the same error.
 * Malware suspected in APK.
 * Performance budget `${PERF_BUDGET_MINUTES}` exceeded.
+* Canary test (Pebbi) shows zero outbound requests.
+
+**Subagent consensus for critical verdicts:**
+For `verdict = fail` (accusing an app of privacy violation), require consensus from 2 independent subagents. If they disagree, escalate to HUMAN-GATE.
 
 ---
 
 ### Subagent 1 — setup
 
 * Goal: make the Mac ready.
-* Commands: install Homebrew casks and tools from Part 0 with pinned versions; run smoke tests; start Docker; create or boot an arm64 emulator (API 28); verify disk space; create working directory and artifact structure; start audit log.
-* Done-check: `adb devices` lists one device; `docker info` returns ok; `mitmweb` starts and binds port 8080; all tools smoke-tested; disk >= 10 GB; audit log initialized.
+* Commands: install Homebrew casks and tools from Part 0 with pinned versions; run smoke tests; start Docker; create or boot an arm64 emulator (API 28); verify disk space; create working directory and artifact structure; start audit log; install trap handlers.
+* Done-check: `adb devices` lists one device; `docker info` returns ok; `mitmweb` starts and binds port 8080; all tools smoke-tested; disk >= 10 GB; audit log initialized; AVB checked.
 * On fail: read "If something breaks" for the adb and exodus rows; retry once with `${RETRY_BACKOFF_SEC}`-second backoff; if still failing, emit a HUMAN-GATE with the exact error and audit log excerpt.
 
 ---
 
-### Subagent 2 — resolve-packages
+### Subagent 2 — canary-test
+
+* Goal: verify the harness can still detect leaks.
+* Commands: acquire Pebbi; run offline-probe and dynamic capture; verify at least one outbound request is detected.
+* Done-check: Pebbi produces non-empty `dynamic_findings.destinations`.
+* On fail: HUMAN-GATE — "Canary test failed. Harness may be broken. Do not proceed with real tests."
+
+---
+
+### Subagent 3 — resolve-packages
 
 * Goal: fill in the unknown package names for Nubo and Pebbi.
 * Commands: fetch each app's live Google Play listing; extract the `id=` value from the URL.
 * **Hallucination guard:** Do not invent package names. If the fetch returns no `id=`, record `null` and stop. Verify the fetched URL domain is `play.google.com`.
 * **Validation:** Package name must match regex `^[a-z][a-z0-9_]*(\.[a-z][a-z0-9_]*)+$`.
+* **Temperature:** Use `${MODEL_TEMPERATURE}=0.0` for deterministic regex matching and hash computation.
 * Done-check: `packages` map has three non-empty, validated package names.
 * On fail: HUMAN-GATE asking the operator to paste the two Play Store URLs.
 
 ---
 
-### Subagent 3 — acquire (run once per package)
+### Subagent 4 — acquire (run once per package)
 
 * Goal: get clean APK files with provenance.
-* Commands: `adb shell pm path <package>`; validate at least one path returned; `adb pull` each path; compute SHA-256; timestamp; record device model, Android version, app version, date.
+* Commands: `adb shell pm path <package>`; validate at least one path returned; `adb pull` each path with atomic size verification; compute SHA-256; timestamp; record device model, Android version, app version, date.
 * **Partial failure handling:** If one package fails, others continue. Failed packages get `verdict: untested`.
 * **Boundary tests:** 0 paths → fail; >5 paths → flag for review.
+* **Rate limit:** Max 5 `adb` commands per second.
+* **Deduplication:** Skip if file already exists with matching hash.
 * Done-check: at least one APK per package on disk; every file has a recorded hash, device model, Android version, app version, and date; hashes are in `artifacts/apks/hashes.log`.
 * On fail: if a mirror file is used instead, tag it `INFERRED` and require a later hash match before any verified claim.
 
 ---
 
-### Subagent 4 — offline-probe (the decisive test, run first per package)
+### Subagent 5 — offline-probe (the decisive test, run first per package)
 
 * Goal: answer "does any data leave the phone" quickly.
-* Preconditions: mitmweb running; emulator proxy set to `${PROXY_HOST}:${PROXY_PORT}`; mitmproxy certificate trusted and verified.
+* Preconditions: mitmweb running; emulator proxy set to `${PROXY_HOST}:${PROXY_PORT}`; mitmproxy certificate trusted and verified; canary test passed.
 * Commands: launch app; script the standard interactions (create profile, log feed, log sleep, log diaper); wait 60 seconds for background traffic; export mitmproxy flow list.
 * **UI action guard:** If UI automation fails (element not found), record the exact error and stop. Do not guess locators.
+* **Adversarial inputs:** Test with Unicode names, future DOB, and empty fields.
 * **Oracle definition:** Outbound request = any TCP/UDP packet with destination NOT in (127.0.0.1/8, ::1, 224.0.0.0/4, NTP port 123).
+* **Doze test:** Force idle and observe maintenance window traffic.
 * Done-check: a flow list exists (it may be empty). Record request count and whether any outbound request occurred. Flows exported to JSON.
 * Decision rule: for a package that claims offline, any outbound request sets `verdict = fail` with the destination as evidence. Zero requests sets `verdict = provisional pass`, continue.
-* On fail to capture: if flows are empty but the app looks networked, mark "pinning suspected" and hand off to Subagent 6.
+* On fail to capture: if flows are empty but the app looks networked, mark "pinning suspected" and hand off to Subagent 7.
 
 ---
 
-### Subagent 5 — static
+### Subagent 6 — static
 
 * Goal: list trackers and permissions without running the app.
 * Commands: `docker run --platform linux/amd64` exodus-standalone with pinned digest, `-j -o report.json` per APK; `jadx` decompile; grep for URLs and SDK names with improved pattern.
+* **Circuit breaker:** If Docker Hub is unreachable, skip exodus and continue with jadx only.
 * Done-check: a JSON report and a grep hit list saved per package; report includes APK checksum.
 * Note: record explicitly that no public exodus report exists for the nurturelock package, so this local report is the first one.
 * On fail: check the platform flag and Docker; retry once; else HUMAN-GATE.
 
 ---
 
-### Subagent 6 — dynamic (deep capture, and pinning bypass if needed)
+### Subagent 7 — dynamic (deep capture, and pinning bypass if needed)
 
 * Goal: record every real destination and payload.
 * Commands: repeat the standard interactions under mitmweb; if pinning suspected, run `objection -g <package> explore` then `android sslpinning disable`, and retry.
 * **Gotcha handling:** if objection errors on Frida version, install the dev build; for split APKs place the Frida gadget in the arm64_v8a split before repack.
 * **Max retry bound:** If pinning bypass fails after `${MAX_RETRIES}` attempts, record "could not decrypt" and stop.
-* **Covert channel check:** Run `tcpdump` on host to catch non-HTTP traffic if mitmproxy shows nothing.
+* **Covert channel check:** Run `tcpdump` on host to catch non-HTTP traffic if mitmproxy shows nothing. Check BLE, NFC, ultrasound.
+* **Memory forensics:** If zero traffic after all checks, note "possible in-memory encryption or custom protocol."
 * Done-check: `dynamic_findings` has a destination list per package; each destination tagged `tracker` or `not`; payload noted; covert channel check performed or documented as skipped.
 * On fail: if pinning cannot be broken, record "could not decrypt" and do not guess; set the package's network claim to `untested`.
 
 ---
 
-### Subagent 7 — report
+### Subagent 8 — report
 
 * Goal: produce the final result table and verdicts.
-* Commands: merge static and dynamic findings; fill the Part 5 table; apply the pass/fail rule; where static and dynamic disagree, trust dynamic and note it; append final state to audit log; archive artifacts.
-* Done-check: every app has a filled row and a pass or fail (or untested) with one evidence line; audit log closed; artifacts archived.
+* Commands: merge static and dynamic findings; fill the Part 5 table; apply the pass/fail rule; where static and dynamic disagree, trust dynamic and note it; append final state to audit log; archive artifacts; compute archive SHA-256.
+* **Consensus rule:** For `verdict = fail`, require 2 independent subagents to agree. If disagreement, escalate to HUMAN-GATE.
+* Done-check: every app has a filled row and a pass or fail (or untested) with one evidence line; audit log closed; artifacts archived; archive hash computed.
 * Output: `artifacts/reports/findings.md` plus the raw mitmproxy flows and exodus JSON as attachments.
 
 ---
@@ -784,7 +1100,14 @@ This section is for an IDE LLM agent. Run it autonomously. Spawn one subagent pe
 * **Rule 2 (mirror trust):** Never tag a claim verified from a mirror APK unless its hash matches a device-pulled file.
 * **Rule 3 (version preference):** Prefer the API 28 image to avoid the Android 16 certificate problem unless the human asks for a newer version.
 * **Rule 4 (context budget):** Keep each subagent's context under 4,000 tokens. Pass only the package name, file paths, and prior done-check results in JSON, not the whole document.
-* **Rule 5 (HUMAN-GATE):** Emit a HUMAN-GATE for: unknown package names, unresolved pinning, any step that fails twice, malware suspected, or performance budget exceeded. Max wait: 10 minutes.
+* **Rule 5 (HUMAN-GATE):** Emit a HUMAN-GATE for: unknown package names, unresolved pinning, any step that fails twice, malware suspected, performance budget exceeded, or canary test failure. Max wait: 10 minutes active processing time.
 * **Rule 6 (sandbox):** Subagents must not modify files outside `${WORK_DIR}` or execute destructive host commands (`rm -rf /`, `dd`, `mkfs`). All shell commands are logged to audit log.
-* **Rule 7 (grounding):** Before acting, subagent must re-read the relevant section of this document. Do not rely on prompt fragments.
+* **Rule 7 (grounding):** Before acting, subagent must re-read the relevant section of this document. Do not rely on prompt fragments. (Enforced by requiring subagent to quote the section header in its output.)
 * **Rule 8 (max iterations):** No subagent may retry the same step more than `${MAX_RETRIES}` times. After that, escalate.
+* **Rule 9 (consensus):** For `verdict = fail` (privacy violation accusation), require 2 independent subagent opinions. Disagreement = HUMAN-GATE.
+* **Rule 10 (data governance):** Subagents must not exfiltrate captured traffic, baby profile data, or device identifiers to external APIs. All processing stays local.
+* **Rule 11 (temperature):** Use `${MODEL_TEMPERATURE}=0.0` for all deterministic tasks (hash computation, regex matching, JSON parsing, package name validation).
+* **Rule 12 (prompt injection scan):** Before executing any shell command containing user-derived input (app name, package name), validate against regex `^[a-zA-Z0-9._-]+$`. Reject metacharacters.
+* **Rule 13 (provenance):** When labeling an address as "known tracker," cite the database source. Do not rely on internal knowledge.
+* **Rule 14 (log redaction):** Before appending to audit log, redact baby names, device serials, and public IPs. Replace with `[REDACTED]`.
+* **Rule 15 (Byzantine fault tolerance):** If a subagent's done-check contradicts the artifact on disk (e.g., claims file exists but `test -f` fails), trust the filesystem and flag the subagent for review.
