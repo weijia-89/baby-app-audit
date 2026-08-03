@@ -1,84 +1,46 @@
 # Baby App Audit
 
-[![Test Harness](https://img.shields.io/badge/harness-v3.0.0--loop3-blue)](APK_PRIVACY_TEST_HARNESS.md)
-[![Apps](https://img.shields.io/badge/apps-4%20tested-purple)](#apps-tested)
-[![License](https://img.shields.io/badge/license-GPL--3.0-blue)](LICENSE)
-
-A hardened, reproducible test harness for auditing baby tracking apps on Android.
+GPL-3.0
 
 ---
+
+## What This Is
+
+This repository contains tools to test baby tracking apps for privacy leaks. We test four apps. We answer one question for each app: does data leave the phone?
 
 ## What We Test
 
-We answer one question for each app: **Does data leave the phone?**
-
-| App | Package | Type | Claim | Status |
-| --- | --- | --- | --- | --- |
-| [Nurture Lock](https://play.google.com/store/apps/details?id=com.angry.shark.studio.nurturelock) | `com.angry.shark.studio.nurturelock` | Native Android | "100% offline" | [Results](results/TEMPLATE.md) |
-| Nubo | TBD | Native Android | "Local-first" | [Results](results/TEMPLATE.md) |
-| Pebbi | TBD | Native Android | Known to share data | [Results](results/TEMPLATE.md) |
-| [Baby Buddy](https://github.com/babybuddy/babybuddy) | `com.babybuddy.android` or web | FOSS / Web | Open-source | [Results](results/TEMPLATE.md) |
-
----
+| App | Type | Claim |
+| --- | --- | --- |
+| Nurture Lock | Native Android | "100% offline" |
+| Nubo | Native Android | "Local-first" |
+| Pebbi | Native Android | No claim (positive control) |
+| Baby Buddy | FOSS / Web | Open-source |
 
 ## How It Works
 
-The harness runs on macOS Apple Silicon with an Android emulator. It captures all network traffic, scans for trackers, and audits source code.
+The test harness runs on macOS with Apple Silicon. It uses an Android emulator to run the apps. It captures all network traffic with mitmproxy. It scans APK files with exodus-standalone. It decompiles code with jadx. It bypasses certificate pinning with objection.
 
-### Test Parts
+For Baby Buddy, we also audit the source code directly.
 
-1. **Setup** — Install tools, start emulator, configure proxy.
-2. **Acquisition** — Pull APK from device with hash verification.
-3. **Offline Test** — Use the app. Watch for outbound requests.
-4. **Static Scan** — Analyze APK for trackers and permissions.
-5. **Dynamic Capture** — Record real traffic and payloads.
-5.5. **FOSS Audit** — For Baby Buddy: browser test + source code audit.
-6. **Covert Channels** — Check BLE, NFC, ultrasound, DNS tunneling.
-7. **Cleanup** — Remove CA, uninstall apps, shred artifacts.
-8. **Audit Log** — Append-only log with hash chain.
-9. **Privacy** — GDPR-aligned data governance.
-10. **SRE** — Canary tests, circuit breakers, SLOs.
+## Test Steps
 
-[Read the full harness](APK_PRIVACY_TEST_HARNESS.md)
+1. Install the app on the emulator.
+2. Pull the APK file from the device.
+3. Compute a SHA-256 hash of the APK.
+4. Run the app and use it normally.
+5. Watch mitmproxy for outbound requests.
+6. Run a static scan for trackers and permissions.
+7. Capture dynamic traffic.
+8. Check for covert channels (BLE, NFC, ultrasound, DNS tunneling).
 
----
+## Results
 
-## Repository Structure
-
-```
-baby-app-audit/
-├── APK_PRIVACY_TEST_HARNESS.md          # v3.0.0 — The hardened test harness
-├── ORIGINAL.md                          # v1.0.0 — The original document
-├── ARTICLE.md                           # Article template for publication
-├── README.md                            # This file
-├── LICENSE                              # GPL-3.0
-│
-├── .github/
-│   └── workflows/
-│       ├── test.yml                     # CI workflow for test validation
-│       └── canary.yml                   # Weekly canary test schedule
-│
-├── results/
-│   ├── schema.json                      # Machine-readable results schema
-│   ├── TEMPLATE.md                      # Results template
-│   └── RESULTS-*.md                     # Actual test results
-│
-└── scripts/
-    └── run-tests.sh                     # Test execution script
-```
-
----
+Results are in the `results/` directory. Each app gets a JSON file with findings.
 
 ## Quick Start
 
-### Prerequisites
-
-- macOS with Apple Silicon (M1/M2/M3)
-- 4 CPU cores, 8 GB RAM, 20 GB free disk
-- Homebrew
-- Docker Desktop
-
-### Install Tools
+Install the tools:
 
 ```bash
 brew install --cask android-platform-tools
@@ -87,45 +49,24 @@ brew install --cask docker@4.30.0
 pipx install objection==1.11.0
 ```
 
-### Run the Test
+Run the test:
 
 ```bash
-# 1. Read the harness
-open APK_PRIVACY_TEST_HARNESS.md
-
-# 2. Set up environment variables
-export WORK_DIR="${HOME}/apk-privacy-test-$(date +%Y%m%d-%H%M%S)"
-export PROXY_HOST="10.0.2.2"
-export PROXY_PORT="8080"
-
-# 3. Follow the steps in the document
+bash scripts/run-tests.sh
 ```
 
----
+Read the full harness for manual steps:
 
-## CI / Automated Testing
+```bash
+open APK_PRIVACY_TEST_HARNESS.md
+```
 
-This repository includes GitHub Actions workflows:
+## Requirements
 
-- **`test.yml`** — Validates harness structure on every push and PR.
-- **`canary.yml`** — Runs weekly canary tests to verify harness health.
-
-[View workflows](.github/workflows/)
-
----
-
-## Results
-
-Test results are stored in the `results/` directory using a JSON schema for machine readability.
-
-| App | Verdict | Evidence |
-| --- | --- | --- |
-| Nurture Lock | TBD | [Template](results/TEMPLATE.md) |
-| Nubo | TBD | [Template](results/TEMPLATE.md) |
-| Pebbi | TBD | [Template](results/TEMPLATE.md) |
-| Baby Buddy | TBD | [Template](results/TEMPLATE.md) |
-
----
+- macOS with Apple Silicon
+- 4 CPU cores
+- 8 GB RAM
+- 20 GB free disk space
 
 ## License
 
