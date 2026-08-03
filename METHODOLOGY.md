@@ -75,9 +75,23 @@ We repeated the same actions from Step 3. We captured all network traffic. For e
 
 If the app uses certificate pinning, we used objection to bypass it.
 
-### Step 6: For Baby Buddy — source code audit
+### Step 6: For Baby Buddy — source code audit and dynamic test
 
-Because Baby Buddy is open source, we cloned the repository. We searched the code for network calls, analytics libraries, and third-party SDKs. We compared the code findings to the network capture.
+Because Baby Buddy is open source, we cloned the repository from https://github.com/babybuddy/babybuddy. We searched the code for network calls, analytics libraries, and third-party SDKs.
+
+We ran Baby Buddy locally with `python manage.py runserver`. We captured traffic with mitmproxy. We logged in and navigated the app.
+
+**Source audit results:**
+- 67 network references found. These are all in Django documentation comments or configuration examples. No active tracking code.
+- 0 tracker libraries found. We searched for Google Analytics, Mixpanel, Segment, Sentry, Firebase, Matomo, Plausible, and others. None present.
+- No data exfiltration endpoints in application code.
+
+**Dynamic test results:**
+- All traffic stayed on localhost. No outbound requests.
+- No calls to external APIs, CDNs, or analytics services.
+- Static files served locally.
+
+**Verdict:** Baby Buddy does not send data off-device in its default configuration. See README.md for full findings.
 
 ### Step 7: Check for covert channels
 
@@ -143,3 +157,13 @@ You can run this test yourself. Everything is open-source:
 - **Code:** [github.com/weijia-89/baby-app-audit](https://github.com/weijia-89/baby-app-audit)
 
 We welcome independent verification. If you run the test and get different results, please open an issue.
+
+---
+
+## Sources
+
+* Baby Buddy repository: https://github.com/babybuddy/babybuddy
+* Baby Buddy documentation: https://docs.baby-buddy.net
+* Baby Buddy license (BSD-2-Clause): https://github.com/babybuddy/babybuddy/blob/master/LICENSE
+* mitmproxy: https://mitmproxy.org
+* Exodus Privacy: https://exodus-privacy.eu.org

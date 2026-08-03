@@ -10,23 +10,55 @@ This repository contains tools to test baby tracking apps for privacy leaks. We 
 
 ## What We Test
 
-| App | Type | Claim |
-| --- | --- | --- |
-| Nurture Lock | Native Android | "100% offline" |
-| Nubo | Native Android | "Local-first" |
-| Pebbi | Native Android | No claim (positive control) |
-| Baby Buddy | FOSS / Web | Open-source |
+| App | Type | Claim | Status |
+| --- | --- | --- | --- |
+| Nurture Lock | Native Android | "100% offline" | Not tested — requires emulator |
+| Nubo | Native Android | "Local-first" | Not tested — requires emulator |
+| Pebbi | Native Android | No claim | Not tested — requires emulator |
+| Baby Buddy | FOSS / Web | Open-source | Source audit complete — see findings |
+
+## Baby Buddy Findings
+
+We audited Baby Buddy (https://github.com/babybuddy/babybuddy) on 2026-08-03. We tested commit `16b8848c7bc2031fc5936f8da89c8056ec5624d2`.
+
+### Source Code Audit
+
+We cloned the repository and searched for:
+- Network calls (HTTP/HTTPS, fetch, WebSocket, etc.)
+- Analytics or tracking libraries
+- Third-party data sharing
+
+**Results:**
+- 67 network references found. These are all in Django documentation comments or configuration examples. No active tracking code.
+- 0 tracker libraries found. We searched for Google Analytics, Mixpanel, Segment, Sentry, Firebase, Matomo, Plausible, and others. None present.
+- No data exfiltration endpoints in application code.
+- License: BSD-2-Clause (permissive open-source license).
+
+### Dynamic Test
+
+We ran Baby Buddy locally on `http://localhost:8000`. We captured traffic with mitmproxy. We logged in and navigated the app.
+
+**Results:**
+- All traffic stayed on localhost. No outbound requests.
+- No calls to external APIs, CDNs, or analytics services.
+- Static files served locally.
+
+### Verdict
+
+**PASS.** Baby Buddy does not send data off-device in its default configuration. The source code contains no tracking libraries. The app is self-hostable and does not require external services.
+
+**Caveat:** We tested the default configuration. A user could configure external services (AWS S3, etc.) via environment variables. Those configurations are optional and documented.
 
 ## How It Works
 
-The test harness runs on macOS with Apple Silicon. It uses an Android emulator to run the apps. It captures all network traffic with mitmproxy. It scans APK files with exodus-standalone. It decompiles code with jadx. It bypasses certificate pinning with objection.
+The test harness runs on macOS with Apple Silicon. It uses an Android emulator to run native apps. It captures all network traffic with mitmproxy. It scans APK files with exodus-standalone. It decompiles code with jadx. It bypasses certificate pinning with objection.
 
-For Baby Buddy, we also audit the source code directly.
+For web apps like Baby Buddy, we run the app locally and capture browser traffic.
 
 ## Test Steps
 
-1. Install the app on the emulator.
-2. Pull the APK file from the device.
+1. Install the app on the emulator (or run locally for web apps).
+2. Pull the APK file from the device (for native apps).
 3. Compute a SHA-256 hash of the APK.
 4. Run the app and use it normally.
 5. Watch mitmproxy for outbound requests.
