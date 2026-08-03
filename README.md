@@ -132,9 +132,3 @@ Test results are stored in the `results/` directory using a JSON schema for mach
 This project is licensed under the GNU General Public License v3.0.
 
 See [LICENSE](LICENSE) for the full license text.
-
----
-
-## Acknowledgments
-
-This test harness was hardened through adversarial review across seven expert perspectives.
