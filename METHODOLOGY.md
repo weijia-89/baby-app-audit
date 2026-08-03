@@ -25,7 +25,7 @@ We tested four baby tracking apps.
 
 Nurture Lock was the primary target. It says data never leaves the phone.
 
-Pebbi was the positive control. It is known to share data. If our test cannot detect Pebbi's traffic, the test is broken.
+Pebbi was included as a positive control. We will use it to validate that our test can detect outbound traffic. If Pebbi shows zero traffic, our test method may be broken.
 
 Baby Buddy is different because its source code is public.
 
@@ -106,7 +106,7 @@ We answered five questions for each app:
 
 ### Canary test
 
-Before testing the target app, we ran Pebbi (the known-leaky app) through the full test. If Pebbi shows zero traffic, the test is broken. We stop and fix the problem.
+Before testing the target app, we will run Pebbi through the full test. Pebbi is included as a positive control. If our test shows zero traffic for Pebbi, we will investigate whether our test method is working correctly.
 
 ### Smoke tests
 
