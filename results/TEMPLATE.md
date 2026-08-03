@@ -2,8 +2,8 @@
 
 **Test Run ID:** `RUN_ID`  
 **Date:** YYYY-MM-DD  
-**Harness Version:** 3.0.0-loop3  
-**Operator:** NAME  
+**Harness Version:** 3.1.0  
+**Tested by:** NAME  
 **Device:** MODEL  
 **Android Version:** API_LEVEL  
 

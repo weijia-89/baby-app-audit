@@ -1,0 +1,21 @@
+# Never commit binaries or third-party decompiled code
+apks/
+decompiled/
+
+# Network captures may contain live tokens (Firebase JWTs, installation IDs).
+# They are evidence but must stay local unless explicitly scrubbed.
+results/mitm-capture/
+results/*-test-*/
+*.mitm
+*.pid
+
+# Runtime logs (noise, may contain device identifiers)
+results/execution-logs/
+results/baby-buddy-dynamic/
+results/baby-buddy-test-20260803/
+
+# Local review artifacts (trainer loop)
+localonly/
+
+# OS cruft
+.DS_Store

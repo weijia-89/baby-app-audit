@@ -1,129 +1,235 @@
 # Baby App Audit
 
-[![Test Harness](https://img.shields.io/badge/harness-v3.0.0--loop3-blue)](APK_PRIVACY_TEST_HARNESS.md)
-[![Apps](https://img.shields.io/badge/apps-4%20tested-purple)](#apps-tested)
-[![License](https://img.shields.io/badge/license-GPL--3.0-blue)](LICENSE)
+[![License](https://img.shields.io/badge/license-GPL--3.0-blue.svg)](LICENSE)
 
-A hardened, reproducible test harness for auditing baby tracking apps on Android.
+Test baby tracking apps for privacy leaks. This tool checks if data leaves your phone.
 
 ---
 
-## What We Test
+## What This Is
 
-We answer one question for each app: **Does data leave the phone?**
+I test baby tracking apps for privacy leaks. I test four apps. I answer one question for each app: does data leave the phone?
 
-| App | Package | Type | Claim | Status |
-| --- | --- | --- | --- | --- |
-| [Nurture Lock](https://play.google.com/store/apps/details?id=com.angry.shark.studio.nurturelock) | `com.angry.shark.studio.nurturelock` | Native Android | "100% offline" | [Results](results/TEMPLATE.md) |
-| Nubo | TBD | Native Android | "Local-first" | [Results](results/TEMPLATE.md) |
-| Pebbi | TBD | Native Android | Known to share data | [Results](results/TEMPLATE.md) |
-| [Baby Buddy](https://github.com/babybuddy/babybuddy) | `com.babybuddy.android` or web | FOSS / Web | Open-source | [Results](results/TEMPLATE.md) |
+Parents use baby tracking apps to record feeding, sleep, and diaper changes. These apps hold sensitive data about babies. Some apps claim that data never leaves the phone. I wanted to know if that claim is true.
 
----
+If an app says "100% offline" but sends data to a server, the claim is false. One outbound packet is enough to prove it false.
+
+## What I Test
+
+| App | Type | Claim |
+| --- | --- | --- |
+| Nurture Lock | Native Android | "100% offline" |
+| Nubo | Native Android | "Local-first" |
+| Pebbi | Native Android | No claim (positive control) |
+| Baby Buddy | FOSS / Web | Open-source |
 
 ## How It Works
 
-The harness runs on macOS Apple Silicon with an Android emulator. It captures all network traffic, scans for trackers, and audits source code.
+The test harness runs on macOS with Apple Silicon. It uses an Android emulator to run native apps. It captures all network traffic with mitmproxy. It decompiles code with jadx. exodus-standalone is documented in the harness but was not run on this platform (Docker image is linux/amd64 only). Objection was not needed because the system certificate was installed directly.
 
-### Test Parts
+For web apps like Baby Buddy, I run the app locally and capture browser traffic.
 
-1. **Setup** — Install tools, start emulator, configure proxy.
-2. **Acquisition** — Pull APK from device with hash verification.
-3. **Offline Test** — Use the app. Watch for outbound requests.
-4. **Static Scan** — Analyze APK for trackers and permissions.
-5. **Dynamic Capture** — Record real traffic and payloads.
-5.5. **FOSS Audit** — For Baby Buddy: browser test + source code audit.
-6. **Covert Channels** — Check BLE, NFC, ultrasound, DNS tunneling.
-7. **Cleanup** — Remove CA, uninstall apps, shred artifacts.
-8. **Audit Log** — Append-only log with hash chain.
-9. **Privacy** — GDPR-aligned data governance.
-10. **SRE** — Canary tests, circuit breakers, SLOs.
+**Tested tool versions (2026-08-03):** mitmproxy 12.2.3, jadx 1.5.6, objection 1.12.5, adb 37.0.1, apkeep 1.0.0.
 
-[Read the full harness](APK_PRIVACY_TEST_HARNESS.md)
+## Test Steps
 
----
-
-## Repository Structure
-
-```
-baby-app-audit/
-├── APK_PRIVACY_TEST_HARNESS.md          # v3.0.0 — The hardened test harness
-├── ORIGINAL.md                          # v1.0.0 — The original document
-├── ARTICLE.md                           # Article template for publication
-├── README.md                            # This file
-├── LICENSE                              # GPL-3.0
-│
-├── .github/
-│   └── workflows/
-│       ├── test.yml                     # CI workflow for test validation
-│       └── canary.yml                   # Weekly canary test schedule
-│
-├── results/
-│   ├── schema.json                      # Machine-readable results schema
-│   ├── TEMPLATE.md                      # Results template
-│   └── RESULTS-*.md                     # Actual test results
-│
-└── scripts/
-    └── run-tests.sh                     # Test execution script
-```
-
----
+1. Install the app on the emulator (or run locally for web apps).
+2. Pull the APK file from the device (for native apps).
+3. Compute a SHA-256 hash of the APK.
+4. Run the app and use it normally.
+5. Watch mitmproxy for outbound requests.
+6. Run a static scan for trackers and permissions.
+7. Capture dynamic traffic.
+8. Check for covert channels (BLE, NFC, ultrasound, DNS tunneling). Radio checks (BLE, NFC, ultrasound) require physical hardware and were not performed in the 2026-08-03 run.
 
 ## Quick Start
 
-### Prerequisites
-
-- macOS with Apple Silicon (M1/M2/M3)
-- 4 CPU cores, 8 GB RAM, 20 GB free disk
-- Homebrew
-- Docker Desktop
-
-### Install Tools
+Install the tools:
 
 ```bash
 brew install --cask android-platform-tools
-brew install mitmproxy@10.0.0 jadx@1.4.0
-brew install --cask docker@4.30.0
-pipx install objection==1.11.0
+brew install mitmproxy jadx
+brew install --cask docker
+pipx install objection
 ```
 
-### Run the Test
+Set up the emulator once:
 
 ```bash
-# 1. Read the harness
-open APK_PRIVACY_TEST_HARNESS.md
-
-# 2. Set up environment variables
-export WORK_DIR="${HOME}/apk-privacy-test-$(date +%Y%m%d-%H%M%S)"
-export PROXY_HOST="10.0.2.2"
-export PROXY_PORT="8080"
-
-# 3. Follow the steps in the document
+# Create an API 28 AVD with Google APIs (arm64)
+avdmanager create avd -n apk-test-api28 -k "system-images;android-28;google_apis;arm64-v8a"
+emulator -avd apk-test-api28 -writable-system -no-snapshot &
+# Install the mitmproxy CA certificate as a system certificate (see Part 0 of the harness)
 ```
 
----
+Run the test:
 
-## CI / Automated Testing
+```bash
+bash scripts/run-tests.sh
+```
 
-This repository includes GitHub Actions workflows:
+Validate the tooling without an emulator (used by CI):
 
-- **`test.yml`** — Validates harness structure on every push and PR.
-- **`canary.yml`** — Runs weekly canary tests to verify harness health.
+```bash
+bash scripts/run-tests.sh --check
+```
 
-[View workflows](.github/workflows/)
+Read the full harness for manual steps:
+
+```bash
+open APK_PRIVACY_TEST_HARNESS.md
+```
+
+## Requirements
+
+- macOS with Apple Silicon (tested). CI checks run on Linux and macOS runners.
+- 4 CPU cores
+- 8 GB RAM
+- 20 GB free disk space
 
 ---
 
 ## Results
 
-Test results are stored in the `results/` directory using a JSON schema for machine readability.
+Full results with evidence: [results/RESULTS-20260803.md](results/RESULTS-20260803.md) and machine-readable [results/RESULTS-20260803.json](results/RESULTS-20260803.json). See [CHANGELOG.md](CHANGELOG.md) for history and [ARTICLE.md](ARTICLE.md) for the publication draft.
 
-| App | Verdict | Evidence |
-| --- | --- | --- |
-| Nurture Lock | TBD | [Template](results/TEMPLATE.md) |
-| Nubo | TBD | [Template](results/TEMPLATE.md) |
-| Pebbi | TBD | [Template](results/TEMPLATE.md) |
-| Baby Buddy | TBD | [Template](results/TEMPLATE.md) |
+### Baby Buddy
+
+I audited Baby Buddy (https://github.com/babybuddy/babybuddy) on 2026-08-03. I tested commit `16b8848c7bc2031fc5936f8da89c8056ec5624d2`.
+
+#### Source Code Audit
+
+I cloned the repository and searched for:
+- Network calls (HTTP/HTTPS, fetch, WebSocket, etc.)
+- Analytics or tracking libraries
+- Third-party data sharing
+
+**Results:**
+- 67 network references found. These are all in Django documentation comments or configuration examples. No active tracking code.
+- 0 tracker libraries found. I searched for Google Analytics, Mixpanel, Segment, Sentry, Firebase, Matomo, Plausible, and others. None present.
+- No data exfiltration endpoints in application code.
+
+#### Dynamic Network Test
+
+I ran Baby Buddy locally on `http://localhost:8000`. I set up mitmproxy to capture traffic. I logged in and navigated the app.
+
+**Results:**
+- All traffic stayed on localhost. No outbound requests.
+- No calls to external APIs, CDNs, or analytics services.
+- Static files served locally.
+
+**Note:** I verified network isolation by checking that all HTTP requests went to `127.0.0.1:8000` or `localhost:8000`. The mitmproxy capture confirms no external destinations.
+
+#### Verdict
+
+**PASS.** Baby Buddy does not send data off-device in its default configuration. The source code contains no tracking libraries. The app is self-hostable and does not require external services.
+
+**Caveat:** I tested the default configuration. A user can configure external services, such as AWS S3, with environment variables. Those configurations are optional and documented.
+
+### Nurture Lock
+
+I tested Nurture Lock (package `com.angry.shark.studio.nurturelock`, version 1.0.13) on 2026-08-03.
+
+**Claim:** "100% offline"  
+**Verdict:** **FAIL** - the claim is false
+
+#### Static Analysis
+
+I decompiled the APK with jadx (9,817 Java files) and found 8 tracking libraries:
+- RevenueCat (subscription analytics)
+- Mixpanel (product analytics)
+- Firebase (Google tracking)
+- AppsFlyer (mobile attribution)
+- Adjust (mobile attribution)
+- OneSignal (push notifications)
+- CleverTap (engagement analytics)
+- Tenjin (mobile attribution)
+
+The app requests `INTERNET` and `ACCESS_NETWORK_STATE` permissions.
+
+#### Dynamic Analysis
+
+I installed the app on an Android emulator (API 28, arm64) and captured traffic with mitmproxy. The system certificate was installed to intercept HTTPS.
+
+**On launch, Nurture Lock calls `api.revenuecat.com`:**
+- `GET /v1/subscribers/$RCAnonymousID:.../offerings` - subscription offerings
+- `GET /v1/subscribers/$RCAnonymousID:...` - subscriber profile
+
+Headers sent with each request:
+- `X-Client-Bundle-ID: com.angry.shark.studio.nurturelock`
+- `X-Client-Version: 1.0.13`
+- `X-Platform: android`
+- `X-Client-Locale: en-US`
+- `X-Platform-Device: Android SDK built for arm64`
+
+No further outbound traffic was captured during the test window.
+
+**Conclusion:** An app that claims "100% offline" must not phone home to RevenueCat with device identifiers on every launch. The claim is false. One outbound connection is all it takes.
+
+### Pebbi
+
+I tested Pebbi (package `com.pebbi.android`, version 4.0.1) on 2026-08-03 as a positive control.
+
+**Verdict:** **FAIL** - Pebbi sends extensive data, as expected.
+
+#### Static Analysis
+
+I decompiled the APK with jadx (17,231 Java files) and found:
+- Firebase (Crashlytics, Analytics, Sessions, Installations, Remote Config)
+- Google AdServices (Advertising ID access)
+- Google Play Install Referrer (install attribution)
+- RevenueCat (subscription analytics)
+- PairIP LicenseCheck (third-party license verification)
+
+#### Dynamic Analysis
+
+Outbound connections captured:
+- `firebase-settings.crashlytics.com` - crashlytics configuration
+- `app.pebbi.co/app/version-policy` - version check every ~30s
+- `android.apis.google.com/c2dm/register3` - FCM push registration
+- `firebaselogging-pa.googleapis.com/v1/firelog/legacy/batchlog` - session analytics, device fingerprint
+
+Firebase analytics sends: session IDs, Firebase installation ID, JWT auth, device model, OS version, timezone, network type, and app version.
+
+### Nubo
+
+I tested Nubo (package `com.clicksie.nuboapp`, version 1.4) on 2026-08-03.
+
+**Claim:** "Local-first"  
+**Verdict:** **FAIL** - Nubo sends extensive data on first launch
+
+I installed the app on an Android emulator (API 28, arm64) and captured all traffic with mitmproxy.
+
+**Outbound connections on first launch:**
+- `firebaseinstallations.googleapis.com` - device registration (Firebase Installation ID + JWT)
+- `firebase-settings.crashlytics.com` - crashlytics config (reports, ANRs, sessions enabled)
+- `android.apis.google.com/c2dm/register3` - FCM push notification registration
+- `app-measurement.com/a` - Firebase Analytics batch with session data, screen views, timing metrics
+- `app-measurement.com/config` - Firebase Analytics configuration
+
+**Endpoints sent:**
+- Screen views: Splash, LicenseActivity, Onboarding
+- Performance: sprite_ms (~503ms), boot_ms (~244ms)
+- Route: "onboarding"
+- Onboarding events: `onboarding_step_viewed` (step: welcome), `onboarding_dwell` (15s threshold)
+- Session IDs and timing data
+
+**Conclusion:** An app that claims "local-first" must not send session analytics, screen views, and onboarding progress to Google Firebase Infrastructure on first launch. This claim is false.
+
+## Artifacts
+
+Network capture logs:
+- `results/baby-buddy-test-20260803/` - Baby Buddy mitmproxy capture
+- `results/nurture-lock-test-20260803/capture.mitm` - Nurture Lock capture
+- `results/nubo-test-20260803/capture.mitm` - Nubo capture
+
+## Sources
+
+- Baby Buddy repository: https://github.com/babybuddy/babybuddy
+- Baby Buddy documentation: https://docs.baby-buddy.net
+- Baby Buddy license (BSD-2-Clause): https://github.com/babybuddy/babybuddy/blob/master/LICENSE
+- mitmproxy: https://mitmproxy.org
+- Exodus Privacy: https://exodus-privacy.eu.org
 
 ---
 
@@ -132,9 +238,3 @@ Test results are stored in the `results/` directory using a JSON schema for mach
 This project is licensed under the GNU General Public License v3.0.
 
 See [LICENSE](LICENSE) for the full license text.
-
----
-
-## Acknowledgments
-
-This test harness was hardened through adversarial review across seven expert perspectives.

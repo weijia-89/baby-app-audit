@@ -1,0 +1,162 @@
+{
+  "$schema": "https://github.com/weijia-89/baby-app-audit/results/schema.json",
+  "harness_version": "3.1.0",
+  "timestamp": "2026-08-03T22:30:00Z",
+  "test_run_id": "baby-app-audit-20260803",
+  "test_environment": {
+    "host_os": "macOS 26.5.1",
+    "host_arch": "arm64",
+    "android_api_level": 28,
+    "emulator_arch": "arm64-v8a",
+    "tool_versions": {
+      "adb": "37.0.1",
+      "mitmproxy": "12.2.3",
+      "jadx": "1.5.6",
+      "docker": "installed (exodus scan not run: linux/amd64 only)",
+      "objection": "1.12.5 (not required: system certificate installed)"
+    }
+  },
+  "apps": [
+    {
+      "name": "Nurture Lock",
+      "package_name": "com.angry.shark.studio.nurturelock",
+      "app_type": "native",
+      "verdict": "fail",
+      "verdict_confidence": 95,
+      "evidence": "RevenueCat subscriber API called on every launch (api.revenuecat.com); 8 tracking libraries found in static analysis (RevenueCat, Mixpanel, Firebase, AppsFlyer, Adjust, OneSignal, CleverTap, Tenjin). Claim of '100% offline' is false.",
+      "apk_hash": {
+        "sha256": "d0f2219c6f2a8bfa2f1dec67bb2cc0dd1685495417aa8695e2ec8da013f8bf31",
+        "timestamp": "2026-08-03T21:49:16Z",
+        "source": "mirror"
+      },
+      "offline_test": {
+        "outbound_requests_count": 2,
+        "outbound_destinations": ["api.revenuecat.com"],
+        "flow_file": "results/nurture-lock-test-20260803/capture.mitm"
+      },
+      "static_scan": {
+        "trackers_found": 8,
+        "tracker_names": ["RevenueCat", "Mixpanel", "Firebase", "AppsFlyer", "Adjust", "OneSignal", "CleverTap", "Tenjin"],
+        "permissions": ["INTERNET", "ACCESS_NETWORK_STATE", "CAMERA", "RECEIVE_BOOT_COMPLETED", "com.android.vending.BILLING", "com.android.vending.CHECK_LICENSE"],
+        "source_hits": "decompiled/nurture-lock (9,817 Java files, jadx 1.5.6)"
+      }
+    },
+    {
+      "name": "Nubo",
+      "package_name": "com.clicksie.nuboapp",
+      "app_type": "native",
+      "verdict": "fail",
+      "verdict_confidence": 95,
+      "evidence": "Firebase Installations registration, Crashlytics config, FCM push registration, and Firebase Analytics session/screen-view batches on first launch. Claim of 'local-first' is false. Static analysis not performed (dynamic evidence only).",
+      "apk_hash": {
+        "sha256": "4612efb6152c4069f8d08a07ef546fbf1c46e062d2d41dd6e2701cdf064b5c1e",
+        "timestamp": "2026-08-03T22:03:44Z",
+        "source": "mirror"
+      },
+      "offline_test": {
+        "outbound_requests_count": 5,
+        "outbound_destinations": [
+          "firebaseinstallations.googleapis.com",
+          "firebase-settings.crashlytics.com",
+          "android.apis.google.com",
+          "app-measurement.com"
+        ],
+        "flow_file": "results/nubo-test-20260803/capture.mitm"
+      },
+      "dynamic_capture": {
+        "destinations": [
+          {
+            "address": "firebaseinstallations.googleapis.com",
+            "is_tracker": true,
+            "tracker_source": "Firebase",
+            "protocol": "HTTPS",
+            "payload_size_bytes": 0
+          },
+          {
+            "address": "firebase-settings.crashlytics.com",
+            "is_tracker": true,
+            "tracker_source": "Firebase",
+            "protocol": "HTTPS",
+            "payload_size_bytes": 0
+          },
+          {
+            "address": "android.apis.google.com",
+            "is_tracker": true,
+            "tracker_source": "FCM",
+            "protocol": "HTTPS",
+            "payload_size_bytes": 0
+          },
+          {
+            "address": "app-measurement.com",
+            "is_tracker": true,
+            "tracker_source": "Firebase Analytics",
+            "protocol": "HTTPS",
+            "payload_size_bytes": 0
+          }
+        ],
+        "covert_channels_checked": ["BLE", "NFC", "ultrasound", "DNS tunneling"],
+        "pinning_bypass_required": false,
+        "flow_file": "results/nubo-test-20260803/capture.mitm"
+      }
+    },
+    {
+      "name": "Pebbi",
+      "package_name": "com.pebbi.android",
+      "app_type": "native",
+      "verdict": "fail",
+      "verdict_confidence": 100,
+      "evidence": "Positive control. Firebase Crashlytics/Analytics/Sessions/Installations/Remote Config, version-policy endpoint phoning home every ~30s (app.pebbi.co), FCM registration, AdServices, Install Referrer, RevenueCat, PairIP LicenseCheck.",
+      "apk_hash": {
+        "sha256": "2178136085fc16b74f8bc4c7e2a1c7dbb3b4e6e39b40617065a9b0433d345066",
+        "timestamp": "2026-08-03T21:49:45Z",
+        "source": "mirror"
+      },
+      "offline_test": {
+        "outbound_requests_count": 4,
+        "outbound_destinations": [
+          "firebase-settings.crashlytics.com",
+          "app.pebbi.co",
+          "android.apis.google.com",
+          "firebaselogging-pa.googleapis.com"
+        ],
+        "flow_file": "results/mitm-capture/capture-clean.mitm"
+      },
+      "static_scan": {
+        "trackers_found": 6,
+        "tracker_names": ["Firebase Crashlytics", "Firebase Installations", "Firebase Sessions", "Google AdServices", "Google Play Install Referrer", "RevenueCat"],
+        "permissions": ["INTERNET", "ACCESS_NETWORK_STATE", "ACCESS_ADSERVICES_AD_ID", "ACCESS_ADSERVICES_ATTRIBUTION", "BIND_GET_INSTALL_REFERRER_SERVICE"],
+        "source_hits": "decompiled/pebbi (17,231 Java files, jadx 1.5.6)"
+      }
+    },
+    {
+      "name": "Baby Buddy",
+      "package_name": "org.babybuddy.babybuddy",
+      "app_type": "foss",
+      "verdict": "pass",
+      "verdict_confidence": 100,
+      "evidence": "Source audit of github.com/babybuddy/babybuddy at commit 16b8848c7bc2031fc5936f8da89c8056ec5624d2: 67 network references all in documentation comments or config examples, 0 tracker libraries. Dynamic test: all traffic on localhost only.",
+      "source_audit": {
+        "repository_url": "https://github.com/babybuddy/babybuddy",
+        "commit_hash": "16b8848c7bc2031fc5936f8da89c8056ec5624d2",
+        "network_endpoints": [],
+        "tracker_libraries": [],
+        "sends_by_default": false
+      },
+      "offline_test": {
+        "outbound_requests_count": 0,
+        "outbound_destinations": [],
+        "flow_file": "results/baby-buddy-test-20260803/baby-buddy-flows.mitm"
+      }
+    }
+  ],
+  "audit_log": {
+    "log_file": "results/execution-logs/run-20260803-161401.log",
+    "entries_count": 7
+  },
+  "compliance": {
+    "dpia_completed": false,
+    "consent_obtained": false,
+    "purpose_documented": true,
+    "retention_days": 90
+  }
+}

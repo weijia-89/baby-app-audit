@@ -1,22 +1,22 @@
-# How We Tested Baby Tracking Apps
+# How I Tested Baby Tracking Apps
 
-**Purpose:** This document explains how we tested four baby tracking apps for privacy leaks.
+**Purpose:** This document explains how I tested four baby tracking apps for privacy leaks.
 
 ---
 
-## Why We Tested These Apps
+## Why I Tested These Apps
 
-Parents use baby tracking apps to record feeding, sleep, and diaper changes. These apps hold sensitive data about babies. Some apps claim that data never leaves the phone. We wanted to know if that claim is true.
+Parents use baby tracking apps to record feeding, sleep, and diaper changes. These apps hold sensitive data about babies. Some apps claim that data never leaves the phone. I wanted to know if that claim is true.
 
 If an app says "100% offline" but sends data to a server, the claim is false. One outbound packet is enough to prove it false.
 
 ---
 
-## What We Tested
+## What I Tested
 
-We tested four baby tracking apps.
+I tested four baby tracking apps.
 
-| App | Type | Why We Tested It |
+| App | Type | Why I Tested It |
 | --- | --- | --- |
 | Nurture Lock | Native Android | Claims "100% offline" |
 | Nubo | Native Android | Claims local-first |
@@ -25,74 +25,91 @@ We tested four baby tracking apps.
 
 Nurture Lock was the primary target. It says data never leaves the phone.
 
-Pebbi was included as a positive control. We will use it to validate that our test can detect outbound traffic. If Pebbi shows zero traffic, our test method may be broken.
+Pebbi was included as a positive control. I use it to check that the test detects outbound traffic. If Pebbi shows zero traffic, the test method is faulty.
 
 Baby Buddy is different because its source code is public.
 
 ---
 
-## Where We Tested
+## Where I Tested
 
-We ran all tests on a Mac with Apple Silicon. We used the Android emulator to run the apps.
+I ran all tests on a Mac with Apple Silicon. I used the Android emulator to run the apps.
 
 The test environment included these tools:
 
-* **mitmproxy** — captures network traffic between the phone and the internet.
-* **adb** — connects to the Android emulator.
-* **exodus-standalone** — scans APK files for trackers and permissions.
-* **jadx** — decompiles APK files to read the source code.
-* **objection** — bypasses certificate pinning to capture encrypted traffic.
+* **mitmproxy** - captures network traffic between the phone and the internet.
+* **adb** - connects to the Android emulator.
+* **jadx** - decompiles APK files to read the source code.
+* **objection** - available to bypass certificate pinning if needed. Not required in this run because the system certificate was installed directly.
+
+exodus-standalone is documented in the harness but was not run on this platform (the Docker image is linux/amd64 only).
 
 ---
 
-## How We Tested
+## How I Tested
 
 ### Step 1: Set up the test environment
 
-We installed all tools on the Mac. We started the Android emulator. We configured the emulator to route all network traffic through mitmproxy. This lets us see every request the app makes.
+I installed all tools on the Mac. I started the Android emulator. I configured the emulator to route all network traffic through mitmproxy. This lets me see every request the app makes.
 
 ### Step 2: Install the app and pull the APK
 
-We installed the app from Google Play. We pulled the APK file from the emulator. We computed a SHA-256 hash of the file. This proves the file has not changed.
+I installed the app on the emulator. I pulled the APK file from the emulator. I computed a SHA-256 hash of the file. This proves the file has not changed.
 
 ### Step 3: Run the offline test
 
-We started mitmproxy. We opened the app. We created a baby profile and logged events. We watched the mitmproxy web view for any outbound requests.
+I started mitmproxy. I opened the app. I created a baby profile and logged events. I watched the mitmproxy web view for any outbound requests.
 
 If the app sends any data, the "offline" claim is false.
 
 ### Step 4: Run the static scan
 
-We ran exodus-standalone on the APK. This finds trackers and permissions without running the app. We decompiled the APK with jadx. We searched the code for URLs and tracking libraries.
+I decompiled the APK with jadx. I searched the code for URLs and tracking libraries. exodus-standalone was attempted but cannot run on this architecture. The static evidence in this run comes from jadx and string-signature analysis.
 
 ### Step 5: Run the dynamic capture
 
-We repeated the same actions from Step 3. We captured all network traffic. For each request, we recorded:
+I repeated the same actions from Step 3. I captured all network traffic. For each request, I recorded:
 
 * The destination address.
 * The data in the request body.
 * Whether the destination is a known tracker.
 
-If the app uses certificate pinning, we used objection to bypass it.
+If the app uses certificate pinning, I use objection to bypass it.
 
-### Step 6: For Baby Buddy — source code audit
+### Step 6: For Baby Buddy - source code audit and dynamic test
 
-Because Baby Buddy is open source, we cloned the repository. We searched the code for network calls, analytics libraries, and third-party SDKs. We compared the code findings to the network capture.
+Because Baby Buddy is open source, I cloned the repository from https://github.com/babybuddy/babybuddy. I searched the code for network calls, analytics libraries, and third-party SDKs.
+
+I ran Baby Buddy locally with `python manage.py runserver`. I captured traffic with mitmproxy. I logged in and navigated the app.
+
+**Source audit results:**
+- 67 network references found. These are all in Django documentation comments or configuration examples. No active tracking code.
+- 0 tracker libraries found. I searched for Google Analytics, Mixpanel, Segment, Sentry, Firebase, Matomo, Plausible, and others. None present.
+- No data exfiltration endpoints in application code.
+
+**Dynamic test results:**
+- All traffic stayed on localhost. No outbound requests.
+- No calls to external APIs, CDNs, or analytics services.
+- Static files served locally.
+
+**Verdict:** Baby Buddy does not send data off-device in its default configuration. See README.md for full findings.
 
 ### Step 7: Check for covert channels
 
-We checked for data leaving the phone through non-standard paths. These include:
+I documented checks for data leaving the phone through non-standard paths:
 
 * Bluetooth Low Energy (BLE) beacons.
 * NFC transmissions.
 * Ultrasonic audio signals.
 * DNS tunneling.
 
+Radio checks (BLE, NFC, ultrasound) require physical hardware and were not performed in the 2026-08-03 run. DNS tunneling analysis was limited by the captured traffic. These remain open items.
+
 ---
 
-## What We Measured
+## What I Measured
 
-We answered five questions for each app:
+I answered five questions for each app:
 
 1. Did any data leave the phone?
 2. How many trackers did the static scan find?
@@ -102,35 +119,35 @@ We answered five questions for each app:
 
 ---
 
-## How We Ensured the Test Was Reliable
+## How I Ensured the Test Was Reliable
 
 ### Canary test
 
-Before testing the target app, we will run Pebbi through the full test. Pebbi is included as a positive control. If our test shows zero traffic for Pebbi, we will investigate whether our test method is working correctly.
+Before testing the target app, I run Pebbi through the full test. Pebbi is included as a positive control. If the test shows zero traffic for Pebbi, I investigate whether the test method is working correctly.
 
 ### Smoke tests
 
-We verified that every tool works before starting the test. If any tool fails its smoke test, we do not proceed.
+I checked that every tool works before starting the test. If a required tool is missing, the harness reports the gap and continues in best-effort mode, recording which tools were missing. The run is marked PARTIAL_FAILURE if any app test cannot complete.
 
 ### Artifact archiving
 
-We saved all test artifacts in a structured directory. We archived them with timestamps and SHA-256 hashes. This creates an evidence chain for future reference.
+I saved all test artifacts in a structured directory. I archived them with timestamps and SHA-256 hashes. This creates an evidence chain for future reference.
 
 ### Audit logging
 
-We maintained an append-only audit log for every test run. We computed a running hash chain to detect tampering.
+I maintained a test log for each run. Captures are stored locally and are never committed to the repository without scrubbing.
 
 ---
 
-## What We Did With Sensitive Data
+## What I Did With Sensitive Data
 
-The test captures baby data (names, dates of birth, feeding patterns). We followed these rules:
+The test harness does not use real baby data. All traffic captured on the emulator is synthetic - generated by the apps themselves with test profiles. I followed these rules:
 
-* **Data minimization:** We captured only app traffic, not all emulator traffic.
-* **Purpose limitation:** We used the data only for privacy testing.
-* **Retention:** We kept artifacts for a maximum of 90 days.
-* **Secure deletion:** We shredded sensitive files after the retention period.
-* **Consent:** We obtained consent from the parent whose data we used.
+* **Data minimization:** I captured only app traffic, not all emulator traffic.
+* **Purpose limitation:** I used the data only for privacy testing.
+* **Retention:** Local capture artifacts are kept for a maximum of 90 days and then deleted.
+* **Redaction:** Captures that contain tokens or identifiers (Firebase installation IDs, JWTs, anonymous IDs) are kept only under `results/mitm-capture/`, which is excluded from the repository by `.gitignore`. Public documents redact such values.
+* **No consent requirement:** Because no real user data was used, no parent consent was needed or obtained. No claims of consent are made.
 
 ---
 
@@ -142,4 +159,14 @@ You can run this test yourself. Everything is open-source:
 - **Results:** `results/`
 - **Code:** [github.com/weijia-89/baby-app-audit](https://github.com/weijia-89/baby-app-audit)
 
-We welcome independent verification. If you run the test and get different results, please open an issue.
+I welcome independent verification. If you run the test and get different results, please open an issue.
+
+---
+
+## Sources
+
+* Baby Buddy repository: https://github.com/babybuddy/babybuddy
+* Baby Buddy documentation: https://docs.baby-buddy.net
+* Baby Buddy license (BSD-2-Clause): https://github.com/babybuddy/babybuddy/blob/master/LICENSE
+* mitmproxy: https://mitmproxy.org
+* Exodus Privacy: https://exodus-privacy.eu.org
