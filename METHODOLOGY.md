@@ -1,16 +1,14 @@
 # How We Tested Baby Tracking Apps
 
-**Purpose:** This document explains why we tested baby tracking apps, what we did, and what we found. We wrote it so a tired reader who is not a native English speaker can understand it. Every sentence follows the rules of Simplified Technical English.
+**Purpose:** This document explains how we tested four baby tracking apps for privacy leaks.
 
 ---
 
 ## Why We Tested These Apps
 
-Parents use baby tracking apps to record their child's feeding, sleep, and diaper changes. These apps hold sensitive data about babies. The data includes names, birth dates, and daily health patterns.
+Parents use baby tracking apps to record feeding, sleep, and diaper changes. These apps hold sensitive data about babies. Some apps claim that data never leaves the phone. We wanted to know if that claim is true.
 
-Some apps claim that data never leaves the phone. This is a privacy claim. We wanted to know if the claim is true.
-
-If an app says "100% offline" but sends data to a server, the claim is false. One outbound packet is enough to prove the claim false.
+If an app says "100% offline" but sends data to a server, the claim is false. One outbound packet is enough to prove it false.
 
 ---
 
@@ -25,17 +23,17 @@ We tested four baby tracking apps.
 | Pebbi | Native Android | Known to share data |
 | Baby Buddy | FOSS / Web | Open-source option |
 
-Nurture Lock was the primary target. It says data never leaves the phone. We tested it first.
+Nurture Lock was the primary target. It says data never leaves the phone.
 
 Pebbi was the positive control. It is known to share data. If our test cannot detect Pebbi's traffic, the test is broken.
 
-Baby Buddy is different because its source code is public. We could read the code to verify our findings.
+Baby Buddy is different because its source code is public.
 
 ---
 
 ## Where We Tested
 
-We ran all tests on a Mac with Apple Silicon. We used the Android emulator to run the apps. No cloud services were involved.
+We ran all tests on a Mac with Apple Silicon. We used the Android emulator to run the apps.
 
 The test environment included these tools:
 
@@ -136,62 +134,12 @@ The test captures baby data (names, dates of birth, feeding patterns). We follow
 
 ---
 
-## How We Hardened the Test
+## Reproducibility
 
-We ran three adversarial review loops. Each loop used a different set of expert postures.
+You can run this test yourself. Everything is open-source:
 
-### Loop 1: Five postures
+- **Test harness:** `APK_PRIVACY_TEST_HARNESS.md`
+- **Results:** `results/`
+- **Code:** [github.com/weijia-89/baby-app-audit](https://github.com/weijia-89/baby-app-audit)
 
-We reviewed the test plan from five expert perspectives:
-
-1. **Principal Software Engineer** — checked for reproducibility, error handling, and idempotency.
-2. **Principal AI Engineer** — checked for agent readiness, hallucination guards, and state management.
-3. **Principal QA Engineer** — checked for test coverage, negative testing, and regression prevention.
-4. **Principal Cybersecurity Engineer** — checked for supply chain risks, certificate management, and threat modeling.
-5. **Principal DevOps Engineer** — checked for infrastructure, tooling, and monitoring.
-
-This loop found 90 issues. We fixed all of them.
-
-### Loop 2: Two new postures + 50% net new checks
-
-We added two new expert perspectives:
-
-6. **Principal Privacy Engineer** — checked for GDPR compliance, data minimization, and right to erasure.
-7. **Principal SRE** — checked for SLOs, circuit breakers, and cascade failure prevention.
-
-We also traced new surfaces: agent state serialization, signal handling, side-channel analysis, and covert channels.
-
-This loop found 105 issues. 58 of them were net new (55%).
-
-### Loop 3: Final verification
-
-We did a self-review to find any remaining P1–P3 bugs. We found 10 issues and fixed them.
-
-### Loop 4: Baby Buddy addition
-
-We added Baby Buddy to the test. We reviewed the addition from all seven expert perspectives. We found and fixed 21 issues.
-
----
-
-## What We Found
-
-The full results are in the test artifacts. The key finding is that Pebbi (the known-leaky app) did send data as expected. This confirms that our test can detect data exfiltration.
-
-The Nurture Lock result depends on the specific test run. The test harness is designed to produce verifiable, reproducible evidence for each app.
-
----
-
-## Where You Can Find More Information
-
-* **Test harness:** `APK_PRIVACY_TEST_HARNESS.md` — the full test procedure.
-* **Original document:** `ORIGINAL.md` — the unhardened v1.0.0.
-* **Review findings:** `REVIEW_LOOP_1.md`, `REVIEW_LOOP_2.md`, `REVIEW_LOOP_3.md`, `REVIEW_LOOP_4_BABY_BUDDY.md`.
-* **PR documentation:** `PR_COMMENTS_LOOP_1.md`, `PR_COMMENTS_LOOP_2.md`, `PR_COMMENTS_LOOP_3.md`.
-
----
-
-## Who We Are
-
-This test was conducted by a multi-posture synthetic senior staff. The team included expertise in software engineering, AI, QA, cybersecurity, DevOps, privacy engineering, and site reliability engineering.
-
-The test is reproducible. Anyone with the same tools and environment can run it and get the same results.
+We welcome independent verification. If you run the test and get different results, please open an issue.
