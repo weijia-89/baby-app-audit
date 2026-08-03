@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 env:
-  HARNESS_VERSION: "3.0.0-loop3"
+  HARNESS_VERSION: "3.1.0"
 
 jobs:
   canary:
@@ -27,12 +27,11 @@ jobs:
           grep -q "## Part 5.5" APK_PRIVACY_TEST_HARNESS.md || exit 1
           echo "Document integrity: OK"
           
-          # Check review files
-          test -f REVIEW_LOOP_1.md || exit 1
-          test -f REVIEW_LOOP_2.md || exit 1
-          test -f REVIEW_LOOP_3.md || exit 1
-          test -f REVIEW_LOOP_4_BABY_BUDDY.md || exit 1
-          echo "Review files: OK"
+          # Check results artifacts are present and valid
+          python3 -m json.tool results/schema.json > /dev/null || exit 1
+          python3 -m json.tool results/RESULTS-20260803.json > /dev/null || exit 1
+          jq -e 'has("test_run_id") and has("apps")' results/RESULTS-20260803.json > /dev/null || exit 1
+          echo "Results artifacts: OK"
 
       - name: Generate canary report
         run: |
@@ -52,7 +51,7 @@ jobs:
       - name: Upload canary result
         uses: actions/upload-artifact@v4
         with:
-          name: canary-weekly-$(date +%Y%m%d)
+          name: canary-weekly-${{ github.run_id }}
           path: canary-results/
           retention-days: 90
 

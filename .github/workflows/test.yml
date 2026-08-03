@@ -6,20 +6,14 @@ on:
   pull_request:
     branches: [main]
   workflow_dispatch:
-    inputs:
-      target_app:
-        description: 'Target app to test (nurturelock, nubo, pebbi, babybuddy, or all)'
-        required: true
-        default: 'all'
-      test_type:
-        description: 'Test type (offline, static, dynamic, all)'
-        required: true
-        default: 'all'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 env:
-  HARNESS_VERSION: "3.0.0-loop3"
+  HARNESS_VERSION: "3.1.0"
   PROXY_PORT: "8080"
-  PREFERRED_API_LEVEL: "28"
   PERF_BUDGET_MINUTES: "120"
 
 jobs:
@@ -32,44 +26,58 @@ jobs:
       - name: Validate Markdown structure
         run: |
           # Check required sections exist
-          grep -q "## Part 0" APK_PRIVACY_TEST_HARNESS.md || exit 1
-          grep -q "## Part 1" APK_PRIVACY_TEST_HARNESS.md || exit 1
-          grep -q "## Part 2" APK_PRIVACY_TEST_HARNESS.md || exit 1
-          grep -q "## Part 3" APK_PRIVACY_TEST_HARNESS.md || exit 1
-          grep -q "## Part 4" APK_PRIVACY_TEST_HARNESS.md || exit 1
-          grep -q "## Part 5" APK_PRIVACY_TEST_HARNESS.md || exit 1
-          grep -q "## Part 6" APK_PRIVACY_TEST_HARNESS.md || exit 1
-          grep -q "## Part 7" APK_PRIVACY_TEST_HARNESS.md || exit 1
-          grep -q "## Part 8" APK_PRIVACY_TEST_HARNESS.md || exit 1
-          grep -q "## Part 9" APK_PRIVACY_TEST_HARNESS.md || exit 1
-          grep -q "## Part 10" APK_PRIVACY_TEST_HARNESS.md || exit 1
+          for part in 0 1 2 3 4 5 6 7 8 9 10; do
+            grep -q "## Part $part" APK_PRIVACY_TEST_HARNESS.md || { echo "ERROR: Part $part missing"; exit 1; }
+          done
           echo "All required sections found"
 
-      - name: Validate JSON schema
+      - name: Validate JSON schema declaration
         run: |
-          # Check schema declaration exists
           grep -q '"\$schema"' APK_PRIVACY_TEST_HARNESS.md || exit 1
           echo "JSON schema declaration found"
 
-      - name: Check for banned vocabulary
+      - name: Check for banned vocabulary (all public docs)
         run: |
-          # Check for enterprise jargon
-          if grep -qiE "\b(leverage|utilize|robust|scalable|seamlessly|comprehensive)\b" APK_PRIVACY_TEST_HARNESS.md; then
-            echo "ERROR: Banned vocabulary found"
+          failed=0
+          for file in APK_PRIVACY_TEST_HARNESS.md README.md METHODOLOGY.md CHANGELOG.md results/RESULTS-20260803.md; do
+            if grep -qiE "\b(leverage|utilize|robust|scalable|seamlessly|comprehensive)\b" "$file"; then
+              echo "ERROR: Banned vocabulary found in $file"
+              failed=1
+            fi
+          done
+          if [ $failed -eq 1 ]; then
             exit 1
           fi
           echo "No banned vocabulary found"
 
-      - name: Verify all review files exist
+      - name: Verify results artifacts are valid JSON
         run: |
-          test -f REVIEW_LOOP_1.md || exit 1
-          test -f REVIEW_LOOP_2.md || exit 1
-          test -f REVIEW_LOOP_3.md || exit 1
-          test -f REVIEW_LOOP_4_BABY_BUDDY.md || exit 1
-          test -f PR_COMMENTS_LOOP_1.md || exit 1
-          test -f PR_COMMENTS_LOOP_2.md || exit 1
-          test -f PR_COMMENTS_LOOP_3.md || exit 1
-          echo "All review files present"
+          python3 -m json.tool results/schema.json > /dev/null
+          python3 -m json.tool results/RESULTS-20260803.json > /dev/null
+          jq -e 'has("harness_version") and has("test_run_id") and has("apps")' results/RESULTS-20260803.json > /dev/null
+          for app in "Nurture Lock" "Nubo" "Pebbi" "Baby Buddy"; do
+            jq -e --arg n "$app" '.apps[] | select(.name == $n) | has("verdict")' results/RESULTS-20260803.json > /dev/null
+          done
+          echo "Results JSON conforms to required structure"
+
+      - name: Verify harness version agreement
+        run: |
+          grep -q 'HARNESS_VERSION="3.1.0"' scripts/run-tests.sh || exit 1
+          grep -q 'HARNESS_VERSION: "3.1.0"' .github/workflows/test.yml || exit 1
+          grep -q '## 3.1.0' CHANGELOG.md || exit 1
+          grep -q '3.1.0' results/RESULTS-20260803.md || exit 1
+          echo "Versions agree across artifacts"
+
+      - name: Harness script syntax check and dry run
+        run: |
+          bash -n scripts/run-tests.sh || exit 1
+          bash scripts/run-tests.sh --check || exit 1
+          echo "run-tests.sh parses cleanly and dry run passes"
+
+      - name: Secret scan (gitleaks)
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   canary-test:
     name: Canary Test (Pebbi Positive Control)
@@ -103,7 +111,7 @@ jobs:
         with:
           name: canary-test-result
           path: |
-            *.md
+            APK_PRIVACY_TEST_HARNESS.md
 
   test-matrix:
     name: Test ${{ matrix.app }}

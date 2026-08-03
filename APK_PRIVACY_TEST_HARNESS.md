@@ -1,6 +1,6 @@
 # APK Privacy Test Harness — Baby Tracking Apps (macOS + Agent-Ready)
 
-**Version:** 3.0.0-loop2-deep-hardened  
+**Version:** 3.1.0  
 **Revision date:** 2026-08-03  
 **Previous version:** 2.0.0-loop1-hardened  
 **Author:** Multi-posture adversarial review (SWE / AI / QA / Security / DevOps / Privacy / SRE)  
@@ -65,7 +65,7 @@ Define these once before starting. They eliminate magic numbers and hardcoded pa
 #!/usr/bin/env bash
 set -euo pipefail
 
-export HARNESS_VERSION="3.0.0-loop2-deep-hardened"
+export HARNESS_VERSION="3.1.0"
 export WORK_DIR="${HOME}/apk-privacy-test-$(date -u +%Y%m%d-%H%M%S)"
 export PROXY_HOST="10.0.2.2"
 export PROXY_PORT="8080"
@@ -1111,7 +1111,7 @@ This section is for an IDE LLM agent. Run it autonomously. Spawn one subagent pe
 ```json
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "version": "3.0.0-loop2-deep-hardened",
+  "version": "3.1.0",
   "packages": {
     "nurturelock": {"id": "com.angry.shark.studio.nurturelock", "app_type": "native"},
     "nubo": {"id": "", "app_type": "native"},
