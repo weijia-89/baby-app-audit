@@ -18,6 +18,8 @@ If you previously used v1.0.0 of this harness, these breaking changes affect you
 1. **Environment variables required:** All configuration is now via env vars (lines 45–70). You must define them before starting.
 2. **Working directory structure:** All artifacts go under `~/apk-privacy-test-<timestamp>/artifacts/`. Do not run from arbitrary directories.
 3. **Bash required:** This harness assumes `bash` (for `set -euo pipefail`). zsh/fish users must invoke `bash` explicitly.
+   * zsh equivalent: `set -e; set -o pipefail` (no `-u` equivalent; use `setopt nounset`)
+   * fish equivalent: fish does not support `set -euo pipefail`. Use `bash` for this harness.
 4. **Tool versions pinned:** Specific versions are now required. Update your tools before starting.
 5. **Cleanup mandatory:** CA removal and app uninstall are now required steps (Part 7). Skipping them leaves the device compromised.
 
@@ -44,9 +46,9 @@ If you previously used v1.0.0 of this harness, these breaking changes affect you
 ```bash
 cleanup() {
     echo "Catching signal; cleaning up..."
-    kill "${MITM_PID}" 2>/dev/null || true
-    kill "${TCPDUMP_PID}" 2>/dev/null || true
-    kill "${EMULATOR_PID}" 2>/dev/null || true
+    kill "${MITM_PID:-}" 2>/dev/null || true
+    kill "${TCPDUMP_PID:-}" 2>/dev/null || true
+    kill "${EMULATOR_PID:-}" 2>/dev/null || true
     # Note: CA removal is NOT automatic on SIGINT to prevent partial removal.
     # Run Part 7 manually after interruption.
 }
@@ -305,6 +307,8 @@ Step 10. Write down proof for your records:
 
 \[ \] APK files are in `artifacts/apks/`. \[ \] Proof details are written down. \[ \] Hashes are timestamped.
 
+**Audit chain:** Run `after_action "acquire-complete"` to log this checkpoint.
+
 Note on other sources:
 
 * You can also get APKs from mirror sites (APKMirror, APKPure, APKCombo).
@@ -391,6 +395,10 @@ curl -sf --retry 3 --connect-timeout 5 --max-time 10 \
     http://localhost:8081/flows > artifacts/captures/offline-test-flows.json
 ```
 
+**Mitmweb auth note:** Future mitmproxy versions may require API authentication. If `curl` returns 401, check mitmweb docs for auth tokens.
+
+**Stream rotation:** If the capture grows large, restart mitmweb with `--save-stream-file` pointing to a new file to prevent disk exhaustion.
+
 **Flow integrity check:** Count flows in mitmweb UI and compare to JSON array length. If counts differ, mitmproxy may have dropped packets.
 
 The result:
@@ -400,6 +408,8 @@ The result:
 * **Provisional pass time-bound:** A provisional pass is valid for `${PROVISIONAL_PASS_MINUTES}` minutes. Re-test if the app updates or if the device state changes.
 
 \[ \] Offline test done. \[ \] Result written down. \[ \] Flows exported to JSON. \[ \] Background idle period observed. \[ \] Doze mode tested.
+
+**Audit chain:** Run `after_action "offline-probe-complete"` to log this checkpoint.
 
 ---
 
@@ -468,6 +478,8 @@ grep -rEi \
 **Obfuscation note:** This grep catches common SDK names but misses encrypted strings, native code (`.so`), reflection-based loading, and runtime-decrypted strings. If zero hits are found but the APK requests `INTERNET` permission, escalate to dynamic analysis or memory dump.
 
 \[ \] Static scan done. \[ \] Tracker names and permissions written down. \[ \] Report saved to `artifacts/reports/`.
+
+**Audit chain:** Run `after_action "static-scan-complete"` to log this checkpoint.
 
 ---
 
@@ -549,6 +561,8 @@ Two 2026 gotchas for pinning:
 
 \[ \] Dynamic capture done. \[ \] Every destination written down. \[ \] Covert channel check performed (or noted as skipped). \[ \] Flow integrity verified. \[ \] BLE/NFC/ultrasound checked or noted.
 
+**Audit chain:** Run `after_action "dynamic-capture-complete"` to log this checkpoint.
+
 ---
 
 ## Part 5 — Write your results
@@ -605,10 +619,11 @@ Overlays can capture screenshots or intercept input.
 Step 4. Check for adb backup data leakage:
 
 ```bash
-adb backup -noapk com.angry.shark.studio.nurturelock -f artifacts/reports/nurturelock.ab
+adb backup -noapk com.angry.shark.studio.nurturelock -f artifacts/reports/nurturelock.ab || \
+    echo "WARNING: adb backup failed. App may have android:allowBackup=false."
 ```
 
-If the backup file is non-empty, the app persists data outside the APK.
+If the backup file is non-empty, the app persists data outside the APK. If backup failed, note this in the report rather than assuming no leakage.
 
 Step 5. Test Android Work Profile / Island / Shelter isolation:
 
@@ -630,6 +645,8 @@ sleep 30
 Watch for burst traffic when connectivity returns.
 
 \[ \] Backup mechanisms checked. \[ \] Covert channel vectors documented. \[ \] Work Profile tested or noted. \[ \] Airplane mode transition observed.
+
+**Audit chain:** Run `after_action "covert-channel-analysis-complete"` to log this checkpoint.
 
 ---
 
@@ -670,7 +687,7 @@ for f in artifacts/captures/*.mitm artifacts/captures/*.pcap; do
 done
 ```
 
-**APFS note:** `shred` is ineffective on SSDs due to wear-leveling. For high-sensitivity data, encrypt the working directory with FileVault and destroy the key.
+**APFS mitigation:** `shred` is ineffective on SSDs due to wear-leveling. For high-sensitivity data, encrypt the working directory with FileVault and destroy the key. Alternatively, store artifacts on an encrypted external drive and physically destroy it after retention period.
 
 Step 5. Archive artifacts with retention policy:
 
@@ -689,6 +706,8 @@ Step 6. Restore emulator from snapshot or delete the AVD:
 ```
 
 \[ \] CA removed. \[ \] Apps uninstalled. \[ \] Repacked APKs deleted. \[ \] Sensitive artifacts shredded. \[ \] Artifacts archived.
+
+**Audit chain:** Run `after_action "cleanup-complete"` to log this checkpoint.
 
 ---
 
@@ -759,8 +778,12 @@ Step 3. **Anonymization:** Before sharing artifacts, strip device IDs, IP addres
 Step 4. **Right to erasure:** If the parent/guardian requests deletion:
 
 ```bash
-# Locate all artifacts containing their data
-find artifacts/ -type f -exec grep -l "TestBaby\|2024-01-01" {} \;
+# Locate all artifacts containing their data (use ripgrep if available for speed)
+if command -v rg >/dev/null 2>&1; then
+    rg -l "TestBaby|2024-01-01" artifacts/ > artifacts/reports/erasure-targets.txt
+else
+    find artifacts/ -type f -exec grep -l "TestBaby\|2024-01-01" {} + > artifacts/reports/erasure-targets.txt
+fi
 # Securely delete each file (see Part 7 Step 4)
 # Append deletion record to audit log
 ```
@@ -775,6 +798,8 @@ Step 6. **Breach notification:** If artifacts are lost or leaked:
 3. Notify your Data Protection Officer or legal team.
 
 \[ \] DPIA completed (if required). \[ \] Consent obtained. \[ \] Purpose documented. \[ \] Anonymization procedure defined.
+
+**Audit chain:** Run `after_action "privacy-governance-complete"` to log this checkpoint.
 
 ---
 
@@ -807,7 +832,7 @@ Step 6. **Capacity planning:** If two operators may run tests simultaneously, us
 
 ```bash
 export PROXY_PORT="$((8080 + RANDOM % 1000))"
-export AVD_NAME="apk-test-$(uuidgen | cut -d- -f1)"
+export AVD_NAME="apk-test-$(uuidgen 2>/dev/null | cut -d- -f1 || date +%s%N)"
 ```
 
 Step 7. **Post-mortem template:** If a test produces a false negative, fill in `artifacts/reports/post-mortem.md`:
@@ -823,6 +848,8 @@ Prevented recurrence:
 ```
 
 \[ \] Canary test passed. \[ \] Circuit breaker configured. \[ \] Notification enabled.
+
+**Audit chain:** Run `after_action "sre-checks-complete"` to log this checkpoint.
 
 ---
 
@@ -1088,7 +1115,8 @@ For `verdict = fail` (accusing an app of privacy violation), require consensus f
 
 * Goal: produce the final result table and verdicts.
 * Commands: merge static and dynamic findings; fill the Part 5 table; apply the pass/fail rule; where static and dynamic disagree, trust dynamic and note it; append final state to audit log; archive artifacts; compute archive SHA-256.
-* **Consensus rule:** For `verdict = fail`, require 2 independent subagents to agree. If disagreement, escalate to HUMAN-GATE.
+* **Consensus implementation:** For `verdict = fail`, Subagent 8 spawns Subagent 8b with ONLY the raw flow data and package name (no prior verdict). Subagent 8b independently analyzes flows and returns its own `verdict` and `evidence`. If 8 and 8b agree on `fail`, the verdict is final. If they disagree, escalate to HUMAN-GATE.
+* **Consensus rule:** For `verdict = fail`, require 2 independent subagents to agree. Disagreement = HUMAN-GATE.
 * Done-check: every app has a filled row and a pass or fail (or untested) with one evidence line; audit log closed; artifacts archived; archive hash computed.
 * Output: `artifacts/reports/findings.md` plus the raw mitmproxy flows and exodus JSON as attachments.
 
