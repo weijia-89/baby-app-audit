@@ -108,15 +108,16 @@ EOF
 
 ## What you are testing
 
-You test three apps. You want to answer one question for each app: does data leave the phone?
+You test four apps. You want to answer one question for each app: does data leave the phone?
 
-The three apps:
+The four apps:
 
-| App | Package name | Notes |
-| --- | --- | --- |
-| Nurture Lock | `com.angry.shark.studio.nurturelock` | Test this one first. It claims "100% offline". |
-| Nubo | `TBD_FROM_PLAY_STORE` | Claims local-first. Resolve before test. |
-| Pebbi | `TBD_FROM_PLAY_STORE` | Known to share data. Use as a positive control. |
+| App | Package name | Type | Notes |
+| --- | --- | --- | --- |
+| Nurture Lock | `com.angry.shark.studio.nurturelock` | Native Android | Test this one first. It claims "100% offline". |
+| Nubo | `TBD_FROM_PLAY_STORE` | Native Android | Claims local-first. Resolve before test. |
+| Pebbi | `TBD_FROM_PLAY_STORE` | Native Android | Known to share data. Use as a positive control. |
+| Baby Buddy | `com.babybuddy.android` or web | FOSS / Web | Open-source baby tracker. Test via browser or APK if Android client exists. Verify repository at `github.com/babybuddy/babybuddy`. |
 
 ---
 
@@ -181,6 +182,7 @@ mitmweb --version || { echo "FAIL: mitmweb not found"; exit 1; }
 jadx --version || { echo "FAIL: jadx not found"; exit 1; }
 docker info >/dev/null 2>&1 || { echo "FAIL: docker not running"; exit 1; }
 objection --version || { echo "FAIL: objection not found"; exit 1; }
+git --version || { echo "FAIL: git not found"; exit 1; }
 echo "All tools smoke-tested OK"
 ```
 
@@ -569,13 +571,13 @@ Two 2026 gotchas for pinning:
 
 Fill in this table for each app.
 
-| Question | Nurture Lock | Nubo | Pebbi |
-| --- | --- | --- | --- |
-| Did any data leave the phone? |  |  |  |
-| How many trackers found (static)? |  |  |  |
-| What permissions did it ask for? |  |  |  |
-| List every outside address it contacted |  |  |  |
-| Does the app match its own privacy claim? |  |  |  |
+| Question | Nurture Lock | Nubo | Pebbi | Baby Buddy |
+| --- | --- | --- | --- | --- |
+| Did any data leave the phone? | | | | |
+| How many trackers found (static)? | | | | |
+| What permissions did it ask for? | | | | |
+| List every outside address it contacted | | | | |
+| Does the app match its own privacy claim? | | | | |
 
 The pass / fail rule:
 
@@ -584,6 +586,113 @@ The pass / fail rule:
 * Untested: pinning could not be broken or a critical step failed.
 
 **Where static and dynamic disagree, trust dynamic and note the difference.**
+
+---
+
+## Part 5.5 — FOSS and web app testing (Baby Buddy)
+
+Baby Buddy is a free and open-source software (FOSS) baby tracker. It is different from the other three apps because its source code is public. This gives you more ways to test it.
+
+**Two test paths for Baby Buddy:**
+
+### Path A: Test the web app in a browser
+
+If Baby Buddy is a web app (Django-based), test it with browser developer tools:
+
+Step 1. Open the Baby Buddy URL in a web browser.
+
+Step 2. Use a private or incognito window to prevent cross-tab traffic contamination.
+
+Step 3. Open the browser's Network tab (F12 → Network).
+
+Step 4. Create a baby profile and log events (feed, sleep, diaper).
+
+Step 5. Watch the Network tab for any outbound requests.
+
+Step 6. Check the request destination, payload, and headers.
+
+Step 7. Test in both Firefox and Chromium to detect browser-specific behavior.
+
+**Browser test advantages:**
+* No emulator or Android setup needed.
+* No certificate pinning to bypass.
+* Developer tools show all requests, including WebSocket and WebRTC.
+
+**Deployment clarification:** Test the deployment type claimed by the project. If the project says "self-hosted," test a self-hosted instance. If it says "cloud," test the cloud instance.
+
+### Path B: Test the Android client (if it exists)
+
+If Baby Buddy has an Android client APK, test it with the same method as Parts 1–5.
+
+Step 1. Find the APK or build it from source:
+
+```bash
+# Clone the source repository with a 5-minute timeout
+timeout 300 git clone https://github.com/babybuddy/babybuddy.git
+# Look for an Android client or build instructions
+cat babybuddy/README.md | grep -i android
+# Check for build requirements
+ls babybuddy/package.json babybuddy/requirements.txt 2>/dev/null || true
+```
+
+Step 2. If an APK exists, install it on the emulator and run the standard test.
+
+Step 3. If no APK exists but build instructions exist, build in an isolated environment (Docker or virtualenv) and test the result.
+
+Step 4. If no APK exists and no build instructions exist, note "no native Android client" and test via Path A only.
+
+**Build environment:** Use Docker or a virtual environment to build Baby Buddy. Do not install build tools directly on the host.
+
+### Path C: Source code audit
+
+Because Baby Buddy is open-source, you can read the code directly:
+
+Step 1. Clone the repository with verification and timeout:
+
+```bash
+# Verify the URL points to github.com/babybuddy/babybuddy
+# Use SSH or verify HTTPS certificate
+timeout 300 git clone https://github.com/babybuddy/babybuddy.git
+# Optional: verify GPG signatures on tags
+cd babybuddy && git verify-tag $(git describe --tags --abbrev=0) 2>/dev/null || echo "No GPG signature found"
+```
+
+Step 2. Search the source code for network calls (15-minute time limit):
+
+```bash
+timeout 900 grep -rEi 'https?://|fetch\(|axios|request|curl|urllib|XMLHttpRequest|WebSocket|EventSource|navigator\.sendBeacon|eval\(|document\.write|import\(' babybuddy/ > artifacts/reports/babybuddy-source-network.txt
+```
+
+Step 3. Search for analytics or tracking libraries:
+
+```bash
+grep -rEi 'google.analytics|mixpanel|segment|sentry|bugsnag|firebase|matomo|plausible' babybuddy/ > artifacts/reports/babybuddy-source-trackers.txt
+```
+
+Step 4. Audit dependency files for supply chain risk:
+
+```bash
+cat babybuddy/package-lock.json 2>/dev/null | grep -E '"name"|"version"' | head -50 > artifacts/reports/babybuddy-deps.txt
+cat babybuddy/requirements.txt 2>/dev/null | head -50 >> artifacts/reports/babybuddy-deps.txt
+```
+
+Step 5. Check the privacy policy and data handling documentation in the repository.
+
+Step 6. Check if the app sends data to any third-party service by default.
+
+**Source audit advantage:** You can see what the code does without running it. This is the strongest proof for a FOSS app.
+
+**Sanitization warning:** Before auditing, check for PII in test fixtures or example data. Do not commit real baby data to the audit log.
+
+**FOSS-specific rules:**
+* If the source code shows no network calls, and the dynamic test shows no traffic, the app is offline.
+* If the source code shows network calls but the dynamic test shows none, the calls may be conditional or disabled by default. Read the code to understand when they fire.
+* If the source code and dynamic test disagree, trust the dynamic test for the specific build you tested. A different build may have different behavior. Escalate the discrepancy to HUMAN-GATE.
+* **Hallucination guard:** Quote exact file paths and line numbers for every finding. Do not paraphrase code.
+
+**Circuit breaker:** If GitHub is unreachable, skip the source audit and test Baby Buddy via browser (Path A) only.
+
+\[ \] Baby Buddy tested via browser or Android client. \[ \] Source code audited for network calls. \[ \] Results recorded in the table.
 
 ---
 
@@ -676,6 +785,16 @@ Step 3. Delete any repacked APKs with Frida gadget:
 ```bash
 find artifacts/apks -name "*frida*" -delete
 find artifacts/apks -name "*repack*" -delete
+```
+
+Step 3.5. Securely delete cloned source repositories after audit:
+
+```bash
+# Remove Baby Buddy source clone (may contain contributor PII in git history)
+[[ -d "babybuddy" ]] && shred -vfz -n 3 -r babybuddy 2>/dev/null || rm -rf babybuddy
+# Archive source audit outputs only, not the full repository
+tar czf artifacts/babybuddy-source-audit.tar.gz artifacts/reports/babybuddy-*.txt
+shred -vfz -n 3 artifacts/babybuddy-source-audit.tar.gz 2>/dev/null || rm -f artifacts/babybuddy-source-audit.tar.gz
 ```
 
 Step 4. Securely delete sensitive artifacts containing PII:
@@ -798,6 +917,8 @@ Step 6. **Breach notification:** If artifacts are lost or leaked:
 3. Notify your Data Protection Officer or legal team.
 
 \[ \] DPIA completed (if required). \[ \] Consent obtained. \[ \] Purpose documented. \[ \] Anonymization procedure defined.
+
+**Git history privacy:** When testing FOSS apps, the cloned repository may contain contributor PII (names, emails) in `.git/logs`. Before sharing the artifacts, run `git filter-repo` or manually strip this data. See Part 7 Step 3.5 for cleanup.
 
 **Audit chain:** Run `after_action "privacy-governance-complete"` to log this checkpoint.
 
@@ -946,7 +1067,7 @@ adb shell "ls /system/etc/security/cacerts/${HASH}.0" && echo "Cert already inst
 
 ## Where you may be unsure
 
-* Nubo and Pebbi package names are not confirmed. Get them from the live Play Store pages first.
+* Nubo, Pebbi, and Baby Buddy package names are not confirmed. Get them from the live Play Store pages or project repository first.
 * If an app uses strong pinning that objection cannot break, you may not see the traffic. Write down that you could not decrypt it. Do not guess.
 * Static and dynamic results can differ. If they do, trust the dynamic capture, and note the difference.
 * Tool versions move fast. If a command errors, check the tool's current docs for the 2026 version before changing the method.
@@ -992,21 +1113,25 @@ This section is for an IDE LLM agent. Run it autonomously. Spawn one subagent pe
   "$schema": "http://json-schema.org/draft-07/schema#",
   "version": "3.0.0-loop2-deep-hardened",
   "packages": {
-    "nurturelock": "com.angry.shark.studio.nurturelock",
-    "nubo": "",
-    "pebbi": ""
+    "nurturelock": {"id": "com.angry.shark.studio.nurturelock", "app_type": "native"},
+    "nubo": {"id": "", "app_type": "native"},
+    "pebbi": {"id": "", "app_type": "native"},
+    "babybuddy": {"id": "", "app_type": "foss|web|native"}
   },
   "apk_files": [
     {"path": "", "sha256": "", "timestamp": "", "source": "device|mirror", "size_bytes": 0}
   ],
   "static_findings": {
-    "nurturelock": {"trackers": [], "permissions": [], "report_path": ""}
+    "nurturelock": {"trackers": [], "permissions": [], "report_path": ""},
+    "babybuddy": {"trackers": [], "permissions": [], "report_path": ""}
   },
   "dynamic_findings": {
-    "nurturelock": {"destinations": [], "payloads": [], "flow_path": "", "covert_channels": []}
+    "nurturelock": {"destinations": [], "payloads": [], "flow_path": "", "covert_channels": []},
+    "babybuddy": {"destinations": [], "payloads": [], "flow_path": "", "covert_channels": []}
   },
   "verdicts": {
-    "nurturelock": {"verdict": "pass|fail|untested", "evidence": "", "confidence": 0}
+    "nurturelock": {"verdict": "pass|fail|untested", "evidence": "", "confidence": 0},
+    "babybuddy": {"verdict": "pass|fail|untested", "evidence": "", "confidence": 0}
   },
   "audit_log": "artifacts/logs/audit.log",
   "hash_chain": "artifacts/logs/audit.chain",
@@ -1049,25 +1174,29 @@ For `verdict = fail` (accusing an app of privacy violation), require consensus f
 
 ### Subagent 3 — resolve-packages
 
-* Goal: fill in the unknown package names for Nubo and Pebbi.
-* Commands: fetch each app's live Google Play listing; extract the `id=` value from the URL.
-* **Hallucination guard:** Do not invent package names. If the fetch returns no `id=`, record `null` and stop. Verify the fetched URL domain is `play.google.com`.
+* Goal: fill in the unknown package names for Nubo, Pebbi, and Baby Buddy.
+* Commands: 
+  * For Nubo and Pebbi: fetch each app's live Google Play listing; extract the `id=` value from the URL.
+  * For Baby Buddy: check the project repository (GitHub) for the Android package name or confirm it is web-only.
+* **Hallucination guard:** Do not invent package names. If the fetch returns no `id=`, record `null` and stop. Verify the fetched URL domain is `play.google.com` or `github.com`.
 * **Validation:** Package name must match regex `^[a-z][a-z0-9_]*(\.[a-z][a-z0-9_]*)+$`.
 * **Temperature:** Use `${MODEL_TEMPERATURE}=0.0` for deterministic regex matching and hash computation.
-* Done-check: `packages` map has three non-empty, validated package names.
-* On fail: HUMAN-GATE asking the operator to paste the two Play Store URLs.
+* Done-check: `packages` map has four non-empty, validated package names (or `babybuddy` marked as `web-only`).
+* On fail: HUMAN-GATE asking the operator to paste the Play Store URLs or repository link.
 
 ---
 
 ### Subagent 4 — acquire (run once per package)
 
 * Goal: get clean APK files with provenance.
-* Commands: `adb shell pm path <package>`; validate at least one path returned; `adb pull` each path with atomic size verification; compute SHA-256; timestamp; record device model, Android version, app version, date.
+* Commands: 
+  * For native Android apps (Nurture Lock, Nubo, Pebbi): `adb shell pm path <package>`; validate at least one path returned; `adb pull` each path with atomic size verification; compute SHA-256; timestamp; record device model, Android version, app version, date.
+  * For Baby Buddy (FOSS): clone the repository; check for an Android client; if APK exists, pull or build it; record the Git commit hash as provenance.
 * **Partial failure handling:** If one package fails, others continue. Failed packages get `verdict: untested`.
 * **Boundary tests:** 0 paths → fail; >5 paths → flag for review.
 * **Rate limit:** Max 5 `adb` commands per second.
 * **Deduplication:** Skip if file already exists with matching hash.
-* Done-check: at least one APK per package on disk; every file has a recorded hash, device model, Android version, app version, and date; hashes are in `artifacts/apks/hashes.log`.
+* Done-check: at least one APK per native Android package on disk; Baby Buddy has either an APK or a source clone with commit hash; every file has a recorded hash, device model, Android version, app version, and date; hashes are in `artifacts/apks/hashes.log`.
 * On fail: if a mirror file is used instead, tag it `INFERRED` and require a later hash match before any verified claim.
 
 ---
@@ -1111,11 +1240,22 @@ For `verdict = fail` (accusing an app of privacy violation), require consensus f
 
 ---
 
-### Subagent 8 — report
+### Subagent 8 — foss-audit (run for Baby Buddy only)
+
+* Goal: audit the open-source code for network calls and trackers.
+* Commands: clone the repository (5-minute timeout); check `app_type` field in scratchpad; if `web` or `foss`, run source audit; if `native`, skip this subagent.
+* Search for HTTP/HTTPS requests, analytics libraries, and third-party SDKs; read the README and privacy policy; document findings with exact file paths and line numbers.
+* Done-check: `artifacts/reports/babybuddy-source-network.txt` exists with count >= 0; `artifacts/reports/babybuddy-source-trackers.txt` exists with count >= 0; `artifacts/reports/babybuddy-deps.txt` exists.
+* **Hallucination guard:** Quote exact file paths and line numbers for every finding. Do not paraphrase code.
+* On fail: if source code is unavailable (GitHub unreachable), record "source audit skipped" and rely on dynamic capture only.
+
+---
+
+### Subagent 9 — report
 
 * Goal: produce the final result table and verdicts.
-* Commands: merge static and dynamic findings; fill the Part 5 table; apply the pass/fail rule; where static and dynamic disagree, trust dynamic and note it; append final state to audit log; archive artifacts; compute archive SHA-256.
-* **Consensus implementation:** For `verdict = fail`, Subagent 8 spawns Subagent 8b with ONLY the raw flow data and package name (no prior verdict). Subagent 8b independently analyzes flows and returns its own `verdict` and `evidence`. If 8 and 8b agree on `fail`, the verdict is final. If they disagree, escalate to HUMAN-GATE.
+* Commands: merge static, dynamic, and FOSS audit findings; fill the Part 5 table; apply the pass/fail rule; where findings disagree, trust dynamic and note it; append final state to audit log; archive artifacts; compute archive SHA-256.
+* **Consensus implementation:** For `verdict = fail`, Subagent 9 spawns Subagent 9b with ONLY the raw flow data and package name (no prior verdict). Subagent 9b independently analyzes flows and returns its own `verdict` and `evidence`. If 9 and 9b agree on `fail`, the verdict is final. If they disagree, escalate to HUMAN-GATE.
 * **Consensus rule:** For `verdict = fail`, require 2 independent subagents to agree. Disagreement = HUMAN-GATE.
 * Done-check: every app has a filled row and a pass or fail (or untested) with one evidence line; audit log closed; artifacts archived; archive hash computed.
 * Output: `artifacts/reports/findings.md` plus the raw mitmproxy flows and exodus JSON as attachments.
