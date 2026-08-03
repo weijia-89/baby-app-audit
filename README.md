@@ -2,20 +2,17 @@
 
 [![License](https://img.shields.io/badge/license-GPL--3.0-blue.svg)](LICENSE)
 
-Test baby tracking apps for privacy leaks. This tool checks if data leaves your phone.
+An audit of a number of infant milestone apps to see how much data companies collect on use. 
 
 ---
 
 ## What This Is
 
-I test baby tracking apps for privacy leaks. I test four apps. I answer one question for each app: does data leave the phone?
+Parents use baby tracking apps to record feeding, sleep, and diaper changes. The last thing most parents want is to have all of that data recorded in a DB somewhere for later resale down-the-line. 
 
-Parents use baby tracking apps to record feeding, sleep, and diaper changes. These apps hold sensitive data about babies. Some apps claim that data never leaves the phone. I wanted to know if that claim is true.
+Some of these apps claim that data never leaves the phone but that hasn't been backed by independent audits. And given the history of [certain applications](https://doi.org/10.3390/jcp3030016) with [broken privacy promises](https://www.bitdefender.com/en-us/blog/labs/notes-on-throughtek-kalay-vulnerabilities-and-their-impact), it felt important to complete an actual audit.
 
-If an app says "100% offline" but sends data to a server, the claim is false. One outbound packet is enough to prove it false.
-
-## What I Test
-
+## What Was Tested
 | App | Type | Claim |
 | --- | --- | --- |
 | Nurture Lock | Native Android | "100% offline" |
@@ -23,15 +20,21 @@ If an app says "100% offline" but sends data to a server, the claim is false. On
 | Pebbi | Native Android | No claim (positive control) |
 | Baby Buddy | FOSS / Web | Open-source |
 
-## How It Works
+These were just the apps that my partner and I had done some research on and which the internet recommended as 'private.' 
 
-The test harness runs on macOS with Apple Silicon. It uses an Android emulator to run native apps. It captures all network traffic with mitmproxy. It decompiles code with jadx. exodus-standalone is documented in the harness but was not run on this platform (Docker image is linux/amd64 only). Objection was not needed because the system certificate was installed directly.
+Baby Buddy, as a FOSS option, was added as control since the codebase is fully auditable. But it was subjected to the same review and network activity scrutiny as the rest.
 
-For web apps like Baby Buddy, I run the app locally and capture browser traffic.
+## How Did I Test
+
+* With an LLM paired with a test harness that runs an Android emulator. 
+* Network traffic captured and logged by mitmproxy. 
+* Code decompiled with jadx.
+
+For web apps like Baby Buddy, the app was also run locally and browser traffic was captured.
 
 **Tested tool versions (2026-08-03):** mitmproxy 12.2.3, jadx 1.5.6, objection 1.12.5, adb 37.0.1, apkeep 1.0.0.
 
-## Test Steps
+## Test Steps (If You Want to Do It Yourself)
 
 1. Install the app on the emulator (or run locally for web apps).
 2. Pull the APK file from the device (for native apps).
@@ -40,7 +43,9 @@ For web apps like Baby Buddy, I run the app locally and capture browser traffic.
 5. Watch mitmproxy for outbound requests.
 6. Run a static scan for trackers and permissions.
 7. Capture dynamic traffic.
-8. Check for covert channels (BLE, NFC, ultrasound, DNS tunneling). Radio checks (BLE, NFC, ultrasound) require physical hardware and were not performed in the 2026-08-03 run.
+8. Check for covert channels (BLE, NFC, ultrasound, DNS tunneling). 
+
+Note - Radio checks (BLE, NFC, ultrasound) require physical hardware and were not performed. It's also an incredibly impractical way of siphoning data. Future iterations may add this in especially if there are accessories that use these protocols to sync with the app but the current focus is on the apps alone.
 
 ## Quick Start
 
@@ -80,141 +85,36 @@ Read the full harness for manual steps:
 open APK_PRIVACY_TEST_HARNESS.md
 ```
 
-## Requirements
-
-- macOS with Apple Silicon (tested). CI checks run on Linux and macOS runners.
-- 4 CPU cores
-- 8 GB RAM
-- 20 GB free disk space
-
 ---
 
 ## Results
 
 Full results with evidence: [results/RESULTS-20260803.md](results/RESULTS-20260803.md) and machine-readable [results/RESULTS-20260803.json](results/RESULTS-20260803.json). See [CHANGELOG.md](CHANGELOG.md) for history and [ARTICLE.md](ARTICLE.md) for the publication draft.
 
-### Baby Buddy
+| App | Claim | Verdict | Key findings |
+| --- | --- | --- | --- |
+| Nurture Lock | "100% offline" | FAIL (95%) | Phones home to RevenueCat with device identifiers on launch. 8 tracking libraries found in the APK |
+| Nubo | "Local-first" | FAIL (95%) | Sends session analytics, screen views, and onboarding events to Google Firebase on first launch |
+| Pebbi | No claim (positive control) | FAIL (100%) | Extensive data collection via Firebase, Google AdServices, and FCM registration |
+| Baby Buddy | Open-source | PASS (100%) | No tracking libraries. All traffic stays on localhost in default configuration |
 
-I audited Baby Buddy (https://github.com/babybuddy/babybuddy) on 2026-08-03. I tested commit `16b8848c7bc2031fc5936f8da89c8056ec5624d2`.
+### Notes
 
-#### Source Code Audit
+**Nurture Lock** - the "100% offline" claim is false. The APK contains 8 tracking libraries: RevenueCat, Mixpanel, Firebase, AppsFlyer, Adjust, OneSignal, CleverTap, and Tenjin. On launch the app calls `api.revenuecat.com` with the bundle ID, version, platform, and locale. One outbound connection is enough to break the claim. Details: [Nurture Lock section](results/RESULTS-20260803.md#nurture-lock).
 
-I cloned the repository and searched for:
-- Network calls (HTTP/HTTPS, fetch, WebSocket, etc.)
-- Analytics or tracking libraries
-- Third-party data sharing
+**Nubo** - the "local-first" claim is false. First launch registers with Firebase Installations and Crashlytics, then sends Firebase Analytics batches with session IDs, screen views, timing data, and onboarding progress. Details: [Nubo section](results/RESULTS-20260803.md#nubo).
 
-**Results:**
-- 67 network references found. These are all in Django documentation comments or configuration examples. No active tracking code.
-- 0 tracker libraries found. I searched for Google Analytics, Mixpanel, Segment, Sentry, Firebase, Matomo, Plausible, and others. None present.
-- No data exfiltration endpoints in application code.
+**Pebbi** - tested as a positive control with no privacy claim. It sends extensive data: Firebase Crashlytics, Analytics, Sessions, Installations, and Remote Config, plus Google AdServices and Play Install Referrer. The `app.pebbi.co/app/version-policy` endpoint phones home every ~30 seconds. Details: [Pebbi section](results/RESULTS-20260803.md#pebbi).
 
-#### Dynamic Network Test
+**Baby Buddy** - the FOSS control passed. Source audit found 67 network references, all in Django docs or configuration examples, and 0 tracking libraries. Dynamic test captured all traffic on localhost only. Details: [Baby Buddy section](results/RESULTS-20260803.md#baby-buddy).
 
-I ran Baby Buddy locally on `http://localhost:8000`. I set up mitmproxy to capture traffic. I logged in and navigated the app.
+**Method and limits:** the full procedure is in [APK_PRIVACY_TEST_HARNESS.md](APK_PRIVACY_TEST_HARNESS.md). Method, consent, and known limitations (no radio checks, no static scan for Nubo) are in [METHODOLOGY.md](METHODOLOGY.md). Version history in [CHANGELOG.md](CHANGELOG.md).
 
-**Results:**
-- All traffic stayed on localhost. No outbound requests.
-- No calls to external APIs, CDNs, or analytics services.
-- Static files served locally.
+## Discussion and Roadmap
 
-**Note:** I verified network isolation by checking that all HTTP requests went to `127.0.0.1:8000` or `localhost:8000`. The mitmproxy capture confirms no external destinations.
+Future iterations of this audit will include more apps, more FOSS alternatives, and more specificity on the data being siphoned (e.g. data related to user analytics vs actual data on infant developmental milestones).
 
-#### Verdict
-
-**PASS.** Baby Buddy does not send data off-device in its default configuration. The source code contains no tracking libraries. The app is self-hostable and does not require external services.
-
-**Caveat:** I tested the default configuration. A user can configure external services, such as AWS S3, with environment variables. Those configurations are optional and documented.
-
-### Nurture Lock
-
-I tested Nurture Lock (package `com.angry.shark.studio.nurturelock`, version 1.0.13) on 2026-08-03.
-
-**Claim:** "100% offline"  
-**Verdict:** **FAIL** - the claim is false
-
-#### Static Analysis
-
-I decompiled the APK with jadx (9,817 Java files) and found 8 tracking libraries:
-- RevenueCat (subscription analytics)
-- Mixpanel (product analytics)
-- Firebase (Google tracking)
-- AppsFlyer (mobile attribution)
-- Adjust (mobile attribution)
-- OneSignal (push notifications)
-- CleverTap (engagement analytics)
-- Tenjin (mobile attribution)
-
-The app requests `INTERNET` and `ACCESS_NETWORK_STATE` permissions.
-
-#### Dynamic Analysis
-
-I installed the app on an Android emulator (API 28, arm64) and captured traffic with mitmproxy. The system certificate was installed to intercept HTTPS.
-
-**On launch, Nurture Lock calls `api.revenuecat.com`:**
-- `GET /v1/subscribers/$RCAnonymousID:.../offerings` - subscription offerings
-- `GET /v1/subscribers/$RCAnonymousID:...` - subscriber profile
-
-Headers sent with each request:
-- `X-Client-Bundle-ID: com.angry.shark.studio.nurturelock`
-- `X-Client-Version: 1.0.13`
-- `X-Platform: android`
-- `X-Client-Locale: en-US`
-- `X-Platform-Device: Android SDK built for arm64`
-
-No further outbound traffic was captured during the test window.
-
-**Conclusion:** An app that claims "100% offline" must not phone home to RevenueCat with device identifiers on every launch. The claim is false. One outbound connection is all it takes.
-
-### Pebbi
-
-I tested Pebbi (package `com.pebbi.android`, version 4.0.1) on 2026-08-03 as a positive control.
-
-**Verdict:** **FAIL** - Pebbi sends extensive data, as expected.
-
-#### Static Analysis
-
-I decompiled the APK with jadx (17,231 Java files) and found:
-- Firebase (Crashlytics, Analytics, Sessions, Installations, Remote Config)
-- Google AdServices (Advertising ID access)
-- Google Play Install Referrer (install attribution)
-- RevenueCat (subscription analytics)
-- PairIP LicenseCheck (third-party license verification)
-
-#### Dynamic Analysis
-
-Outbound connections captured:
-- `firebase-settings.crashlytics.com` - crashlytics configuration
-- `app.pebbi.co/app/version-policy` - version check every ~30s
-- `android.apis.google.com/c2dm/register3` - FCM push registration
-- `firebaselogging-pa.googleapis.com/v1/firelog/legacy/batchlog` - session analytics, device fingerprint
-
-Firebase analytics sends: session IDs, Firebase installation ID, JWT auth, device model, OS version, timezone, network type, and app version.
-
-### Nubo
-
-I tested Nubo (package `com.clicksie.nuboapp`, version 1.4) on 2026-08-03.
-
-**Claim:** "Local-first"  
-**Verdict:** **FAIL** - Nubo sends extensive data on first launch
-
-I installed the app on an Android emulator (API 28, arm64) and captured all traffic with mitmproxy.
-
-**Outbound connections on first launch:**
-- `firebaseinstallations.googleapis.com` - device registration (Firebase Installation ID + JWT)
-- `firebase-settings.crashlytics.com` - crashlytics config (reports, ANRs, sessions enabled)
-- `android.apis.google.com/c2dm/register3` - FCM push notification registration
-- `app-measurement.com/a` - Firebase Analytics batch with session data, screen views, timing metrics
-- `app-measurement.com/config` - Firebase Analytics configuration
-
-**Endpoints sent:**
-- Screen views: Splash, LicenseActivity, Onboarding
-- Performance: sprite_ms (~503ms), boot_ms (~244ms)
-- Route: "onboarding"
-- Onboarding events: `onboarding_step_viewed` (step: welcome), `onboarding_dwell` (15s threshold)
-- Session IDs and timing data
-
-**Conclusion:** An app that claims "local-first" must not send session analytics, screen views, and onboarding progress to Google Firebase Infrastructure on first launch. This claim is false.
+If folks have any suggestions of what they want to see next in terms of coverage, please let me know. And any issues with the methodology will be warmly accepted and considered.
 
 ## Artifacts
 
