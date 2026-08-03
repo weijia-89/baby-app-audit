@@ -1,0 +1,3 @@
+scripts/run-tests.sh: line 387: syntax error: unexpected end of file
+[CLEANUP] Cleaning up...
+[CLEANUP] Complete. Exit code: 0
