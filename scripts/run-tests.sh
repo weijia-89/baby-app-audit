@@ -63,13 +63,28 @@ cleanup() {
 }
 trap cleanup EXIT INT TERM
 
-# Validate input to prevent injection
+# Validate input to prevent injection.
+# Strict mode (default) is for package names and app types: alphanumeric, dots,
+# dashes, underscores only. Non-strict mode is for app names, which can contain
+# spaces and basic punctuation (e.g., "Baby Buddy", "Nurture Lock").
 validate_input() {
     local input="$1"
     local field="$2"
-    
-    # Allow only alphanumeric, dots, dashes, underscores
-    if [[ ! "$input" =~ ^[a-zA-Z0-9._-]+$ ]]; then
+    local strict="${3:-true}"
+
+    local pattern
+    if [ "$strict" = "true" ]; then
+        pattern='^[a-zA-Z0-9._-]+$'
+    else
+        pattern='^[a-zA-Z0-9._ -]+$'
+    fi
+
+    # Reject backticks, $, ;, |, &, <, >, and quotes regardless of mode
+    if [[ "$input" =~ [\"\`\'\$\;\|\&\<\>] ]]; then
+        error "Shell metacharacters in $field: $input"
+        return 1
+    fi
+    if [[ ! "$input" =~ $pattern ]]; then
         error "Invalid characters in $field: $input"
         return 1
     fi
@@ -133,7 +148,8 @@ preflight() {
     fi
     
     # Check disk space
-    local available_kb=$(df -k . | awk 'NR==2 {print $4}')
+    local available_kb
+    available_kb=$(df -k . | awk 'NR==2 {print $4}')
     local available_gb=$((available_kb / 1024 / 1024))
     if [ "$available_gb" -lt 10 ]; then
         warn "Low disk space: ${available_gb}GB available, 10GB recommended"
@@ -176,8 +192,9 @@ test_app() {
     local app_type="$2"
     local package_name="${3:-}"
     
-    # Validate all inputs
-    validate_input "$app_name" "app_name" || return 1
+    # Validate all inputs. App names allow spaces (non-strict); package names and
+    # app types use strict validation to prevent shell injection.
+    validate_input "$app_name" "app_name" false || return 1
     validate_input "$app_type" "app_type" || return 1
     if [ -n "$package_name" ]; then
         validate_input "$package_name" "package_name" || return 1
@@ -227,7 +244,8 @@ test_native_app() {
     
     # Step 2: Pull APK
     log "[$app_name] Pulling APK..."
-    local apk_paths=$(run_adb shell pm path "$package_name" 2>/dev/null || true)
+    local apk_paths
+    apk_paths=$(run_adb shell pm path "$package_name" 2>/dev/null || true)
     if [ -z "$apk_paths" ]; then
         warn "[$app_name] Could not find APK paths"
         jq '.verdict = "untested" | .status = "APK_NOT_FOUND"' "$results_file" > "$results_file.tmp" && mv "$results_file.tmp" "$results_file"
@@ -237,10 +255,12 @@ test_native_app() {
     # Pull each APK, deduplicating split-APK basenames with the parent directory
     local pulled_count=0
     while IFS= read -r path; do
-        local apk_name=$(basename "$path")
-        local apk_dir=$(basename "$(dirname "$path")")
+        local apk_name
+        apk_name=$(basename "$path")
+        local apk_dir
+        apk_dir=$(basename "$(dirname "$path")")
         if run_adb pull "$path" "$ARTIFACTS_DIR/apks/${app_name}-${apk_dir}-${apk_name}" 2>>"$log_file"; then
-            ((pulled_count++))
+            ((pulled_count++)) || true
             log "[$app_name] Pulled: $apk_name"
         fi
     done <<< "$apk_paths"
@@ -256,7 +276,8 @@ test_native_app() {
         fi
     done
     if [ -n "$first_apk" ]; then
-        local apk_sha=$(awk '{print $1}' "$first_apk.sha256")
+        local apk_sha
+    apk_sha=$(awk '{print $1}' "$first_apk.sha256")
         jq --arg sha "$apk_sha" '.apk_hash = {sha256: $sha, source: "device", timestamp: "'"$(date -u +%Y-%m-%dT%H:%M:%SZ)"'"}' "$results_file" > "$results_file.tmp" && mv "$results_file.tmp" "$results_file"
     fi
     
@@ -266,18 +287,36 @@ test_native_app() {
         --save-stream-file "$ARTIFACTS_DIR/captures/${app_name}.mitm" 2>>"$log_file" &
     local mitm_pid=$!
     export MITM_PID="$mitm_pid"
-    sleep 3
     
-    # Verify mitmproxy is running
-    if ! kill -0 "$mitm_pid" 2>/dev/null; then
-        error "[$app_name] Failed to start mitmproxy"
+    # Wait for mitmweb to be ready: poll the web API port (up to 15s), not just process-alive.
+    local mitm_ready=0
+    for _ in $(seq 1 15); do
+        if ! kill -0 "$mitm_pid" 2>/dev/null; then
+            break
+        fi
+        if curl -sf --connect-timeout 1 --max-time 2 "http://localhost:${MITM_WEB_PORT}" >/dev/null 2>&1; then
+            mitm_ready=1
+            break
+        fi
+        sleep 1
+    done
+    if [ "$mitm_ready" -ne 1 ]; then
+        error "[$app_name] mitmproxy did not become ready on port $MITM_WEB_PORT within 15s"
         jq '.verdict = "untested" | .status = "MITMPROXY_FAILED"' "$results_file" > "$results_file.tmp" && mv "$results_file.tmp" "$results_file"
+        kill "$mitm_pid" 2>/dev/null || true
+        unset MITM_PID
         return 1
     fi
     
-    # Step 4: Configure emulator proxy
+    # Step 4: Configure emulator proxy (fail-closed: read back to confirm)
     log "[$app_name] Configuring emulator proxy..."
     run_adb shell settings put global http_proxy 10.0.2.2:"$PROXY_PORT" 2>>"$log_file" || true
+    local proxy_set
+    proxy_set=$(run_adb shell settings get global http_proxy 2>/dev/null | tr -d '\r\n')
+    if [ "$proxy_set" != "10.0.2.2:$PROXY_PORT" ]; then
+        warn "[$app_name] Proxy not set (got '${proxy_set:-empty}'). Traffic capture will be incomplete."
+        jq --arg pb "${proxy_set:-empty}" '.status = "PROXY_NOT_SET" | .proxy_readback = $pb' "$results_file" > "$results_file.tmp" && mv "$results_file.tmp" "$results_file"
+    fi
     
     # Step 5: Launch app and verify it is running
     log "[$app_name] Launching app..."
@@ -296,7 +335,7 @@ test_native_app() {
     log "[$app_name] Exporting captured flows..."
     local flow_count=0
     local flow_data=""
-    for attempt in 1 2 3; do
+    for _attempt in 1 2 3; do
         flow_data=$(curl -sf -H "Accept: application/json" "http://localhost:${MITM_WEB_PORT}/flows" 2>>"$log_file" || true)
         if [ -n "$flow_data" ]; then
             break
@@ -345,7 +384,8 @@ test_native_app() {
     return 0
 }
 
-# Test FOSS/web app
+# Test FOSS/web app — clones the source repo and audits for trackers.
+# Any FOSS app added to main() must have a case entry here.
 test_foss_app() {
     local app_name="$1"
     local package_name="$2"
@@ -354,26 +394,38 @@ test_foss_app() {
     
     log "[$app_name] Starting FOSS/web test..."
     
-    # For Baby Buddy, clone and audit source
-    if [ "$app_name" = "Baby Buddy" ]; then
-        local repo_dir="$WORK_DIR/babybuddy-source"
-        
-        log "[$app_name] Cloning repository..."
-        local clone_success=false
-        
-        if command -v gtimeout >/dev/null 2>&1; then
-            gtimeout 300 git clone --depth 1 https://github.com/babybuddy/babybuddy.git "$repo_dir" 2>>"$log_file" && clone_success=true
-        elif command -v timeout >/dev/null 2>&1; then
-            timeout 300 git clone --depth 1 https://github.com/babybuddy/babybuddy.git "$repo_dir" 2>>"$log_file" && clone_success=true
-        else
-            git clone --depth 1 https://github.com/babybuddy/babybuddy.git "$repo_dir" 2>>"$log_file" && clone_success=true
-        fi
+    # Resolve repo URL from app name
+    local repo_url=""
+    case "$app_name" in
+        "Baby Buddy")
+            repo_url="https://github.com/babybuddy/babybuddy.git"
+            ;;
+        *)
+            warn "[$app_name] No FOSS repo configured - skipping source audit"
+            jq '.verdict = "untested" | .status = "NO_FOSS_REPO_CONFIGURED"' "$results_file" > "$results_file.tmp" && mv "$results_file.tmp" "$results_file"
+            return 0
+            ;;
+    esac
+    
+    local repo_dir="$WORK_DIR/${app_name// /-}-source"
+    
+    log "[$app_name] Cloning repository..."
+    local clone_success=false
+    
+    if command -v gtimeout >/dev/null 2>&1; then
+        gtimeout 300 git clone --depth 1 "$repo_url" "$repo_dir" 2>>"$log_file" && clone_success=true
+    elif command -v timeout >/dev/null 2>&1; then
+        timeout 300 git clone --depth 1 "$repo_url" "$repo_dir" 2>>"$log_file" && clone_success=true
+    else
+        git clone --depth 1 "$repo_url" "$repo_dir" 2>>"$log_file" && clone_success=true
+    fi
         
         if [ "$clone_success" = "true" ]; then
             log "[$app_name] Repository cloned successfully"
             
             # Record commit hash
-            local commit_hash=$(cd "$repo_dir" && git rev-parse HEAD)
+            local commit_hash
+            commit_hash=$(cd "$repo_dir" && git rev-parse HEAD)
             log "[$app_name] Commit: $commit_hash"
             
             # Source audit - exclude minified/vendor files to reduce false positives
@@ -389,13 +441,15 @@ test_foss_app() {
             # Search for tracker/analytics libraries
             grep -rEi 'google.analytics|mixpanel|segment|sentry|bugsnag|firebase|matomo|plausible|amplitude|posthog' "$repo_dir" --include="*.py" --include="*.js" --exclude-dir=vendor --exclude-dir=node_modules > "$tracker_hits" 2>/dev/null || true
             
-            local network_count=$(wc -l < "$network_hits" | tr -d ' ')
-            local tracker_count=$(wc -l < "$tracker_hits" | tr -d ' ')
+            local network_count
+            network_count=$(wc -l < "$network_hits" | tr -d ' ')
+            local tracker_count
+            tracker_count=$(wc -l < "$tracker_hits" | tr -d ' ')
             
             log "[$app_name] Found $network_count network references, $tracker_count tracker references"
             
-            jq --arg commit "$commit_hash" --arg net "$network_count" --arg track "$tracker_count" '.tests.source_audit = {
-                "repository_url": "https://github.com/babybuddy/babybuddy",
+            jq --arg commit "$commit_hash" --arg url "$repo_url" --arg net "$network_count" --arg track "$tracker_count" '.tests.source_audit = {
+                "repository_url": $url,
                 "commit_hash": $commit,
                 "network_endpoints": [],
                 "tracker_libraries": [],
@@ -416,7 +470,6 @@ test_foss_app() {
             jq '.verdict = "untested" | .status = "CLONE_FAILED"' "$results_file" > "$results_file.tmp" && mv "$results_file.tmp" "$results_file"
             return 1
         fi
-    fi
     
     jq '.verdict = "pass" | .status = "COMPLETED" | .verdict_confidence = 100' "$results_file" > "$results_file.tmp" && mv "$results_file.tmp" "$results_file"
     log "[$app_name] Test completed"

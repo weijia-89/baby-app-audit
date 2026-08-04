@@ -59,7 +59,9 @@ export AVD_NAME="apk-test-api28"
 export EMULATOR_ARCH="arm64"
 export MITMPROXY_CERT="${HOME}/.mitmproxy/mitmproxy-ca-cert.pem"
 # Pinned SHA-256 digest for reproducibility. Update only after verifying new digest.
-export EXODUS_IMAGE="exodusprivacy/exodus-standalone@sha256:7f8d9a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2"
+export EXODUS_IMAGE="exodusprivacy/exodus-standalone"
+export EXODUS_DIGEST=""  # optional pinned digest; fetch the current one before first run:
+# docker pull exodusprivacy/exodus-standalone:latest && docker inspect --format='{{index .RepoDigests 0}}' exodusprivacy/exodus-standalone:latest
 export MAX_RETRIES="2"
 export RETRY_BACKOFF_SEC="5"
 export PROVISIONAL_PASS_MINUTES="30"
@@ -408,13 +410,15 @@ This finds trackers and permissions without running the app.
 Step 1. Run exodus-standalone on the APK with a **pinned image digest**:
 
 ```bash
+# Pin the digest if you set EXODUS_DIGEST; otherwise pull :latest.
+IMAGE="${EXODUS_IMAGE}${EXODUS_DIGEST:+@${EXODUS_DIGEST}}"
 docker run --platform linux/amd64 \
   -v "${WORK_DIR}/artifacts/apks":/app \
   --rm -i \
   --read-only \
   --tmpfs /tmp:noexec,nosuid,size=100m \
   --cap-drop ALL \
-  "${EXODUS_IMAGE}" \
+  "${IMAGE}" \
   /app/<your-file>.apk
 ```
 
@@ -446,7 +450,7 @@ Why this matters:
 * The public exodus website has NO report for the Nurture Lock package. This was confirmed: the site returns an empty list and a 404 for that package.
 * Running exodus yourself makes the report that does not exist yet.
 * **False positive warning:** exodus relies on signature matching. New or obfuscated trackers may be missed. Treat zero trackers as "no known trackers," not "no trackers."
-* **Digest note:** The `EXODUS_IMAGE` digest is pinned for reproducibility. Confirm the current digest from Docker Hub before your first run. The 2026-08-03 audit did not run exodus; static findings came from the jadx decompile below.
+* **Digest note:** The 2026-08-03 audit did not run exodus (Docker image is linux/amd64 only; Apple Silicon host). The `EXODUS_IMAGE` env var is unpinned by default. To pin a digest for reproducibility, fetch the current one from Docker Hub and set `EXODUS_DIGEST` before running. Static findings in the 2026-08-03 run came from the jadx decompile below.
 
 Step 4. Decompile the app to read strings:
 
@@ -753,12 +757,21 @@ Watch for burst traffic when connectivity returns.
 Step 1. Stop mitmweb and remove the CA from the emulator system store:
 
 ```bash
+set -uo pipefail
 kill "${MITM_PID}" 2>/dev/null || true
-adb root
-adb remount
+# Best-effort root/remount: if these fail (e.g. emulator already rebooted), still
+# attempt cert removal so the device is not left in a compromised state.
+adb root 2>/dev/null || true
+adb remount 2>/dev/null || true
 HASH=$(openssl x509 -inform PEM -subject_hash_old -in "${MITMPROXY_CERT}" | awk 'NR==1 {print $1}')
-adb shell "rm -f /system/etc/security/cacerts/${HASH}.0"
-adb reboot
+adb shell "rm -f /system/etc/security/cacerts/${HASH}.0" 2>/dev/null || true
+# Verify the cert is actually gone; fail loudly if it remains.
+if adb shell "ls /system/etc/security/cacerts/${HASH}.0" 2>/dev/null | grep -q "${HASH}"; then
+  echo "ERROR: CA cert ${HASH}.0 still present - remove manually before re-use"
+  exit 1
+fi
+adb reboot 2>/dev/null || true
+echo "Cleanup complete: CA removed, emulator rebooting"
 ```
 
 Step 2. Uninstall test apps:
