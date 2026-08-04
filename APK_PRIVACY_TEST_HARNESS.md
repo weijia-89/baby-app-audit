@@ -1,27 +1,11 @@
-# APK Privacy Test Harness — Baby Tracking Apps (macOS + Agent-Ready)
+# APK Privacy Test Harness  -  Baby Tracking Apps (macOS + Agent-Ready)
 
 **Version:** 3.1.0  
 **Revision date:** 2026-08-03  
 **Previous version:** 2.0.0-loop1-hardened  
-**Author:** Multi-posture adversarial review (SWE / AI / QA / Security / DevOps / Privacy / SRE)  
-**Change type:** Deep hardening — P0–P3 fixes from Loop 2 review (105 findings, 58 net new)  
-**Migration note:** If upgrading from v1.0.0, see "Migration from v1.0.0" below before starting.  
-
+**Author:** Wei Jia  
+**Change type:** Loop 2 hardening  -  75 findings in round 1, 32 net-new checks in round 2, all P0–P3 fixed  
 META: Reproducible test steps · plain STE-style English · one action per line · runs locally on macOS Apple Silicon · includes a machine-readable agent plan · for an ADHD/ASD reader and for an autonomous IDE LLM · hardened against false negatives, supply-chain tampering, automation failure, privacy liability, and cascading infrastructure failure
-
----
-
-## Migration from v1.0.0
-
-If you previously used v1.0.0 of this harness, these breaking changes affect your workflow:
-
-1. **Environment variables required:** All configuration is now via env vars (lines 45–70). You must define them before starting.
-2. **Working directory structure:** All artifacts go under `~/apk-privacy-test-<timestamp>/artifacts/`. Do not run from arbitrary directories.
-3. **Bash required:** This harness assumes `bash` (for `set -euo pipefail`). zsh/fish users must invoke `bash` explicitly.
-   * zsh equivalent: `set -e; set -o pipefail` (no `-u` equivalent; use `setopt nounset`)
-   * fish equivalent: fish does not support `set -euo pipefail`. Use `bash` for this harness.
-4. **Tool versions pinned:** Specific versions are now required. Update your tools before starting.
-5. **Cleanup mandatory:** CA removal and app uninstall are now required steps (Part 7). Skipping them leaves the device compromised.
 
 ---
 
@@ -108,16 +92,18 @@ EOF
 
 ## What you are testing
 
-You test four apps. You want to answer one question for each app: does data leave the phone?
+I test four apps. I want to answer one question for each app: does data leave the phone?
 
 The four apps:
 
 | App | Package name | Type | Notes |
 | --- | --- | --- | --- |
 | Nurture Lock | `com.angry.shark.studio.nurturelock` | Native Android | Test this one first. It claims "100% offline". |
-| Nubo | `TBD_FROM_PLAY_STORE` | Native Android | Claims local-first. Resolve before test. |
-| Pebbi | `TBD_FROM_PLAY_STORE` | Native Android | Known to share data. Use as a positive control. |
-| Baby Buddy | `com.babybuddy.android` or web | FOSS / Web | Open-source baby tracker. Test via browser or APK if Android client exists. Verify repository at `github.com/babybuddy/babybuddy`. |
+| Nubo | `com.clicksie.nuboapp` | Native Android | Claims local-first. |
+| Pebbi | `com.pebbi.android` | Native Android | Known to share data. Use as a positive control. |
+| Baby Buddy | web (FOSS) | FOSS / Web | Open-source baby tracker. Test via browser. Verify repository at `github.com/babybuddy/babybuddy`. |
+
+I resolved the package names from the live Play Store listings on 2026-08-03 and used them in the audit run.
 
 ---
 
@@ -141,11 +127,11 @@ This test is worth more than reading any privacy policy.
 
 ---
 
-## Part 0 — Set up your Mac (Apple Silicon)
+## Part 0  -  Set up your Mac (Apple Silicon)
 
 You do everything on the Mac. No cloud. No other computer.
 
-**Security warning:** This procedure requires `adb root`, `adb remount`, and installing a custom CA certificate into the emulator system store. These actions fundamentally compromise the security model of the test device. Only run this on a dedicated test emulator. Never on a personal device.
+**Security warning:** This procedure requires `adb root`, `adb remount`, and installing a custom CA certificate into the emulator system store. These actions compromise the security model of the test device. Only run this on a dedicated test emulator. Never on a personal device.
 
 **Privacy warning:** This test captures baby data (names, dates of birth, feeding/sleep/diaper patterns). Before testing, ensure you have:
 1. A completed Data Protection Impact Assessment (DPIA) if required by jurisdiction.
@@ -165,13 +151,13 @@ df -h . | awk 'NR==2 {if ($4 < 10) {print "FAIL: less than 10 GB free"; exit 1} 
 
 Step 2. Install Homebrew if you do not have it. See brew.sh.
 
-Step 3. Install the command-line tools with **pinned versions** for reproducibility:
+Step 3. Install the command-line tools. Tested with these versions on 2026-08-03: adb 37.0.1, mitmproxy 12.2.3, jadx 1.5.6, objection 1.12.5. Pin versions in your package manager where you can for reproducibility.
 
 ```bash
 brew install --cask android-platform-tools
-brew install mitmproxy@10.0.0 jadx@1.4.0
-brew install --cask docker@4.30.0
-pipx install objection==1.11.0
+brew install mitmproxy jadx
+brew install --cask docker
+pipx install objection==1.12.5
 ```
 
 **Smoke test every tool before proceeding:**
@@ -229,7 +215,7 @@ Gotcha to know now: exodus-standalone only ships for linux/amd64. On Apple Silic
 
 ---
 
-## Part 1 — Get the APK file
+## Part 1  -  Get the APK file
 
 Best way: pull it from a real device or your emulator. This gives clean proof of where it came from.
 
@@ -320,7 +306,7 @@ Note on other sources:
 
 ---
 
-## Part 2 — The offline test (do this first)
+## Part 2  -  The offline test (do this first)
 
 This is the fast test. Do it before the deep tests.
 
@@ -415,7 +401,7 @@ The result:
 
 ---
 
-## Part 3 — Static scan (what is inside the file)
+## Part 3  -  Static scan (what is inside the file)
 
 This finds trackers and permissions without running the app.
 
@@ -460,6 +446,7 @@ Why this matters:
 * The public exodus website has NO report for the Nurture Lock package. This was confirmed: the site returns an empty list and a 404 for that package.
 * Running exodus yourself makes the report that does not exist yet.
 * **False positive warning:** exodus relies on signature matching. New or obfuscated trackers may be missed. Treat zero trackers as "no known trackers," not "no trackers."
+* **Digest note:** The `EXODUS_IMAGE` digest is pinned for reproducibility. Confirm the current digest from Docker Hub before your first run. The 2026-08-03 audit did not run exodus; static findings came from the jadx decompile below.
 
 Step 4. Decompile the app to read strings:
 
@@ -485,7 +472,7 @@ grep -rEi \
 
 ---
 
-## Part 4 — Dynamic capture (what it does when running)
+## Part 4  -  Dynamic capture (what it does when running)
 
 This watches real traffic while you use the app. This is the strongest proof.
 
@@ -493,7 +480,7 @@ Step 1. Make sure mitmweb is still running and the emulator still points at `${P
 
 Step 2. Open the app.
 
-Step 3. Do the same actions as Part 2 (profile, feed, sleep, diaper) — including the metamorphic variants.
+Step 3. Do the same actions as Part 2 (profile, feed, sleep, diaper)  -  including the metamorphic variants.
 
 Step 4. Look at every request in mitmproxy.
 
@@ -567,7 +554,7 @@ Two 2026 gotchas for pinning:
 
 ---
 
-## Part 5 — Write your results
+## Part 5  -  Write your results
 
 Fill in this table for each app.
 
@@ -589,7 +576,7 @@ The pass / fail rule:
 
 ---
 
-## Part 5.5 — FOSS and web app testing (Baby Buddy)
+## Part 5.5  -  FOSS and web app testing (Baby Buddy)
 
 Baby Buddy is a free and open-source software (FOSS) baby tracker. It is different from the other three apps because its source code is public. This gives you more ways to test it.
 
@@ -696,7 +683,7 @@ Step 6. Check if the app sends data to any third-party service by default.
 
 ---
 
-## Part 6 — Backup mechanism and covert channel analysis
+## Part 6  -  Backup mechanism and covert channel analysis
 
 **P1 finding from security review:** "Offline" apps may still leak data through non-network vectors.
 
@@ -759,7 +746,7 @@ Watch for burst traffic when connectivity returns.
 
 ---
 
-## Part 7 — Cleanup and teardown
+## Part 7  -  Cleanup and teardown
 
 **Required before re-use or disposal of the test environment.**
 
@@ -830,7 +817,7 @@ Step 6. Restore emulator from snapshot or delete the AVD:
 
 ---
 
-## Part 8 — Audit log and chain of custody
+## Part 8  -  Audit log and chain of custody
 
 Every run must produce an append-only audit log:
 
@@ -867,7 +854,7 @@ after_action() {
 
 ---
 
-## Part 9 — Privacy engineering and data governance
+## Part 9  -  Privacy engineering and data governance
 
 **New in v3.0.0.** This part addresses the privacy liability created by the test itself.
 
@@ -924,7 +911,7 @@ Step 6. **Breach notification:** If artifacts are lost or leaked:
 
 ---
 
-## Part 10 — SRE and reliability engineering
+## Part 10  -  SRE and reliability engineering
 
 **New in v3.0.0.** This part ensures the harness itself is reliable and observable.
 
@@ -1067,11 +1054,11 @@ adb shell "ls /system/etc/security/cacerts/${HASH}.0" && echo "Cert already inst
 
 ## Where you may be unsure
 
-* Nubo, Pebbi, and Baby Buddy package names are not confirmed. Get them from the live Play Store pages or project repository first.
+* I resolved Nubo, Pebbi, and Baby Buddy package names from the live Play Store pages on 2026-08-03: `com.clicksie.nuboapp`, `com.pebbi.android`, Baby Buddy web-only. Confirm them again if the listings change.
 * If an app uses strong pinning that objection cannot break, you may not see the traffic. Write down that you could not decrypt it. Do not guess.
 * Static and dynamic results can differ. If they do, trust the dynamic capture, and note the difference.
 * Tool versions move fast. If a command errors, check the tool's current docs for the 2026 version before changing the method.
-* **Performance budget:** The entire procedure should complete within `${PERF_BUDGET_MINUTES}` minutes. If exceeded, escalate to the operator.
+* **Performance budget:** The whole run stays under `${PERF_BUDGET_MINUTES}` minutes. If it goes over, escalate to the operator.
 
 ---
 
@@ -1106,7 +1093,7 @@ This section is for an IDE LLM agent. Run it autonomously. Spawn one subagent pe
 * `[mitmweb]` is a singleton resource (port 8080). Only one subagent may use it at a time.
 * `[canary-test]` must run before any real test to verify harness health.
 
-**Global state schema (shared scratchpad — JSON, append-only, with optimistic locking):**
+**Global state schema (shared scratchpad  -  JSON, append-only, with optimistic locking):**
 
 ```json
 {
@@ -1154,7 +1141,7 @@ For `verdict = fail` (accusing an app of privacy violation), require consensus f
 
 ---
 
-### Subagent 1 — setup
+### Subagent 1  -  setup
 
 * Goal: make the Mac ready.
 * Commands: install Homebrew casks and tools from Part 0 with pinned versions; run smoke tests; start Docker; create or boot an arm64 emulator (API 28); verify disk space; create working directory and artifact structure; start audit log; install trap handlers.
@@ -1163,16 +1150,16 @@ For `verdict = fail` (accusing an app of privacy violation), require consensus f
 
 ---
 
-### Subagent 2 — canary-test
+### Subagent 2  -  canary-test
 
 * Goal: verify the harness can still detect leaks.
 * Commands: acquire Pebbi; run offline-probe and dynamic capture; verify at least one outbound request is detected.
 * Done-check: Pebbi produces non-empty `dynamic_findings.destinations`.
-* On fail: HUMAN-GATE — "Canary test failed. Harness may be broken. Do not proceed with real tests."
+* On fail: HUMAN-GATE  -  "Canary test failed. Harness may be broken. Do not proceed with real tests."
 
 ---
 
-### Subagent 3 — resolve-packages
+### Subagent 3  -  resolve-packages
 
 * Goal: fill in the unknown package names for Nubo, Pebbi, and Baby Buddy.
 * Commands: 
@@ -1186,7 +1173,7 @@ For `verdict = fail` (accusing an app of privacy violation), require consensus f
 
 ---
 
-### Subagent 4 — acquire (run once per package)
+### Subagent 4  -  acquire (run once per package)
 
 * Goal: get clean APK files with provenance.
 * Commands: 
@@ -1201,7 +1188,7 @@ For `verdict = fail` (accusing an app of privacy violation), require consensus f
 
 ---
 
-### Subagent 5 — offline-probe (the decisive test, run first per package)
+### Subagent 5  -  offline-probe (the decisive test, run first per package)
 
 * Goal: answer "does any data leave the phone" quickly.
 * Preconditions: mitmweb running; emulator proxy set to `${PROXY_HOST}:${PROXY_PORT}`; mitmproxy certificate trusted and verified; canary test passed.
@@ -1216,7 +1203,7 @@ For `verdict = fail` (accusing an app of privacy violation), require consensus f
 
 ---
 
-### Subagent 6 — static
+### Subagent 6  -  static
 
 * Goal: list trackers and permissions without running the app.
 * Commands: `docker run --platform linux/amd64` exodus-standalone with pinned digest, `-j -o report.json` per APK; `jadx` decompile; grep for URLs and SDK names with improved pattern.
@@ -1227,7 +1214,7 @@ For `verdict = fail` (accusing an app of privacy violation), require consensus f
 
 ---
 
-### Subagent 7 — dynamic (deep capture, and pinning bypass if needed)
+### Subagent 7  -  dynamic (deep capture, and pinning bypass if needed)
 
 * Goal: record every real destination and payload.
 * Commands: repeat the standard interactions under mitmweb; if pinning suspected, run `objection -g <package> explore` then `android sslpinning disable`, and retry.
@@ -1240,7 +1227,7 @@ For `verdict = fail` (accusing an app of privacy violation), require consensus f
 
 ---
 
-### Subagent 8 — foss-audit (run for Baby Buddy only)
+### Subagent 8  -  foss-audit (run for Baby Buddy only)
 
 * Goal: audit the open-source code for network calls and trackers.
 * Commands: clone the repository (5-minute timeout); check `app_type` field in scratchpad; if `web` or `foss`, run source audit; if `native`, skip this subagent.
@@ -1251,7 +1238,7 @@ For `verdict = fail` (accusing an app of privacy violation), require consensus f
 
 ---
 
-### Subagent 9 — report
+### Subagent 9  -  report
 
 * Goal: produce the final result table and verdicts.
 * Commands: merge static, dynamic, and FOSS audit findings; fill the Part 5 table; apply the pass/fail rule; where findings disagree, trust dynamic and note it; append final state to audit log; archive artifacts; compute archive SHA-256.
