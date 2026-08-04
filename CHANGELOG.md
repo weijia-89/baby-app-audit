@@ -1,5 +1,18 @@
 # Changelog
 
+## 3.1.1 - 2026-08-03
+
+### Fixed
+- `validate_input`: strict mode for package_name/app_type, relaxed mode for app_name (spaces allowed).
+- Part 7 cleanup: `adb root || true` with post-rm verification. `set -uo pipefail` (no `-e`).
+- Part 7 shred comment: "if available" (not "if not available").
+- EXODUS_IMAGE unpinned. EXODUS_DIGEST optional. Never add hardcoded digest.
+- `results/schema.json` name: free-form string, no enum.
+- `test_foss_app`: case-based repo_url resolution.
+- Proxy config: reads back after set; marks PROXY_NOT_SET if mismatch.
+- mitmproxy readiness: polls web port with curl (15s), not kill -0.
+- ShellCheck compliance across run-tests.sh.
+
 ## 3.1.0 - 2026-08-03
 
 ### Added

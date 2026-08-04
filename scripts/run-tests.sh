@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 # Test execution script for APK Privacy Test Harness
 # This script orchestrates testing across all 4 apps
-# Version: 3.1.0
+# Version: 3.1.1
 
 set -euo pipefail
 
 # Configuration
-export HARNESS_VERSION="3.1.0"
+export HARNESS_VERSION="3.1.1"
 export WORK_DIR="${APK_HARNESS_WORK_DIR:-${HOME}/apk-privacy-test-$(date -u +%Y%m%d-%H%M%S)}"
 export RESULTS_DIR="${WORK_DIR}/results"
 export ARTIFACTS_DIR="${WORK_DIR}/artifacts"

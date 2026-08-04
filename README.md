@@ -89,7 +89,7 @@ open APK_PRIVACY_TEST_HARNESS.md
 
 ## Results
 
-Full results with evidence: [results/RESULTS-20260803.md](results/RESULTS-20260803.md) and machine-readable [results/RESULTS-20260803.json](results/RESULTS-20260803.json). See [CHANGELOG.md](CHANGELOG.md) for history and [ARTICLE.md](ARTICLE.md) for the publication draft.
+Full results with evidence: [results/RESULTS-20260803.md](results/RESULTS-20260803.md) and machine-readable [results/RESULTS-20260803.json](results/RESULTS-20260803.json). See [CHANGELOG.md](CHANGELOG.md) for history.
 
 | App | Claim | Verdict | Key findings |
 | --- | --- | --- | --- |
