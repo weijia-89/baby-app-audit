@@ -5,23 +5,7 @@
 **Previous version:** 2.0.0-loop1-hardened  
 **Author:** Wei Jia  
 **Change type:** Loop 2 hardening  -  75 findings in round 1, 32 net-new checks in round 2, all P0–P3 fixed  
-**Migration note:** If upgrading from v1.0.0, see "Migration from v1.0.0" below before starting.
-
 META: Reproducible test steps · plain STE-style English · one action per line · runs locally on macOS Apple Silicon · includes a machine-readable agent plan · for an ADHD/ASD reader and for an autonomous IDE LLM · hardened against false negatives, supply-chain tampering, automation failure, privacy liability, and cascading infrastructure failure
-
----
-
-## Migration from v1.0.0
-
-If you used v1.0.0 of this harness before, these changes affect your workflow:
-
-1. **Environment variables required:** All configuration now runs through env vars (lines 45–70). Define them before you start.
-2. **Working directory structure:** All artifacts go under `~/apk-privacy-test-<timestamp>/artifacts/`. Do not run from arbitrary directories.
-3. **Bash required:** This harness assumes `bash` (for `set -euo pipefail`). zsh/fish users must invoke `bash` explicitly.
-   * zsh equivalent: `set -e; set -o pipefail` (no `-u` equivalent; use `setopt nounset`)
-   * fish equivalent: fish does not support `set -euo pipefail`. Use `bash` for this harness.
-4. **Tool versions pinned:** Specific versions are now required. Update your tools before starting.
-5. **Cleanup mandatory:** CA removal and app uninstall are now required steps (Part 7). Skipping them leaves the device compromised.
 
 ---
 
