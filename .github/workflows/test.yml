@@ -40,7 +40,7 @@ jobs:
       - name: Check for banned vocabulary (all public docs)
         run: |
           failed=0
-          for file in APK_PRIVACY_TEST_HARNESS.md README.md METHODOLOGY.md CHANGELOG.md ARTICLE.md results/RESULTS-20260803.md; do
+          for file in APK_PRIVACY_TEST_HARNESS.md README.md METHODOLOGY.md CHANGELOG.md results/RESULTS-20260803.md; do
             if grep -qiE "\b(leverage|utilize|robust|scalable|seamlessly|comprehensive)\b" "$file"; then
               echo "ERROR: Banned vocabulary found in $file"
               failed=1

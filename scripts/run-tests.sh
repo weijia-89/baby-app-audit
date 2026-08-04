@@ -384,7 +384,8 @@ test_native_app() {
     return 0
 }
 
-# Test FOSS/web app
+# Test FOSS/web app — clones the source repo and audits for trackers.
+# Any FOSS app added to main() must have a case entry here.
 test_foss_app() {
     local app_name="$1"
     local package_name="$2"
@@ -393,20 +394,31 @@ test_foss_app() {
     
     log "[$app_name] Starting FOSS/web test..."
     
-    # For Baby Buddy, clone and audit source
-    if [ "$app_name" = "Baby Buddy" ]; then
-        local repo_dir="$WORK_DIR/babybuddy-source"
-        
-        log "[$app_name] Cloning repository..."
-        local clone_success=false
-        
-        if command -v gtimeout >/dev/null 2>&1; then
-            gtimeout 300 git clone --depth 1 https://github.com/babybuddy/babybuddy.git "$repo_dir" 2>>"$log_file" && clone_success=true
-        elif command -v timeout >/dev/null 2>&1; then
-            timeout 300 git clone --depth 1 https://github.com/babybuddy/babybuddy.git "$repo_dir" 2>>"$log_file" && clone_success=true
-        else
-            git clone --depth 1 https://github.com/babybuddy/babybuddy.git "$repo_dir" 2>>"$log_file" && clone_success=true
-        fi
+    # Resolve repo URL from app name
+    local repo_url=""
+    case "$app_name" in
+        "Baby Buddy")
+            repo_url="https://github.com/babybuddy/babybuddy.git"
+            ;;
+        *)
+            warn "[$app_name] No FOSS repo configured - skipping source audit"
+            jq '.verdict = "untested" | .status = "NO_FOSS_REPO_CONFIGURED"' "$results_file" > "$results_file.tmp" && mv "$results_file.tmp" "$results_file"
+            return 0
+            ;;
+    esac
+    
+    local repo_dir="$WORK_DIR/${app_name// /-}-source"
+    
+    log "[$app_name] Cloning repository..."
+    local clone_success=false
+    
+    if command -v gtimeout >/dev/null 2>&1; then
+        gtimeout 300 git clone --depth 1 "$repo_url" "$repo_dir" 2>>"$log_file" && clone_success=true
+    elif command -v timeout >/dev/null 2>&1; then
+        timeout 300 git clone --depth 1 "$repo_url" "$repo_dir" 2>>"$log_file" && clone_success=true
+    else
+        git clone --depth 1 "$repo_url" "$repo_dir" 2>>"$log_file" && clone_success=true
+    fi
         
         if [ "$clone_success" = "true" ]; then
             log "[$app_name] Repository cloned successfully"
@@ -436,8 +448,8 @@ test_foss_app() {
             
             log "[$app_name] Found $network_count network references, $tracker_count tracker references"
             
-            jq --arg commit "$commit_hash" --arg net "$network_count" --arg track "$tracker_count" '.tests.source_audit = {
-                "repository_url": "https://github.com/babybuddy/babybuddy",
+            jq --arg commit "$commit_hash" --arg url "$repo_url" --arg net "$network_count" --arg track "$tracker_count" '.tests.source_audit = {
+                "repository_url": $url,
                 "commit_hash": $commit,
                 "network_endpoints": [],
                 "tracker_libraries": [],
@@ -458,7 +470,6 @@ test_foss_app() {
             jq '.verdict = "untested" | .status = "CLONE_FAILED"' "$results_file" > "$results_file.tmp" && mv "$results_file.tmp" "$results_file"
             return 1
         fi
-    fi
     
     jq '.verdict = "pass" | .status = "COMPLETED" | .verdict_confidence = 100' "$results_file" > "$results_file.tmp" && mv "$results_file.tmp" "$results_file"
     log "[$app_name] Test completed"
