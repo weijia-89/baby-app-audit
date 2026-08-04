@@ -12,7 +12,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  HARNESS_VERSION: "3.1.0"
+  HARNESS_VERSION: "3.1.1"
   PROXY_PORT: "8080"
 
 jobs:
@@ -63,9 +63,9 @@ jobs:
 
       - name: Verify harness version agreement
         run: |
-          grep -q 'HARNESS_VERSION="3.1.0"' scripts/run-tests.sh || exit 1
-          grep -q 'HARNESS_VERSION: "3.1.0"' .github/workflows/test.yml || exit 1
-          grep -q '## 3.1.0' CHANGELOG.md || exit 1
+          grep -q 'HARNESS_VERSION="3.1.1"' scripts/run-tests.sh || exit 1
+          grep -q 'HARNESS_VERSION: "3.1.1"' .github/workflows/test.yml || exit 1
+          grep -q '## 3.1.1' CHANGELOG.md || exit 1
           grep -q '3.1.0' results/RESULTS-20260803.md || exit 1
           echo "Versions agree across artifacts"
 
@@ -123,6 +123,15 @@ jobs:
       fail-fast: false
       matrix:
         app: [nurturelock, nubo, pebbi, babybuddy]
+        include:
+          - app: nurturelock
+            proxy_port: "8080"
+          - app: nubo
+            proxy_port: "8081"
+          - app: pebbi
+            proxy_port: "8082"
+          - app: babybuddy
+            proxy_port: "8083"
     steps:
       - uses: actions/checkout@v4
 
@@ -130,6 +139,7 @@ jobs:
         run: |
           mkdir -p artifacts/{apks,reports,logs,captures}
           echo "TIMESTAMP_START=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> $GITHUB_ENV
+          echo "PROXY_PORT=${{ matrix.proxy_port }}" >> $GITHUB_ENV
 
       - name: Run smoke tests
         run: |
