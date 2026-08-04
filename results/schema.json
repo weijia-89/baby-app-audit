@@ -46,7 +46,7 @@
         "properties": {
           "name": {
             "type": "string",
-            "enum": ["Nurture Lock", "Nubo", "Pebbi", "Baby Buddy"]
+            "description": "App name (display name, not slug)"
           },
           "package_name": { "type": "string" },
           "app_type": {
