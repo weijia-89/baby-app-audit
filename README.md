@@ -2,17 +2,18 @@
 
 [![License](https://img.shields.io/badge/license-GPL--3.0-blue.svg)](LICENSE)
 
-An audit of a number of infant milestone apps to see how much data companies collect on use. 
+An audit of baby and parenting apps to see how much data companies collect.
 
 ---
 
 ## What This Is
 
-Parents use baby tracking apps to record feeding, sleep, and diaper changes. The last thing most parents want is to have all of that data recorded in a DB somewhere for later resale down-the-line. 
+Parents use baby tracking apps to record feeding, sleep, and diaper changes. Most parents do not want that data saved in a database for later resale.
 
-Some of these apps claim that data never leaves the phone but that hasn't been backed by independent audits. And given the history of [certain applications](https://doi.org/10.3390/jcp3030016) with [broken privacy promises](https://www.bitdefender.com/en-us/blog/labs/notes-on-throughtek-kalay-vulnerabilities-and-their-impact), it felt important to complete an actual audit.
+Some apps claim data never leaves the phone. No independent audit has backed that claim. Given the history of [certain applications](https://doi.org/10.3390/jcp3030016) with [broken privacy promises](https://www.bitdefender.com/en-us/blog/labs/notes-on-throughtek-kalay-vulnerabilities-and-their-impact), I completed an actual audit.
 
 ## What Was Tested
+
 | App | Type | Claim |
 | --- | --- | --- |
 | Nurture Lock | Native Android | "100% offline" |
@@ -20,19 +21,21 @@ Some of these apps claim that data never leaves the phone but that hasn't been b
 | Pebbi | Native Android | No claim (positive control) |
 | Baby Buddy | FOSS / Web | Open-source |
 
-These were just the apps that my partner and I had done some research on and which the internet recommended as 'private.' 
+These were apps my partner and I researched. The internet recommended them as "private."
 
-Baby Buddy, as a FOSS option, was added as control since the codebase is fully auditable. But it was subjected to the same review and network activity scrutiny as the rest.
+Baby Buddy is a FOSS option. I added it as a control since the codebase is fully auditable. But I subjected it to the same review and network scrutiny as the rest.
 
-## How Did I Test
+I also found 16+ additional candidates. They are in `localonly/candidates.md` and split into Tier 1 (test next), Tier 2 (test later), Tier 3 (low priority), wearable/IoT, and out-of-scope.
 
-* With an LLM paired with a test harness that runs an Android emulator. 
-* Network traffic captured and logged by mitmproxy. 
-* Code decompiled with jadx.
+## How I Test
 
-For web apps like Baby Buddy, the app was also run locally and browser traffic was captured.
+* An LLM paired with a test harness that runs an Android emulator.
+* mitmproxy captures and logs network traffic.
+* jadx decompiles code.
 
-**Tested tool versions (2026-08-03):** mitmproxy 12.2.3, jadx 1.5.6, objection 1.12.5, adb 37.0.1, apkeep 1.0.0.
+For web apps like Baby Buddy, I run the app locally and capture browser traffic.
+
+**Tool versions (2026-08-03):** mitmproxy 12.2.3, jadx 1.5.6, objection 1.12.5, adb 37.0.1, apkeep 1.0.0.
 
 ## Test Steps (If You Want to Do It Yourself)
 
@@ -43,9 +46,9 @@ For web apps like Baby Buddy, the app was also run locally and browser traffic w
 5. Watch mitmproxy for outbound requests.
 6. Run a static scan for trackers and permissions.
 7. Capture dynamic traffic.
-8. Check for covert channels (BLE, NFC, ultrasound, DNS tunneling). 
+8. Check for covert channels (BLE, NFC, ultrasound, DNS tunneling).
 
-Note - Radio checks (BLE, NFC, ultrasound) require physical hardware and were not performed. It's also an incredibly impractical way of siphoning data. Future iterations may add this in especially if there are accessories that use these protocols to sync with the app but the current focus is on the apps alone.
+Note - Radio checks need physical hardware. I did not perform them. They are also an impractical way to siphon data. Future work may add them if accessories use these protocols to sync with the app. The current focus is on the apps alone.
 
 ## Quick Start
 
@@ -108,7 +111,7 @@ Full results with evidence: [results/RESULTS-20260803.md](results/RESULTS-202608
 
 **Baby Buddy** - the FOSS control passed. Source audit found 67 network references, all in Django docs or configuration examples, and 0 tracking libraries. Dynamic test captured all traffic on localhost only. Details: [Baby Buddy section](results/RESULTS-20260803.md#baby-buddy).
 
-**Method and limits:** the full procedure is in [APK_PRIVACY_TEST_HARNESS.md](APK_PRIVACY_TEST_HARNESS.md). Method, consent, and known limitations (no radio checks, no static scan for Nubo) are in [METHODOLOGY.md](METHODOLOGY.md). Version history in [CHANGELOG.md](CHANGELOG.md).
+**Method and limits:** the full procedure is in [APK_PRIVACY_TEST_HARNESS.md](APK_PRIVACY_TEST_HARNESS.md). Method, consent, and known limits (no radio checks, no static scan for Nubo) are in [METHODOLOGY.md](METHODOLOGY.md). Version history in [CHANGELOG.md](CHANGELOG.md).
 
 ## Discussion and Roadmap
 
@@ -121,14 +124,16 @@ This project is on a multi-sprint roadmap. Sprint 1 is complete.
 * **Expanded candidates:** 16+ new apps in `localonly/candidates.md` across Tier 1-3, wearable/IoT, and out-of-scope lists.
 * **Research prompts:** Four prompts in `prompts/` for finding apps, building scoring rubrics, mapping prior art, and researching device identities.
 * **CI expansion:** Test matrix now covers 11 apps with ports 8080-8090.
+* **Unit tests:** `tests/test-decode-traffic.sh` has 11 tests for the decoder script.
+* **External config:** Product metadata now lives in `results/product-metadata.json` instead of hardcoded values.
 
 ### What is next
 
-* **Sprint 2:** Cross-team integration, evidence schema migration v1 to v2, per-product test paths.
-* **Sprint 3:** Security EOL/CVE monitor, FOSS test path automation, Tier 1 app testing begins.
-* **Sprint 4:** Finalize all prompts, complete candidates.md, version bump to 3.2.0.
+* **Sprint 2:** Run full tests on Tier 1 apps. Enforce schema validation in CI. Validate the BabyBuddy FOSS path.
+* **Sprint 3:** Close look at wearable baby monitors (Owlet). Add dark pattern detection. Compare data practices across apps.
+* **Sprint 4:** Generate the final report. Publish the methodology. Open-source the tool.
 
-If folks have any suggestions of what they want to see next in terms of coverage, please let me know. And any issues with the methodology will be warmly accepted and considered.
+If you have suggestions for coverage or issues with the methodology, I welcome them.
 
 ## Artifacts
 
