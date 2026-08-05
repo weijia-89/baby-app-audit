@@ -1,6 +1,6 @@
 # Changelog
 
-## 3.3.0 - [DATE]
+## 3.3.0 - 2026-08-05
 
 ### Added
 - Owlet ecosystem testing: Owlet Sock and Owlet Cam added to candidates.md with MDR/RED regime, verified CVE data from NVD, and test plan.
