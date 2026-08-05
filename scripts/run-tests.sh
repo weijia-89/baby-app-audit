@@ -9,7 +9,7 @@ set -euo pipefail
 # Port allocation: each app gets a unique PROXY_PORT.
 # Default range: 8080-8095 (supports up to 16 apps).
 # Override per-app: PROXY_PORT=8081 ./run-tests.sh --live
-export HARNESS_VERSION="3.1.1"
+export HARNESS_VERSION="3.2.0"
 export WORK_DIR="${APK_HARNESS_WORK_DIR:-${HOME}/apk-privacy-test-$(date -u +%Y%m%d-%H%M%S)}"
 export RESULTS_DIR="${WORK_DIR}/results"
 export ARTIFACTS_DIR="${WORK_DIR}/artifacts"
@@ -24,15 +24,23 @@ if ! [[ "$PROXY_PORT" =~ ^[0-9]+$ ]] || [ "$PROXY_PORT" -lt 1 ] || [ "$PROXY_POR
     exit 1
 fi
 
-# App list: space-separated "Name|type|package" triples.
+# App list: semicolon-separated "Name|type|package" triples.
 # Type: native | foss | web
 # Package: empty string for FOSS/web apps without a package name.
-# Example: APK_HARNESS_APPS="Nurture Lock|native|com.angry.shark.studio.nurturelock Nubo|native|com.clicksie.nuboapp"
-DEFAULT_APPS="Nurture Lock|native|com.angry.shark.studio.nurturelock Nubo|native|com.clicksie.nuboapp Pebbi|native|com.pebbi.android Baby Buddy|foss|"
+# Example: APK_HARNESS_APPS="Nurture Lock|native|com.angry.shark.studio.nurturelock;Nubo|native|com.clicksie.nuboapp"
+DEFAULT_APPS="Nurture Lock|native|com.angry.shark.studio.nurturelock;Nubo|native|com.clicksie.nuboapp;Pebbi|native|com.pebbi.android;Baby Buddy|foss|;BabyTrack|native|com.babytrack.app;Amila|native|com.amila.babytracker;Wachanga|native|com.wachanga.babymilestones"
 APK_HARNESS_APPS="${APK_HARNESS_APPS:-$DEFAULT_APPS}"
-# Trim trailing whitespace to prevent empty iterations
-APK_HARNESS_APPS="${APK_HARNESS_APPS#"${APK_HARNESS_APPS%%[![:space:]]*}"}"
-APK_HARNESS_APPS="${APK_HARNESS_APPS%"${APK_HARNESS_APPS##*[![:space:]]}"}"
+
+# Backward compatibility check: space delimiter was removed in v3.2.0.
+# Semicolons are the only supported delimiter now.
+if [[ "$APK_HARNESS_APPS" == *' '* ]] && [[ "$APK_HARNESS_APPS" != *';'* ]]; then
+    error "APK_HARNESS_APPS uses space delimiter (removed in v3.2.0). Use semicolons between app triples. Example: 'App1|native|pkg;App2|foss|'"
+    exit 1
+fi
+
+# Trim leading/trailing whitespace and semicolons to prevent empty iterations
+APK_HARNESS_APPS="${APK_HARNESS_APPS#"${APK_HARNESS_APPS%%[![:space:];]*}"}"
+APK_HARNESS_APPS="${APK_HARNESS_APPS%"${APK_HARNESS_APPS##*[![:space:];]}"}"
 
 # Live mode: set to 1 to attempt live traffic capture; 0 for dry/check only
 LIVE_MODE=0
@@ -583,8 +591,9 @@ main() {
     # Test apps (package names are the audit targets resolved during testing)
     local exit_code=0
     local app_idx=0
-    for app_triple in $APK_HARNESS_APPS; do
-        IFS='|' read -r app_name app_type package_name <<< "$app_triple"
+    while IFS='|' read -r app_name app_type package_name; do
+        # Skip empty lines from trailing semicolons
+        [ -z "$app_name" ] && continue
         # Each app gets a unique port offset
         local app_port=$((PROXY_PORT + app_idx))
         local app_web_port=$((app_port + 100))
@@ -596,7 +605,7 @@ main() {
         export MITM_WEB_PORT="$app_web_port"
         test_app "$app_name" "$app_type" "$package_name" || exit_code=1
         app_idx=$((app_idx + 1))
-    done
+    done <<< "$(printf '%s' "$APK_HARNESS_APPS" | tr ';' '\n')"
     
     # Generate summary conforming to results/schema.json
     log "Generating summary..."

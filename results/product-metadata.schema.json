@@ -1,0 +1,69 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Product Metadata Schema",
+  "description": "Schema for product-metadata.json - per-product metadata for decode-traffic.sh",
+  "type": "object",
+  "required": ["products", "default"],
+  "properties": {
+    "products": {
+      "type": "object",
+      "patternProperties": {
+        "^[a-zA-Z0-9._]+$": {
+          "$ref": "#/definitions/productEntry"
+        }
+      },
+      "additionalProperties": false
+    },
+    "default": {
+      "$ref": "#/definitions/productEntry"
+    }
+  },
+  "definitions": {
+    "productEntry": {
+      "type": "object",
+      "required": ["retention_schedule", "security_eol", "cve_list", "regulatory_regime", "device_identity"],
+      "properties": {
+        "retention_schedule": {
+          "type": "object",
+          "required": ["policy_days", "policy_description", "indefinite"],
+          "properties": {
+            "policy_days": {"type": "integer"},
+            "policy_description": {"type": "string"},
+            "indefinite": {"type": "boolean"}
+          }
+        },
+        "security_eol": {
+          "type": "object",
+          "required": ["eol_date", "device_model", "eol_confidence"],
+          "properties": {
+            "eol_date": {"type": "string"},
+            "device_model": {"type": "string"},
+            "eol_confidence": {"type": "string", "enum": ["confirmed", "estimated", "unknown"]}
+          }
+        },
+        "cve_list": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["cve_id", "severity", "description"],
+            "properties": {
+              "cve_id": {"type": "string", "pattern": "^CVE-[0-9]{4}-[0-9]+$"},
+              "severity": {"type": "string", "enum": ["low", "medium", "high", "critical"]},
+              "description": {"type": "string"}
+            }
+          }
+        },
+        "regulatory_regime": {"type": "string"},
+        "device_identity": {
+          "type": "object",
+          "required": ["basic_udi_di", "model_number", "regime"],
+          "properties": {
+            "basic_udi_di": {"type": "string"},
+            "model_number": {"type": "string"},
+            "regime": {"type": "string"}
+          }
+        }
+      }
+    }
+  }
+}

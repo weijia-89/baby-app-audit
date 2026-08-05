@@ -59,6 +59,18 @@ if [ ! -r "$HAR_FILE" ]; then
     exit 1
 fi
 
+# If output file specified, ensure parent directory exists and is writable
+if [ -n "$OUTPUT_FILE" ]; then
+    OUTPUT_DIR="$(dirname "$OUTPUT_FILE")"
+    if [ ! -d "$OUTPUT_DIR" ]; then
+        error "Output directory does not exist: $OUTPUT_DIR"
+        exit 1
+    fi
+    if [ ! -w "$OUTPUT_DIR" ]; then
+        error "Output directory is not writable: $OUTPUT_DIR"
+        exit 1
+    fi
+fi
 # Validate package name: no shell metacharacters
 if [[ "$PACKAGE_NAME" =~ [\"\`\'\$\;\|\&\<\>] ]]; then
     error "Invalid characters in package_name"
@@ -83,6 +95,15 @@ case "$PACKAGE_NAME" in
         ;;
     com.pebbi.android)
         FILTER_HOST="pebbi"
+        ;;
+    com.babytrack.app)
+        FILTER_HOST="babytrack"
+        ;;
+    com.amila.babytracker)
+        FILTER_HOST="amila"
+        ;;
+    com.wachanga.babymilestones)
+        FILTER_HOST="wachanga"
         ;;
     *)
         # Fallback: use the last segment of the package name
@@ -265,37 +286,18 @@ for entry in entries:
         unique_trackers.add(tracker_name)
     unique_dests.add(host)
 
-# Per-product metadata (hardcoded per roadmap; future: external config)
+# Per-product metadata loaded from external config
+config_file = os.environ.get('PRODUCT_CONFIG', sys.argv[4] if len(sys.argv) > 4 else 'results/product-metadata.json')
 product_metadata = {}
-if package_name == 'com.angry.shark.studio.nurturelock':
-    product_metadata = {
-        'retention_schedule': {'policy_days': 0, 'policy_description': 'Claimed offline - no retention', 'indefinite': False},
-        'security_eol': {'eol_date': 'unknown', 'device_model': 'Nurture Lock', 'eol_confidence': 'unknown'},
-        'cve_list': [],
-        'regulatory_regime': 'unknown',
-        'device_identity': {'basic_udi_di': '', 'model_number': '', 'regime': 'unknown'}
-    }
-elif package_name == 'com.clicksie.nuboapp':
-    product_metadata = {
-        'retention_schedule': {'policy_days': 30, 'policy_description': 'Sight 30 days', 'indefinite': False},
-        'security_eol': {'eol_date': 'unknown', 'device_model': 'Nubo', 'eol_confidence': 'unknown'},
-        'cve_list': [],
-        'regulatory_regime': 'unknown',
-        'device_identity': {'basic_udi_di': '', 'model_number': '', 'regime': 'unknown'}
-    }
-elif package_name == 'com.pebbi.android':
-    product_metadata = {
-        'retention_schedule': {'policy_days': 14, 'policy_description': 'Clips 14 days', 'indefinite': False},
-        'security_eol': {'eol_date': '2027-12-31', 'device_model': 'Pebbi Cam 2', 'eol_confidence': 'confirmed'},
-        'cve_list': [
-            {'cve_id': 'CVE-2023-6321', 'severity': 'high', 'description': 'Buffer overflow in video stream handler'},
-            {'cve_id': 'CVE-2023-6323', 'severity': 'medium', 'description': 'Authentication bypass in admin panel'},
-            {'cve_id': 'CVE-2023-6324', 'severity': 'high', 'description': 'Information disclosure in log files'}
-        ],
-        'regulatory_regime': 'RED',
-        'device_identity': {'basic_udi_di': '', 'model_number': 'Pebbi-Cam-2', 'regime': 'RED'}
-    }
-else:
+if os.path.isfile(config_file):
+    try:
+        with open(config_file, 'r') as cf:
+            config = json.load(cf)
+            product_metadata = config.get('products', {}).get(package_name, config.get('default', {}))
+    except (json.JSONDecodeError, IOError):
+        product_metadata = {}
+
+if not product_metadata:
     product_metadata = {
         'retention_schedule': {'policy_days': 0, 'policy_description': 'unknown', 'indefinite': False},
         'security_eol': {'eol_date': 'unknown', 'device_model': 'unknown', 'eol_confidence': 'unknown'},
@@ -330,25 +332,59 @@ export TOOL_VERSIONS
 log "Decoding HAR: $HAR_FILE for package: $PACKAGE_NAME"
 
 # Run Python decoder
-DECODED=$(python3 -c "$PYTHON_SCRIPT" "$HAR_FILE" "$PACKAGE_NAME" "$FILTER_HOST" 2>&1) || {
+CONFIG_FILE="$(dirname "$0")/../results/product-metadata.json"
+DECODED=$(python3 -c "$PYTHON_SCRIPT" "$HAR_FILE" "$PACKAGE_NAME" "$FILTER_HOST" "$CONFIG_FILE" 2>&1) || {
     error "Failed to decode HAR: $DECODED"
     exit 1
 }
 
 # Validate output against schema if available
-SCHEMA_FILE="$(dirname "$0")/../results/decode-traffic.schema.json"
+SCHEMA_FILE="${SCHEMA_FILE:-$(dirname "$0")/../results/decode-traffic.schema.json}"
+export SCHEMA_FILE
+STRICT_MODE="${DECODE_TRAFFIC_STRICT:-0}"
 if [ -f "$SCHEMA_FILE" ] && command -v python3 >/dev/null 2>&1; then
     if python3 -c 'import json,sys; json.load(open(sys.argv[1]))' "$SCHEMA_FILE" 2>/dev/null; then
-        log "Schema file readable: $SCHEMA_FILE"
+        if python3 -c 'import jsonschema' 2>/dev/null; then
+            VALIDATION_OUTPUT=$(printf '%s' "$DECODED" | python3 -c "
+import json, sys, jsonschema, os
+schema = json.load(open(os.environ['SCHEMA_FILE']))
+data = json.load(sys.stdin)
+try:
+    jsonschema.validate(data, schema)
+    sys.exit(0)
+except jsonschema.ValidationError as e:
+    print(f'SCHEMA_ERROR: {e.message}', file=sys.stderr)
+    sys.exit(1)
+" 2>&1)
+            VALIDATION_STATUS=$?
+            if [ "$VALIDATION_STATUS" -eq 0 ]; then
+                log "Output validated against schema: $SCHEMA_FILE"
+            else
+                if [ "$STRICT_MODE" = "1" ]; then
+                    error "Output does not conform to schema (strict mode enabled)"
+                    printf '%s\n' "$VALIDATION_OUTPUT" >&2
+                    exit 1
+                else
+                    warn "Output does not conform to schema (install jsonschema for full validation)"
+                fi
+            fi
+        else
+            if [ "$STRICT_MODE" = "1" ]; then
+                error "jsonschema module required for strict mode validation"
+                exit 1
+            else
+                log "Schema file readable (install jsonschema for full validation): $SCHEMA_FILE"
+            fi
+        fi
     fi
 fi
 
 # Output
 if [ -n "$OUTPUT_FILE" ]; then
-    echo "$DECODED" > "$OUTPUT_FILE"
+    printf '%s' "$DECODED" > "$OUTPUT_FILE"
     log "Output written to: $OUTPUT_FILE"
 else
-    echo "$DECODED"
+    printf '%s' "$DECODED"
 fi
 
 log "Decoded $(printf '%s' "$DECODED" | python3 -c "import json,sys; d=json.load(sys.stdin); print(len(d.get('flows',[])))") flows"

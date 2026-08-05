@@ -1,0 +1,9 @@
+{
+  "name": "Wachanga",
+  "package_name": "com.wachanga.babymilestones",
+  "app_type": "native",
+  "verdict": "untested",
+  "verdict_confidence": 0,
+  "timestamp": "2026-08-04T00:00:00Z",
+  "note": "Skeleton entry - Tier 1 candidate. Not tested yet."
+}

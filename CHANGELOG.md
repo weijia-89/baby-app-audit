@@ -1,5 +1,62 @@
 # Changelog
 
+## 3.2.0 - 2026-08-05
+
+### Added
+- Schema enforcement gate in CI. `decode-traffic.sh` now supports `DECODE_TRAFFIC_STRICT=1` mode.
+- Strict mode exits with code 1 when output does not conform to `results/decode-traffic.schema.json`.
+- CI unit-tests job now runs strict-mode validation on every build.
+- `SCHEMA_FILE` environment variable overrides the default schema path.
+- Two new unit tests for strict mode (valid pass, invalid fail).
+- Tier 1 apps added to harness: BabyTrack, Amila, Wachanga.
+
+### Changed
+- decode-traffic.sh schema validation now captures exit code correctly. It used to mask failures.
+- decode-traffic.sh schema file path is now overridable via `SCHEMA_FILE` env var.
+- `run-tests.sh` app list delimiter changed from space to semicolon. This fixes word-splitting on app names with spaces.
+
+### Fixed
+- `run-tests.sh` no longer breaks multi-word app names (e.g., "Baby Buddy", "Nurture Lock") due to bash word splitting.
+- `decode-traffic.sh` now uses `printf` instead of `echo` for JSON output to avoid flag injection.
+- `decode-traffic.sh` FILTER_HOST now includes Tier 1 apps (BabyTrack, Amila, Wachanga).
+- `tests/test-decode-traffic.sh` cleanup trap now removes all test fixtures.
+- `tests/test-decode-traffic.sh` Tests 12 and 13 now use distinct output files.
+- `tests/test-decode-traffic.sh` Tests 12 and 13 now capture stderr for debugging.
+- CI `unit-tests` job now has `timeout-minutes: 10`.
+- CI schema validation gate now pins `jsonschema==4.26.0`.
+- CI schema validation gate now writes to workspace instead of `/tmp`.
+- CI now validates `localonly/skeletons/*.json` are valid JSON.
+- CI `generate-summary` now reads app list dynamically from `test-matrix` output.
+- CI `download-artifact` now uses `if-no-files-found: ignore`.
+- CI `canary.yml` now actually runs unit tests and harness dry-run.
+- `run-tests.sh` now detects and converts deprecated space-delimited `APK_HARNESS_APPS`.
+
+## 3.1.2 - 2026-08-05
+
+### Added
+- `results/product-metadata.json` - stores product metadata outside the code.
+- `results/product-metadata.schema.json` - schema for the metadata file.
+- `tests/test-decode-traffic.sh` - 11 unit tests for the decoder.
+- `tests/fixtures/test-capture.har` - test data for unit tests.
+- CI now runs unit tests and checks product-metadata.json.
+- Canary checks now validate product-metadata.json and its schema.
+- decode-traffic.sh now checks that the output directory exists before writing.
+
+### Changed
+- decode-traffic.sh loads product metadata from a config file. It used to be hardcoded.
+- Schema validation in decode-traffic.sh now uses an environment variable. It used to use shell string expansion.
+- Python inline script in decode-traffic.sh now uses a relative path. It used to use `__file__`.
+- Removed ROADMAP-PROMPT-v2.md and v3.md from git. Added them to .gitignore.
+- Added a single `roadmap.md` file for the project roadmap.
+
+### Fixed
+- Python `__file__` error when running inline scripts.
+- Single quote injection risk in schema file paths.
+- Unit test cleanup now uses `trap EXIT` for reliability.
+- Test HAR now includes matching flows so the decoder runs the full path.
+- Missing config file now falls back to default values.
+- Corrupted config file now falls back to default values.
+
 ## 3.1.1 - 2026-08-03
 
 ### Added
@@ -21,76 +78,76 @@
 - `run-tests.sh`: App list configurable via `APK_HARNESS_APPS` env var.
 
 ### Fixed
-- `validate_input`: strict mode for package_name/app_type, relaxed mode for app_name (spaces allowed).
-- Part 7 cleanup: `adb root || true` with post-rm verification. `set -uo pipefail` (no `-e`).
-- Part 7 shred comment: "if available" (not "if not available").
-- EXODUS_IMAGE unpinned. EXODUS_DIGEST optional. Never add hardcoded digest.
-- `results/schema.json` name: free-form string, no enum.
-- `test_foss_app`: case-based repo_url resolution.
-- Proxy config: reads back after set; marks PROXY_NOT_SET if mismatch.
-- mitmproxy readiness: polls web port with curl (15s), not kill -0.
-- ShellCheck compliance across run-tests.sh.
+- `validate_input` now uses strict mode for package names and app types. It uses relaxed mode for app names.
+- Part 7 cleanup uses `adb root || true` with post-removal checks. Uses `set -uo pipefail` without `-e`.
+- Part 7 shred comment now says "if available".
+- EXODUS_IMAGE is no longer pinned. EXODUS_DIGEST is optional.
+- `results/schema.json` name field is now a free-form string.
+- `test_foss_app` now uses case-based repo_url matching.
+- Proxy config now reads back after setting. Marks PROXY_NOT_SET if values do not match.
+- mitmproxy readiness now polls the web port with curl for 15 seconds.
+- ShellCheck now passes on run-tests.sh.
 
 ## 3.1.0 - 2026-08-03
 
 ### Added
-- Nurture Lock dynamic test: RevenueCat subscriber API call captured on launch.
-- Nurture Lock static analysis: 8 tracking libraries confirmed (RevenueCat, Mixpanel, Firebase, AppsFlyer, Adjust, OneSignal, CleverTap, Tenjin).
-- Nubo package name resolved: `com.clicksie.nuboapp`.
-- Nubo dynamic test: Firebase (Installations, Crashlytics, Analytics, FCM) on first launch with session data, screen views, splash timing, onboarding tracking.
-- Pebbi dynamic test: Firebase, version-policy phoning home every ~30s, FCM registration.
-- Pebbi static analysis: Firebase, AdServices, Install Referrer, RevenueCat, PairIP LicenseCheck.
-- APK downloads via apkeep (APKPure source).
-- System certificate installation via `-writable-system` emulator flag.
+- Nurture Lock dynamic test - caught RevenueCat API call on launch.
+- Nurture Lock static analysis - found 8 tracking libraries.
+- Nubo package name found - `com.clicksie.nuboapp`.
+- Nubo dynamic test - Firebase sends session data, screen views, and onboarding tracking on first launch.
+- Pebbi dynamic test - Firebase and version-policy checks every ~30 seconds.
+- Pebbi static analysis - found Firebase, AdServices, Install Referrer, RevenueCat, PairIP LicenseCheck.
+- APK downloads through apkeep from APKPure.
+- System certificate install through `-writable-system` emulator flag.
 
 ### Changed
-- Nurture Lock verdict: UNTESTED -> FAIL ("100% offline" claim is false)
-- Nubo verdict: UNTESTED -> FAIL ("local-first" claim is false)
-- Pebbi verdict: UNTESTED -> FAIL (as expected for positive control)
-- Baby Buddy: dynamic test now completed, confidence 60% -> 100%
-- All "we" language replaced with "I" in public docs
+- Nurture Lock verdict - UNTESTED to FAIL. The "100% offline" claim is false.
+- Nubo verdict - UNTESTED to FAIL. The "local-first" claim is false.
+- Pebbi verdict - UNTESTED to FAIL. Expected for a positive control.
+- Baby Buddy dynamic test now complete. Confidence 60% to 100%.
+- All "we" changed to "I" in public docs.
 
 ### Anomaly
-- Nubo Firebase Analytics batches contained `com.pebbi.android` data and Pebbi's Firebase project ID. Possible shared library or test artifact.
+- Nubo Firebase Analytics batches had `com.pebbi.android` data and Pebbi's Firebase project ID. May be a shared library or test artifact.
 
 ### Corrected
-- `.gitignore` added - apks/, decompiled/, capture files (can contain tokens), runtime logs, and localonly/ are excluded from git.
-- Capture files and runtime logs removed from git tracking (evidence preserved locally).
-- CI review-file checks replaced: the internal review docs were removed by design (evidence lives in git history and `localonly/`). The checks now confirm results JSON structure, schema conformance, version agreement, and script syntax.
+- `.gitignore` now excludes apks/, decompiled/, capture files, runtime logs, and localonly/.
+- Capture files and runtime logs removed from git tracking.
+- CI checks now verify results JSON structure, schema match, version agreement, and script syntax.
 - Secret scan (gitleaks) added to CI.
-- RESULTS-20260803.md: typos fixed (app.pebbi.co, Pebbi, feebbi), Firebase installation ID and project identifiers redacted from the public document.
-- METHODOLOGY.md rewritten in first person ("we" removed) and corrected: no consent claim (no real user data), exodus-standalone not run, radio covert-channel checks not performed.
-- ARTICLE.md: first person, author/date filled, dead references fixed (METHODOLOGY.md, results links), tooling claims corrected.
-- README.md: tool versions updated to tested versions, emulator setup steps added, exodus/covert-channel claims corrected, Python/Django badges removed.
-- Harness version unified to 3.1.0 across run-tests.sh, workflows, results, template, and harness document.
-- `scripts/run-tests.sh` hardened: real package names for Nubo/Pebbi, MITM_PID exported for trap cleanup, idempotent cleanup, work-dir opt-out (KEEP_WORK_DIR), adb timeouts, split-APK pull dedup, JSON output built with jq (schema-conformant), honest observation window instead of a silent placeholder, flow export with retry and correct parsing, launch verification, `--check` dry-run mode.
-- `results/RESULTS-20260803.json` added - machine-readable results conforming to schema.json.
+- RESULTS-20260803.md - fixed typos, redacted Firebase IDs and project identifiers.
+- METHODOLOGY.md - rewritten in first person. Corrected consent claims and tooling claims.
+- ARTICLE.md - added author and date. Fixed dead links and tooling claims.
+- README.md - updated tool versions. Added emulator setup. Corrected exodus and covert-channel claims.
+- Harness version now 3.1.0 across all files.
+- `scripts/run-tests.sh` hardened - real package names, MITM_PID export, idempotent cleanup, work-dir opt-out, adb timeouts, split-APK dedup, JSON output with jq, honest observation window, flow export with retry, launch checks, `--check` dry-run mode.
+- `results/RESULTS-20260803.json` added - machine-readable results.
 
 ## 3.0.0-loop3 - 2026-08-03
 
 ### Added
-- Baby Buddy as fourth test target (FOSS / web app).
-- Part 5.5: FOSS testing with browser, Android client, and source audit paths.
-- Part 9: Privacy engineering (GDPR, data minimization, right to erasure).
-- Part 10: SRE (canary tests, circuit breakers, SLOs).
-- `scripts/run-tests.sh`: Automated test execution.
-- `results/schema.json`: Machine-readable results schema.
-- `results/TEMPLATE.md`: Results template.
+- Baby Buddy as fourth test target.
+- Part 5.5 - FOSS testing with browser, Android client, and source audit paths.
+- Part 9 - privacy engineering.
+- Part 10 - SRE practices.
+- `scripts/run-tests.sh` - automated test runs.
+- `results/schema.json` - machine-readable results schema.
+- `results/TEMPLATE.md` - results template.
 - GitHub Actions workflows for CI and weekly canary tests.
 - Article template for publication.
 
 ### Changed
-- Hardened agent plan with formal DAG, JSON schema, 15 enforced rules.
-- Added consensus mechanism for critical verdicts.
+- Hardened agent plan with formal DAG, JSON schema, and 15 enforced rules.
+- Added consensus for critical verdicts.
 - Added Byzantine fault tolerance for subagent failures.
-- Added prompt injection scan (Rule 12).
-- Pinned all tool versions for reproducibility.
-- Added trap handlers for SIGINT/SIGTERM cleanup.
-- Added input validation to prevent injection.
+- Added prompt injection scan.
+- Pinned all tool versions.
+- Added trap handlers for SIGINT and SIGTERM cleanup.
+- Added input validation to stop injection.
 
 ### Fixed
 - 226 findings from 4 adversarial review loops.
-- Added missing tool checks (jq, git).
+- Added missing tool checks for jq and git.
 - Fixed race conditions in process cleanup.
 - Fixed false positives in grep patterns.
 - Added repository cleanup after audit.
@@ -102,16 +159,16 @@
 - Error handling with `set -euo pipefail`.
 - Smoke tests for all tools.
 - Working directory structure with artifacts.
-- Part 7: Cleanup and teardown.
-- Part 8: Audit log with hash chain.
+- Part 7 - cleanup and teardown.
+- Part 8 - audit log with hash chain.
 - Static scan with pinned Docker image.
 - Dynamic capture with mitmproxy.
-- Covert channel analysis (BLE, NFC, ultrasound).
+- Covert channel analysis for BLE, NFC, and ultrasound.
 
 ## 1.0.0 - Original
 
 ### Added
 - Initial test harness document.
-- Three test targets: Nurture Lock, Nubo, Pebbi.
+- Three test targets - Nurture Lock, Nubo, Pebbi.
 - Manual test procedure for macOS.
 - Agent plan for subagent execution.
