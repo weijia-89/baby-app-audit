@@ -12,13 +12,14 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  HARNESS_VERSION: "3.1.1"
+  HARNESS_VERSION: "3.2.0"
   PROXY_PORT: "8080"
 
 jobs:
   lint-and-validate:
     name: Lint and Validate
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
         with:
@@ -38,7 +39,7 @@ jobs:
           grep -q '"\$schema"' APK_PRIVACY_TEST_HARNESS.md || exit 1
           echo "JSON schema declaration found"
 
-      - name: Regression check: Part header count
+      - name: "Regression check: Part header count"
         run: |
           part_count=$(grep -c "## Part" APK_PRIVACY_TEST_HARNESS.md)
           if [ "$part_count" -lt 11 ]; then
@@ -76,9 +77,9 @@ jobs:
 
       - name: Verify harness version agreement
         run: |
-          grep -q 'HARNESS_VERSION="3.1.1"' scripts/run-tests.sh || exit 1
-          grep -q 'HARNESS_VERSION: "3.1.1"' .github/workflows/test.yml || exit 1
-          grep -q '## 3.1.1' CHANGELOG.md || exit 1
+          grep -q 'HARNESS_VERSION="3.2.0"' scripts/run-tests.sh || exit 1
+          grep -q 'HARNESS_VERSION: "3.2.0"' .github/workflows/test.yml || exit 1
+          grep -q '## 3.2.0' CHANGELOG.md || exit 1
           grep -q '3.1.0' results/RESULTS-20260803.md || exit 1
           echo "Versions agree across artifacts"
 
@@ -98,14 +99,36 @@ jobs:
     name: Unit Tests
     runs-on: ubuntu-latest
     needs: lint-and-validate
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
+
+      - name: Cache pip dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-jsonschema-4.26.0
+          restore-keys: |
+            ${{ runner.os }}-pip-
 
       - name: Run decode-traffic unit tests
         run: bash tests/test-decode-traffic.sh
 
       - name: Verify product-metadata.json is valid JSON
         run: python3 -m json.tool results/product-metadata.json > /dev/null
+
+      - name: Schema validation gate
+        run: |
+          pip install jsonschema==4.26.0
+          DECODE_TRAFFIC_STRICT=1 bash scripts/decode-traffic.sh tests/fixtures/test-capture.har com.pebbi.android schema-test-output.json
+          echo "Schema validation passed (strict mode)"
+
+      - name: Validate skeleton JSON files
+        run: |
+          for f in localonly/skeletons/*.json; do
+            python3 -m json.tool "$f" > /dev/null || { echo "Invalid JSON: $f"; exit 1; }
+          done
+          echo "All skeleton files are valid JSON"
 
   canary-test:
     name: Canary Test (Pebbi Positive Control)
@@ -233,6 +256,7 @@ jobs:
         with:
           path: all-artifacts
           pattern: test-*
+          if-no-files-found: ignore
 
       - name: Generate summary
         run: |
@@ -240,6 +264,7 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "| App | Status |" >> $GITHUB_STEP_SUMMARY
           echo "| --- | --- |" >> $GITHUB_STEP_SUMMARY
+          # NOTE: Keep this list in sync with the test-matrix.app list above
           for app in nurturelock nubo pebbi babybuddy babytrack amila wachanga nighp milli baby-connect snugl; do
             echo "| ${app} | CI_VALIDATION_PASSED |" >> $GITHUB_STEP_SUMMARY
           done

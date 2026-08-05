@@ -127,9 +127,15 @@ This project is on a multi-sprint roadmap. Sprint 1 is complete.
 * **Unit tests:** `tests/test-decode-traffic.sh` has 11 tests for the decoder script.
 * **External config:** Product metadata now lives in `results/product-metadata.json` instead of hardcoded values.
 
+### What Sprint 2 added
+
+* **Schema enforcement:** CI now blocks builds if `decode-traffic.sh` output violates the schema. Set `DECODE_TRAFFIC_STRICT=1` to enable.
+* **Tier 1 harness support:** BabyTrack, Amila, and Wachanga are now in the default app list with skeleton entries.
+* **FOSS path validation:** Baby Buddy end-to-end test passes. Source clone, commit hash recording, and network reference audit all work.
+* **Bug fix:** `run-tests.sh` no longer word-splits on app names with spaces.
+
 ### What is next
 
-* **Sprint 2:** Run full tests on Tier 1 apps. Enforce schema validation in CI. Validate the BabyBuddy FOSS path.
 * **Sprint 3:** Close look at wearable baby monitors (Owlet). Add dark pattern detection. Compare data practices across apps.
 * **Sprint 4:** Generate the final report. Publish the methodology. Open-source the tool.
 

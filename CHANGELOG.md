@@ -1,5 +1,36 @@
 # Changelog
 
+## 3.2.0 - 2026-08-05
+
+### Added
+- Schema enforcement gate in CI. `decode-traffic.sh` now supports `DECODE_TRAFFIC_STRICT=1` mode.
+- Strict mode exits with code 1 when output does not conform to `results/decode-traffic.schema.json`.
+- CI unit-tests job now runs strict-mode validation on every build.
+- `SCHEMA_FILE` environment variable overrides the default schema path.
+- Two new unit tests for strict mode (valid pass, invalid fail).
+- Tier 1 apps added to harness: BabyTrack, Amila, Wachanga.
+
+### Changed
+- decode-traffic.sh schema validation now captures exit code correctly. It used to mask failures.
+- decode-traffic.sh schema file path is now overridable via `SCHEMA_FILE` env var.
+- `run-tests.sh` app list delimiter changed from space to semicolon. This fixes word-splitting on app names with spaces.
+
+### Fixed
+- `run-tests.sh` no longer breaks multi-word app names (e.g., "Baby Buddy", "Nurture Lock") due to bash word splitting.
+- `decode-traffic.sh` now uses `printf` instead of `echo` for JSON output to avoid flag injection.
+- `decode-traffic.sh` FILTER_HOST now includes Tier 1 apps (BabyTrack, Amila, Wachanga).
+- `tests/test-decode-traffic.sh` cleanup trap now removes all test fixtures.
+- `tests/test-decode-traffic.sh` Tests 12 and 13 now use distinct output files.
+- `tests/test-decode-traffic.sh` Tests 12 and 13 now capture stderr for debugging.
+- CI `unit-tests` job now has `timeout-minutes: 10`.
+- CI schema validation gate now pins `jsonschema==4.26.0`.
+- CI schema validation gate now writes to workspace instead of `/tmp`.
+- CI now validates `localonly/skeletons/*.json` are valid JSON.
+- CI `generate-summary` now reads app list dynamically from `test-matrix` output.
+- CI `download-artifact` now uses `if-no-files-found: ignore`.
+- CI `canary.yml` now actually runs unit tests and harness dry-run.
+- `run-tests.sh` now detects and converts deprecated space-delimited `APK_HARNESS_APPS`.
+
 ## 3.1.2 - 2026-08-05
 
 ### Added

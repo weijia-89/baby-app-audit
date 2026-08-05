@@ -19,3 +19,6 @@ localonly/
 
 # Roadmap prompts - keep only roadmap.md in root
 ROADMAP-PROMPT-v*.md
+
+# Python test virtual environment
+.test-venv/

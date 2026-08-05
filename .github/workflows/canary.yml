@@ -7,15 +7,23 @@ on:
   workflow_dispatch:
 
 env:
-  HARNESS_VERSION: "3.1.1"
+  HARNESS_VERSION: "3.2.0"
 
 jobs:
   canary:
     name: Weekly Canary (Pebbi Positive Control)
     runs-on: macos-latest
-    timeout-minutes: 30
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
+
+      - name: Cache pip dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-jsonschema-4.26.0
+          restore-keys: |
+            ${{ runner.os }}-pip-
 
       - name: Verify harness health
         run: |
@@ -35,6 +43,12 @@ jobs:
           python3 -m json.tool results/RESULTS-20260803.json > /dev/null || exit 1
           jq -e 'has("test_run_id") and has("apps")' results/RESULTS-20260803.json > /dev/null || exit 1
           echo "Results artifacts: OK"
+
+      - name: Run unit tests
+        run: bash tests/test-decode-traffic.sh
+
+      - name: Run harness dry-run
+        run: bash scripts/run-tests.sh --check
 
       - name: Generate canary report
         run: |

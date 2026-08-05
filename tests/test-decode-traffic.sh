@@ -15,7 +15,7 @@ fail() { echo "  FAIL: $1"; FAILED=1; }
 
 # Setup: create test HAR with one matching flow
 cleanup() {
-    rm -f "$REPO_DIR/tests/fixtures/bad.json" "$REPO_DIR/tests/fixtures/output.json" "$REPO_DIR/tests/fixtures/output2.json" "$REPO_DIR/tests/fixtures/missing-config.json"
+    rm -f "$REPO_DIR/tests/fixtures/bad.json" "$REPO_DIR/tests/fixtures/output.json" "$REPO_DIR/tests/fixtures/output2.json" "$REPO_DIR/tests/fixtures/output3.json" "$REPO_DIR/tests/fixtures/output4.json" "$REPO_DIR/tests/fixtures/stderr3.txt" "$REPO_DIR/tests/fixtures/stderr4.txt" "$REPO_DIR/tests/fixtures/missing-config.json" "$REPO_DIR/tests/fixtures/bad-schema.json" "$REPO_DIR/tests/fixtures/empty.har" "$REPO_DIR/tests/fixtures/output-empty.json" "$REPO_DIR/tests/fixtures/corrupted-schema.json" "$REPO_DIR/tests/fixtures/output-badschema.json"
 }
 trap cleanup EXIT
 
@@ -171,6 +171,68 @@ if PRODUCT_CONFIG="$REPO_DIR/tests/fixtures/missing-config.json" bash "$DECODER"
 else
     fail "Should succeed even with corrupted config"
 fi
+
+# Test 12: Strict mode passes on valid output
+ echo "Test 12: Strict mode passes on valid output"
+ OUTPUT3="$REPO_DIR/tests/fixtures/output3.json"
+ STDERR3="$REPO_DIR/tests/fixtures/stderr3.txt"
+ if DECODE_TRAFFIC_STRICT=1 bash "$DECODER" "$TEST_HAR" com.pebbi.android "$OUTPUT3" 2>"$STDERR3"; then
+     pass "Strict mode allows valid output"
+ else
+     fail "Strict mode rejected valid output"
+     if [ -f "$STDERR3" ]; then
+         echo "    stderr: $(cat "$STDERR3")"
+     fi
+ fi
+
+ # Test 13: Strict mode fails on schema violation
+ echo "Test 13: Strict mode fails on schema violation"
+ # Create a schema that rejects valid output by requiring an impossible field
+ cat > "$REPO_DIR/tests/fixtures/bad-schema.json" <<'EOF'
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "required": ["$schema", "schema_version", "package_name", "capture_timestamp", "flows", "impossible_field"]
+}
+EOF
+ OUTPUT4="$REPO_DIR/tests/fixtures/output4.json"
+ STDERR4="$REPO_DIR/tests/fixtures/stderr4.txt"
+ if ! DECODE_TRAFFIC_STRICT=1 SCHEMA_FILE="$REPO_DIR/tests/fixtures/bad-schema.json" bash "$DECODER" "$TEST_HAR" com.pebbi.android "$OUTPUT4" 2>"$STDERR4"; then
+     pass "Strict mode fails when schema violated"
+ else
+     fail "Strict mode did not fail on schema violation"
+ fi
+
+# Test 14: Empty flows array still produces schema-valid output
+ echo "Test 14: Empty flows array produces valid output"
+ EMPTY_HAR="$REPO_DIR/tests/fixtures/empty.har"
+ cat > "$EMPTY_HAR" <<'EOF'
+{"log": {"version": "1.2", "creator": {"name": "test", "version": "1.0"}, "entries": []}}
+EOF
+  OUTPUT_EMPTY="$REPO_DIR/tests/fixtures/output-empty.json"
+  if bash "$DECODER" "$EMPTY_HAR" com.unknown.app "$OUTPUT_EMPTY" >/dev/null 2>&1; then
+      FLOW_COUNT=$(python3 -c "import json; d=json.load(open('$OUTPUT_EMPTY')); print(len(d.get('flows', [])))" 2>/dev/null) || FLOW_COUNT=""
+      if [ -z "$FLOW_COUNT" ]; then
+          fail "Failed to count flows in output"
+      elif [ "$FLOW_COUNT" -eq 0 ]; then
+          pass "Empty flows array handled correctly"
+      else
+          fail "Expected 0 flows, got $FLOW_COUNT"
+      fi
+  else
+      fail "Should succeed with empty HAR"
+  fi
+
+ # Test 15: Corrupted schema file falls back to warn (not crash)
+ echo "Test 15: Corrupted schema file is handled gracefully"
+ BAD_SCHEMA="$REPO_DIR/tests/fixtures/corrupted-schema.json"
+ echo "not json" > "$BAD_SCHEMA"
+ OUTPUT_BAD="$REPO_DIR/tests/fixtures/output-badschema.json"
+ if bash "$DECODER" "$TEST_HAR" com.pebbi.android "$OUTPUT_BAD" >/dev/null 2>&1; then
+     pass "Corrupted schema does not crash decoder"
+ else
+     fail "Should succeed even with corrupted schema"
+ fi
 
 echo ""
 if [ "$FAILED" -eq 0 ]; then

@@ -97,6 +97,15 @@ case "$PACKAGE_NAME" in
     com.pebbi.android)
         FILTER_HOST="pebbi"
         ;;
+    com.babytrack.app)
+        FILTER_HOST="babytrack"
+        ;;
+    com.amila.babytracker)
+        FILTER_HOST="amila"
+        ;;
+    com.wachanga.babymilestones)
+        FILTER_HOST="wachanga"
+        ;;
     *)
         # Fallback: use the last segment of the package name
         FILTER_HOST="${PACKAGE_NAME##*.}"
@@ -331,12 +340,13 @@ DECODED=$(python3 -c "$PYTHON_SCRIPT" "$HAR_FILE" "$PACKAGE_NAME" "$FILTER_HOST"
 }
 
 # Validate output against schema if available
-SCHEMA_FILE="$(dirname "$0")/../results/decode-traffic.schema.json"
+SCHEMA_FILE="${SCHEMA_FILE:-$(dirname "$0")/../results/decode-traffic.schema.json}"
 export SCHEMA_FILE
+STRICT_MODE="${DECODE_TRAFFIC_STRICT:-0}"
 if [ -f "$SCHEMA_FILE" ] && command -v python3 >/dev/null 2>&1; then
     if python3 -c 'import json,sys; json.load(open(sys.argv[1]))' "$SCHEMA_FILE" 2>/dev/null; then
         if python3 -c 'import jsonschema' 2>/dev/null; then
-            if printf '%s' "$DECODED" | python3 -c "
+            VALIDATION_OUTPUT=$(printf '%s' "$DECODED" | python3 -c "
 import json, sys, jsonschema, os
 schema = json.load(open(os.environ['SCHEMA_FILE']))
 data = json.load(sys.stdin)
@@ -346,23 +356,36 @@ try:
 except jsonschema.ValidationError as e:
     print(f'SCHEMA_ERROR: {e.message}', file=sys.stderr)
     sys.exit(1)
-" 2>/dev/null; then
+" 2>&1)
+            VALIDATION_STATUS=$?
+            if [ "$VALIDATION_STATUS" -eq 0 ]; then
                 log "Output validated against schema: $SCHEMA_FILE"
             else
-                warn "Output does not conform to schema (install jsonschema for full validation)"
+                if [ "$STRICT_MODE" = "1" ]; then
+                    error "Output does not conform to schema (strict mode enabled)"
+                    printf '%s\n' "$VALIDATION_OUTPUT" >&2
+                    exit 1
+                else
+                    warn "Output does not conform to schema (install jsonschema for full validation)"
+                fi
             fi
         else
-            log "Schema file readable (install jsonschema for full validation): $SCHEMA_FILE"
+            if [ "$STRICT_MODE" = "1" ]; then
+                error "jsonschema module required for strict mode validation"
+                exit 1
+            else
+                log "Schema file readable (install jsonschema for full validation): $SCHEMA_FILE"
+            fi
         fi
     fi
 fi
 
 # Output
 if [ -n "$OUTPUT_FILE" ]; then
-    echo "$DECODED" > "$OUTPUT_FILE"
+    printf '%s' "$DECODED" > "$OUTPUT_FILE"
     log "Output written to: $OUTPUT_FILE"
 else
-    echo "$DECODED"
+    printf '%s' "$DECODED"
 fi
 
 log "Decoded $(printf '%s' "$DECODED" | python3 -c "import json,sys; d=json.load(sys.stdin); print(len(d.get('flows',[])))") flows"
