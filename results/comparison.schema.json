@@ -1,0 +1,72 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/weijia-89/baby-app-audit/results/comparison.schema.json",
+  "title": "Cross-App Comparison Schema",
+  "description": "Schema for comparing data practices across multiple apps",
+  "type": "object",
+  "required": ["apps", "comparison_timestamp", "shared_trackers", "similar_endpoints", "data_volume", "regime_coverage"],
+  "properties": {
+    "apps": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "List of app package names compared"
+    },
+    "comparison_timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp of comparison"
+    },
+    "shared_trackers": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Trackers found in more than one app"
+    },
+    "similar_endpoints": {
+      "type": "array",
+      "description": "Endpoints contacted by multiple apps",
+      "items": {
+        "type": "object",
+        "required": ["host", "apps", "flow_counts"],
+        "properties": {
+          "host": { "type": "string" },
+          "apps": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "flow_counts": {
+            "type": "object",
+            "description": "Per-app flow count for this host",
+            "additionalProperties": { "type": "integer", "minimum": 0 }
+          }
+        }
+      }
+    },
+    "data_volume": {
+      "type": "object",
+      "description": "Per-app traffic volume summary",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "total_flows": { "type": "integer", "minimum": 0 },
+          "tracker_flows": { "type": "integer", "minimum": 0 },
+          "total_request_bytes": { "type": "integer", "minimum": 0 },
+          "total_response_bytes": { "type": "integer", "minimum": 0 }
+        }
+      }
+    },
+    "regime_coverage": {
+      "type": "object",
+      "description": "Regulatory regime per app",
+      "additionalProperties": {
+        "type": "string",
+        "enum": ["MDR", "RED", "COPPA", "GDPR", "unknown"]
+      }
+    },
+    "shared_mechanisms": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Data transmission mechanisms found in multiple apps"
+    }
+  },
+  "additionalProperties": false
+}

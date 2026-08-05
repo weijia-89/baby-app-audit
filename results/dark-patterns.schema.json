@@ -1,0 +1,73 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/weijia-89/baby-app-audit/results/dark-patterns.schema.json",
+  "title": "Dark Pattern Detection Schema",
+  "description": "Schema for dark pattern detection output from APK static analysis",
+  "type": "object",
+  "required": ["app_name", "package_name", "scan_timestamp", "patterns"],
+  "properties": {
+    "app_name": {
+      "type": "string",
+      "description": "Human-readable app name"
+    },
+    "package_name": {
+      "type": "string",
+      "description": "Android package name or web app identifier"
+    },
+    "scan_timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp of scan start"
+    },
+    "patterns": {
+      "type": "array",
+      "description": "Detected dark patterns",
+      "items": {
+        "type": "object",
+        "required": ["pattern_type", "confidence", "description"],
+        "properties": {
+          "pattern_type": {
+            "type": "string",
+            "enum": [
+              "pre_checked_consent",
+              "hidden_consent_flow",
+              "deceptive_button_order",
+              "obfuscated_disclaimer",
+              "pressure_tactic"
+            ],
+            "description": "Category of dark pattern detected"
+          },
+          "evidence_file": {
+            "type": "string",
+            "description": "Path to file containing evidence"
+          },
+          "confidence": {
+            "type": "string",
+            "enum": ["high", "medium", "low"],
+            "description": "Confidence level in the detection"
+          },
+          "description": {
+            "type": "string",
+            "description": "Human-readable explanation of the finding"
+          }
+        }
+      }
+    },
+    "summary": {
+      "type": "object",
+      "properties": {
+        "total_patterns": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Total number of patterns detected"
+        },
+        "pattern_types_found": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "List of unique pattern types found"
+        }
+      }
+    }
+  },
+  "additionalProperties": false
+}

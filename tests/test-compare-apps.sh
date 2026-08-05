@@ -1,0 +1,178 @@
+#!/usr/bin/env bash
+# Unit tests for compare-apps.sh
+# Usage: bash tests/test-compare-apps.sh
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_DIR="$(dirname "$SCRIPT_DIR")"
+COMPARER="$REPO_DIR/scripts/compare-apps.sh"
+FAILED=0
+
+# Use venv python if available (for jsonschema)
+if [ -f "$REPO_DIR/.test-venv/bin/python" ]; then
+    PYTHON="$REPO_DIR/.test-venv/bin/python"
+else
+    PYTHON="python3"
+fi
+
+pass() { echo "  PASS: $1"; }
+fail() { echo "  FAIL: $1"; FAILED=1; }
+
+cleanup() {
+    rm -f "$REPO_DIR/tests/fixtures/app-a.json"
+    rm -f "$REPO_DIR/tests/fixtures/app-b.json"
+    rm -f "$REPO_DIR/tests/fixtures/app-c.json"
+    rm -f "$REPO_DIR/tests/fixtures/compare-output.json"
+    rm -f "$REPO_DIR/tests/fixtures/compare-bad.json"
+}
+trap cleanup EXIT
+
+mkdir -p "$REPO_DIR/tests/fixtures"
+
+echo "=== compare-apps.sh unit tests ==="
+
+# Test 1: Missing arguments
+echo "Test 1: Missing arguments"
+if bash "$COMPARER" 2>/dev/null; then
+    fail "Should exit with error on missing args"
+else
+    pass "Exits with error on missing args"
+fi
+
+# Test 2: Nonexistent JSON file
+echo "Test 2: Nonexistent JSON file"
+if bash "$COMPARER" /nonexistent/app.json 2>/dev/null; then
+    fail "Should exit with error on missing file"
+else
+    pass "Exits with error on missing file"
+fi
+
+# Test 3: Shared tracker detected
+echo "Test 3: Detects shared tracker across apps"
+cat > "$REPO_DIR/tests/fixtures/app-a.json" <<'EOF'
+{
+  "$schema": "decode-traffic/2.0",
+  "schema_version": "2.0",
+  "package_name": "com.example.a",
+  "capture_timestamp": "2026-08-01T00:00:00Z",
+  "flows": [],
+  "summary": {
+    "total_flows": 5,
+    "tracker_flows": 2,
+    "unique_destinations": ["firebase.google.com", "example.com"],
+    "unique_trackers": ["Firebase"]
+  },
+  "product_metadata": {
+    "regulatory_regime": "COPPA"
+  }
+}
+EOF
+cat > "$REPO_DIR/tests/fixtures/app-b.json" <<'EOF'
+{
+  "$schema": "decode-traffic/2.0",
+  "schema_version": "2.0",
+  "package_name": "com.example.b",
+  "capture_timestamp": "2026-08-01T00:00:00Z",
+  "flows": [],
+  "summary": {
+    "total_flows": 3,
+    "tracker_flows": 1,
+    "unique_destinations": ["firebase.google.com", "other.com"],
+    "unique_trackers": ["Firebase"]
+  },
+  "product_metadata": {
+    "regulatory_regime": "GDPR"
+  }
+}
+EOF
+OUTPUT="$REPO_DIR/tests/fixtures/compare-output.json"
+if bash "$COMPARER" "$REPO_DIR/tests/fixtures/app-a.json" "$REPO_DIR/tests/fixtures/app-b.json" "$OUTPUT" >/dev/null 2>&1; then
+    if python3 -c "import json; d=json.load(open('$OUTPUT')); print('Firebase' in d.get('shared_trackers', []))" | grep -q "True"; then
+        pass "Shared tracker detected"
+    else
+        fail "Shared tracker not detected"
+    fi
+else
+    fail "Should succeed on valid inputs"
+fi
+
+# Test 4: Similar endpoint detected
+echo "Test 4: Detects similar endpoint across apps"
+if bash "$COMPARER" "$REPO_DIR/tests/fixtures/app-a.json" "$REPO_DIR/tests/fixtures/app-b.json" "$OUTPUT" >/dev/null 2>&1; then
+    HOSTS=$(python3 -c "import json; d=json.load(open('$OUTPUT')); print([e.get('host') for e in d.get('similar_endpoints', [])])")
+    if echo "$HOSTS" | grep -q "firebase.google.com"; then
+        pass "Similar endpoint detected"
+    else
+        fail "Similar endpoint not detected - got $HOSTS"
+    fi
+else
+    fail "Should succeed on valid inputs"
+fi
+
+# Test 5: Data volume comparison
+echo "Test 5: Data volume comparison is correct"
+if bash "$COMPARER" "$REPO_DIR/tests/fixtures/app-a.json" "$REPO_DIR/tests/fixtures/app-b.json" "$OUTPUT" >/dev/null 2>&1; then
+    A_FLOWS=$(python3 -c "import json; d=json.load(open('$OUTPUT')); print(d.get('data_volume', {}).get('com.example.a', {}).get('total_flows', -1))")
+    B_FLOWS=$(python3 -c "import json; d=json.load(open('$OUTPUT')); print(d.get('data_volume', {}).get('com.example.b', {}).get('total_flows', -1))")
+    if [ "$A_FLOWS" = "5" ] && [ "$B_FLOWS" = "3" ]; then
+        pass "Data volume comparison correct"
+    else
+        fail "Data volume incorrect: A=$A_FLOWS B=$B_FLOWS"
+    fi
+else
+    fail "Should succeed on valid inputs"
+fi
+
+# Test 6: JSON output validates against schema
+echo "Test 6: Output validates against schema"
+SCHEMA="$REPO_DIR/results/comparison.schema.json"
+if bash "$COMPARER" "$REPO_DIR/tests/fixtures/app-a.json" "$REPO_DIR/tests/fixtures/app-b.json" "$OUTPUT" >/dev/null 2>&1; then
+    if $PYTHON -c "import json, jsonschema; schema=json.load(open('$SCHEMA')); data=json.load(open('$OUTPUT')); jsonschema.validate(data, schema)" 2>/dev/null; then
+        pass "Output conforms to schema"
+    else
+        fail "Output does not conform to schema"
+    fi
+else
+    fail "Should succeed and produce schema-valid output"
+fi
+
+# Test 7: Three apps comparison works
+echo "Test 7: Three apps comparison works"
+cat > "$REPO_DIR/tests/fixtures/app-c.json" <<'EOF'
+{
+  "$schema": "decode-traffic/2.0",
+  "schema_version": "2.0",
+  "package_name": "com.example.c",
+  "capture_timestamp": "2026-08-01T00:00:00Z",
+  "flows": [],
+  "summary": {
+    "total_flows": 10,
+    "tracker_flows": 0,
+    "unique_destinations": ["example.com"],
+    "unique_trackers": []
+  },
+  "product_metadata": {
+    "regulatory_regime": "MDR"
+  }
+}
+EOF
+if bash "$COMPARER" "$REPO_DIR/tests/fixtures/app-a.json" "$REPO_DIR/tests/fixtures/app-b.json" "$REPO_DIR/tests/fixtures/app-c.json" "$OUTPUT" >/dev/null 2>&1; then
+    APP_COUNT=$(python3 -c "import json; d=json.load(open('$OUTPUT')); print(len(d.get('apps', [])))" 2>/dev/null) || APP_COUNT=""
+    if [ "$APP_COUNT" = "3" ]; then
+        pass "Three-app comparison works"
+    else
+        fail "Expected 3 apps, got $APP_COUNT"
+    fi
+else
+    fail "Should succeed with three apps"
+fi
+
+echo ""
+if [ "$FAILED" -eq 0 ]; then
+    echo "=== ALL TESTS PASSED ==="
+    exit 0
+else
+    echo "=== SOME TESTS FAILED ==="
+    exit 1
+fi
