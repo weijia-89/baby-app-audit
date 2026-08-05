@@ -114,11 +114,31 @@ jobs:
       # NOTE: jsonschema must be installed BEFORE the unit test step.
       # Tests 12 and 13 invoke strict-mode schema validation that fails
       # without it. Do not reorder these two steps.
+      - name: Install system dependencies
+        run: |
+          if ! command -v jq >/dev/null 2>&1; then
+            (sudo apt-get update -qq && sudo apt-get install -y -qq jq) || \
+              echo "WARNING: jq install failed, some tests may fail"
+          fi
+          if ! command -v unzip >/dev/null 2>&1; then
+            (sudo apt-get update -qq && sudo apt-get install -y -qq unzip zip) || \
+              echo "WARNING: unzip install failed, some tests may fail"
+          fi
+
       - name: Install test dependencies
         run: pip install jsonschema==4.26.0
 
+      - name: Ensure scripts are executable
+        run: chmod +x scripts/*.sh tests/*.sh
+
       - name: Run decode-traffic unit tests
         run: bash tests/test-decode-traffic.sh
+
+      - name: Run dark-patterns unit tests
+        run: bash tests/test-dark-patterns.sh
+
+      - name: Run compare-apps unit tests
+        run: bash tests/test-compare-apps.sh
 
       - name: Verify product-metadata.json is valid JSON
         run: python3 -m json.tool results/product-metadata.json > /dev/null
@@ -127,6 +147,12 @@ jobs:
         run: |
           DECODE_TRAFFIC_STRICT=1 bash scripts/decode-traffic.sh tests/fixtures/test-capture.har com.pebbi.android schema-test-output.json
           echo "Schema validation passed (strict mode)"
+
+      - name: Validate new schemas
+        run: |
+          python3 -m json.tool results/dark-patterns.schema.json > /dev/null
+          python3 -m json.tool results/comparison.schema.json > /dev/null
+          echo "New schemas are valid JSON"
 
   canary-test:
     name: Canary Test (Pebbi Positive Control)

@@ -19,14 +19,17 @@ fi
 pass() { echo "  PASS: $1"; }
 fail() { echo "  FAIL: $1"; FAILED=1; }
 
+# Generate unique fixture dirs to avoid concurrent-run collisions
+FIXTURE_BASE=$(mktemp -d "$REPO_DIR/tests/fixtures/dark-pattern-apk-XXXXXX")
+OUTPUT="$REPO_DIR/tests/fixtures/dark-patterns-output-$$.json"
+
 cleanup() {
-    rm -rf "$REPO_DIR/tests/fixtures/dark-pattern-apk"
-    rm -f "$REPO_DIR/tests/fixtures/dark-patterns-output.json"
-    rm -f "$REPO_DIR/tests/fixtures/dark-patterns-bad.json"
+    rm -rf "$FIXTURE_BASE"
+    rm -f "$OUTPUT"
+    rm -f "$REPO_DIR/tests/fixtures/dark-patterns-bad-$$.json"
+    rm -f "$REPO_DIR/tests/fixtures/test-apk-$$.zip"
 }
 trap cleanup EXIT
-
-mkdir -p "$REPO_DIR/tests/fixtures"
 
 echo "=== detect-dark-patterns.sh unit tests ==="
 
@@ -38,17 +41,17 @@ else
     pass "Exits with error on missing args"
 fi
 
-# Test 2: Nonexistent APK
-echo "Test 2: Nonexistent APK file"
+# Test 2: Nonexistent path
+echo "Test 2: Nonexistent path"
 if bash "$DETECTOR" /nonexistent/app.apk 2>/dev/null; then
-    fail "Should exit with error on missing APK"
+    fail "Should exit with error on missing path"
 else
-    pass "Exits with error on missing APK"
+    pass "Exits with error on missing path"
 fi
 
 # Test 3: Pre-checked consent checkbox
 echo "Test 3: Detects pre-checked consent checkbox"
-APK_DIR="$REPO_DIR/tests/fixtures/dark-pattern-apk"
+APK_DIR="$FIXTURE_BASE/test3"
 mkdir -p "$APK_DIR/res/layout"
 cat > "$APK_DIR/res/layout/consent.xml" <<'EOF'
 <LinearLayout>
@@ -57,7 +60,6 @@ cat > "$APK_DIR/res/layout/consent.xml" <<'EOF'
               android:text="I agree to share my data" />
 </LinearLayout>
 EOF
-OUTPUT="$REPO_DIR/tests/fixtures/dark-patterns-output.json"
 if bash "$DETECTOR" "$APK_DIR" "$OUTPUT" >/dev/null 2>&1; then
     if python3 -m json.tool "$OUTPUT" >/dev/null 2>&1; then
         if python3 -c "import json; d=json.load(open('$OUTPUT')); print(any(p.get('pattern_type')=='pre_checked_consent' for p in d.get('patterns',[])))" | grep -q "True"; then
@@ -74,7 +76,7 @@ fi
 
 # Test 4: Hidden consent flow
 echo "Test 4: Detects hidden consent flow"
-rm -rf "$APK_DIR"
+APK_DIR="$FIXTURE_BASE/test4"
 mkdir -p "$APK_DIR/res/layout"
 cat > "$APK_DIR/res/layout/main.xml" <<'EOF'
 <FrameLayout>
@@ -96,7 +98,7 @@ fi
 
 # Test 5: Deceptive button order
 echo "Test 5: Detects deceptive button ordering"
-rm -rf "$APK_DIR"
+APK_DIR="$FIXTURE_BASE/test5"
 mkdir -p "$APK_DIR/res/values"
 cat > "$APK_DIR/res/values/strings.xml" <<'EOF'
 <resources>
@@ -117,7 +119,7 @@ fi
 
 # Test 6: Output validates against schema
 echo "Test 6: Output validates against schema"
-rm -rf "$APK_DIR"
+APK_DIR="$FIXTURE_BASE/test6"
 mkdir -p "$APK_DIR/res/layout" "$APK_DIR/res/values"
 cat > "$APK_DIR/res/layout/consent.xml" <<'EOF'
 <LinearLayout>
@@ -142,7 +144,7 @@ fi
 
 # Test 7: No patterns found produces valid empty result
 echo "Test 7: No patterns found produces valid empty result"
-rm -rf "$APK_DIR"
+APK_DIR="$FIXTURE_BASE/test7"
 mkdir -p "$APK_DIR/res/layout"
 cat > "$APK_DIR/res/layout/main.xml" <<'EOF'
 <LinearLayout>
@@ -158,6 +160,85 @@ if bash "$DETECTOR" "$APK_DIR" "$OUTPUT" >/dev/null 2>&1; then
     fi
 else
     fail "Should succeed even with no patterns"
+fi
+
+# Test 8: APK file input path (zip extraction)
+echo "Test 8: APK file input path"
+APK_DIR="$FIXTURE_BASE/test8"
+mkdir -p "$APK_DIR/res/layout"
+cat > "$APK_DIR/res/layout/consent.xml" <<'EOF'
+<LinearLayout>
+    <CheckBox android:checked="true" android:text="Agree to share data" />
+</LinearLayout>
+EOF
+TEST_ZIP="$REPO_DIR/tests/fixtures/test-apk-$$.zip"
+(cd "$APK_DIR" && zip -r "$TEST_ZIP" res >/dev/null 2>&1)
+if bash "$DETECTOR" "$TEST_ZIP" "$OUTPUT" >/dev/null 2>&1; then
+    if python3 -c "import json; d=json.load(open('$OUTPUT')); print(any(p.get('pattern_type')=='pre_checked_consent' for p in d.get('patterns',[])))" | grep -q "True"; then
+        pass "APK file input works and detects patterns"
+    else
+        fail "APK file input did not detect expected pattern"
+    fi
+else
+    fail "Should succeed on valid APK file"
+fi
+
+# Test 9: Localized strings.xml detection
+echo "Test 9: Localized strings.xml detection"
+APK_DIR="$FIXTURE_BASE/test9"
+mkdir -p "$APK_DIR/res/values-en"
+cat > "$APK_DIR/res/values-en/strings.xml" <<'EOF'
+<resources>
+    <string name="btn_accept_all">Accept All</string>
+    <string name="btn_continue">Continue</string>
+</resources>
+EOF
+if bash "$DETECTOR" "$APK_DIR" "$OUTPUT" >/dev/null 2>&1; then
+    if python3 -c "import json; d=json.load(open('$OUTPUT')); print(any(p.get('pattern_type')=='deceptive_button_order' for p in d.get('patterns',[])))" | grep -q "True"; then
+        pass "Localized strings.xml detected"
+    else
+        fail "Localized strings.xml not detected"
+    fi
+else
+    fail "Should succeed on valid APK directory"
+fi
+
+# Test 10: 3-digit hex color detection
+echo "Test 10: 3-digit hex color detection"
+APK_DIR="$FIXTURE_BASE/test10"
+mkdir -p "$APK_DIR/res/layout"
+cat > "$APK_DIR/res/layout/main.xml" <<'EOF'
+<LinearLayout>
+    <TextView android:text="Privacy Policy"
+              android:textSize="6sp"
+              android:textColor="#EEE" />
+</LinearLayout>
+EOF
+if bash "$DETECTOR" "$APK_DIR" "$OUTPUT" >/dev/null 2>&1; then
+    if python3 -c "import json; d=json.load(open('$OUTPUT')); print(any(p.get('pattern_type')=='obfuscated_disclaimer' for p in d.get('patterns',[])))" | grep -q "True"; then
+        pass "3-digit hex color obfuscation detected"
+    else
+        fail "3-digit hex color obfuscation not detected"
+    fi
+else
+    fail "Should succeed on valid APK directory"
+fi
+
+# Test 11: --version flag
+echo "Test 11: --version flag"
+VERSION=$(bash "$DETECTOR" --version 2>/dev/null)
+if [ "$VERSION" = "1.0" ]; then
+    pass "Version flag returns correct version"
+else
+    fail "Version flag returned '$VERSION', expected '1.0'"
+fi
+
+# Test 12: Shell metacharacter rejection
+echo "Test 12: Rejects paths with shell metacharacters"
+if bash "$DETECTOR" '/tmp/test; rm -rf /' 2>/dev/null; then
+    fail "Should reject path with shell metacharacters"
+else
+    pass "Rejects path with shell metacharacters"
 fi
 
 echo ""
