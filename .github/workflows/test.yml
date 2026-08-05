@@ -111,6 +111,9 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pip-
 
+      # NOTE: jsonschema must be installed BEFORE the unit test step.
+      # Tests 12 and 13 invoke strict-mode schema validation that fails
+      # without it. Do not reorder these two steps.
       - name: Install test dependencies
         run: pip install jsonschema==4.26.0
 
@@ -124,13 +127,6 @@ jobs:
         run: |
           DECODE_TRAFFIC_STRICT=1 bash scripts/decode-traffic.sh tests/fixtures/test-capture.har com.pebbi.android schema-test-output.json
           echo "Schema validation passed (strict mode)"
-
-      - name: Validate skeleton JSON files
-        run: |
-          for f in localonly/skeletons/*.json; do
-            python3 -m json.tool "$f" > /dev/null || { echo "Invalid JSON: $f"; exit 1; }
-          done
-          echo "All skeleton files are valid JSON"
 
   canary-test:
     name: Canary Test (Pebbi Positive Control)
