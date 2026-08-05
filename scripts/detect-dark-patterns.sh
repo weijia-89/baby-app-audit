@@ -6,6 +6,7 @@
 set -euo pipefail
 
 readonly SCRIPT_VERSION="1.0"
+readonly MAX_APK_SIZE=$((100 * 1024 * 1024))  # 100 MB zip bomb limit
 
 # Colors for output
 RED='\033[0;31m'
@@ -13,9 +14,15 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m'
 
-log() { echo -e "${GREEN}[DARK-PATTERNS v${SCRIPT_VERSION}]${NC} $1"; }
-warn() { echo -e "${YELLOW}[WARN]${NC} $1"; }
-error() { echo -e "${RED}[ERROR]${NC} $1"; }
+log() { echo -e "${GREEN}[DARK-PATTERNS v${SCRIPT_VERSION}]${NC} $1" >&2; }
+warn() { echo -e "${YELLOW}[WARN]${NC} $1" >&2; }
+error() { echo -e "${RED}[ERROR]${NC} $1" >&2; }
+
+# Dependency checks
+if ! command -v jq >/dev/null 2>&1; then
+    error "jq is required but not installed"
+    exit 1
+fi
 
 usage() {
     cat <<EOF
@@ -27,10 +34,19 @@ Arguments:
   apk_path     Path to decompiled APK directory or APK file
   output.json  Optional output path (default: stdout)
 
+Options:
+  --version    Show version and exit
+
 Returns:
   0 on success, 1 on error
 EOF
 }
+
+# Handle flags before positional args
+if [ "$1" = "--version" ] 2>/dev/null; then
+    echo "$SCRIPT_VERSION"
+    exit 0
+fi
 
 # Validate inputs
 if [ $# -lt 1 ]; then
@@ -41,6 +57,12 @@ fi
 APK_PATH="$1"
 OUTPUT_FILE="${2:-}"
 
+# Validate APK path: no shell metacharacters
+if [[ "$APK_PATH" =~ [\"\`\'\$\;\|\&\<\>] ]]; then
+    error "Invalid characters in APK path"
+    exit 1
+fi
+
 # Determine app name and package name
 APP_NAME=""
 PACKAGE_NAME=""
@@ -49,14 +71,23 @@ if [ -d "$APK_PATH" ]; then
     # Decompiled directory - try to get package from AndroidManifest.xml
     APP_NAME="$(basename "$APK_PATH")"
     if [ -f "$APK_PATH/AndroidManifest.xml" ]; then
-        PACKAGE_NAME=$(grep -oP 'package="\K[^"]+' "$APK_PATH/AndroidManifest.xml" 2>/dev/null || echo "unknown")
+        # Use sed (POSIX, macOS-compatible) instead of grep -P
+        PACKAGE_NAME=$(sed -n 's/.*package="\([^"]*\)".*/\1/p' "$APK_PATH/AndroidManifest.xml" 2>/dev/null | head -1)
+        if [ -z "$PACKAGE_NAME" ]; then
+            PACKAGE_NAME="unknown"
+        fi
     else
         PACKAGE_NAME="unknown"
     fi
 elif [ -f "$APK_PATH" ]; then
-    # APK file - extract to temp
+    # APK file - validate size then extract to temp
+    _filesize=$(stat -f%z "$APK_PATH" 2>/dev/null || stat -c%s "$APK_PATH" 2>/dev/null || echo "0")
+    if [ "$_filesize" -gt "$MAX_APK_SIZE" ]; then
+        error "APK file too large (${_filesize} bytes, max ${MAX_APK_SIZE})"
+        exit 1
+    fi
     TEMP_DIR=$(mktemp -d)
-    trap 'rm -rf "$TEMP_DIR"' EXIT
+    trap 'rm -rf "$TEMP_DIR"' EXIT INT TERM
     if command -v unzip >/dev/null 2>&1; then
         unzip -q "$APK_PATH" -d "$TEMP_DIR" 2>/dev/null || {
             error "Failed to extract APK: $APK_PATH"
@@ -117,7 +148,7 @@ scan_pre_checked_consent() {
     while IFS= read -r -d '' file; do
         if grep -q 'android:checked="true"' "$file" 2>/dev/null; then
             # Check if it looks like a consent-related widget
-            if grep -qiE '(consent|agree|privacy|terms|share.*data|opt.in)' "$file" 2>/dev/null; then
+            if grep -qiE '(consent|agree|privacy|terms|share.*data|opt[-_.]?in)' "$file" 2>/dev/null; then
                 add_pattern "pre_checked_consent" "$file" "high" "Found pre-checked checkbox with consent-related text"
                 found=1
                 break
@@ -129,8 +160,8 @@ scan_pre_checked_consent() {
     if [ "$found" -eq 0 ]; then
         while IFS= read -r -d '' file; do
             if grep -q 'android:checked="true"' "$file" 2>/dev/null; then
-                if grep -qiE '(consent|agree|privacy|terms|share.*data)' "$file" 2>/dev/null; then
-                    add_pattern "pre_checked_consent" "$file" "medium" "Found pre-checked toggle with consent-related text"
+            if grep -qiE '(consent|agree|privacy|terms|share.*data|opt[-_.]?in)' "$file" 2>/dev/null; then
+                add_pattern "pre_checked_consent" "$file" "medium" "Found pre-checked toggle with consent-related text"
                     break
                 fi
             fi
@@ -171,37 +202,46 @@ scan_hidden_consent_flow() {
 
 # Scan for deceptive button ordering
 scan_deceptive_button_order() {
-    local strings_file="$APK_PATH/res/values/strings.xml"
-    if [ ! -f "$strings_file" ]; then
+    # Check all strings.xml files including localized variants (values-en, values-fr, etc.)
+    local strings_files=()
+    while IFS= read -r -d '' f; do
+        strings_files+=("$f")
+    done < <(find "$APK_PATH/res" -type f -name "strings.xml" -print0 2>/dev/null)
+
+    if [ ${#strings_files[@]} -eq 0 ]; then
         return
     fi
 
-    local has_accept=0
-    local has_continue=0
-    local has_later=0
-    local has_decline=0
+    local has_accept=0 has_continue=0 has_later=0 has_decline=0
+    local evidence_file=""
 
-    if grep -qiE 'name=.*accept.*all|>Accept All<' "$strings_file" 2>/dev/null; then
-        has_accept=1
-    fi
-    if grep -qiE 'name=.*continue|>Continue<' "$strings_file" 2>/dev/null; then
-        has_continue=1
-    fi
-    if grep -qiE 'name=.*later|>Maybe Later<' "$strings_file" 2>/dev/null; then
-        has_later=1
-    fi
-    if grep -qiE 'name=.*decline|>Decline<' "$strings_file" 2>/dev/null; then
-        has_decline=1
-    fi
+    for strings_file in "${strings_files[@]}"; do
+        if [ "$has_accept" -eq 0 ] && grep -qiE 'name=.*accept.*all|>Accept All<' "$strings_file" 2>/dev/null; then
+            has_accept=1; evidence_file="$strings_file"
+        fi
+        if [ "$has_continue" -eq 0 ] && grep -qiE 'name=.*continue|>Continue<' "$strings_file" 2>/dev/null; then
+            has_continue=1; evidence_file="$strings_file"
+        fi
+        if [ "$has_later" -eq 0 ] && grep -qiE 'name=.*later|>Maybe Later<' "$strings_file" 2>/dev/null; then
+            has_later=1; evidence_file="$strings_file"
+        fi
+        if [ "$has_decline" -eq 0 ] && grep -qiE 'name=.*decline|>Decline<' "$strings_file" 2>/dev/null; then
+            has_decline=1; evidence_file="$strings_file"
+        fi
+    done
 
     if [ "$has_accept" -eq 1 ] || [ "$has_continue" -eq 1 ]; then
         if [ "$has_later" -eq 1 ] || [ "$has_decline" -eq 0 ]; then
-            add_pattern "deceptive_button_order" "$strings_file" "medium" "Found affirmative action buttons without clear decline option"
+            add_pattern "deceptive_button_order" "$evidence_file" "medium" "Found affirmative action buttons without clear decline option"
         fi
     fi
 }
 
 # Scan for obfuscated disclaimers
+# Heuristic thresholds:
+# - textSize <= 8sp: Below Android accessibility minimum (12sp is typical readable size)
+# - textColor with RGB all > 200: Very light color on assumed white background (low contrast)
+#   This catches colors like #EEEEEE, #F5F5F5, #FFFFFF
 scan_obfuscated_disclaimer() {
     local res_dir="$APK_PATH/res"
     if [ ! -d "$res_dir" ]; then
@@ -221,19 +261,31 @@ scan_obfuscated_disclaimer() {
             fi
         fi
         # Check for low-contrast or hidden text hints
-        if grep -qE 'android:textColor="#[0-9A-Fa-f]{6}"' "$file" 2>/dev/null; then
+        # Supports 3-digit (#RGB), 6-digit (#RRGGBB), and 8-digit (#AARRGGBB) hex colors
+        if grep -qE 'android:textColor="#[0-9A-Fa-f]{3}([0-9A-Fa-f]{3})?([0-9A-Fa-f]{2})?"' "$file" 2>/dev/null; then
             local color
-            color=$(grep -oE 'android:textColor="#[0-9A-Fa-f]{6}"' "$file" | grep -oE '[0-9A-Fa-f]{6}' | head -1)
+            color=$(grep -oE 'android:textColor="#[0-9A-Fa-f]{3}([0-9A-Fa-f]{3})?([0-9A-Fa-f]{2})?"' "$file" | grep -oE '#[0-9A-Fa-f]{3}([0-9A-Fa-f]{3})?([0-9A-Fa-f]{2})?' | head -1)
             if [ -n "$color" ]; then
-                # Check if color is very light (likely low contrast on white background)
-                local r g b
-                r=$((16#${color:0:2}))
-                g=$((16#${color:2:2}))
-                b=$((16#${color:4:2}))
-                if [ "$r" -gt 200 ] && [ "$g" -gt 200 ] && [ "$b" -gt 200 ] 2>/dev/null; then
-                    if grep -qiE '(privacy|terms|consent|disclaimer)' "$file" 2>/dev/null; then
-                        add_pattern "obfuscated_disclaimer" "$file" "medium" "Found low-contrast text color on disclaimer text"
-                        break
+                # Normalize to 6-digit hex (without # prefix)
+                local norm_color=""
+                local len=${#color}
+                if [ "$len" -eq 4 ]; then
+                    norm_color="${color:1:1}${color:1:1}${color:2:1}${color:2:1}${color:3:1}${color:3:1}"
+                elif [ "$len" -eq 7 ]; then
+                    norm_color="${color:1:6}"
+                elif [ "$len" -eq 9 ]; then
+                    norm_color="${color:3:6}"
+                fi
+                if [ -n "$norm_color" ]; then
+                    local r g b
+                    r=$((16#${norm_color:0:2}))
+                    g=$((16#${norm_color:2:2}))
+                    b=$((16#${norm_color:4:2}))
+                    if [ "$r" -gt 200 ] && [ "$g" -gt 200 ] && [ "$b" -gt 200 ] 2>/dev/null; then
+                        if grep -qiE '(privacy|terms|consent|disclaimer)' "$file" 2>/dev/null; then
+                            add_pattern "obfuscated_disclaimer" "$file" "medium" "Found low-contrast text color on disclaimer text"
+                            break
+                        fi
                     fi
                 fi
             fi
@@ -243,15 +295,23 @@ scan_obfuscated_disclaimer() {
 
 # Scan for pressure tactics
 scan_pressure_tactics() {
-    local strings_file="$APK_PATH/res/values/strings.xml"
-    if [ ! -f "$strings_file" ]; then
+    # Check all strings.xml files including localized variants
+    local strings_files=()
+    while IFS= read -r -d '' f; do
+        strings_files+=("$f")
+    done < <(find "$APK_PATH/res" -type f -name "strings.xml" -print0 2>/dev/null)
+
+    if [ ${#strings_files[@]} -eq 0 ]; then
         return
     fi
 
     local pressure_patterns="limited.time|expire|urgent|act.now|don.t.miss|only.left|last.chance|countdown|timer"
-    if grep -qiE "$pressure_patterns" "$strings_file" 2>/dev/null; then
-        add_pattern "pressure_tactic" "$strings_file" "low" "Found urgency or scarcity language in app strings"
-    fi
+    for strings_file in "${strings_files[@]}"; do
+        if grep -qiE "$pressure_patterns" "$strings_file" 2>/dev/null; then
+            add_pattern "pressure_tactic" "$strings_file" "low" "Found urgency or scarcity language in app strings"
+            return
+        fi
+    done
 }
 
 # Run all scans

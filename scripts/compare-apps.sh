@@ -27,10 +27,19 @@ Arguments:
   appN.json    Decoded traffic JSON files (from decode-traffic.sh)
   output.json  Optional output path (default: stdout)
 
+Options:
+  --version    Show version and exit
+
 Returns:
   0 on success, 1 on error
 EOF
 }
+
+# Handle flags before positional args
+if [ "$1" = "--version" ] 2>/dev/null; then
+    echo "$SCRIPT_VERSION"
+    exit 0
+fi
 
 # Validate inputs
 if [ $# -lt 2 ]; then
@@ -106,13 +115,15 @@ if [ -n "$OUTPUT_FILE" ]; then
 fi
 
 COMPARISON_TIMESTAMP=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+export COMPARISON_TIMESTAMP
 
 # Build comparison using a temporary Python script
 TEMP_SCRIPT=$(mktemp)
 trap 'rm -f "$TEMP_SCRIPT"' EXIT
 
-cat > "$TEMP_SCRIPT" <<PYEOF
+cat > "$TEMP_SCRIPT" <<'PYEOF'
 import json
+import os
 import sys
 from collections import defaultdict
 
@@ -131,6 +142,14 @@ for f in input_files:
             data = json.load(fh)
     except (json.JSONDecodeError, IOError) as e:
         print(f"ERROR: Failed to load {f}: {e}", file=sys.stderr)
+        sys.exit(1)
+
+    # Validate minimum required structure
+    if not isinstance(data.get('package_name'), str):
+        print(f"ERROR: Missing or invalid package_name in {f}", file=sys.stderr)
+        sys.exit(1)
+    if not isinstance(data.get('summary'), dict):
+        print(f"ERROR: Missing or invalid summary in {f}", file=sys.stderr)
         sys.exit(1)
 
     package_name = data.get('package_name', 'unknown')
@@ -186,7 +205,7 @@ shared_mechanisms = [m for m, app_set in all_mechanisms.items() if len(app_set) 
 
 output = {
     'apps': apps,
-    'comparison_timestamp': '${COMPARISON_TIMESTAMP}',
+    'comparison_timestamp': os.environ.get('COMPARISON_TIMESTAMP', ''),
     'shared_trackers': sorted(shared_trackers),
     'similar_endpoints': sorted(similar_endpoints, key=lambda x: x['host']),
     'data_volume': data_volume,
