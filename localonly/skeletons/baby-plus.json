@@ -1,0 +1,9 @@
+{
+  "name": "Baby+",
+  "package_name": "com.babyplus.app",
+  "app_type": "native",
+  "verdict": "untested",
+  "verdict_confidence": 0,
+  "timestamp": "2026-08-05T00:00:00Z",
+  "note": "Skeleton entry - Privacy-first marketed. Piranesi S1 C-010: AdID not auto-enabled, no US processing. Pybus-verified privacy-friendlier."
+}

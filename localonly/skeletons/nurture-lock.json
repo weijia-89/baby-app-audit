@@ -1,0 +1,9 @@
+{
+  "name": "Nurture Lock",
+  "package_name": "com.nurturelock.app",
+  "app_type": "native",
+  "verdict": "untested",
+  "verdict_confidence": 0,
+  "timestamp": "2026-08-05T00:00:00Z",
+  "note": "Skeleton entry - Privacy-first marketed. 100% offline, no account, AES-256, local storage only. Web-found, not yet code-verified."
+}

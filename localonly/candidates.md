@@ -46,6 +46,26 @@ Open-source apps. I test these to compare against proprietary baselines. Baby Bu
 
 ---
 
+## Privacy-first marketed
+
+These apps explicitly market themselves as privacy-first, local-only, or offline. I test them to verify whether the marketing matches the code and the wire. Piranesi research surfaced almost no apps in this category — a gap this section fills.
+
+| Name | Slug | Platform | Package name | Source | Marketing claim | Evidence type |
+| --- | --- | --- | --- | --- | --- | --- |
+| Baby Daybook | baby-daybook | iOS / Android | com.babydaybook.app | Piranesi S1 (Pybus) | AdID not auto-enabled; no US processing | network_capture, exodus_static |
+| Baby+ | baby-plus | iOS / Android | com.babyplus.app | Piranesi S1 (Pybus) | AdID not auto-enabled; no US processing | network_capture, exodus_static |
+| Nurture Lock | nurture-lock | Android | com.nurturelock.app | Web search | 100% offline, no account, AES-256, local storage only | network_capture, exodus_static |
+| Cradly | cradly | iOS / Android | com.cradly.app | Web search | Privacy-first, local-first, AES-256, no account | network_capture, exodus_static |
+| BabyLog | babylog | iOS | com.babylog.app | Web search | 100% offline, no account, no cloud | network_capture, exodus_static |
+| Nara | nara | iOS / Android | com.naraorganics.nara | Web search | Complete privacy, real-time sharing, no data sold | network_capture, exodus_static |
+| Heartful Baby | heartful-baby | iOS / Android | com.heartfulsprout.baby | Web search | HIPAA-compliant, never sell data | network_capture, exodus_static |
+| Nestling | nestling | iOS | com.nestling.app | Web search | Privacy-first, no ads, no data selling | network_capture, exodus_static |
+| Pixy | pixy | iOS / Android | com.pixykid.app | Web search | Bank-level encryption, HIPAA compliant, privacy first | network_capture, exodus_static |
+
+**Note:** Baby Daybook and Baby+ are Piranesi-verified (Pybus C-010: among only 4 of 14 apps that did NOT auto-enable AdIDs). Nurture Lock, Cradly, BabyLog, Nara, Heartful Baby, Nestling, and Pixy come from web search — marketing claims only, not yet code-verified.
+
+---
+
 ## Tier 3  -  Backlog (future)
 
 These apps are on my list but not scheduled yet.
@@ -112,6 +132,15 @@ I record retention, EOL, and regime for each candidate before testing.
 | MimiLog | Unknown | N/A | Unknown | None known |
 | Sara Baby Tracker | Unknown | N/A | Unknown | None known |
 | Dymn Baby | Unknown | N/A | Unknown | None known |
+| Baby Daybook | Unknown | N/A | Unknown | None known |
+| Baby+ | Unknown | N/A | Unknown | None known |
+| Nurture Lock | Unknown | N/A | Unknown | None known |
+| Cradly | Unknown | N/A | Unknown | None known |
+| BabyLog | Unknown | N/A | Unknown | None known |
+| Nara | Unknown | N/A | Unknown | None known |
+| Heartful Baby | Unknown | N/A | Unknown | None known |
+| Nestling | Unknown | N/A | Unknown | None known |
+| Pixy | Unknown | N/A | Unknown | None known |
 
 **Note:** Retention and EOL come from privacy policies, vendor announcements, and NVD lookups. I verify each one before testing.
 
@@ -173,6 +202,15 @@ I check each candidate against this list before adding it. If it is already here
 | MimiLog | 2026-08-05 | New - not in original list |
 | Sara Baby Tracker | 2026-08-05 | New - not in original list |
 | Dymn Baby | 2026-08-05 | New - not in original list |
+| Baby Daybook | 2026-08-05 | New - Piranesi S1 C-010 |
+| Baby+ | 2026-08-05 | New - Piranesi S1 C-010 |
+| Nurture Lock | 2026-08-05 | New - web search |
+| Cradly | 2026-08-05 | New - web search |
+| BabyLog | 2026-08-05 | New - web search |
+| Nara | 2026-08-05 | New - web search |
+| Heartful Baby | 2026-08-05 | New - web search |
+| Nestling | 2026-08-05 | New - web search |
+| Pixy | 2026-08-05 | New - web search |
 
 ---
 
