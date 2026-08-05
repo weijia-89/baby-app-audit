@@ -1,5 +1,27 @@
 # Changelog
 
+## 3.3.0 - [DATE]
+
+### Added
+- Owlet ecosystem testing: Owlet Sock and Owlet Cam added to candidates.md with MDR/RED regime, verified CVE data from NVD, and test plan.
+- `scripts/detect-dark-patterns.sh` v1: Static dark pattern detection in APK resources.
+- `results/dark-patterns.schema.json`: Schema for dark pattern detection output.
+- `tests/test-dark-patterns.sh`: 7 unit tests for the dark pattern detector.
+- `scripts/compare-apps.sh` v1: Cross-app data comparison for decoded traffic JSON files.
+- `results/comparison.schema.json`: Schema for cross-app comparison output.
+- `tests/test-compare-apps.sh`: 7 unit tests for the comparison script.
+- Dark pattern detection methodology documented in METHODOLOGY.md.
+- `localonly/skeletons/owlet-sock.json` and `owlet-cam.json`: Skeleton entries for wearable devices.
+- `localonly/entries/owlet-test-plan.md`: Documented test plan for Owlet ecosystem.
+
+### Changed
+- `decode-traffic.sh` FILTER_HOST now includes Owlet apps (`com.owletcare.sock`, `com.owletcare.cam`).
+- `results/product-metadata.json` now includes entries for Owlet Sock and Owlet Cam with retention, CVE, and regime data.
+- `localonly/candidates.md` per-product config table updated with verified Owlet CVE data.
+
+### Fixed
+- Corrected CVE mapping: CVE-2023-6321 and CVE-2023-6323 both affect Owlet Cam, not Owlet Sock.
+
 ## 3.2.0 - 2026-08-05
 
 ### Added

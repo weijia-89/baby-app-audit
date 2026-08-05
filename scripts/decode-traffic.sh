@@ -105,6 +105,12 @@ case "$PACKAGE_NAME" in
     com.wachanga.babymilestones)
         FILTER_HOST="wachanga"
         ;;
+    com.owletcare.sock)
+        FILTER_HOST="owletcare"
+        ;;
+    com.owletcare.cam)
+        FILTER_HOST="owletcare"
+        ;;
     *)
         # Fallback: use the last segment of the package name
         FILTER_HOST="${PACKAGE_NAME##*.}"

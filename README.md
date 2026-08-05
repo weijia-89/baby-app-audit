@@ -124,12 +124,6 @@ This project is on a multi-sprint roadmap. Sprint 1 is complete.
 * **Expanded candidates:** 16+ new apps in `localonly/candidates.md` across Tier 1-3, wearable/IoT, and out-of-scope lists.
 * **Research prompts:** Four prompts in `prompts/` for finding apps, building scoring rubrics, mapping prior art, and researching device identities.
 * **CI expansion:** Test matrix now covers 11 apps with ports 8080-8090.
-
-* **Live data collection:** `scripts/decode-traffic.sh` v2 decodes HAR captures into structured JSON with per-product metadata.
-* **Per-product tracking:** Part 8.5 tracks retention, security EOL/CVE, and device identity for each product.
-* **Expanded candidates:** 16+ new apps in `localonly/candidates.md` across Tier 1-3, wearable/IoT, and out-of-scope lists.
-* **Research prompts:** Four prompts in `prompts/` for finding apps, building scoring rubrics, mapping prior art, and researching device identities.
-* **CI expansion:** Test matrix now covers 11 apps with ports 8080-8090.
 * **Unit tests:** `tests/test-decode-traffic.sh` has 11 tests for the decoder script.
 * **External config:** Product metadata now lives in `results/product-metadata.json` instead of hardcoded values.
 
@@ -140,9 +134,16 @@ This project is on a multi-sprint roadmap. Sprint 1 is complete.
 * **FOSS path validation:** Baby Buddy end-to-end test passes. Source clone, commit hash recording, and network reference audit all work.
 * **Bug fix:** `run-tests.sh` no longer word-splits on app names with spaces.
 
+### What Sprint 3 added
+
+* **Owlet ecosystem:** Owlet Sock (MDR) and Owlet Cam (RED) added to candidates.md with verified CVE data from NVD, regime classification, and test plan.
+* **Dark pattern detection:** `scripts/detect-dark-patterns.sh` scans APK resources for pre-checked consent, hidden flows, deceptive buttons, obfuscated disclaimers, and pressure tactics.
+* **Cross-app comparison:** `scripts/compare-apps.sh` compares decoded traffic across apps to find shared trackers, similar endpoints, and data volume differences.
+* **New schemas:** `results/dark-patterns.schema.json` and `results/comparison.schema.json` define the output format for the new tools.
+* **Unit tests:** `tests/test-dark-patterns.sh` (7 tests) and `tests/test-compare-apps.sh` (7 tests) cover the new scripts.
+
 ### What is next
 
-* **Sprint 3:** Close look at wearable baby monitors (Owlet). Add dark pattern detection. Compare data practices across apps.
 * **Sprint 4:** Generate the final report. Publish the methodology. Open-source the tool.
 
 If you have suggestions for coverage or issues with the methodology, I welcome them.

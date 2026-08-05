@@ -24,6 +24,23 @@
       ],
       "regulatory_regime": "RED",
       "device_identity": {"basic_udi_di": "", "model_number": "Pebbi-Cam-2", "regime": "RED"}
+    },
+    "com.owletcare.sock": {
+      "retention_schedule": {"policy_days": 0, "policy_description": "Indefinite - health data retained until account deletion", "indefinite": true},
+      "security_eol": {"eol_date": "unknown", "device_model": "Owlet Dream Sock", "eol_confidence": "unknown"},
+      "cve_list": [],
+      "regulatory_regime": "MDR",
+      "device_identity": {"basic_udi_di": "unknown", "model_number": "Dream-Sock", "regime": "MDR"}
+    },
+    "com.owletcare.cam": {
+      "retention_schedule": {"policy_days": 30, "policy_description": "Sight clips 30 days", "indefinite": false},
+      "security_eol": {"eol_date": "unknown", "device_model": "Owlet Cam 2", "eol_confidence": "unknown"},
+      "cve_list": [
+        {"cve_id": "CVE-2023-6321", "severity": "high", "description": "Command injection in OTA update IOCTL"},
+        {"cve_id": "CVE-2023-6323", "severity": "medium", "description": "Kalay SDK message authentication bypass"}
+      ],
+      "regulatory_regime": "RED",
+      "device_identity": {"basic_udi_di": "", "model_number": "Cam-2", "regime": "RED"}
     }
   },
   "default": {

@@ -163,6 +163,44 @@ I welcome independent verification. If you run the test and get different result
 
 ---
 
+## Dark Pattern Detection
+
+I added static dark pattern detection to the test harness in Sprint 3. This is a separate evidence stream from data transmission findings.
+
+### What I detect
+
+The script `scripts/detect-dark-patterns.sh` scans decompiled APK resources for these patterns:
+
+1. **Pre-checked consent** - Checkboxes or toggles that default to "checked" on consent-related screens.
+2. **Hidden consent flows** - WebViews or dialogs that load privacy terms but are hidden from view.
+3. **Deceptive button order** - Affirmative action buttons ("Accept All", "Continue") that appear without a clear decline option.
+4. **Obfuscated disclaimers** - Text that is too small or low contrast to read easily.
+5. **Pressure tactics** - Urgency language ("limited time", "act now") in user-facing strings.
+
+### How I detect them
+
+I search XML layout files and string resources for tell-tale signs:
+
+* `android:checked="true"` near consent-related text.
+* `android:visibility="gone"` on WebViews that load privacy URLs.
+* Very small layout dimensions (`layout_width="1dp"`) that hide content.
+* Button labels like "Accept All" without matching "Decline" or "Reject" strings.
+* Text sizes below 8sp on disclaimer text.
+* Light text colors (RGB all > 200) that create low contrast.
+
+### Limits
+
+* Static analysis only. I do not run the app to see the actual UI.
+* Patterns are heuristic. A finding does not prove intent.
+* False positives are possible. A checked checkbox might be for a functional setting, not data consent.
+* I do not detect runtime dark patterns (e.g., dialogs that block the back button).
+
+### Separation from transmission findings
+
+Dark pattern findings are kept in a separate JSON file (`results/dark-patterns.schema.json`). They do not affect the pass/fail verdict on data transmission. An app can have dark patterns but still pass the privacy test if it sends no data.
+
+---
+
 ## Sources
 
 * Baby Buddy repository: https://github.com/babybuddy/babybuddy
