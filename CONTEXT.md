@@ -34,6 +34,14 @@ Read this file first. It saves you from re-discovering things.
 - Port conflict fixed: each matrix app gets unique port (8080-8083)
 - test-matrix still runs on macos-latest — no emulator in CI, only structural validation
 
+## Known CI gotchas
+
+- `localonly/` is gitignored, but `localonly/candidates.md` and `localonly/skeletons/*.json` are tracked project data. CI depends on them. Use `git add -f` to stage changes.
+- `jsonschema` (Python) must be installed before running `test-decode-traffic.sh` — Tests 12 and 13 invoke strict-mode schema validation that fails without it.
+- App list delimiter changed from space to semicolon in v3.2.0. `APK_HARNESS_APPS` entries must be separated by `;`, not spaces.
+- CI smoke test normalizes hyphens to spaces before grepping `candidates.md`. If you rename an app, verify both the hyphenated slug and the spaced name appear where the test looks.
+- `APK_PRIVACY_TEST_HARNESS.md` code blocks are untouchable but contain stale versions. Read `run-tests.sh` as the source of truth for current behavior.
+
 ## DO NOT REVERT (from PR #9)
 
 - `validate_input`: strict for package_name/app_type, relaxed for app_name
