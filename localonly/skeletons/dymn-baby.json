@@ -1,0 +1,9 @@
+{
+  "name": "Dymn Baby",
+  "package_name": "com.dymnstudio.dymn-baby",
+  "app_type": "foss",
+  "verdict": "untested",
+  "verdict_confidence": 0,
+  "timestamp": "2026-08-05T00:00:00Z",
+  "note": "Skeleton entry - FOSS candidate. MIT. Fully offline, Kotlin. GitHub source available."
+}

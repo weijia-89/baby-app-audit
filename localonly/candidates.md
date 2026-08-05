@@ -27,6 +27,22 @@ These apps are interesting but lower priority than Tier 1.
 | Milli | milli | Android | com.milli.baby | Play Store search | Growth tracker | network_capture, policy_text |
 | Baby Connect | baby-connect | Android | com.babyconnect.app | Play Store search | Syncs across devices | network_capture, manual_audit |
 | SNUGL | snugl | Android | com.snugl.app | Play Store search | Baby monitor | network_capture, exodus_static |
+| Talli Baby | talli-baby | Android / iOS | com.mybabylogger.babylogger | Operator suggestion | Cloud sync via Wi-Fi device | network_capture, exodus_static, policy_text |
+
+---
+
+## FOSS candidates
+
+Open-source apps. I test these to compare against proprietary baselines. Baby Buddy is already in scope as the FOSS baseline (see "Out of scope" note in dedup log).
+
+| Name | Slug | Platform | Package name | Source | License | Privacy posture | Evidence type |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| LunaTracker | lunatracker | Android | it.danieleverducci.lunatracker | F-Droid | GPL-3.0 | WebDAV sync, optional cloud | network_capture, exodus_static |
+| MimiLog | mimilog | Android / iOS | com.mimiapp.mimilog | Play Store search | Proprietary (no ads, no signup) | Fully offline, no account | exodus_static, policy_text |
+| Sara Baby Tracker | sara-baby | Android / iOS | com.suleymansurucu.sarababy | Play Store search | GPL-3.0 | Firebase sync, caregiver sharing | network_capture, exodus_static |
+| Dymn Baby | dymn-baby | Android | com.dymnstudio.dymn-baby | GitHub | MIT | Fully offline | exodus_static, policy_text |
+
+**Note:** MimiLog is not open source but is privacy-focused (no ads, no signup, fully offline). I include it here for comparison with FOSS offline-first apps.
 
 ---
 
@@ -86,13 +102,56 @@ I record retention, EOL, and regime for each candidate before testing.
 | Milli | Unknown | N/A | Unknown | None known |
 | Baby Connect | Unknown | N/A | Unknown | None known |
 | SNUGL | Unknown | N/A | Unknown | None known |
-| Owlet Sock | Indefinite | 2025-12-31 (Sock 2) | MDR | CVE-2023-6321 (high) |
-| Owlet Cam | 30 days (Sight) | 2027-12-31 (Cam 2) | RED | CVE-2023-6323 (medium) |
+| Owlet Sock | Indefinite | Unknown (Dream Sock active) | MDR | None known |
+| Owlet Cam | 30 days (Sight) | Unknown (Cam 2 active) | RED | CVE-2023-6321 (high), CVE-2023-6323 (medium) |
 | Nanit | Unknown | Unknown | RED | None known |
 | Miku | Unknown | Unknown | MDR | None known |
 | Snuza | Unknown | Unknown | MDR | None known |
+| Talli Baby | Unknown | N/A | Unknown | None known |
+| LunaTracker | Unknown | N/A | Unknown | None known |
+| MimiLog | Unknown | N/A | Unknown | None known |
+| Sara Baby Tracker | Unknown | N/A | Unknown | None known |
+| Dymn Baby | Unknown | N/A | Unknown | None known |
 
 **Note:** Retention and EOL come from privacy policies, vendor announcements, and NVD lookups. I verify each one before testing.
+
+---
+
+## Owlet ecosystem research
+
+I looked up the Owlet Sock and Owlet Cam in the National Vulnerability Database (NVD) to verify security claims.
+
+### Regime classification
+
+| Device | Regime | Reason |
+| --- | --- | --- |
+| Owlet Sock | MDR | Pulse oximeter and sleep monitor. FDA cleared the Dream Sock in 2023 as a medical device (510(k) K223279). |
+| Owlet Cam | RED | Wi-Fi camera and radio transmitter. Falls under the Radio Equipment Directive in the EU. |
+
+### Basic UDI-DI
+
+| Device | Basic UDI-DI | Status |
+| --- | --- | --- |
+| Owlet Sock | Unknown | Not publicly disclosed in NVD or FDA 510(k) summary. |
+| Owlet Cam | N/A | RED devices do not require UDI-DI. |
+
+### Verified CVEs
+
+| CVE ID | Device | Severity | Description | Source |
+| --- | --- | --- | --- | --- |
+| CVE-2023-6321 | Owlet Cam | High (CVSS 8.8) | Command injection in the IOCTL that manages OTA updates. A crafted command can lead to root execution. | NVD, Bitdefender |
+| CVE-2023-6323 | Owlet Cam | Medium (CVSS 6.5) | ThroughTek Kalay SDK does not verify message authenticity. An attacker can impersonate an authoritative server. | NVD, Bitdefender |
+
+**Note:** Both verified CVEs affect the Owlet Cam, not the Owlet Sock. The Sock may have security issues, but none are listed in NVD as of 2026-08-05. The Bitdefender research that discovered these flaws is at https://bitdefender.com/blog/labs/notes-on-throughtek-kalay-vulnerabilities-and-their-impact/.
+
+### EOL status
+
+| Device | EOL date | Confidence |
+| --- | --- | --- |
+| Owlet Sock (Dream Sock) | Not announced | Active product as of 2026-08-05 |
+| Owlet Cam (Cam 2) | Not announced | Active product as of 2026-08-05 |
+
+The original Owlet Smart Sock was discontinued in 2021 after an FDA warning letter. The Dream Sock replaced it and received 510(k) clearance in 2023.
 
 ---
 
@@ -109,6 +168,11 @@ I check each candidate against this list before adding it. If it is already here
 | BabyTrack | 2026-08-04 | New - not in original list |
 | Amila | 2026-08-04 | New - not in original list |
 | Wachanga | 2026-08-04 | New - not in original list |
+| Talli Baby | 2026-08-05 | New - not in original list |
+| LunaTracker | 2026-08-05 | New - not in original list |
+| MimiLog | 2026-08-05 | New - not in original list |
+| Sara Baby Tracker | 2026-08-05 | New - not in original list |
+| Dymn Baby | 2026-08-05 | New - not in original list |
 
 ---
 

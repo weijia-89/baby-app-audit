@@ -1,0 +1,9 @@
+{
+  "name": "Sara Baby Tracker",
+  "package_name": "com.suleymansurucu.sarababy",
+  "app_type": "foss",
+  "verdict": "untested",
+  "verdict_confidence": 0,
+  "timestamp": "2026-08-05T00:00:00Z",
+  "note": "Skeleton entry - FOSS candidate. GPL-3.0. Firebase sync, caregiver sharing. Published on Play Store and App Store."
+}

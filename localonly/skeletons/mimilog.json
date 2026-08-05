@@ -1,0 +1,9 @@
+{
+  "name": "MimiLog",
+  "package_name": "com.mimiapp.mimilog",
+  "app_type": "native",
+  "verdict": "untested",
+  "verdict_confidence": 0,
+  "timestamp": "2026-08-05T00:00:00Z",
+  "note": "Skeleton entry - FOSS-adjacent. Fully offline, no ads, no signup, no account. Flutter. Privacy comparison baseline."
+}
