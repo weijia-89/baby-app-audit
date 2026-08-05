@@ -112,7 +112,21 @@ Full results with evidence: [results/RESULTS-20260803.md](results/RESULTS-202608
 
 ## Discussion and Roadmap
 
-Future iterations of this audit will include more apps, more FOSS alternatives, and more specificity on the data being siphoned (e.g. data related to user analytics vs actual data on infant developmental milestones).
+This project is on a multi-sprint roadmap. Sprint 1 is complete.
+
+### What Sprint 1 added
+
+* **Live data collection:** `scripts/decode-traffic.sh` v2 decodes HAR captures into structured JSON with per-product metadata.
+* **Per-product tracking:** Part 8.5 tracks retention, security EOL/CVE, and device identity for each product.
+* **Expanded candidates:** 16+ new apps in `localonly/candidates.md` across Tier 1-3, wearable/IoT, and out-of-scope lists.
+* **Research prompts:** Four prompts in `prompts/` for finding apps, building scoring rubrics, mapping prior art, and researching device identities.
+* **CI expansion:** Test matrix now covers 11 apps with ports 8080-8090.
+
+### What is next
+
+* **Sprint 2:** Cross-team integration, evidence schema migration v1 to v2, per-product test paths.
+* **Sprint 3:** Security EOL/CVE monitor, FOSS test path automation, Tier 1 app testing begins.
+* **Sprint 4:** Finalize all prompts, complete candidates.md, version bump to 3.2.0.
 
 If folks have any suggestions of what they want to see next in terms of coverage, please let me know. And any issues with the methodology will be warmly accepted and considered.
 
