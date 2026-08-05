@@ -17,5 +17,5 @@ results/baby-buddy-test-20260803/
 # Local review artifacts (trainer loop)
 localonly/
 
-# OS cruft
-.DS_Store
+# Roadmap prompts - keep only roadmap.md in root
+ROADMAP-PROMPT-v*.md

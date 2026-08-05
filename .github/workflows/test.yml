@@ -94,6 +94,19 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+  unit-tests:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    needs: lint-and-validate
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run decode-traffic unit tests
+        run: bash tests/test-decode-traffic.sh
+
+      - name: Verify product-metadata.json is valid JSON
+        run: python3 -m json.tool results/product-metadata.json > /dev/null
+
   canary-test:
     name: Canary Test (Pebbi Positive Control)
     runs-on: macos-latest

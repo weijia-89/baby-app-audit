@@ -1,5 +1,31 @@
 # Changelog
 
+## 3.1.2 - 2026-08-05
+
+### Added
+- `results/product-metadata.json`: External config for per-product metadata.
+- `results/product-metadata.schema.json`: JSON Schema for product-metadata.json.
+- `tests/test-decode-traffic.sh`: Unit tests for decode-traffic.sh with 11 tests.
+- `tests/fixtures/test-capture.har`: Test HAR fixture for unit tests.
+- CI unit-test job: Runs decode-traffic unit tests and validates product-metadata.json.
+- Canary validation: Checks product-metadata.json and product-metadata.schema.json.
+- Output directory validation in decode-traffic.sh.
+
+### Changed
+- Product metadata in decode-traffic.sh now loads from external config instead of hardcoded dict.
+- Schema validation in decode-traffic.sh uses env var instead of shell interpolation.
+- `__file__` fallback removed from Python inline script; uses relative path.
+- ROADMAP-PROMPT-v2.md and v3.md removed from git tracking; added to .gitignore.
+- Single `roadmap.md` added to root for persistent roadmap.
+
+### Fixed
+- `__file__` undefined error in Python `-c` fallback path.
+- Single quote injection in schema file path during validation.
+- Unit test cleanup now uses trap EXIT for reliable cleanup.
+- Test HAR now has matching flows to exercise full decode path.
+- Missing config file falls back to defaults.
+- Corrupted config file falls back to defaults.
+
 ## 3.1.1 - 2026-08-03
 
 ### Added

@@ -30,6 +30,8 @@ jobs:
           # Check results artifacts are present and valid
           python3 -m json.tool results/schema.json > /dev/null || exit 1
           python3 -m json.tool results/decode-traffic.schema.json > /dev/null || exit 1
+          python3 -m json.tool results/product-metadata.json > /dev/null || exit 1
+          python3 -m json.tool results/product-metadata.schema.json > /dev/null || exit 1
           python3 -m json.tool results/RESULTS-20260803.json > /dev/null || exit 1
           jq -e 'has("test_run_id") and has("apps")' results/RESULTS-20260803.json > /dev/null || exit 1
           echo "Results artifacts: OK"
