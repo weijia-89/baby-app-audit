@@ -71,7 +71,6 @@ if [ -n "$OUTPUT_FILE" ]; then
         exit 1
     fi
 fi
-
 # Validate package name: no shell metacharacters
 if [[ "$PACKAGE_NAME" =~ [\"\`\'\$\;\|\&\<\>] ]]; then
     error "Invalid characters in package_name"

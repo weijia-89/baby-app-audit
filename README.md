@@ -124,6 +124,12 @@ This project is on a multi-sprint roadmap. Sprint 1 is complete.
 * **Expanded candidates:** 16+ new apps in `localonly/candidates.md` across Tier 1-3, wearable/IoT, and out-of-scope lists.
 * **Research prompts:** Four prompts in `prompts/` for finding apps, building scoring rubrics, mapping prior art, and researching device identities.
 * **CI expansion:** Test matrix now covers 11 apps with ports 8080-8090.
+
+* **Live data collection:** `scripts/decode-traffic.sh` v2 decodes HAR captures into structured JSON with per-product metadata.
+* **Per-product tracking:** Part 8.5 tracks retention, security EOL/CVE, and device identity for each product.
+* **Expanded candidates:** 16+ new apps in `localonly/candidates.md` across Tier 1-3, wearable/IoT, and out-of-scope lists.
+* **Research prompts:** Four prompts in `prompts/` for finding apps, building scoring rubrics, mapping prior art, and researching device identities.
+* **CI expansion:** Test matrix now covers 11 apps with ports 8080-8090.
 * **Unit tests:** `tests/test-decode-traffic.sh` has 11 tests for the decoder script.
 * **External config:** Product metadata now lives in `results/product-metadata.json` instead of hardcoded values.
 
