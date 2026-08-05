@@ -12,20 +12,89 @@ Parents use baby tracking apps to record feeding, sleep, and diaper changes. Mos
 
 Some apps claim data never leaves the phone. No independent audit has backed that claim. Given the history of [certain applications](https://doi.org/10.3390/jcp3030016) with [broken privacy promises](https://www.bitdefender.com/en-us/blog/labs/notes-on-throughtek-kalay-vulnerabilities-and-their-impact), I completed an actual audit.
 
-## What Was Tested
+## Tested
 
-| App | Type | Claim |
-| --- | --- | --- |
-| Nurture Lock | Native Android | "100% offline" |
-| Nubo | Native Android | "Local-first" |
-| Pebbi | Native Android | No claim (positive control) |
-| Baby Buddy | FOSS / Web | Open-source |
+These four apps have full results.
 
-These were apps my partner and I researched. The internet recommended them as "private."
+| App | Type | Claim | Verdict |
+| --- | --- | --- | --- |
+| Nurture Lock | Native Android | "100% offline" | FAIL (95%) |
+| Nubo | Native Android | "Local-first" | FAIL (95%) |
+| Pebbi | Native Android | No claim (positive control) | FAIL (100%) |
+| Baby Buddy | FOSS / Web | Open-source | PASS (100%) |
 
-Baby Buddy is a FOSS option. I added it as a control since the codebase is fully auditable. But I subjected it to the same review and network scrutiny as the rest.
+Details in [results/RESULTS-20260803.md](results/RESULTS-20260803.md).
 
-I also found 16+ additional candidates. They are in `localonly/candidates.md` and split into Tier 1 (test next), Tier 2 (test later), Tier 3 (low priority), wearable/IoT, and out-of-scope.
+## Candidates
+
+These apps are in the test queue. I group them by priority.
+
+### Tier 1 - Test next
+
+| App | Platform | Claim | Status |
+| --- | --- | --- | --- |
+| BabyTrack | Android | Claims offline | Not tested |
+| Amila | Android | Unknown | Not tested |
+| Wachanga | Android | Milestone tracker | Not tested |
+
+### Tier 2 - Test this quarter
+
+| App | Platform | Claim | Status |
+| --- | --- | --- | --- |
+| NighP | Android | Sleep tracker | Not tested |
+| Milli | Android | Growth tracker | Not tested |
+| Baby Connect | Android | Syncs across devices | Not tested |
+| SNUGL | Android | Baby monitor | Not tested |
+| Talli Baby | Android / iOS | Cloud sync via Wi-Fi device | Not tested |
+
+### Tier 3 - Backlog
+
+| App | Platform | Claim | Status |
+| --- | --- | --- | --- |
+| Sprout Baby | iOS / Android | Baby tracker | Not tested |
+| Glow Baby | iOS / Android | Baby tracker | Not tested |
+| Huckleberry | iOS / Android | Sleep tracker | Not tested |
+| Tinyhood | iOS / Android | Parenting app | Not tested |
+| Kinedu | iOS / Android | Baby development | Not tested |
+| Pregnancy+ | iOS / Android | Pregnancy tracker | Not tested |
+| What to Expect | iOS / Android | Pregnancy tracker | Not tested |
+| BabyCenter | iOS / Android | Pregnancy tracker | Not tested |
+
+### Wearable / IoT - Phase 2
+
+| App | Platform | Device | Regime | Status |
+| --- | --- | --- | --- | --- |
+| Owlet Sock | Android / iOS | SpO2 monitor | MDR | Not tested |
+| Owlet Cam | Android / iOS | Wi-Fi camera | RED | Not tested |
+| Nanit | Android / iOS | Baby monitor camera | RED | Not tested |
+| Miku | Android / iOS | Breathing monitor | MDR | Not tested |
+| Snuza | Android / iOS | Movement monitor | MDR | Not tested |
+
+### Privacy-first marketed
+
+These apps claim to be private or offline. I test these claims against the code.
+
+| App | Platform | Marketing claim | Status |
+| --- | --- | --- | --- |
+| Baby Daybook | iOS / Android | AdID not auto-enabled | Not tested |
+| Baby+ | iOS / Android | AdID not auto-enabled | Not tested |
+| Cradly | iOS / Android | Privacy-first, local-first | Not tested |
+| BabyLog | iOS | 100% offline | Not tested |
+| Nara | iOS / Android | Complete privacy | Not tested |
+| Heartful Baby | iOS / Android | HIPAA-compliant | Not tested |
+| Nestling | iOS | Privacy-first, no ads | Not tested |
+| Pixy | iOS / Android | Bank-level encryption | Not tested |
+
+### FOSS candidates
+
+| App | Platform | License | Claim | Status |
+| --- | --- | --- | --- | --- |
+| LunaTracker | Android | GPL-3.0 | WebDAV sync | Not tested |
+| MimiLog | Android / iOS | Proprietary | Fully offline | Not tested |
+| Sara Baby Tracker | Android / iOS | GPL-3.0 | Firebase sync | Not tested |
+| Dymn Baby | Android | MIT | Fully offline | Not tested |
+
+Full candidate details are in `localonly/candidates.md`.
 
 ## How I Test
 
