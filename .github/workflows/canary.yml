@@ -24,11 +24,12 @@ jobs:
           
           # Check document integrity
           grep -q "## Part 0" APK_PRIVACY_TEST_HARNESS.md || exit 1
-          grep -q "## Part 5.5" APK_PRIVACY_TEST_HARNESS.md || exit 1
+          grep -q "## Part 8.5" APK_PRIVACY_TEST_HARNESS.md || exit 1
           echo "Document integrity: OK"
           
           # Check results artifacts are present and valid
           python3 -m json.tool results/schema.json > /dev/null || exit 1
+          python3 -m json.tool results/decode-traffic.schema.json > /dev/null || exit 1
           python3 -m json.tool results/RESULTS-20260803.json > /dev/null || exit 1
           jq -e 'has("test_run_id") and has("apps")' results/RESULTS-20260803.json > /dev/null || exit 1
           echo "Results artifacts: OK"

@@ -30,6 +30,7 @@ jobs:
           for part in 0 1 2 3 4 5 6 7 8 9 10; do
             grep -q "## Part $part" APK_PRIVACY_TEST_HARNESS.md || { echo "ERROR: Part $part missing"; exit 1; }
           done
+          grep -q "## Part 8.5" APK_PRIVACY_TEST_HARNESS.md || { echo "ERROR: Part 8.5 missing"; exit 1; }
           echo "All required sections found"
 
       - name: Validate JSON schema declaration
@@ -37,13 +38,24 @@ jobs:
           grep -q '"\$schema"' APK_PRIVACY_TEST_HARNESS.md || exit 1
           echo "JSON schema declaration found"
 
+      - name: Regression check: Part header count
+        run: |
+          part_count=$(grep -c "## Part" APK_PRIVACY_TEST_HARNESS.md)
+          if [ "$part_count" -lt 11 ]; then
+            echo "ERROR: Expected at least 11 Part headers, found $part_count"
+            exit 1
+          fi
+          echo "Part header count OK: $part_count"
+
       - name: Check for banned vocabulary (all public docs)
         run: |
           failed=0
-          for file in APK_PRIVACY_TEST_HARNESS.md README.md METHODOLOGY.md CHANGELOG.md results/RESULTS-20260803.md; do
-            if grep -qiE "\b(leverage|utilize|robust|scalable|seamlessly|comprehensive)\b" "$file"; then
-              echo "ERROR: Banned vocabulary found in $file"
-              failed=1
+          for file in APK_PRIVACY_TEST_HARNESS.md README.md METHODOLOGY.md CHANGELOG.md results/RESULTS-20260803.md localonly/entries/TIMESTAMP_LOG.md; do
+            if [ -f "$file" ]; then
+              if grep -qiE "\b(leverage|utilize|robust|scalable|seamlessly|comprehensive)\b" "$file"; then
+                echo "ERROR: Banned vocabulary found in $file"
+                failed=1
+              fi
             fi
           done
           if [ $failed -eq 1 ]; then
@@ -54,6 +66,7 @@ jobs:
       - name: Verify results artifacts are valid JSON
         run: |
           python3 -m json.tool results/schema.json > /dev/null
+          python3 -m json.tool results/decode-traffic.schema.json > /dev/null
           python3 -m json.tool results/RESULTS-20260803.json > /dev/null
           jq -e 'has("harness_version") and has("test_run_id") and has("apps")' results/RESULTS-20260803.json > /dev/null
           for app in "Nurture Lock" "Nubo" "Pebbi" "Baby Buddy"; do
@@ -73,7 +86,8 @@ jobs:
         run: |
           bash -n scripts/run-tests.sh || exit 1
           bash scripts/run-tests.sh --check || exit 1
-          echo "run-tests.sh parses cleanly and dry run passes"
+          bash -n scripts/decode-traffic.sh || exit 1
+          echo "All scripts parse cleanly and dry run passes"
 
       - name: Secret scan (gitleaks)
         uses: gitleaks/gitleaks-action@v2
@@ -122,7 +136,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        app: [nurturelock, nubo, pebbi, babybuddy]
+        app: [nurturelock, nubo, pebbi, babybuddy, babytrack, amila, wachanga, nighp, milli, baby-connect, snugl]
         include:
           - app: nurturelock
             proxy_port: "8080"
@@ -132,6 +146,20 @@ jobs:
             proxy_port: "8082"
           - app: babybuddy
             proxy_port: "8083"
+          - app: babytrack
+            proxy_port: "8084"
+          - app: amila
+            proxy_port: "8085"
+          - app: wachanga
+            proxy_port: "8086"
+          - app: nighp
+            proxy_port: "8087"
+          - app: milli
+            proxy_port: "8088"
+          - app: baby-connect
+            proxy_port: "8089"
+          - app: snugl
+            proxy_port: "8090"
     steps:
       - uses: actions/checkout@v4
 
@@ -145,14 +173,14 @@ jobs:
         run: |
           echo "Running smoke tests for ${{ matrix.app }}"
           # In a real execution, this would verify all tools
-          # For CI validation, we check the harness is well-formed
-          grep -q "${{ matrix.app }}" APK_PRIVACY_TEST_HARNESS.md || exit 1
+          # For CI validation, we check the harness or candidates list contains the app
+          grep -qi "${{ matrix.app }}" APK_PRIVACY_TEST_HARNESS.md || grep -qi "${{ matrix.app }}" localonly/candidates.md || { echo "App not found in harness or candidates"; exit 1; }
           echo "Smoke test passed for ${{ matrix.app }}"
 
       - name: Validate app-specific procedures exist
         run: |
           if [ "${{ matrix.app }}" = "babybuddy" ]; then
-            grep -q "Part 5.5" APK_PRIVACY_TEST_HARNESS.md || exit 1
+            grep -q '\[FOSS\]' APK_PRIVACY_TEST_HARNESS.md || exit 1
             echo "Baby Buddy FOSS procedures found"
           else
             grep -q "adb shell pm path" APK_PRIVACY_TEST_HARNESS.md || exit 1
@@ -199,7 +227,7 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "| App | Status |" >> $GITHUB_STEP_SUMMARY
           echo "| --- | --- |" >> $GITHUB_STEP_SUMMARY
-          for app in nurturelock nubo pebbi babybuddy; do
+          for app in nurturelock nubo pebbi babybuddy babytrack amila wachanga nighp milli baby-connect snugl; do
             echo "| ${app} | CI_VALIDATION_PASSED |" >> $GITHUB_STEP_SUMMARY
           done
           echo "" >> $GITHUB_STEP_SUMMARY

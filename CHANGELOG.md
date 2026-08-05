@@ -2,6 +2,24 @@
 
 ## 3.1.1 - 2026-08-03
 
+### Added
+- Part 8.5: Per-product retention, security EOL/CVE, and device identity tracking.
+- `scripts/decode-traffic.sh` v2: Decodes HAR captures into structured JSON with product metadata.
+- `results/decode-traffic.schema.json` v2: Schema for decoded traffic with retention_schedule, security_eol, cve_list, regulatory_regime.
+- `localonly/candidates.md`: 16+ discovered apps in Tier 1-3, wearable/IoT, and out-of-scope lists.
+- `localonly/skeletons/`: Skeleton test entries for Tier 1-2 apps.
+- `localonly/entries/TIMESTAMP_LOG.md`: Audit log entry template.
+- `--live` flag in `run-tests.sh`: Enables live traffic capture mode.
+- Tool version recording in `run-tests.sh`: Records mitmproxy, adb, jadx, docker, objection versions.
+- Port allocation 8080-8095: Supports up to 16 apps with unique PROXY_PORT per app.
+- CI matrix expanded to 11 apps: nurturelock, nubo, pebbi, babybuddy, babytrack, amila, wachanga, nighp, milli, baby-connect, snugl.
+- CI regression check: Part header count >= 11.
+
+### Changed
+- Removed standalone Part 5.5; merged FOSS paths into Parts 1-3 with **[FOSS]** tags.
+- CI babybuddy check: changed from "Part 5.5" grep to **[FOSS]** tag grep.
+- `run-tests.sh`: App list configurable via `APK_HARNESS_APPS` env var.
+
 ### Fixed
 - `validate_input`: strict mode for package_name/app_type, relaxed mode for app_name (spaces allowed).
 - Part 7 cleanup: `adb root || true` with post-rm verification. `set -uo pipefail` (no `-e`).

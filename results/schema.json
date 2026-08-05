@@ -95,7 +95,8 @@
                 "items": { "type": "string" }
               },
               "exodus_report": { "type": "string" },
-              "source_hits": { "type": "string" }
+              "source_hits": { "type": "string" },
+              "note": { "type": "string" }
             }
           },
           "dynamic_capture": {
@@ -135,7 +136,9 @@
                 "type": "array",
                 "items": { "type": "string" }
               },
-              "sends_by_default": { "type": "boolean" }
+              "sends_by_default": { "type": "boolean" },
+              "network_references_count": { "type": "integer" },
+              "tracker_references_count": { "type": "integer" }
             }
           }
         }

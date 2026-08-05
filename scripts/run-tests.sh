@@ -6,6 +6,9 @@
 set -euo pipefail
 
 # Configuration
+# Port allocation: each app gets a unique PROXY_PORT.
+# Default range: 8080-8095 (supports up to 16 apps).
+# Override per-app: PROXY_PORT=8081 ./run-tests.sh --live
 export HARNESS_VERSION="3.1.1"
 export WORK_DIR="${APK_HARNESS_WORK_DIR:-${HOME}/apk-privacy-test-$(date -u +%Y%m%d-%H%M%S)}"
 export RESULTS_DIR="${WORK_DIR}/results"
@@ -14,6 +17,73 @@ export TEST_RUN_ID="${TEST_RUN_ID:-apk-harness-$(date -u +%Y%m%d-%H%M%S)}"
 export PROXY_PORT="${PROXY_PORT:-8080}"
 export MITM_WEB_PORT="${MITM_WEB_PORT:-8081}"
 export KEEP_WORK_DIR="${KEEP_WORK_DIR:-0}"
+
+# Validate PROXY_PORT is numeric and within valid range
+if ! [[ "$PROXY_PORT" =~ ^[0-9]+$ ]] || [ "$PROXY_PORT" -lt 1 ] || [ "$PROXY_PORT" -gt 65535 ]; then
+    echo "ERROR: PROXY_PORT must be an integer between 1 and 65535, got: $PROXY_PORT"
+    exit 1
+fi
+
+# App list: space-separated "Name|type|package" triples.
+# Type: native | foss | web
+# Package: empty string for FOSS/web apps without a package name.
+# Example: APK_HARNESS_APPS="Nurture Lock|native|com.angry.shark.studio.nurturelock Nubo|native|com.clicksie.nuboapp"
+DEFAULT_APPS="Nurture Lock|native|com.angry.shark.studio.nurturelock Nubo|native|com.clicksie.nuboapp Pebbi|native|com.pebbi.android Baby Buddy|foss|"
+APK_HARNESS_APPS="${APK_HARNESS_APPS:-$DEFAULT_APPS}"
+# Trim trailing whitespace to prevent empty iterations
+APK_HARNESS_APPS="${APK_HARNESS_APPS#"${APK_HARNESS_APPS%%[![:space:]]*}"}"
+APK_HARNESS_APPS="${APK_HARNESS_APPS%"${APK_HARNESS_APPS##*[![:space:]]}"}"
+
+# Live mode: set to 1 to attempt live traffic capture; 0 for dry/check only
+LIVE_MODE=0
+if [ "${1:-}" = "--live" ]; then
+    LIVE_MODE=1
+    shift
+fi
+
+# Tool versions (recorded in results for reproducibility)
+record_tool_versions() {
+    local versions_file="$RESULTS_DIR/tool-versions.json"
+    local mitm_version="unknown"
+    local adb_version="unknown"
+    local jadx_version="unknown"
+    local docker_version="unknown"
+    local objection_version="unknown"
+    
+    if command -v mitmweb >/dev/null 2>&1; then
+        mitm_version=$(mitmweb --version 2>/dev/null | head -1 || echo "unknown")
+    fi
+    if command -v adb >/dev/null 2>&1; then
+        adb_version=$(adb --version 2>/dev/null | head -1 || echo "unknown")
+    fi
+    if command -v jadx >/dev/null 2>&1; then
+        jadx_version=$(jadx --version 2>/dev/null || echo "unknown")
+    fi
+    if command -v docker >/dev/null 2>&1; then
+        docker_version=$(docker --version 2>/dev/null || echo "unknown")
+    fi
+    if command -v objection >/dev/null 2>&1; then
+        objection_version=$(objection --version 2>/dev/null || echo "unknown")
+    fi
+    
+    jq -n \
+        --arg mitm "$mitm_version" \
+        --arg adb "$adb_version" \
+        --arg jadx "$jadx_version" \
+        --arg docker "$docker_version" \
+        --arg objection "$objection_version" \
+        --arg ts "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+        '{
+            mitmproxy: $mitm,
+            adb: $adb,
+            jadx: $jadx,
+            docker: $docker,
+            objection: $objection,
+            recorded_at: $ts
+        }' > "$versions_file"
+    
+    log "Tool versions recorded: $versions_file"
+}
 
 # Colors for output
 RED='\033[0;31m'
@@ -347,7 +417,7 @@ test_native_app() {
         flow_count=$(echo "$flow_data" | jq '.data | length' 2>/dev/null || echo "0")
         log "[$app_name] Captured $flow_count flows"
         
-        jq --arg count "$flow_count" --arg flowfile "$ARTIFACTS_DIR/captures/${app_name}-flows.json" '.tests.offline_test = {
+        jq --arg count "$flow_count" --arg flowfile "$ARTIFACTS_DIR/captures/${app_name}-flows.json" '.offline_test = {
             "outbound_requests_count": ($count | tonumber),
             "flow_file": $flowfile
         }' "$results_file" > "$results_file.tmp" && mv "$results_file.tmp" "$results_file"
@@ -359,7 +429,7 @@ test_native_app() {
     # automated scan (exodus-standalone) is documented but not run here.
     if command -v jadx >/dev/null 2>&1; then
         log "[$app_name] jadx available for manual static review (see decompiled/)"
-        jq '.tests.static_scan = {
+        jq '.static_scan = {
             "trackers_found": 0,
             "tracker_names": [],
             "note": "jadx manual review required; exodus-standalone not run (architecture)"
@@ -448,7 +518,7 @@ test_foss_app() {
             
             log "[$app_name] Found $network_count network references, $tracker_count tracker references"
             
-            jq --arg commit "$commit_hash" --arg url "$repo_url" --arg net "$network_count" --arg track "$tracker_count" '.tests.source_audit = {
+            jq --arg commit "$commit_hash" --arg url "$repo_url" --arg net "$network_count" --arg track "$tracker_count" '.source_audit = {
                 "repository_url": $url,
                 "commit_hash": $commit,
                 "network_endpoints": [],
@@ -482,6 +552,11 @@ main() {
     log "Version: $HARNESS_VERSION"
     log "Test run ID: $TEST_RUN_ID"
     log "Working directory: $WORK_DIR"
+    if [ "$LIVE_MODE" -eq 1 ]; then
+        log "Mode: LIVE (traffic capture enabled)"
+    else
+        log "Mode: STANDARD (no --live flag)"
+    fi
     
     # Pre-flight
     if ! preflight; then
@@ -489,18 +564,39 @@ main() {
         exit 1
     fi
     
+    # Record tool versions for reproducibility
+    record_tool_versions
+    
     # --check mode: validate tooling and configuration only (used by CI)
     if [ "${1:-}" = "--check" ]; then
         log "Configuration check passed (tools + schema) - dry run complete"
         exit 0
     fi
     
+    # If --live was passed but mitmproxy is not available, warn and continue
+    # with best-effort (static scans still run)
+    if [ "$LIVE_MODE" -eq 1 ] && ! command -v mitmweb >/dev/null 2>&1; then
+        warn "--live requested but mitmproxy not available. Skipping live capture."
+        LIVE_MODE=0
+    fi
+    
     # Test apps (package names are the audit targets resolved during testing)
     local exit_code=0
-    test_app "Nurture Lock" "native" "com.angry.shark.studio.nurturelock" || exit_code=1
-    test_app "Nubo" "native" "com.clicksie.nuboapp" || exit_code=1
-    test_app "Pebbi" "native" "com.pebbi.android" || exit_code=1
-    test_app "Baby Buddy" "foss" "" || exit_code=1
+    local app_idx=0
+    for app_triple in $APK_HARNESS_APPS; do
+        IFS='|' read -r app_name app_type package_name <<< "$app_triple"
+        # Each app gets a unique port offset
+        local app_port=$((PROXY_PORT + app_idx))
+        local app_web_port=$((app_port + 100))
+        if [ "$app_port" -gt 65535 ] || [ "$app_web_port" -gt 65535 ]; then
+            error "Port overflow: app_idx=$app_idx would use ports $app_port/$app_web_port. Reduce app count or lower PROXY_PORT."
+            exit 1
+        fi
+        export PROXY_PORT="$app_port"
+        export MITM_WEB_PORT="$app_web_port"
+        test_app "$app_name" "$app_type" "$package_name" || exit_code=1
+        app_idx=$((app_idx + 1))
+    done
     
     # Generate summary conforming to results/schema.json
     log "Generating summary..."
@@ -515,9 +611,17 @@ main() {
     local apps_json=""
     for f in "$RESULTS_DIR"/*.json; do
         [ "$f" = "$summary" ] && continue
+        [ "$(basename "$f")" = "tool-versions.json" ] && continue
+        [ "$(basename "$f")" = "summary.json" ] && continue
         apps_json="${apps_json}$(cat "$f"),"
     done
     apps_json="[${apps_json%,}]"
+    
+    # Include tool versions and live mode flag in summary
+    local tool_versions="{}"
+    if [ -f "$RESULTS_DIR/tool-versions.json" ]; then
+        tool_versions=$(cat "$RESULTS_DIR/tool-versions.json")
+    fi
     
     jq -n \
         --arg hv "$HARNESS_VERSION" \
@@ -525,7 +629,17 @@ main() {
         --arg rid "$TEST_RUN_ID" \
         --arg st "$status_text" \
         --argjson apps "$apps_json" \
-        '{harness_version: $hv, timestamp: $ts, test_run_id: $rid, status: $st, apps: $apps}' \
+        --argjson tools "$tool_versions" \
+        --argjson live "$LIVE_MODE" \
+        '{
+            harness_version: $hv,
+            timestamp: $ts,
+            test_run_id: $rid,
+            status: $st,
+            live_mode: $live,
+            tool_versions: $tools,
+            apps: $apps
+        }' \
         > "$summary" || {
             # Fallback: empty apps array on malformed input
             jq -n \
@@ -533,7 +647,15 @@ main() {
                 --arg ts "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
                 --arg rid "$TEST_RUN_ID" \
                 --arg st "$status_text" \
-                '{harness_version: $hv, timestamp: $ts, test_run_id: $rid, status: $st, apps: []}' \
+                --argjson live "$LIVE_MODE" \
+                '{
+                    harness_version: $hv,
+                    timestamp: $ts,
+                    test_run_id: $rid,
+                    status: $st,
+                    live_mode: $live,
+                    apps: []
+                }' \
                 > "$summary"
         }
     

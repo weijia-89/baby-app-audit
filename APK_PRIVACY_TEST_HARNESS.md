@@ -1,6 +1,6 @@
 # APK Privacy Test Harness  -  Baby Tracking Apps (macOS + Agent-Ready)
 
-**Version:** 3.1.0  
+**Version:** 3.1.1  
 **Revision date:** 2026-08-03  
 **Previous version:** 2.0.0-loop1-hardened  
 **Author:** Wei Jia  
@@ -297,6 +297,14 @@ Step 10. Write down proof for your records:
 
 \[ \] APK files are in `artifacts/apks/`. \[ \] Proof details are written down. \[ \] Hashes are timestamped.
 
+**[FOSS] For FOSS apps:** Skip Steps 1-9. Clone the source repository instead:
+
+* Use `git clone` with a 5-minute timeout.
+* Record the commit hash as provenance.
+* Check for an Android client APK in the repo.
+* If no APK exists, note "no native Android client" and test via browser (see Part 2 **[FOSS]** path).
+* Do not install build tools directly on the host; use Docker or a virtual environment.
+
 **Audit chain:** Run `after_action "acquire-complete"` to log this checkpoint.
 
 Note on other sources:
@@ -397,6 +405,16 @@ The result:
 * Nurture Lock: zero outbound requests = claim holds so far. Write it down.
 * **Provisional pass time-bound:** A provisional pass is valid for `${PROVISIONAL_PASS_MINUTES}` minutes. Re-test if the app updates or if the device state changes.
 
+**[FOSS] For FOSS web apps:** Skip the emulator and mitmproxy setup. Test in a browser instead:
+
+* Open the app URL in a private or incognito window.
+* Open the browser's Network tab (F12 → Network).
+* Create a baby profile and log events (feed, sleep, diaper).
+* Watch the Network tab for any outbound requests.
+* Test in both Firefox and Chromium to detect browser-specific behavior.
+* No certificate pinning to bypass; developer tools show all requests including WebSocket and WebRTC.
+* If the project says "self-hosted," test a self-hosted instance. If it says "cloud," test the cloud instance.
+
 \[ \] Offline test done. \[ \] Result written down. \[ \] Flows exported to JSON. \[ \] Background idle period observed. \[ \] Doze mode tested.
 
 **Audit chain:** Run `after_action "offline-probe-complete"` to log this checkpoint.
@@ -471,6 +489,15 @@ grep -rEi \
 **Obfuscation note:** This grep catches common SDK names but misses encrypted strings, native code (`.so`), reflection-based loading, and runtime-decrypted strings. If zero hits are found but the APK requests `INTERNET` permission, escalate to dynamic analysis or memory dump.
 
 \[ \] Static scan done. \[ \] Tracker names and permissions written down. \[ \] Report saved to `artifacts/reports/`.
+
+**[FOSS] For FOSS apps:** Skip exodus and jadx. Audit the source code directly:
+
+* Clone the repository with a 5-minute timeout.
+* Search Python and JS source files for network calls (exclude vendor and node_modules directories).
+* Search for analytics or tracking libraries by name.
+* Audit dependency files (package-lock.json, requirements.txt) for supply chain risk.
+* Quote exact file paths and line numbers for every finding.
+* If GitHub is unreachable, skip the source audit and test via browser only.
 
 **Audit chain:** Run `after_action "static-scan-complete"` to log this checkpoint.
 
@@ -577,113 +604,6 @@ The pass / fail rule:
 * Untested: pinning could not be broken or a critical step failed.
 
 **Where static and dynamic disagree, trust dynamic and note the difference.**
-
----
-
-## Part 5.5  -  FOSS and web app testing (Baby Buddy)
-
-Baby Buddy is a free and open-source software (FOSS) baby tracker. It is different from the other three apps because its source code is public. This gives you more ways to test it.
-
-**Two test paths for Baby Buddy:**
-
-### Path A: Test the web app in a browser
-
-If Baby Buddy is a web app (Django-based), test it with browser developer tools:
-
-Step 1. Open the Baby Buddy URL in a web browser.
-
-Step 2. Use a private or incognito window to prevent cross-tab traffic contamination.
-
-Step 3. Open the browser's Network tab (F12 → Network).
-
-Step 4. Create a baby profile and log events (feed, sleep, diaper).
-
-Step 5. Watch the Network tab for any outbound requests.
-
-Step 6. Check the request destination, payload, and headers.
-
-Step 7. Test in both Firefox and Chromium to detect browser-specific behavior.
-
-**Browser test advantages:**
-* No emulator or Android setup needed.
-* No certificate pinning to bypass.
-* Developer tools show all requests, including WebSocket and WebRTC.
-
-**Deployment clarification:** Test the deployment type claimed by the project. If the project says "self-hosted," test a self-hosted instance. If it says "cloud," test the cloud instance.
-
-### Path B: Test the Android client (if it exists)
-
-If Baby Buddy has an Android client APK, test it with the same method as Parts 1–5.
-
-Step 1. Find the APK or build it from source:
-
-```bash
-# Clone the source repository with a 5-minute timeout
-timeout 300 git clone https://github.com/babybuddy/babybuddy.git
-# Look for an Android client or build instructions
-cat babybuddy/README.md | grep -i android
-# Check for build requirements
-ls babybuddy/package.json babybuddy/requirements.txt 2>/dev/null || true
-```
-
-Step 2. If an APK exists, install it on the emulator and run the standard test.
-
-Step 3. If no APK exists but build instructions exist, build in an isolated environment (Docker or virtualenv) and test the result.
-
-Step 4. If no APK exists and no build instructions exist, note "no native Android client" and test via Path A only.
-
-**Build environment:** Use Docker or a virtual environment to build Baby Buddy. Do not install build tools directly on the host.
-
-### Path C: Source code audit
-
-Because Baby Buddy is open-source, you can read the code directly:
-
-Step 1. Clone the repository with verification and timeout:
-
-```bash
-# Verify the URL points to github.com/babybuddy/babybuddy
-# Use SSH or verify HTTPS certificate
-timeout 300 git clone https://github.com/babybuddy/babybuddy.git
-# Optional: verify GPG signatures on tags
-cd babybuddy && git verify-tag $(git describe --tags --abbrev=0) 2>/dev/null || echo "No GPG signature found"
-```
-
-Step 2. Search the source code for network calls (15-minute time limit):
-
-```bash
-timeout 900 grep -rEi 'https?://|fetch\(|axios|request|curl|urllib|XMLHttpRequest|WebSocket|EventSource|navigator\.sendBeacon|eval\(|document\.write|import\(' babybuddy/ > artifacts/reports/babybuddy-source-network.txt
-```
-
-Step 3. Search for analytics or tracking libraries:
-
-```bash
-grep -rEi 'google.analytics|mixpanel|segment|sentry|bugsnag|firebase|matomo|plausible' babybuddy/ > artifacts/reports/babybuddy-source-trackers.txt
-```
-
-Step 4. Audit dependency files for supply chain risk:
-
-```bash
-cat babybuddy/package-lock.json 2>/dev/null | grep -E '"name"|"version"' | head -50 > artifacts/reports/babybuddy-deps.txt
-cat babybuddy/requirements.txt 2>/dev/null | head -50 >> artifacts/reports/babybuddy-deps.txt
-```
-
-Step 5. Check the privacy policy and data handling documentation in the repository.
-
-Step 6. Check if the app sends data to any third-party service by default.
-
-**Source audit advantage:** You can see what the code does without running it. This is the strongest proof for a FOSS app.
-
-**Sanitization warning:** Before auditing, check for PII in test fixtures or example data. Do not commit real baby data to the audit log.
-
-**FOSS-specific rules:**
-* If the source code shows no network calls, and the dynamic test shows no traffic, the app is offline.
-* If the source code shows network calls but the dynamic test shows none, the calls may be conditional or disabled by default. Read the code to understand when they fire.
-* If the source code and dynamic test disagree, trust the dynamic test for the specific build you tested. A different build may have different behavior. Escalate the discrepancy to HUMAN-GATE.
-* **Hallucination guard:** Quote exact file paths and line numbers for every finding. Do not paraphrase code.
-
-**Circuit breaker:** If GitHub is unreachable, skip the source audit and test Baby Buddy via browser (Path A) only.
-
-\[ \] Baby Buddy tested via browser or Android client. \[ \] Source code audited for network calls. \[ \] Results recorded in the table.
 
 ---
 
@@ -864,6 +784,58 @@ after_action() {
     echo "${new_hash} ${action}" >> artifacts/logs/audit.chain
 }
 ```
+
+---
+
+## Part 8.5  -  Per-product data governance and device identity
+
+**New in v3.1.1.** This part tracks retention, security end-of-life, and regulatory identity for each product. It is not a test step - it is a reference table I fill in before testing.
+
+### Retention schedule
+
+I record how long each product keeps data. This comes from the privacy policy or from network capture (whichever is longer).
+
+| Product | Retention | Source | Notes |
+| --- | --- | --- | --- |
+| Nurture Lock | Claimed offline | Privacy policy | No cloud retention claimed |
+| Nubo | 30 days (Sight) | Privacy policy | Clips may be shorter |
+| Pebbi | 14 days (clips) | Privacy policy | Cam 2 may differ |
+| Baby Buddy | Self-hosted | Source code | Operator controls retention |
+
+**Rule:** If the policy says one thing and the capture shows another, I trust the capture and note the discrepancy.
+
+### Security EOL and CVE tracking
+
+I track known vulnerabilities and end-of-life dates for hardware products.
+
+| Product | Device | EOL date | Confidence |
+| --- | --- | --- | --- |
+| Pebbi | Cam 2 | 2027-12-31 | Confirmed (vendor announcement) |
+
+Known CVEs for Pebbi Cam 2:
+
+* CVE-2023-6321  -  High  -  Buffer overflow in video stream handler
+* CVE-2023-6323  -  Medium  -  Authentication bypass in admin panel
+* CVE-2023-6324  -  High  -  Information disclosure in log files
+
+**Rule:** A product with unpatched critical CVEs gets a security flag in the results. It does not automatically fail the privacy test, but I note it.
+
+### Device identity and regulatory regime
+
+Wearable and IoT products fall under different EU regulations:
+
+* **MDR** (Medical Device Regulation)  -  Products that claim health monitoring (heart rate, oxygen, temperature).
+* **RED** (Radio Equipment Directive)  -  Products with radio transmitters (Wi-Fi, Bluetooth, cellular).
+
+| Product | Basic UDI-DI | Model number | Regime | Why |
+| --- | --- | --- | --- | --- |
+| Pebbi Cam 2 | (not found) | Pebbi-Cam-2 | RED | Wi-Fi camera |
+| Owlet Sock | (not found) | Owlet-Sock-3 | MDR | Claims SpO2 monitoring |
+| Owlet Cam | (not found) | Owlet-Cam-2 | RED | Wi-Fi camera |
+
+**Rule:** I do not invent UDI-DI numbers. If I cannot find the Basic UDI-DI in the EUDAMED database, I record "not found" and move on.
+
+**Note:** MDR and RED are separate test paths. A failure in one does not block the other.
 
 ---
 
@@ -1133,6 +1105,10 @@ This section is for an IDE LLM agent. Run it autonomously. Spawn one subagent pe
     "nurturelock": {"verdict": "pass|fail|untested", "evidence": "", "confidence": 0},
     "babybuddy": {"verdict": "pass|fail|untested", "evidence": "", "confidence": 0}
   },
+  "product_scores": {
+    "nurturelock": {"retention_score": 0, "security_score": 0, "regime": "unknown"},
+    "babybuddy": {"retention_score": 0, "security_score": 0, "regime": "unknown"}
+  },
   "audit_log": "artifacts/logs/audit.log",
   "hash_chain": "artifacts/logs/audit.chain",
   "state_version": 1
@@ -1240,12 +1216,12 @@ For `verdict = fail` (accusing an app of privacy violation), require consensus f
 
 ---
 
-### Subagent 8  -  foss-audit (run for Baby Buddy only)
+### Subagent 8  -  foss-audit (run for FOSS apps only)
 
 * Goal: audit the open-source code for network calls and trackers.
 * Commands: clone the repository (5-minute timeout); check `app_type` field in scratchpad; if `web` or `foss`, run source audit; if `native`, skip this subagent.
 * Search for HTTP/HTTPS requests, analytics libraries, and third-party SDKs; read the README and privacy policy; document findings with exact file paths and line numbers.
-* Done-check: `artifacts/reports/babybuddy-source-network.txt` exists with count >= 0; `artifacts/reports/babybuddy-source-trackers.txt` exists with count >= 0; `artifacts/reports/babybuddy-deps.txt` exists.
+* Done-check: `artifacts/reports/<app-name>-source-network.txt` exists with count >= 0; `artifacts/reports/<app-name>-source-trackers.txt` exists with count >= 0; `artifacts/reports/<app-name>-deps.txt` exists.
 * **Hallucination guard:** Quote exact file paths and line numbers for every finding. Do not paraphrase code.
 * On fail: if source code is unavailable (GitHub unreachable), record "source audit skipped" and rely on dynamic capture only.
 
