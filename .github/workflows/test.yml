@@ -111,6 +111,9 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pip-
 
+      - name: Install test dependencies
+        run: pip install jsonschema==4.26.0
+
       - name: Run decode-traffic unit tests
         run: bash tests/test-decode-traffic.sh
 
@@ -119,7 +122,6 @@ jobs:
 
       - name: Schema validation gate
         run: |
-          pip install jsonschema==4.26.0
           DECODE_TRAFFIC_STRICT=1 bash scripts/decode-traffic.sh tests/fixtures/test-capture.har com.pebbi.android schema-test-output.json
           echo "Schema validation passed (strict mode)"
 
@@ -210,8 +212,14 @@ jobs:
           echo "Running smoke tests for ${{ matrix.app }}"
           # In a real execution, this would verify all tools
           # For CI validation, we check the harness or candidates list contains the app
-          grep -qi "${{ matrix.app }}" APK_PRIVACY_TEST_HARNESS.md || grep -qi "${{ matrix.app }}" localonly/candidates.md || { echo "App not found in harness or candidates"; exit 1; }
-          echo "Smoke test passed for ${{ matrix.app }}"
+          # Normalize slug: replace hyphens with spaces for candidate matching
+          APP_NORMALIZED="$(echo '${{ matrix.app }}' | tr '-' ' ')"
+          if grep -qi "${{ matrix.app }}" APK_PRIVACY_TEST_HARNESS.md || grep -qi "${{ matrix.app }}" localonly/candidates.md || grep -qi "$APP_NORMALIZED" localonly/candidates.md; then
+            echo "Smoke test passed for ${{ matrix.app }}"
+          else
+            echo "App not found in harness or candidates"
+            exit 1
+          fi
 
       - name: Validate app-specific procedures exist
         run: |
