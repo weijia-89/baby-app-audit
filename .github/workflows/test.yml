@@ -88,7 +88,23 @@ jobs:
           bash -n scripts/run-tests.sh || exit 1
           bash scripts/run-tests.sh --check || exit 1
           bash -n scripts/decode-traffic.sh || exit 1
+          bash -n scripts/detect-dark-patterns.sh || exit 1
+          bash -n scripts/compare-apps.sh || exit 1
+          bash -n localonly/bursts/run-burst.sh || exit 1
           echo "All scripts parse cleanly and dry run passes"
+
+      - name: Burst runner validation
+        run: |
+          BURST_DRY_RUN=1 bash localonly/bursts/run-burst.sh 1 || exit 1
+          echo "Burst configs validated"
+
+      - name: Unit test syntax check
+        run: |
+          bash -n tests/test-decode-traffic.sh || exit 1
+          bash -n tests/test-dark-patterns.sh || exit 1
+          bash -n tests/test-compare-apps.sh || exit 1
+          bash -n tests/test-burst-runner.sh || exit 1
+          echo "All unit test scripts parse cleanly"
 
       - name: Secret scan (gitleaks)
         uses: gitleaks/gitleaks-action@v2

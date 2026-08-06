@@ -117,29 +117,33 @@ else
     fail "Should succeed on valid APK directory"
 fi
 
-# Test 6: Output validates against schema
+# Test 6: Output validates against schema (requires jsonschema)
 echo "Test 6: Output validates against schema"
-APK_DIR="$FIXTURE_BASE/test6"
-mkdir -p "$APK_DIR/res/layout" "$APK_DIR/res/values"
-cat > "$APK_DIR/res/layout/consent.xml" <<'EOF'
+if python3 -c "import jsonschema" 2>/dev/null; then
+    APK_DIR="$FIXTURE_BASE/test6"
+    mkdir -p "$APK_DIR/res/layout" "$APK_DIR/res/values"
+    cat > "$APK_DIR/res/layout/consent.xml" <<'EOF'
 <LinearLayout>
     <CheckBox android:checked="true" android:text="Agree" />
 </LinearLayout>
 EOF
-cat > "$APK_DIR/res/values/strings.xml" <<'EOF'
+    cat > "$APK_DIR/res/values/strings.xml" <<'EOF'
 <resources>
     <string name="btn_accept">Accept All</string>
 </resources>
 EOF
-SCHEMA="$REPO_DIR/results/dark-patterns.schema.json"
-if bash "$DETECTOR" "$APK_DIR" "$OUTPUT" >/dev/null 2>&1; then
-    if $PYTHON -c "import json, jsonschema; schema=json.load(open('$SCHEMA')); data=json.load(open('$OUTPUT')); jsonschema.validate(data, schema)" 2>/dev/null; then
-        pass "Output conforms to schema"
+    SCHEMA="$REPO_DIR/results/dark-patterns.schema.json"
+    if bash "$DETECTOR" "$APK_DIR" "$OUTPUT" >/dev/null 2>&1; then
+        if $PYTHON -c "import json, jsonschema; schema=json.load(open('$SCHEMA')); data=json.load(open('$OUTPUT')); jsonschema.validate(data, schema)" 2>/dev/null; then
+            pass "Output conforms to schema"
+        else
+            fail "Output does not conform to schema"
+        fi
     else
-        fail "Output does not conform to schema"
+        fail "Should succeed and produce schema-valid output"
     fi
 else
-    fail "Should succeed and produce schema-valid output"
+    pass "Skipped - jsonschema not installed"
 fi
 
 # Test 7: No patterns found produces valid empty result

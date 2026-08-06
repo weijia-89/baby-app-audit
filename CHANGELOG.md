@@ -1,5 +1,17 @@
 # Changelog
 
+## 4.0.0 - Sprint 4 - In Progress
+
+### Planned
+- Burst 1: Re-audit original 4 apps with Sprint 3 criteria (dark patterns, cross-app comparison, product metadata)
+- Burst 2: Tier 1 apps + Privacy-first batch 1 (BabyTrack, Amila, Wachanga, Baby Daybook, Baby+, Cradly)
+- Burst 3: Tier 2 apps (NighP, Milli, Baby Connect, SNUGL, Talli Baby)
+- Burst 4: FOSS candidates (LunaTracker, MimiLog, Sara Baby Tracker, Dymn Baby)
+- Burst 5: Privacy-first batch 2 (BabyLog, Nara, Heartful Baby, Nestling, Pixy, Nurture Lock variant)
+- Burst 6: Wearable / IoT (Owlet Sock, Owlet Cam, Nanit, Miku, Snuza)
+- Final report synthesizing all burst findings
+- Methodology publication and tool open-sourcing
+
 ## 3.3.0 - 2026-08-05
 
 ### Added

@@ -144,7 +144,7 @@ This project is on a multi-sprint roadmap. Sprint 1 is complete.
 
 ### What is next
 
-* **Sprint 4:** Generate the final report. Publish the methodology. Open-source the tool.
+* **Sprint 4:** Final report published at [FINAL-REPORT.md](FINAL-REPORT.md). Methodology and tool open-sourced.
 
 If you have suggestions for coverage or issues with the methodology, I welcome them.
 

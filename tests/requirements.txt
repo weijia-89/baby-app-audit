@@ -1,0 +1,4 @@
+# Test dependencies for baby-app-audit
+# Install: pip install -r tests/requirements.txt
+
+jsonschema==4.26.0

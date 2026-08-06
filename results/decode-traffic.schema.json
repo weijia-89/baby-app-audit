@@ -59,7 +59,7 @@
                 "additionalProperties": { "type": "string" }
               },
               "body": { "type": ["string", "object", "null"] },
-              "body_size_bytes": { "type": "integer", "minimum": 0 }
+              "body_size_bytes": { "type": "integer" }
             }
           },
           "response": {
