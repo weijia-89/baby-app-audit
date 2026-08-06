@@ -22,3 +22,6 @@ ROADMAP-PROMPT-v*.md
 
 # Python test virtual environment
 .test-venv/
+
+# Internal review artifacts
+.agent/
