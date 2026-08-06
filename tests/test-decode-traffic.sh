@@ -15,7 +15,7 @@ fail() { echo "  FAIL: $1"; FAILED=1; }
 
 # Setup: create test HAR with one matching flow
 cleanup() {
-    rm -f "$REPO_DIR/tests/fixtures/bad.json" "$REPO_DIR/tests/fixtures/output.json" "$REPO_DIR/tests/fixtures/output2.json" "$REPO_DIR/tests/fixtures/output3.json" "$REPO_DIR/tests/fixtures/output4.json" "$REPO_DIR/tests/fixtures/stderr3.txt" "$REPO_DIR/tests/fixtures/stderr4.txt" "$REPO_DIR/tests/fixtures/missing-config.json" "$REPO_DIR/tests/fixtures/bad-schema.json" "$REPO_DIR/tests/fixtures/empty.har" "$REPO_DIR/tests/fixtures/output-empty.json" "$REPO_DIR/tests/fixtures/corrupted-schema.json" "$REPO_DIR/tests/fixtures/output-badschema.json"
+    rm -f "$REPO_DIR/tests/fixtures/bad.json" "$REPO_DIR/tests/fixtures/output.json" "$REPO_DIR/tests/fixtures/output2.json" "$REPO_DIR/tests/fixtures/output3.json" "$REPO_DIR/tests/fixtures/output4.json" "$REPO_DIR/tests/fixtures/stderr3.txt" "$REPO_DIR/tests/fixtures/stderr4.txt" "$REPO_DIR/tests/fixtures/missing-config.json" "$REPO_DIR/tests/fixtures/bad-schema.json" "$REPO_DIR/tests/fixtures/empty.har" "$REPO_DIR/tests/fixtures/output-empty.json" "$REPO_DIR/tests/fixtures/corrupted-schema.json" "$REPO_DIR/tests/fixtures/output-badschema.json" "$REPO_DIR/tests/fixtures/output-rw-pebbi.json" "$REPO_DIR/tests/fixtures/output-rw-nl.json" "$REPO_DIR/tests/fixtures/output-rw-nubo.json"
 }
 trap cleanup EXIT
 
@@ -233,6 +233,47 @@ EOF
  else
      fail "Should succeed even with corrupted schema"
  fi
+
+# Test 16: Real-world host shapes (label / header / body attribution)
+echo "Test 16: Real-world host shapes attribute correctly"
+RW_HAR="$REPO_DIR/tests/fixtures/real-world-capture.har"
+RW_PEBBI="$REPO_DIR/tests/fixtures/output-rw-pebbi.json"
+RW_NL="$REPO_DIR/tests/fixtures/output-rw-nl.json"
+RW_NUBO="$REPO_DIR/tests/fixtures/output-rw-nubo.json"
+RW_OK=1
+# Pebbi: app.pebbi.co (label match) + firebaselogging (body packageName match) = 2 flows
+if bash "$DECODER" "$RW_HAR" com.pebbi.android "$RW_PEBBI" >/dev/null 2>&1; then
+    RW_PCNT=$(python3 -c "import json; print(len(json.load(open('$RW_PEBBI')).get('flows',[])))")
+    if [ "$RW_PCNT" -ge 2 ]; then
+        pass "Pebbi real-world attribution ($RW_PCNT flows)"
+    else
+        fail "Pebbi expected >=2 real-world flows, got $RW_PCNT"; RW_OK=0
+    fi
+else
+    fail "Pebbi real-world decode failed"; RW_OK=0
+fi
+# Nurture Lock: api.revenuecat.com with X-Client-Bundle-ID header = 1 flow
+if bash "$DECODER" "$RW_HAR" com.angry.shark.studio.nurturelock "$RW_NL" >/dev/null 2>&1; then
+    RW_NLCNT=$(python3 -c "import json; print(len(json.load(open('$RW_NL')).get('flows',[])))")
+    if [ "$RW_NLCNT" -eq 1 ]; then
+        pass "Nurture Lock header attribution ($RW_NLCNT flow)"
+    else
+        fail "Nurture Lock expected 1 header-attributed flow, got $RW_NLCNT"; RW_OK=0
+    fi
+else
+    fail "Nurture Lock real-world decode failed"; RW_OK=0
+fi
+# Nubo: no matching traffic in this HAR = 0 flows (negative control)
+if bash "$DECODER" "$RW_HAR" com.clicksie.nuboapp "$RW_NUBO" >/dev/null 2>&1; then
+    RW_NBCNT=$(python3 -c "import json; print(len(json.load(open('$RW_NUBO')).get('flows',[])))")
+    if [ "$RW_NBCNT" -eq 0 ]; then
+        pass "Nubo negative control (0 flows, no false attribution)"
+    else
+        fail "Nubo expected 0 flows, got $RW_NBCNT"; RW_OK=0
+    fi
+else
+    fail "Nubo real-world decode failed"; RW_OK=0
+fi
 
 echo ""
 if [ "$FAILED" -eq 0 ]; then

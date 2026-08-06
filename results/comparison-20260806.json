@@ -1,0 +1,38 @@
+{
+  "apps": [
+    "com.angry.shark.studio.nurturelock",
+    "com.pebbi.android",
+    "com.clicksie.nuboapp"
+  ],
+  "comparison_timestamp": "2026-08-06T03:54:57Z",
+  "shared_trackers": [],
+  "similar_endpoints": [],
+  "data_volume": {
+    "com.angry.shark.studio.nurturelock": {
+      "total_flows": 2,
+      "tracker_flows": 2,
+      "total_request_bytes": 0,
+      "total_response_bytes": 0
+    },
+    "com.pebbi.android": {
+      "total_flows": 12,
+      "tracker_flows": 0,
+      "total_request_bytes": 6254,
+      "total_response_bytes": 1564
+    },
+    "com.clicksie.nuboapp": {
+      "total_flows": 4,
+      "tracker_flows": 0,
+      "total_request_bytes": 2113,
+      "total_response_bytes": 666
+    }
+  },
+  "regime_coverage": {
+    "com.angry.shark.studio.nurturelock": "unknown",
+    "com.pebbi.android": "RED",
+    "com.clicksie.nuboapp": "unknown"
+  },
+  "shared_mechanisms": [
+    "firebase"
+  ]
+}
