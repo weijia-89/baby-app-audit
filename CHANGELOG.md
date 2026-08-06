@@ -3,6 +3,8 @@
 ## 3.3.0 - 2026-08-05
 
 ### Added
+- `AGENTS.md` with concrete skills pipeline commands, review depth knob, and CI gates.
+- Review depth process: lightweight (P1 only) vs deep (P1+P2+P3) based on risk level.
 - Owlet ecosystem testing: Owlet Sock and Owlet Cam added to candidates.md with MDR/RED regime, verified CVE data from NVD, and test plan.
 - `scripts/detect-dark-patterns.sh` v1: Static dark pattern detection in APK resources.
 - `results/dark-patterns.schema.json`: Schema for dark pattern detection output.

@@ -116,14 +116,14 @@ jobs:
       # without it. Do not reorder these two steps.
       - name: Install system dependencies
         run: |
+          # Pin jq to avoid silent behavior changes across apt versions
           if ! command -v jq >/dev/null 2>&1; then
-            (sudo apt-get update -qq && sudo apt-get install -y -qq jq) || \
-              echo "WARNING: jq install failed, some tests may fail"
+            sudo apt-get update -qq && sudo apt-get install -y -qq jq=1.7.1-1
           fi
           if ! command -v unzip >/dev/null 2>&1; then
-            (sudo apt-get update -qq && sudo apt-get install -y -qq unzip zip) || \
-              echo "WARNING: unzip install failed, some tests may fail"
+            sudo apt-get update -qq && sudo apt-get install -y -qq unzip zip
           fi
+          jq --version
 
       - name: Install test dependencies
         run: pip install jsonschema==4.26.0

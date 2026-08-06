@@ -8,21 +8,32 @@ set -euo pipefail
 readonly SCRIPT_VERSION="1.0"
 readonly MAX_APK_SIZE=$((100 * 1024 * 1024))  # 100 MB zip bomb limit
 
-# Colors for output
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-NC='\033[0m'
+# Source common functions
+. "$(dirname "$0")/lib/common.sh"
 
-log() { echo -e "${GREEN}[DARK-PATTERNS v${SCRIPT_VERSION}]${NC} $1" >&2; }
-warn() { echo -e "${YELLOW}[WARN]${NC} $1" >&2; }
-error() { echo -e "${RED}[ERROR]${NC} $1" >&2; }
+# Handle flags before dependency checks (--check must run before check_dep)
+case "${1:-}" in
+    --version)
+        echo "$SCRIPT_VERSION"
+        exit 0
+        ;;
+    --check)
+        echo "Checking dependencies for detect-dark-patterns.sh..."
+        for dep in jq unzip python3 sed grep find; do
+            if command -v "$dep" >/dev/null 2>&1; then
+                echo "  OK: $dep"
+            else
+                echo "  MISSING: $dep"
+                exit 1
+            fi
+        done
+        echo "All dependencies present"
+        exit 0
+        ;;
+esac
 
-# Dependency checks
-if ! command -v jq >/dev/null 2>&1; then
-    error "jq is required but not installed"
-    exit 1
-fi
+# Dependency checks (after --check so --check can report missing deps)
+check_dep jq unzip python3 sed grep find || exit 1
 
 usage() {
     cat <<EOF
@@ -36,17 +47,12 @@ Arguments:
 
 Options:
   --version    Show version and exit
+  --check      Check dependencies and exit
 
 Returns:
   0 on success, 1 on error
 EOF
 }
-
-# Handle flags before positional args
-if [ "$1" = "--version" ] 2>/dev/null; then
-    echo "$SCRIPT_VERSION"
-    exit 0
-fi
 
 # Validate inputs
 if [ $# -lt 1 ]; then
@@ -58,10 +64,7 @@ APK_PATH="$1"
 OUTPUT_FILE="${2:-}"
 
 # Validate APK path: no shell metacharacters
-if [[ "$APK_PATH" =~ [\"\`\'\$\;\|\&\<\>] ]]; then
-    error "Invalid characters in APK path"
-    exit 1
-fi
+validate_path "$APK_PATH" || exit 1
 
 # Determine app name and package name
 APP_NAME=""
@@ -86,7 +89,7 @@ elif [ -f "$APK_PATH" ]; then
         error "APK file too large (${_filesize} bytes, max ${MAX_APK_SIZE})"
         exit 1
     fi
-    TEMP_DIR=$(mktemp -d)
+    TEMP_DIR=$(mktemp -d /tmp/apk-scan-XXXXXX)
     trap 'rm -rf "$TEMP_DIR"' EXIT INT TERM
     if command -v unzip >/dev/null 2>&1; then
         unzip -q "$APK_PATH" -d "$TEMP_DIR" 2>/dev/null || {
@@ -105,18 +108,8 @@ else
     exit 1
 fi
 
-# If output file specified, ensure parent directory exists and is writable
-if [ -n "$OUTPUT_FILE" ]; then
-    OUTPUT_DIR="$(dirname "$OUTPUT_FILE")"
-    if [ ! -d "$OUTPUT_DIR" ]; then
-        error "Output directory does not exist: $OUTPUT_DIR"
-        exit 1
-    fi
-    if [ ! -w "$OUTPUT_DIR" ]; then
-        error "Output directory is not writable: $OUTPUT_DIR"
-        exit 1
-    fi
-fi
+# Validate output directory
+check_output_dir "$OUTPUT_FILE" || exit 1
 
 SCAN_TIMESTAMP=$(date -u +%Y-%m-%dT%H:%M:%SZ)
 PATTERNS="[]"

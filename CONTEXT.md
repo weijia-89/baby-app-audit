@@ -80,13 +80,39 @@ Key constraints from canon:
 
 ## Skills pipeline for any .md change
 
-1. Write content (simple-english pragmatic mode)
-2. tic for style
-3. `python3 /Users/dubs/Projects/deai.skill/deai-scan.py <file>`
-4. Fix AI slop (em-dash → " - ", passive → active, latinate → plain)
-5. Banned vocab check
+```bash
+# 1. Write content (simple-english pragmatic mode)
+# 2. Check style
+bash /Users/dubs/Projects/toren/tic.skills/tic.sh <file>
+# 3. Scan for AI tells
+python3 /Users/dubs/Projects/deai.skill/deai-scan.py <file>
+# 4. Fix AI slop (em-dash → " - ", passive → active, latinate → plain)
+# 5. Banned vocab check
+grep -qiE "\b(leverage|utilize|robust|scalable|seamlessly|comprehensive)\b" <file> && echo "BANNED VOCAB FOUND"
+```
 
-## Prompt construction notes
+Steps 1 and 4 are manual. Steps 2, 3, 5 are automated. Run all five before committing any .md file.
+
+## Review depth
+
+Two levels of autonomous code review:
+
+**Lightweight (default)** - P1 findings only:
+- Run `bash -n` and `shellcheck` on all changed scripts
+- Run `python3 -m json.tool` on all changed JSON
+- Check for banned vocab in all changed docs
+- Scan for: input validation, command injection, hardcoded secrets, missing error handling
+- Output: pass/fail with P1 findings listed
+
+**Deep (security-sensitive or >5 file changes)** - P1+P2+P3:
+- All lightweight checks plus:
+- 5-posture review (SWE, AI Engineer, QA/SDET, Cybersecurity, DevOps)
+- 75+ items across all postures
+- Two review loops (second loop 50% net new checks)
+- Fix all P0-P2 issues found
+- Document P3 items for operator decision
+
+Use deep review for: new scripts, security tools, CI changes, anything that touches untrusted input. Use lightweight for: docs, config, test fixtures, README updates.
 
 When the user asks for two prompts (task prompt + review prompt):
 - Prompt A = what to build (task instructions)

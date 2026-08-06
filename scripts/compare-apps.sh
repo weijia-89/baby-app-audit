@@ -7,15 +7,8 @@ set -euo pipefail
 
 readonly SCRIPT_VERSION="1.0"
 
-# Colors for output
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-NC='\033[0m'
-
-log() { echo -e "${GREEN}[COMPARE-APPS v${SCRIPT_VERSION}]${NC} $1"; }
-warn() { echo -e "${YELLOW}[WARN]${NC} $1"; }
-error() { echo -e "${RED}[ERROR]${NC} $1"; }
+# Source common functions
+. "$(dirname "$0")/lib/common.sh"
 
 usage() {
     cat <<EOF
@@ -29,6 +22,7 @@ Arguments:
 
 Options:
   --version    Show version and exit
+  --check      Check dependencies and exit
 
 Returns:
   0 on success, 1 on error
@@ -36,10 +30,25 @@ EOF
 }
 
 # Handle flags before positional args
-if [ "$1" = "--version" ] 2>/dev/null; then
-    echo "$SCRIPT_VERSION"
-    exit 0
-fi
+case "${1:-}" in
+    --version)
+        echo "$SCRIPT_VERSION"
+        exit 0
+        ;;
+    --check)
+        echo "Checking dependencies for compare-apps.sh..."
+        for dep in python3 jq; do
+            if command -v "$dep" >/dev/null 2>&1; then
+                echo "  OK: $dep"
+            else
+                echo "  MISSING: $dep"
+                exit 1
+            fi
+        done
+        echo "All dependencies present"
+        exit 0
+        ;;
+esac
 
 # Validate inputs
 if [ $# -lt 2 ]; then
@@ -101,24 +110,14 @@ if [ ${#INPUT_FILES[@]} -lt 2 ]; then
     exit 1
 fi
 
-# If output file specified, ensure parent directory exists and is writable
-if [ -n "$OUTPUT_FILE" ]; then
-    OUTPUT_DIR="$(dirname "$OUTPUT_FILE")"
-    if [ ! -d "$OUTPUT_DIR" ]; then
-        error "Output directory does not exist: $OUTPUT_DIR"
-        exit 1
-    fi
-    if [ ! -w "$OUTPUT_DIR" ]; then
-        error "Output directory is not writable: $OUTPUT_DIR"
-        exit 1
-    fi
-fi
+# Validate output directory
+check_output_dir "$OUTPUT_FILE" || exit 1
 
 COMPARISON_TIMESTAMP=$(date -u +%Y-%m-%dT%H:%M:%SZ)
 export COMPARISON_TIMESTAMP
 
 # Build comparison using a temporary Python script
-TEMP_SCRIPT=$(mktemp)
+TEMP_SCRIPT=$(mktemp /tmp/compare-XXXXXX.py)
 trap 'rm -f "$TEMP_SCRIPT"' EXIT
 
 cat > "$TEMP_SCRIPT" <<'PYEOF'
