@@ -117,7 +117,7 @@ export COMPARISON_TIMESTAMP
 
 # Build comparison using a temporary Python script
 TEMP_SCRIPT=$(mktemp /tmp/compare-XXXXXX.py)
-trap 'rm -f "$TEMP_SCRIPT"' EXIT
+trap 'rm -f "$TEMP_SCRIPT"' EXIT INT TERM
 
 cat > "$TEMP_SCRIPT" <<'PYEOF'
 import json

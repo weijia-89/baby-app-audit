@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Test execution script for APK Privacy Test Harness
 # This script orchestrates testing across all 4 apps
-# Version: 3.1.1
+# Version: 3.2.0
 
 set -euo pipefail
 
@@ -355,7 +355,7 @@ test_native_app() {
     done
     if [ -n "$first_apk" ]; then
         local apk_sha
-    apk_sha=$(awk '{print $1}' "$first_apk.sha256")
+        apk_sha=$(awk '{print $1}' "$first_apk.sha256")
         jq --arg sha "$apk_sha" '.apk_hash = {sha256: $sha, source: "device", timestamp: "'"$(date -u +%Y-%m-%dT%H:%M:%SZ)"'"}' "$results_file" > "$results_file.tmp" && mv "$results_file.tmp" "$results_file"
     fi
     

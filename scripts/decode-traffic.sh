@@ -38,6 +38,27 @@ Returns:
 EOF
 }
 
+# Handle flags before positional args
+case "${1:-}" in
+    --version)
+        echo "$SCRIPT_VERSION"
+        exit 0
+        ;;
+    --check)
+        echo "Checking dependencies for decode-traffic.sh..."
+        for dep in python3 jq; do
+            if command -v "$dep" >/dev/null 2>&1; then
+                echo "  OK: $dep"
+            else
+                echo "  MISSING: $dep"
+                exit 1
+            fi
+        done
+        echo "All dependencies present"
+        exit 0
+        ;;
+esac
+
 # Validate inputs
 if [ $# -lt 2 ]; then
     usage
@@ -239,10 +260,25 @@ for entry in entries:
     parsed = urlparse(url)
     host = parsed.hostname or ''
     
-    # Filter: include if host ends with filter_host OR package name appears in URL
+    # Filter: attribute flow to the app when any of these hold:
+    #   1. filter_host appears as a hostname label (e.g. app.pebbi.co -> "pebbi")
+    #   2. host == filter_host or ends with '.'+filter_host (legacy exact-suffix match)
+    #   3. package name appears in the URL
+    #   4. package name appears in a request header value (e.g. X-Client-Bundle-ID, X-Android-Package)
+    #   5. package name appears in the request body (e.g. Firebase batchlog packageName field)
     host_lower = host.lower()
-    filter_in_host = host_lower == filter_host or host_lower.endswith('.' + filter_host)
-    if not filter_in_host and package_name not in url.lower():
+    labels = set(host_lower.split('.'))
+    filter_in_host = (host_lower == filter_host
+                      or host_lower.endswith('.' + filter_host)
+                      or (filter_host and filter_host in labels))
+    req_headers_all = req.get('headers', [])
+    header_match = any(
+        package_name.lower() in (h.get('value') or '').lower()
+        for h in req_headers_all
+    )
+    body_text = (req.get('postData') or {}).get('text') or ''
+    body_match = package_name.lower() in body_text.lower()
+    if not (filter_in_host or package_name.lower() in url.lower() or header_match or body_match):
         continue
     
     is_tracker, tracker_name = is_tracker_domain(host)
@@ -270,13 +306,13 @@ for entry in entries:
             'host': host,
             'headers': req_headers,
             'body': req_body,
-            'body_size_bytes': req.get('bodySize', 0)
+            'body_size_bytes': max(0, req.get('bodySize', 0))
         },
         'response': {
             'status': resp.get('status', 0),
             'headers': resp_headers,
             'body': resp_body,
-            'body_size_bytes': resp.get('bodySize', 0)
+            'body_size_bytes': max(0, resp.get('bodySize', 0))
         },
         'classification': {
             'is_tracker': is_tracker,
@@ -361,8 +397,8 @@ try:
 except jsonschema.ValidationError as e:
     print(f'SCHEMA_ERROR: {e.message}', file=sys.stderr)
     sys.exit(1)
-" 2>&1)
-            VALIDATION_STATUS=$?
+" 2>&1) || VALIDATION_STATUS=$?
+            VALIDATION_STATUS=${VALIDATION_STATUS:-0}
             if [ "$VALIDATION_STATUS" -eq 0 ]; then
                 log "Output validated against schema: $SCHEMA_FILE"
             else

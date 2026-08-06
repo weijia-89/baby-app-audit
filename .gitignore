@@ -9,6 +9,10 @@ results/*-test-*/
 *.mitm
 *.pid
 
+# Decoded traffic JSONs and HAR conversions contain the same live tokens as .mitm captures.
+results/har-inputs/
+results/decode-traffic-*.json
+
 # Runtime logs (noise, may contain device identifiers)
 results/execution-logs/
 results/baby-buddy-dynamic/
