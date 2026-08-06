@@ -38,6 +38,27 @@ Returns:
 EOF
 }
 
+# Handle flags before positional args
+case "${1:-}" in
+    --version)
+        echo "$SCRIPT_VERSION"
+        exit 0
+        ;;
+    --check)
+        echo "Checking dependencies for decode-traffic.sh..."
+        for dep in python3 jq; do
+            if command -v "$dep" >/dev/null 2>&1; then
+                echo "  OK: $dep"
+            else
+                echo "  MISSING: $dep"
+                exit 1
+            fi
+        done
+        echo "All dependencies present"
+        exit 0
+        ;;
+esac
+
 # Validate inputs
 if [ $# -lt 2 ]; then
     usage

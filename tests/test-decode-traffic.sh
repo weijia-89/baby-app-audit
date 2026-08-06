@@ -87,8 +87,17 @@ else
     pass "Exits with error on invalid JSON"
 fi
 
-# Test 4: Valid HAR with output file
-echo "Test 4: Valid HAR with output file"
+# Test 4: --version flag
+echo "Test 4: --version flag"
+VERSION=$(bash "$DECODER" --version 2>/dev/null)
+if [ "$VERSION" = "2.0" ]; then
+    pass "Version flag returns correct version"
+else
+    fail "Version flag returned '$VERSION', expected '2.0'"
+fi
+
+# Test 5: Valid HAR with output file
+echo "Test 5: Valid HAR with output file"
 OUTPUT="$REPO_DIR/tests/fixtures/output.json"
 if bash "$DECODER" "$TEST_HAR" com.pebbi.android "$OUTPUT" >/dev/null 2>&1; then
     if [ -f "$OUTPUT" ]; then
@@ -104,24 +113,24 @@ else
     fail "Should succeed on valid HAR"
 fi
 
-# Test 5: Verify schema field exists
-echo "Test 5: Schema field exists"
+# Test 6: Verify schema field exists
+echo "Test 6: Schema field exists"
 if grep -q '"\$schema": "decode-traffic/2.0"' "$OUTPUT"; then
     pass "Schema declaration present"
 else
     fail "Schema declaration missing"
 fi
 
-# Test 6: Verify product metadata loaded
-echo "Test 6: Product metadata loaded"
+# Test 7: Verify product metadata loaded
+echo "Test 7: Product metadata loaded"
 if grep -q '"regulatory_regime": "RED"' "$OUTPUT"; then
     pass "Product metadata loaded from config"
 else
     fail "Product metadata not loaded"
 fi
 
-# Test 7: Verify flows array has entries
-echo "Test 7: Flows array has entries"
+# Test 8: Verify flows array has entries
+echo "Test 8: Flows array has entries"
 FLOW_COUNT=$(python3 -c "import json; d=json.load(open('$OUTPUT')); print(len(d.get('flows', [])))")
 if [ "$FLOW_COUNT" -gt 0 ]; then
     pass "Flows array has entries (count: $FLOW_COUNT)"
@@ -129,24 +138,24 @@ else
     fail "Flows array is empty"
 fi
 
-# Test 8: Verify summary exists
-echo "Test 8: Summary exists"
+# Test 9: Verify summary exists
+echo "Test 9: Summary exists"
 if python3 -c "import json; d=json.load(open('$OUTPUT')); print('summary' in d)" | grep -q "True"; then
     pass "Summary section present"
 else
     fail "Summary section missing"
 fi
 
-# Test 9: Output directory must exist
-echo "Test 9: Output directory must exist"
+# Test 10: Output directory must exist
+echo "Test 10: Output directory must exist"
 if bash "$DECODER" "$TEST_HAR" com.pebbi.android /nonexistent/dir/output.json 2>/dev/null; then
     fail "Should fail when output directory missing"
 else
     pass "Fails when output directory missing"
 fi
 
-# Test 10: Missing config file falls back to defaults
-echo "Test 10: Missing config file falls back to defaults"
+# Test 11: Missing config file falls back to defaults
+echo "Test 11: Missing config file falls back to defaults"
 OUTPUT2="$REPO_DIR/tests/fixtures/output2.json"
 if bash "$DECODER" "$TEST_HAR" com.unknown.app "$OUTPUT2" >/dev/null 2>&1; then
     if grep -q '"regulatory_regime": "unknown"' "$OUTPUT2"; then
@@ -158,8 +167,8 @@ else
     fail "Should succeed even with unknown app"
 fi
 
-# Test 11: Corrupted config file falls back to defaults
-echo "Test 11: Corrupted config file falls back to defaults"
+# Test 12: Corrupted config file falls back to defaults
+echo "Test 12: Corrupted config file falls back to defaults"
 echo "not json" > "$REPO_DIR/tests/fixtures/missing-config.json"
 OUTPUT2="$REPO_DIR/tests/fixtures/output2.json"
 if PRODUCT_CONFIG="$REPO_DIR/tests/fixtures/missing-config.json" bash "$DECODER" "$TEST_HAR" com.pebbi.android "$OUTPUT2" >/dev/null 2>&1; then
@@ -172,8 +181,8 @@ else
     fail "Should succeed even with corrupted config"
 fi
 
-# Test 12: Strict mode passes on valid output
- echo "Test 12: Strict mode passes on valid output"
+# Test 13: Strict mode passes on valid output
+ echo "Test 13: Strict mode passes on valid output"
  OUTPUT3="$REPO_DIR/tests/fixtures/output3.json"
  STDERR3="$REPO_DIR/tests/fixtures/stderr3.txt"
  if DECODE_TRAFFIC_STRICT=1 bash "$DECODER" "$TEST_HAR" com.pebbi.android "$OUTPUT3" 2>"$STDERR3"; then
@@ -185,8 +194,8 @@ fi
      fi
  fi
 
- # Test 13: Strict mode fails on schema violation
- echo "Test 13: Strict mode fails on schema violation"
+ # Test 14: Strict mode fails on schema violation
+ echo "Test 14: Strict mode fails on schema violation"
  # Create a schema that rejects valid output by requiring an impossible field
  cat > "$REPO_DIR/tests/fixtures/bad-schema.json" <<'EOF'
 {
@@ -203,8 +212,8 @@ EOF
      fail "Strict mode did not fail on schema violation"
  fi
 
-# Test 14: Empty flows array still produces schema-valid output
- echo "Test 14: Empty flows array produces valid output"
+# Test 15: Empty flows array still produces schema-valid output
+ echo "Test 15: Empty flows array produces valid output"
  EMPTY_HAR="$REPO_DIR/tests/fixtures/empty.har"
  cat > "$EMPTY_HAR" <<'EOF'
 {"log": {"version": "1.2", "creator": {"name": "test", "version": "1.0"}, "entries": []}}
@@ -223,8 +232,8 @@ EOF
       fail "Should succeed with empty HAR"
   fi
 
- # Test 15: Corrupted schema file falls back to warn (not crash)
- echo "Test 15: Corrupted schema file is handled gracefully"
+ # Test 16: Corrupted schema file falls back to warn (not crash)
+ echo "Test 16: Corrupted schema file is handled gracefully"
  BAD_SCHEMA="$REPO_DIR/tests/fixtures/corrupted-schema.json"
  echo "not json" > "$BAD_SCHEMA"
  OUTPUT_BAD="$REPO_DIR/tests/fixtures/output-badschema.json"
@@ -234,8 +243,8 @@ EOF
      fail "Should succeed even with corrupted schema"
  fi
 
-# Test 16: Real-world host shapes (label / header / body attribution)
-echo "Test 16: Real-world host shapes attribute correctly"
+# Test 17: Real-world host shapes (label / header / body attribution)
+echo "Test 17: Real-world host shapes attribute correctly"
 RW_HAR="$REPO_DIR/tests/fixtures/real-world-capture.har"
 RW_PEBBI="$REPO_DIR/tests/fixtures/output-rw-pebbi.json"
 RW_NL="$REPO_DIR/tests/fixtures/output-rw-nl.json"
