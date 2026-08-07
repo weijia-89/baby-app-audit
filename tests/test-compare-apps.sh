@@ -128,7 +128,7 @@ fi
 echo "Test 6: Output validates against schema"
 if python3 -c "import jsonschema" 2>/dev/null; then
     SCHEMA="$REPO_DIR/results/comparison.schema.json"
-    if bash "$COMPARER" "$REPO_DIR/tests/fixtures/app-a-\$$.json" "$REPO_DIR/tests/fixtures/app-b-\$$.json" "$OUTPUT" >/dev/null 2>&1; then
+    if bash "$COMPARER" "$REPO_DIR/tests/fixtures/app-a-$$.json" "$REPO_DIR/tests/fixtures/app-b-$$.json" "$OUTPUT" >/dev/null 2>&1; then
         if $PYTHON -c "import json, jsonschema; schema=json.load(open('$SCHEMA')); data=json.load(open('$OUTPUT')); jsonschema.validate(data, schema)" 2>/dev/null; then
             pass "Output conforms to schema"
         else

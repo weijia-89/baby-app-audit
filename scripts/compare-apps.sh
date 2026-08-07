@@ -29,7 +29,7 @@ EOF
 }
 
 # Handle flags before positional args
-case "$1" in
+case "${1:-}" in
     --version)
         echo "$SCRIPT_VERSION"
         exit 0
