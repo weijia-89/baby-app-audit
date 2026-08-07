@@ -60,8 +60,8 @@ record_tool_versions() {
     local docker_version="unknown"
     local objection_version="unknown"
     
-    if command -v mitmweb >/dev/null 2>&1; then
-        mitm_version=$(mitmweb --version 2>/dev/null | head -1 || echo "unknown")
+    if command -v mitmdump >/dev/null 2>&1; then
+        mitm_version=$(mitmdump --version 2>/dev/null | head -1 || echo "unknown")
     fi
     if command -v adb >/dev/null 2>&1; then
         adb_version=$(adb --version 2>/dev/null | head -1 || echo "unknown")
@@ -222,7 +222,7 @@ preflight() {
     
     # Required tools - log but don't fail
     check_tool "adb" true || failed=1
-    check_tool "mitmweb" true || failed=1
+    check_tool "mitmdump" true || failed=1
     check_tool "git" true || failed=1
     check_tool "jq" true || failed=1
     
@@ -376,26 +376,26 @@ test_native_app() {
     
     # Step 3: Start mitmproxy
     log "[$app_name] Starting mitmproxy..."
-    mitmweb --listen-port "$PROXY_PORT" --web-port "$MITM_WEB_PORT" \
+    mitmdump --listen-port "$PROXY_PORT" \
         --save-stream-file "$ARTIFACTS_DIR/captures/${app_name}.mitm" 2>>"$log_file" &
     local mitm_pid=$!
     export MITM_PID="$mitm_pid"
-    
-    # Wait for mitmweb to be ready: poll the web API port (up to 15s), not just process-alive.
+
+    # Wait for mitmdump to be ready: poll the proxy port (up to 15s), not just process-alive.
     local mitm_ready=0
     for _ in {1..15}; do
         if ! kill -0 "$mitm_pid" 2>/dev/null; then
             break
         fi
-        # mitmweb returns 403 on root, so check for any HTTP response (not just 200)
-        if curl -s --connect-timeout 1 --max-time 2 -o /dev/null -w "%{http_code}" "http://localhost:${MITM_WEB_PORT}" | grep -qE "^[0-9]{3}$"; then
+        # Use bash built-in /dev/tcp to check if the proxy port is listening
+        if bash -c "echo >/dev/tcp/localhost/$PROXY_PORT" 2>/dev/null; then
             mitm_ready=1
             break
         fi
         sleep 1
     done
     if [ "$mitm_ready" -ne 1 ]; then
-        error "[$app_name] mitmproxy did not become ready on port $MITM_WEB_PORT within 15s"
+        error "[$app_name] mitmproxy did not become ready on port $PROXY_PORT within 15s"
         jq '.verdict = "untested" | .status = "MITMPROXY_FAILED"' "$results_file" > "$results_file.tmp" && mv "$results_file.tmp" "$results_file"
         kill "$mitm_pid" 2>/dev/null || true
         unset MITM_PID
@@ -620,7 +620,7 @@ main() {
     
     # If --live was passed but mitmproxy is not available, warn and continue
     # with best-effort (static scans still run)
-    if [ "$LIVE_MODE" -eq 1 ] && ! command -v mitmweb >/dev/null 2>&1; then
+    if [ "$LIVE_MODE" -eq 1 ] && ! command -v mitmdump >/dev/null 2>&1; then
         warn "--live requested but mitmproxy not available. Skipping live capture."
         LIVE_MODE=0
     fi

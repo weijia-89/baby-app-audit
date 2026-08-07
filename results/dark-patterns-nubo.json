@@ -1,23 +1,23 @@
 {
   "app_name": "resources",
   "package_name": "com.clicksie.nuboapp",
-  "scan_timestamp": "2026-08-06T00:46:23Z",
+  "scan_timestamp": "2026-08-07T15:06:14Z",
   "patterns": [
     {
       "pattern_type": "hidden_consent_flow",
-      "evidence_file": "decompiled/nubo/resources//res/layout/activity_webview.xml",
+      "evidence_file": "/Users/dubs/Projects/baby-app-audit-sprint4/decompiled/nubo/resources/res/layout/activity_webview.xml",
       "confidence": "medium",
       "description": "Found very small WebView that may hide consent content"
     },
     {
       "pattern_type": "deceptive_button_order",
-      "evidence_file": "decompiled/nubo/resources//res/values/strings.xml",
+      "evidence_file": "/Users/dubs/Projects/baby-app-audit-sprint4/decompiled/nubo/resources/res/values/strings.xml",
       "confidence": "medium",
       "description": "Found affirmative action buttons without clear decline option"
     },
     {
       "pattern_type": "pressure_tactic",
-      "evidence_file": "decompiled/nubo/resources//res/values-da/strings.xml",
+      "evidence_file": "/Users/dubs/Projects/baby-app-audit-sprint4/decompiled/nubo/resources/res/values-da/strings.xml",
       "confidence": "low",
       "description": "Found urgency or scarcity language in app strings"
     }

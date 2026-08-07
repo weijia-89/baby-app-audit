@@ -1,0 +1,36 @@
+{
+  "apps": [
+    "com.angry.shark.studio.nurturelock",
+    "com.clicksie.nuboapp",
+    "com.pebbi.android"
+  ],
+  "comparison_timestamp": "2026-08-07T15:06:50Z",
+  "shared_trackers": [],
+  "similar_endpoints": [],
+  "data_volume": {
+    "com.angry.shark.studio.nurturelock": {
+      "total_flows": 0,
+      "tracker_flows": 0,
+      "total_request_bytes": 0,
+      "total_response_bytes": 0
+    },
+    "com.clicksie.nuboapp": {
+      "total_flows": 0,
+      "tracker_flows": 0,
+      "total_request_bytes": 0,
+      "total_response_bytes": 0
+    },
+    "com.pebbi.android": {
+      "total_flows": 0,
+      "tracker_flows": 0,
+      "total_request_bytes": 0,
+      "total_response_bytes": 0
+    }
+  },
+  "regime_coverage": {
+    "com.angry.shark.studio.nurturelock": "unknown",
+    "com.clicksie.nuboapp": "unknown",
+    "com.pebbi.android": "RED"
+  },
+  "shared_mechanisms": []
+}

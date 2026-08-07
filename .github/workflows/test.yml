@@ -195,7 +195,7 @@ jobs:
       - name: Verify tools available
         run: |
           which adb || echo "adb not available (expected in CI)"
-          which mitmweb || echo "mitmweb not available (expected in CI)"
+          which mitmdump || echo "mitmdump not available (expected in CI)"
           which docker || echo "docker not available (expected in CI)"
           echo "Tool verification complete"
 
