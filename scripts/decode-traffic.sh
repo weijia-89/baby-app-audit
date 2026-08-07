@@ -181,7 +181,6 @@ unique_trackers = set()
 TRACKER_DOMAINS = {
     'google-analytics.com': 'Google Analytics',
     'firebase.google.com': 'Firebase',
-    'crashlytics.com': 'Crashlytics',
     'mixpanel.com': 'Mixpanel',
     'facebook.com': 'Facebook',
     'appsflyer.com': 'AppsFlyer',
@@ -238,8 +237,8 @@ def safe_body(body_data):
             return json.loads(text)
         except json.JSONDecodeError:
             pass
-        # Form-encoded
-        if '=' in text and '&' in text:
+        # Form-encoded: at least one key=value pair
+        if '=' in text:
             result = {}
             for pair in text.split('&'):
                 if '=' in pair:

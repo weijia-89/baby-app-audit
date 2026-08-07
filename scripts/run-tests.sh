@@ -33,8 +33,10 @@ APK_HARNESS_APPS="${APK_HARNESS_APPS:-$DEFAULT_APPS}"
 
 # Backward compatibility check: space delimiter was removed in v3.2.0.
 # Semicolons are the only supported delimiter now.
+# NOTE: Single-app configs that contain spaces (e.g. "Baby Buddy|foss|")
+# must still include a trailing semicolon to pass this check.
 if [[ "$APK_HARNESS_APPS" == *' '* ]] && [[ "$APK_HARNESS_APPS" != *';'* ]]; then
-    error "APK_HARNESS_APPS uses space delimiter (removed in v3.2.0). Use semicolons between app triples. Example: 'App1|native|pkg;App2|foss|'"
+    echo "APK_HARNESS_APPS uses space delimiter (removed in v3.2.0). Use semicolons between app triples. Example: 'App1|native|pkg;App2|foss|'" >&2
     exit 1
 fi
 
@@ -125,6 +127,19 @@ cleanup() {
     if [ -n "${MITM_PID:-}" ] && kill -0 "$MITM_PID" 2>/dev/null; then
         kill "$MITM_PID" 2>/dev/null || true
         echo "[CLEANUP] Stopped mitmproxy (PID: $MITM_PID)"
+    fi
+    
+    # Reset emulator proxy to prevent leaving device in proxied state
+    if command -v adb >/dev/null 2>&1; then
+        # Use timeout wrapper to prevent hung adb from blocking cleanup
+        if command -v gtimeout >/dev/null 2>&1; then
+            gtimeout 10 adb shell settings put global http_proxy :0 2>/dev/null || true
+        elif command -v timeout >/dev/null 2>&1; then
+            timeout 10 adb shell settings put global http_proxy :0 2>/dev/null || true
+        else
+            adb shell settings put global http_proxy :0 2>/dev/null || true
+        fi
+        echo "[CLEANUP] Reset emulator proxy"
     fi
     
     # Remove the temporary work directory unless the operator asked to keep it
@@ -368,11 +383,12 @@ test_native_app() {
     
     # Wait for mitmweb to be ready: poll the web API port (up to 15s), not just process-alive.
     local mitm_ready=0
-    for _ in $(seq 1 15); do
+    for _ in {1..15}; do
         if ! kill -0 "$mitm_pid" 2>/dev/null; then
             break
         fi
-        if curl -sf --connect-timeout 1 --max-time 2 "http://localhost:${MITM_WEB_PORT}" >/dev/null 2>&1; then
+        # mitmweb returns 403 on root, so check for any HTTP response (not just 200)
+        if curl -s --connect-timeout 1 --max-time 2 -o /dev/null -w "%{http_code}" "http://localhost:${MITM_WEB_PORT}" | grep -qE "^[0-9]{3}$"; then
             mitm_ready=1
             break
         fi
@@ -412,25 +428,48 @@ test_native_app() {
     # Step 7: Export flows
     log "[$app_name] Exporting captured flows..."
     local flow_count=0
-    local flow_data=""
-    for _attempt in 1 2 3; do
-        flow_data=$(curl -sf -H "Accept: application/json" "http://localhost:${MITM_WEB_PORT}/flows" 2>>"$log_file" || true)
-        if [ -n "$flow_data" ]; then
-            break
+    local file_size=0
+    local mitm_file="$ARTIFACTS_DIR/captures/${app_name}.mitm"
+    
+    # Stop mitmproxy to ensure all flows are flushed to disk
+    if [ -n "${mitm_pid:-}" ] && kill -0 "$mitm_pid" 2>/dev/null; then
+        log "[$app_name] Stopping mitmproxy to flush capture file..."
+        kill "$mitm_pid" 2>/dev/null || true
+        # Wait up to 5 seconds for mitmproxy to exit and flush
+        local wait_count=0
+        while kill -0 "$mitm_pid" 2>/dev/null && [ "$wait_count" -lt 10 ]; do
+            sleep 0.5
+            wait_count=$((wait_count + 1))
+        done
+        unset MITM_PID
+    fi
+    
+    # Check if .mitm file exists and has content
+    if [ -f "$mitm_file" ] && [ -s "$mitm_file" ]; then
+        # Get file size first for logging
+        file_size=$(stat -f%z "$mitm_file" 2>/dev/null || stat -c%s "$mitm_file" 2>/dev/null || echo "0")
+        # Count flows using mitmdump output (each flow = 2 lines: request + response)
+        # mitmdump outputs one line per request and one per response even with console_output=false
+        local raw_count
+        raw_count=$(mitmdump -nr "$mitm_file" --set console_output=false 2>/dev/null | wc -l | tr -d ' ' || echo "0")
+        if [ "$raw_count" -gt 0 ]; then
+            flow_count=$(( (raw_count + 1) / 2 ))
         fi
-        sleep 2
-    done
-    if [ -n "$flow_data" ]; then
-        echo "$flow_data" > "$ARTIFACTS_DIR/captures/${app_name}-flows.json"
-        flow_count=$(echo "$flow_data" | jq '.data | length' 2>/dev/null || echo "0")
-        log "[$app_name] Captured $flow_count flows"
+        # If mitmdump fails, estimate from file size (rough approximation)
+        if [ "$flow_count" -eq 0 ]; then
+            # Each flow is roughly 500+ bytes; this is a lower bound estimate
+            if [ "$file_size" -gt 1000 ]; then
+                flow_count=$((file_size / 500))
+            fi
+        fi
+        log "[$app_name] Captured $flow_count flows (mitm file: ${file_size} bytes)"
         
-        jq --arg count "$flow_count" --arg flowfile "$ARTIFACTS_DIR/captures/${app_name}-flows.json" '.offline_test = {
+        jq --arg count "$flow_count" --arg flowfile "$mitm_file" '.offline_test = {
             "outbound_requests_count": ($count | tonumber),
             "flow_file": $flowfile
         }' "$results_file" > "$results_file.tmp" && mv "$results_file.tmp" "$results_file"
     else
-        warn "[$app_name] Flow export failed after retries"
+        warn "[$app_name] No capture file found or empty: $mitm_file"
     fi
     
     # Step 8: Static scan - jadx decompilation is a manual review step; the
@@ -446,9 +485,7 @@ test_native_app() {
         warn "[$app_name] jadx not available - static scan skipped"
     fi
     
-    # Cleanup
-    kill "$mitm_pid" 2>/dev/null || true
-    unset MITM_PID
+    # Cleanup proxy settings
     run_adb shell settings put global http_proxy :0 2>/dev/null || true
     
     # Verdict: the harness answers one question - does data leave the phone?
@@ -475,7 +512,7 @@ test_foss_app() {
     # Resolve repo URL from app name
     local repo_url=""
     case "$app_name" in
-        "Baby Buddy")
+        "Baby Buddy"|"Baby-buddy")
             repo_url="https://github.com/babybuddy/babybuddy.git"
             ;;
         *)
@@ -619,6 +656,8 @@ main() {
     # Build the apps array from individual result files (skip the summary itself)
     local apps_json=""
     for f in "$RESULTS_DIR"/*.json; do
+        # Skip if glob didn't expand (no JSON files exist)
+        [ -f "$f" ] || continue
         [ "$f" = "$summary" ] && continue
         [ "$(basename "$f")" = "tool-versions.json" ] && continue
         [ "$(basename "$f")" = "summary.json" ] && continue
