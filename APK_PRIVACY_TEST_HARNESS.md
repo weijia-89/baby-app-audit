@@ -166,7 +166,7 @@ pipx install objection==1.12.5
 
 ```bash
 adb --version || { echo "FAIL: adb not found"; exit 1; }
-mitmweb --version || { echo "FAIL: mitmweb not found"; exit 1; }
+mitmdump --version || { echo "FAIL: mitmdump not found"; exit 1; }
 jadx --version || { echo "FAIL: jadx not found"; exit 1; }
 docker info >/dev/null 2>&1 || { echo "FAIL: docker not running"; exit 1; }
 objection --version || { echo "FAIL: objection not found"; exit 1; }
@@ -327,7 +327,7 @@ This is the fast test. Do it before the deep tests.
 Step 1. Verify the mitmproxy certificate exists and compute its hash for integrity:
 
 ```bash
-test -f "${MITMPROXY_CERT}" || { echo "FAIL: mitmproxy CA not found. Run mitmweb once to generate it."; exit 1; }
+test -f "${MITMPROXY_CERT}" || { echo "FAIL: mitmproxy CA not found. Run mitmdump once to generate it."; exit 1; }
 openssl x509 -in "${MITMPROXY_CERT}" -noout -sha256 -fingerprint > artifacts/logs/mitmproxy-cert-fingerprint.log
 echo "mitmproxy CA integrity: $(cat artifacts/logs/mitmproxy-cert-fingerprint.log)"
 ```
@@ -339,12 +339,14 @@ if lsof -Pi :"${PROXY_PORT}" -sTCP:LISTEN -t >/dev/null 2>&1; then
     echo "FAIL: port ${PROXY_PORT} already in use. Kill the process or change PROXY_PORT."
     exit 1
 fi
-mitmweb --listen-port "${PROXY_PORT}" --web-port 8081 --save-stream-file "artifacts/captures/offline-test.mitm" &
+mitmdump --listen-port "${PROXY_PORT}" --save-stream-file "artifacts/captures/offline-test.mitm" &
 MITM_PID=$!
 sleep 2
-curl -sf --retry 3 --connect-timeout 5 --max-time 10 http://localhost:8081 || \
-    { echo "FAIL: mitmweb not responding"; kill "${MITM_PID}"; exit 1; }
-echo "mitmweb running (PID: ${MITM_PID})"
+# Verify mitmdump is listening on the proxy port
+if ! bash -c "echo >/dev/tcp/localhost/\${PROXY_PORT}" 2>/dev/null; then
+    echo "FAIL: mitmdump not responding on port \${PROXY_PORT}"; kill "${MITM_PID}"; exit 1
+fi
+echo "mitmdump running (PID: ${MITM_PID})"
 ```
 
 Step 3. Point the emulator at mitmproxy. From inside the emulator, the Mac is address `${PROXY_HOST}`. Set the proxy inside Android settings to `${PROXY_HOST}` port `${PROXY_PORT}`. Do not use the emulator `-http-proxy` flag on new Android versions; set it inside Android instead.
@@ -372,7 +374,7 @@ Step 6. Do these actions, one at a time. Use **adversarial test data** to trigge
 
 **State transition note:** After each action, wait 5 seconds for any background network activity before proceeding.
 
-Step 7. Watch the mitmproxy web view the whole time.
+Step 7. Monitor traffic in real-time by tailing the capture file or reviewing after the test.
 
 Step 8. Wait an additional 60 seconds for background/idle traffic, then ask: did any request leave the phone?
 
@@ -389,15 +391,16 @@ adb shell dumpsys deviceidle unforce
 Step 9. Export the mitmproxy flow list to a structured file:
 
 ```bash
-curl -sf --retry 3 --connect-timeout 5 --max-time 10 \
-    http://localhost:8081/flows > artifacts/captures/offline-test-flows.json
+# Flows are saved in the .mitm file. Convert to HAR for analysis:
+# mitmdump -s scripts/har_dump.py --set har_output=artifacts/captures/offline-test.har -nr artifacts/captures/offline-test.mitm
+# Or use the burst runner which does this automatically.
 ```
 
-**Mitmweb auth note:** Future mitmproxy versions may require API authentication. If `curl` returns 401, check mitmweb docs for auth tokens.
+**Mitmdump note:** mitmdump runs headless. Use `mitmdump -nr <file> --set console_output=false` to review captures from the command line.
 
-**Stream rotation:** If the capture grows large, restart mitmweb with `--save-stream-file` pointing to a new file to prevent disk exhaustion.
+**Stream rotation:** If the capture grows large, restart mitmdump with `--save-stream-file` pointing to a new file to prevent disk exhaustion.
 
-**Flow integrity check:** Count flows in mitmweb UI and compare to JSON array length. If counts differ, mitmproxy may have dropped packets.
+**Flow integrity check:** Count flows with `mitmdump -nr artifacts/captures/offline-test.mitm --set console_output=false | wc -l` and compare to expected count. If counts differ, mitmproxy may have dropped packets.
 
 The result:
 
@@ -507,13 +510,13 @@ grep -rEi \
 
 This watches real traffic while you use the app. This is the strongest proof.
 
-Step 1. Make sure mitmweb is still running and the emulator still points at `${PROXY_HOST}:${PROXY_PORT}`.
+Step 1. Make sure mitmdump is still running and the emulator still points at `${PROXY_HOST}:${PROXY_PORT}`.
 
 Step 2. Open the app.
 
 Step 3. Do the same actions as Part 2 (profile, feed, sleep, diaper)  -  including the metamorphic variants.
 
-Step 4. Look at every request in mitmproxy.
+Step 4. Review the capture file with `mitmdump -nr artifacts/captures/dynamic-test.mitm`.
 
 Step 5. For each request, write down:
 
@@ -533,7 +536,7 @@ curl -sf --retry 3 --connect-timeout 5 --max-time 10 \
     http://localhost:8081/flows > artifacts/captures/dynamic-test-flows.json
 ```
 
-**Flow integrity check:** Count flows in mitmweb UI and compare to JSON array length. If counts differ, mitmproxy may have dropped packets.
+**Flow integrity check:** Count flows with `mitmdump -nr artifacts/captures/dynamic-test.mitm --set console_output=false | wc -l` and compare to expected count.
 
 Step 7. If mitmproxy shows nothing but you think the app is hiding traffic, the app may use certificate pinning.
 
@@ -674,7 +677,7 @@ Watch for burst traffic when connectivity returns.
 
 **Required before re-use or disposal of the test environment.**
 
-Step 1. Stop mitmweb and remove the CA from the emulator system store:
+Step 1. Stop mitmdump and remove the CA from the emulator system store:
 
 ```bash
 set -uo pipefail
@@ -764,7 +767,7 @@ DEVICE_MODEL: $(adb shell getprop ro.product.model 2>/dev/null || echo "unknown"
 ANDROID_VERSION: $(adb shell getprop ro.build.version.release 2>/dev/null || echo "unknown")
 TOOL_VERSIONS:
   adb: $(adb --version | head -1)
-  mitmproxy: $(mitmweb --version 2>/dev/null || echo "unknown")
+  mitmproxy: $(mitmdump --version 2>/dev/null || echo "unknown")
   jadx: $(jadx --version 2>/dev/null || echo "unknown")
   docker: $(docker --version)
   objection: $(objection --version 2>/dev/null || echo "unknown")
@@ -843,10 +846,10 @@ Wearable and IoT products fall under different EU regulations:
 
 **New in v3.0.0.** This part addresses the privacy liability created by the test itself.
 
-Step 1. **Data minimization:** Before starting mitmweb, configure it to capture ONLY the target app's traffic, not all emulator traffic:
+Step 1. **Data minimization:** Before starting mitmdump, configure it to capture ONLY the target app's traffic, not all emulator traffic:
 
 ```bash
-# Add to mitmweb args: --allow-hosts <app-domain> (if known)
+# Add to mitmdump args: --allow-hosts <app-domain> (if known)
 # OR filter after capture
 ```
 
@@ -1020,7 +1023,7 @@ adb shell "ls /system/etc/security/cacerts/${HASH}.0" && echo "Cert already inst
 1. Note the suspension time in the audit log.
 2. Verify emulator state: `adb devices`
 3. If emulator is offline, restart from Part 0 Step 8.
-4. If mitmweb is dead, restart from Part 2 Step 2.
+4. If mitmdump is dead, restart from Part 2 Step 2.
 5. Do not trust partial results. Re-run the affected subagent from the last done-check.
 
 ---
@@ -1075,7 +1078,7 @@ This section is for an IDE LLM agent. Run it autonomously. Spawn one subagent pe
 **Concurrency rules:**
 * `[acquire-*]` tasks may run in parallel IF each uses a separate emulator instance or snapshot.
 * `[offline-probe-all]`, `[static-all]`, `[dynamic-all]` must run serially per app.
-* `[mitmweb]` is a singleton resource (port 8080). Only one subagent may use it at a time.
+* `[mitmdump]` is a singleton resource (port 8080). Only one subagent may use it at a time.
 * `[canary-test]` must run before any real test to verify harness health.
 
 **Global state schema (shared scratchpad  -  JSON, append-only, with optimistic locking):**
@@ -1134,7 +1137,7 @@ For `verdict = fail` (accusing an app of privacy violation), require consensus f
 
 * Goal: make the Mac ready.
 * Commands: install Homebrew casks and tools from Part 0 with pinned versions; run smoke tests; start Docker; create or boot an arm64 emulator (API 28); verify disk space; create working directory and artifact structure; start audit log; install trap handlers.
-* Done-check: `adb devices` lists one device; `docker info` returns ok; `mitmweb` starts and binds port 8080; all tools smoke-tested; disk >= 10 GB; audit log initialized; AVB checked.
+* Done-check: `adb devices` lists one device; `docker info` returns ok; `mitmdump` starts and binds port 8080; all tools smoke-tested; disk >= 10 GB; audit log initialized; AVB checked.
 * On fail: read "If something breaks" for the adb and exodus rows; retry once with `${RETRY_BACKOFF_SEC}`-second backoff; if still failing, emit a HUMAN-GATE with the exact error and audit log excerpt.
 
 ---
@@ -1180,7 +1183,7 @@ For `verdict = fail` (accusing an app of privacy violation), require consensus f
 ### Subagent 5  -  offline-probe (the decisive test, run first per package)
 
 * Goal: answer "does any data leave the phone" quickly.
-* Preconditions: mitmweb running; emulator proxy set to `${PROXY_HOST}:${PROXY_PORT}`; mitmproxy certificate trusted and verified; canary test passed.
+* Preconditions: mitmdump running; emulator proxy set to `${PROXY_HOST}:${PROXY_PORT}`; mitmproxy certificate trusted and verified; canary test passed.
 * Commands: launch app; script the standard interactions (create profile, log feed, log sleep, log diaper); wait 60 seconds for background traffic; export mitmproxy flow list.
 * **UI action guard:** If UI automation fails (element not found), record the exact error and stop. Do not guess locators.
 * **Adversarial inputs:** Test with Unicode names, future DOB, and empty fields.
@@ -1206,7 +1209,7 @@ For `verdict = fail` (accusing an app of privacy violation), require consensus f
 ### Subagent 7  -  dynamic (deep capture, and pinning bypass if needed)
 
 * Goal: record every real destination and payload.
-* Commands: repeat the standard interactions under mitmweb; if pinning suspected, run `objection -g <package> explore` then `android sslpinning disable`, and retry.
+* Commands: repeat the standard interactions under mitmdump; if pinning suspected, run `objection -g <package> explore` then `android sslpinning disable`, and retry.
 * **Gotcha handling:** if objection errors on Frida version, install the dev build; for split APKs place the Frida gadget in the arm64_v8a split before repack.
 * **Max retry bound:** If pinning bypass fails after `${MAX_RETRIES}` attempts, record "could not decrypt" and stop.
 * **Covert channel check:** Run `tcpdump` on host to catch non-HTTP traffic if mitmproxy shows nothing. Check BLE, NFC, ultrasound.
