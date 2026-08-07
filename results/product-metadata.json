@@ -9,7 +9,9 @@
       "burst_tested": "1",
       "dark_patterns_scanned": true,
       "dark_patterns_verdict": "inconclusive",
+      "dark_patterns_notes": "2 patterns detected (deceptive_button_order medium, pressure_tactic low) - heuristics, high false-positive risk",
       "static_analysis_complete": true,
+      "static_analysis_notes": "jadx decompiled 2026-08-07",
       "dynamic_capture_complete": true
     },
     "com.clicksie.nuboapp": {
@@ -21,8 +23,9 @@
       "burst_tested": "1",
       "dark_patterns_scanned": true,
       "dark_patterns_verdict": "inconclusive",
-      "static_analysis_complete": false,
-      "static_analysis_notes": "Decompiled 2026-08-06 (10,269 files) but full tracker fingerprinting pending",
+      "dark_patterns_notes": "3 patterns detected (hidden_consent_flow medium, deceptive_button_order medium, pressure_tactic low) - heuristics, high false-positive risk",
+      "static_analysis_complete": true,
+      "static_analysis_notes": "jadx decompiled 2026-08-07",
       "dynamic_capture_complete": true
     },
     "com.pebbi.android": {
@@ -38,7 +41,9 @@
       "burst_tested": "1",
       "dark_patterns_scanned": true,
       "dark_patterns_verdict": "inconclusive",
+      "dark_patterns_notes": "2 patterns detected (deceptive_button_order medium, pressure_tactic low) - heuristics, high false-positive risk",
       "static_analysis_complete": true,
+      "static_analysis_notes": "jadx decompiled 2026-08-07",
       "dynamic_capture_complete": true
     },
     "org.babybuddy.babybuddy": {
@@ -51,6 +56,7 @@
       "dark_patterns_scanned": false,
       "dark_patterns_notes": "N/A - Django web app, no Android resources",
       "source_audit_complete": true,
+      "source_audit_notes": "Cloned 2026-08-07, commit 7a2b2dfb, 67 network refs, 2 tracker refs",
       "dynamic_capture_complete": true
     },
     "com.babytrack.app": {
