@@ -90,7 +90,10 @@ jobs:
           bash -n scripts/decode-traffic.sh || exit 1
           bash -n scripts/detect-dark-patterns.sh || exit 1
           bash -n scripts/compare-apps.sh || exit 1
-          bash -n localonly/bursts/run-burst.sh || exit 1
+          # Only check localonly scripts if they exist (localonly/ is gitignored)
+          if [ -f localonly/bursts/run-burst.sh ]; then
+            bash -n localonly/bursts/run-burst.sh || exit 1
+          fi
           echo "All scripts parse cleanly and dry run passes"
 
       - name: Burst runner validation
