@@ -98,8 +98,13 @@ jobs:
 
       - name: Burst runner validation
         run: |
-          BURST_DRY_RUN=1 bash localonly/bursts/run-burst.sh 1 || exit 1
-          echo "Burst configs validated"
+          # Only validate burst runner if it exists (localonly/ is gitignored)
+          if [ -f localonly/bursts/run-burst.sh ]; then
+            BURST_DRY_RUN=1 bash localonly/bursts/run-burst.sh 1 || exit 1
+            echo "Burst configs validated"
+          else
+            echo "Burst runner not present (localonly/ is gitignored) - skipping validation"
+          fi
 
       - name: Unit test syntax check
         run: |
