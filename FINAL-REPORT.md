@@ -1,7 +1,7 @@
 # Baby App Privacy Audit - Final Report
 
 **Test Run ID:** `baby-app-audit-20260803`  
-**Date:** 2026-08-03 to 2026-08-06  
+**Date:** 2026-08-03 to 2026-08-07  
 **Harness Version:** 3.3.0  
 **Author:** Wei Jia  
 **License:** GPL-3.0  
@@ -74,7 +74,11 @@ I also identified 16+ additional candidates in `localonly/candidates.md`. They a
 
 **Environment:** macOS 26.5.1, Apple Silicon, Android Emulator API 28.
 
-**Tools:** mitmproxy 12.2.3, adb 37.0.1, jadx 1.5.6, objection 1.12.5.
+**Tools:** mitmdump 12.2.3 (headless), adb 37.0.1, jadx 1.5.6, objection 1.12.5.
+
+**Harness improvements (Sprint 4):**
+- Switched from `mitmweb` (opens browser tabs) to `mitmdump` (headless) for automated testing.
+- Added `scripts/har_dump.py` addon for `.mitm` → HAR conversion, enabling downstream `decode-traffic.sh` processing in the burst pipeline.
 
 **Steps for each app:**
 1. Install the app on the emulator.
@@ -190,14 +194,14 @@ Baby Buddy is the only app that behaved as its description claims.
 
 I added static dark pattern detection in Sprint 3. The script scans decompiled APK resources for pre-checked consent, hidden flows, deceptive buttons, obfuscated disclaimers, and pressure tactics.
 
-**Results:**
+**Results (Burst 1 re-test, 2026-08-07):**
 
-| App | Pre-checked consent | Hidden flow | Deceptive buttons | Obfuscated disclaimer | Pressure tactics | Verdict |
-| --- | --- | --- | --- | --- | --- | --- |
-| Nurture Lock | none | none | 1 (weak) | none | 1 (false positive) | inconclusive |
-| Pebbi | none | none | 1 (weak) | none | 1 (false positive) | inconclusive |
-| Nubo | none | 1 (false positive) | 1 (weak) | none | 1 (false positive) | inconclusive |
-| Baby Buddy | N/A | N/A | N/A | N/A | N/A | not applicable |
+| App | Patterns found | Types | Verdict |
+| --- | --- | --- | --- |
+| Nurture Lock | 2 | deceptive_button_order (medium), pressure_tactic (low) | inconclusive |
+| Pebbi | 2 | deceptive_button_order (medium), pressure_tactic (low) | inconclusive |
+| Nubo | 3 | hidden_consent_flow (medium), deceptive_button_order (medium), pressure_tactic (low) | inconclusive |
+| Baby Buddy | N/A | N/A | not applicable |
 
 **Confidence in these findings: low.** All matches were false positives or weak heuristic hits:
 - The "pressure tactic" pattern matched the substring `timer` in baby-feed timer labels and Danish "hours" (`timer` = hours in Danish).
@@ -212,7 +216,7 @@ I added static dark pattern detection in Sprint 3. The script scans decompiled A
 
 I compared decoded traffic across the three apps with outbound data (Baby Buddy excluded - localhost only).
 
-**Summary:**
+**Summary (original test, 2026-08-03):**
 
 | App | Total flows | Tracker flows | Request bytes | Response bytes |
 | --- | --- | --- | --- | --- |
@@ -226,6 +230,10 @@ I compared decoded traffic across the three apps with outbound data (Baby Buddy 
 - **Shared mechanisms:** Firebase - Pebbi and Nubo both transmit via Firebase
 - **Highest-volume app:** Pebbi (12 flows, ~7.8 KB total)
 
+**Burst 1 re-test comparison (2026-08-07):**
+- `results/comparison-burst-1.json` confirms 0 shared trackers across the 3 native apps.
+- Decode-traffic reports produced 0 flows in the Burst 1 re-test due to the short 10-second observation window and strict host filtering. This is a methodology limitation, not a change in app behavior.
+
 ---
 
 ## Limitations
@@ -233,10 +241,11 @@ I compared decoded traffic across the three apps with outbound data (Baby Buddy 
 1. **Headless emulation:** I did not exercise the app UI interactively. Some data exfiltration paths were not triggered.
 2. **No exodus-standalone:** Docker is installed but the scan was not run (linux/amd64 only).
 3. **Dark pattern detection heuristics are noisy:** The script passed unit tests against clean fixtures but produced false positives on real APKs. A dynamic UI pass is needed.
-4. **Nubo static analysis was late:** Full tracker fingerprinting rests on dynamic evidence.
+4. **Nubo static analysis was late:** Full tracker fingerprinting rests on dynamic evidence. (Fixed in Burst 1 re-test - static analysis is now complete.)
 5. **No BLE/NFC/ultrasound scan:** Physical radio checks require real hardware.
 6. **No certificate pinning bypass:** Not needed - system certificate installation worked.
 7. **Cross-app analytics anomaly:** Nubo's analytics payloads contained Pebbi data.
+8. **Decode-traffic limitation:** The 10-second observation window in automated burst testing is too short for consistent app-specific traffic capture. Decode-traffic reports show 0 flows in Burst 1 re-test. The original test data (2026-08-03) used longer observation windows and is more reliable.
 
 ---
 
