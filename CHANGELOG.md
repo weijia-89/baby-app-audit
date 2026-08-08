@@ -2,24 +2,8 @@
 
 ## 4.0.0 - Sprint 4 - In Progress
 
-### Added
-- Burst 1 re-test complete: original 4 apps (Nurture Lock, Nubo, Pebbi, Baby Buddy) tested with Sprint 3 criteria.
-- `scripts/har_dump.py`: Minimal mitmproxy addon for `.mitm` capture → HAR conversion. Enables downstream `decode-traffic.sh` processing in the burst pipeline.
-- `results/comparison-burst-1.json`: Cross-app comparison for Burst 1 (3 native apps, 0 shared trackers).
-- Sprint 3 fields added to `results/product-metadata.json`: `dark_patterns_notes`, `static_analysis_notes`, `source_audit_notes`.
-- Dark pattern scans re-run for Burst 1: nurture-lock (2 patterns), nubo (3 patterns), pebbi (2 patterns).
-- Decode traffic reports generated for all native apps in Burst 1.
-
-### Changed
-- `scripts/run-tests.sh`: Switch `mitmweb` → `mitmdump` for headless proxy operation. No browser tabs open during automated testing.
-- `.github/workflows/test.yml`: Update canary tool verification from `mitmweb` to `mitmdump`.
-- `localonly/bursts/run-burst.sh`: Add HAR conversion + `decode-traffic.sh` invocation after each app test.
-
-### Fixed
-- `localonly/bursts/run-burst.sh`: Fix `local` variable scope bug in subshell context.
-- `APK_PRIVACY_TEST_HARNESS.md`: Updated all `mitmweb` references to `mitmdump` to match the headless harness. Removed web UI instructions, added HAR conversion notes.
-
 ### Planned
+- Burst 1: Re-audit original 4 apps with Sprint 3 criteria (dark patterns, cross-app comparison, product metadata)
 - Burst 2: Tier 1 apps + Privacy-first batch 1 (BabyTrack, Amila, Wachanga, Baby Daybook, Baby+, Cradly)
 - Burst 3: Tier 2 apps (NighP, Milli, Baby Connect, SNUGL, Talli Baby)
 - Burst 4: FOSS candidates (LunaTracker, MimiLog, Sara Baby Tracker, Dymn Baby)

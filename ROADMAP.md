@@ -23,12 +23,9 @@
 
 **Goal:** Systematically test all candidate apps in bursts, applying Sprint 3 criteria to both new and previously tested apps.
 
-### Burst 1  -  Done
+### Burst 1  -  In Progress
 - Re-audit original 4 apps (Nurture Lock, Nubo, Pebbi, Baby Buddy) with new Sprint 3 criteria
 - Validate harness on known targets before expanding
-- Dark pattern scans: nurture-lock (2), nubo (3), pebbi (2)
-- Decode traffic reports generated for all native apps
-- Cross-app comparison: comparison-burst-1.json
 
 ### Burst 2  -  Planned
 - Tier 1 apps: BabyTrack, Amila, Wachanga
