@@ -1,0 +1,74 @@
+{
+  "apps": [
+    "com.amila.parenting",
+    "com.drillyapps.babydaybook",
+    "com.hp.babyapp"
+  ],
+  "comparison_timestamp": "2026-08-09T13:56:38Z",
+  "shared_trackers": [],
+  "similar_endpoints": [
+    {
+      "host": "android.apis.google.com",
+      "apps": [
+        "com.drillyapps.babydaybook",
+        "com.hp.babyapp"
+      ],
+      "flow_counts": {
+        "com.drillyapps.babydaybook": 1,
+        "com.hp.babyapp": 1
+      }
+    },
+    {
+      "host": "firebaseinstallations.googleapis.com",
+      "apps": [
+        "com.amila.parenting",
+        "com.drillyapps.babydaybook"
+      ],
+      "flow_counts": {
+        "com.amila.parenting": 1,
+        "com.drillyapps.babydaybook": 1
+      }
+    },
+    {
+      "host": "firebaseremoteconfig.googleapis.com",
+      "apps": [
+        "com.amila.parenting",
+        "com.drillyapps.babydaybook",
+        "com.hp.babyapp"
+      ],
+      "flow_counts": {
+        "com.amila.parenting": 1,
+        "com.drillyapps.babydaybook": 1,
+        "com.hp.babyapp": 1
+      }
+    }
+  ],
+  "data_volume": {
+    "com.amila.parenting": {
+      "total_flows": 6,
+      "tracker_flows": 0,
+      "total_request_bytes": 1429,
+      "total_response_bytes": 176016
+    },
+    "com.drillyapps.babydaybook": {
+      "total_flows": 8,
+      "tracker_flows": 4,
+      "total_request_bytes": 1839,
+      "total_response_bytes": 14301
+    },
+    "com.hp.babyapp": {
+      "total_flows": 3,
+      "tracker_flows": 0,
+      "total_request_bytes": 1040,
+      "total_response_bytes": 14146
+    }
+  },
+  "regime_coverage": {
+    "com.amila.parenting": "unknown",
+    "com.drillyapps.babydaybook": "unknown",
+    "com.hp.babyapp": "unknown"
+  },
+  "shared_mechanisms": [
+    "firebase"
+  ]
+}

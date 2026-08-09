@@ -236,6 +236,62 @@ I compared decoded traffic across the three apps with outbound data (Baby Buddy 
 
 ---
 
+## Burst 2 Results (2026-08-08/09)
+
+Burst 2 tested 3 of 5 planned apps. Two apps (BabyTrack, Cradle) are blocked on Play Store access — they are not available on APKPure or F-Droid, and a Google account is required on the emulator to install from the Play Store. Wachanga was dropped from the burst after the candidate description ("baby milestones") did not match the real Play Store listing (pregnancy tracker).
+
+### Package name correction
+
+All 6 original Burst 2 package names in `candidates.md` were incorrect (Play Store 404). Real package IDs were verified by fetching Play Store listing pages:
+
+| App | Original (wrong) | Real package | Reach |
+| --- | --- | --- | --- |
+| BabyTrack | com.babytrack.app | com.sociodigitals.babytrack | 0+ downloads |
+| Amila | com.amila.babytracker | com.amila.parenting | 1M+ downloads |
+| Wachanga | com.wachanga.babymilestones | com.wachanga.pregnancy | 10M+ (pregnancy, not milestones) |
+| Baby Daybook | com.babydaybook.app | com.drillyapps.babydaybook | 1M+ downloads |
+| Baby+ | com.babyplus.app | com.hp.babyapp | 5M+ downloads |
+| Cradle (was "Cradly") | com.cradly.app | com.creatorlane.cradle | 100+ downloads |
+
+### Dark pattern scan - Burst 2
+
+| App | Patterns found | Types | Verdict |
+| --- | --- | --- | --- |
+| Amila | 3 | hidden_consent_flow (medium), deceptive_button_order (medium), pressure_tactic (low) | inconclusive |
+| Baby Daybook | 2 | hidden_consent_flow (medium), deceptive_button_order (medium) | inconclusive |
+| Baby+ | 3 | hidden_consent_flow (medium), deceptive_button_order (medium), pressure_tactic (low) | inconclusive |
+| BabyTrack | not scanned | app not installed | blocked |
+| Cradle | not scanned | app not installed | blocked |
+
+**False positive identified:** `browser_actions_context_menu_row.xml` triggers `hidden_consent_flow` on Amila and Baby Daybook. This is a shared AndroidX library layout, not app consent UI. It should be added to the scanner allowlist. Baby+ matched on `fragment_dailyblog_consent_expanded.xml`, which is a real app-specific consent layout and likely a true positive.
+
+### Decode traffic - Burst 2
+
+| App | Total flows | Tracker flows | Request bytes | Response bytes | Notable hosts |
+| --- | --- | --- | --- | --- | --- |
+| Amila | 6 | 0 | 1,429 | 176,016 | firebaseinstallations, fundingchoicesmessages, fonts.googleapis/gstatic |
+| Baby Daybook | 8 | 4 | 1,839 | 14,301 | graph.facebook.com, api.revenuecat.com, firebase-settings.crashlytics, android.apis.google.com |
+| Baby+ | 3 | 0 | 1,040 | 14,146 | graph.facebook.com, appserver.health-and-parenting.com, firebaseremoteconfig |
+
+### Cross-app comparison - Burst 2
+
+- `results/comparison-burst-2.json`: 3 apps, 0 shared trackers.
+- Shared mechanisms: **Firebase** (all 3 apps).
+- Similar endpoints: `firebaseremoteconfig.googleapis.com` (all 3), `android.apis.google.com` (Baby Daybook + Baby+), `firebaseinstallations.googleapis.com` (Amila + Baby Daybook).
+
+### Notable findings
+
+1. **All 3 tested apps phone home on launch.** None are truly offline, though Amila and Baby+ have not been attributed to known trackers in this 10-second observation window.
+2. **Baby Daybook is the most tracker-heavy:** 4 of 8 flows hit Facebook Graph API (`graph.facebook.com`) and RevenueCat (`api.revenuecat.com`). Despite being Piranesi-verified for "no AdID auto-enabled", Facebook SDK is present and active.
+3. **Baby+ (v2.0.10) reaches Facebook Graph API** plus its own backend `appserver.health-and-parenting.com` (Philips). The DNS failure on `settings.crashlytics.com` produced an errored flow that exposed a `har_dump.py` bug (fixed in this PR).
+4. **Dark pattern false positives** remain the dominant signal in static analysis. A dynamic UI-automator pass is still needed before per-app dark pattern verdicts are publishable.
+
+### Code fix
+
+`scripts/har_dump.py` crashed with `NoneType - float` when `flow.response.timestamp_end` was `None` (occurs on errored flows with incomplete chunked reads). Fixed to fall back to `flow.request.timestamp_start`. All unit tests still pass: 3/3 decode-traffic, 12/12 dark patterns, 11/11 compare.
+
+---
+
 ## Limitations
 
 1. **Headless emulation:** I did not exercise the app UI interactively. Some data exfiltration paths were not triggered.

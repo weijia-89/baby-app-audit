@@ -30,9 +30,13 @@
 - Decode traffic reports generated for all native apps
 - Cross-app comparison: comparison-burst-1.json
 
-### Burst 2  -  Planned
-- Tier 1 apps: BabyTrack, Amila, Wachanga
-- Privacy-first batch 1: Baby Daybook, Baby+, Cradly
+### Burst 2  -  Partial (3 of 5 apps tested, 2 blocked)
+- Tier 1 apps: BabyTrack (blocked), Amila (done), Wachanga (dropped: wrong category)
+- Privacy-first batch 1: Baby Daybook (done), Baby+ (done), Cradle (blocked)
+- Dark pattern scans: amila (3), baby-daybook (2), baby-plus (3)
+- Cross-app comparison: comparison-burst-2.json (3 apps, 0 shared trackers, shared mechanism: Firebase)
+- Blockers: BabyTrack and Cradle not on APKPure/F-Droid, require Play Store install
+- Baby+ tested with older v2.0.10 (current v3.2 ships armeabi_v7a-only, incompatible with arm64 emulator)
 
 ### Burst 3  -  Planned
 - Tier 2 apps: NighP, Milli, Baby Connect, SNUGL, Talli Baby
