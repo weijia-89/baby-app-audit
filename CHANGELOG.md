@@ -23,11 +23,10 @@
 - `scripts/har_dump.py`: Fix `NoneType` crash when `flow.response.timestamp_end` is `None` (occurs on errored flows with incomplete chunked reads). Falls back to `flow.request.timestamp_start`. All unit tests still pass (3/3 decode, 12/12 dark patterns, 11/11 compare).
 
 ### Planned
-- Burst 2: Tier 1 apps + Privacy-first batch 1 (BabyTrack, Amila, Baby Daybook, Baby+, Cradle). Wachanga dropped: real app is a pregnancy tracker, not baby milestones. BabyTrack and Cradle are blocked on Play Store access (not on APKPure/F-Droid).
-- Burst 3: Tier 2 apps (NighP, Milli, Baby Connect, SNUGL, Talli Baby)
-- Burst 4: FOSS candidates (LunaTracker, MimiLog, Sara Baby Tracker, Dymn Baby)
-- Burst 5: Privacy-first batch 2 (BabyLog, Nara, Heartful Baby, Nestling, Pixy, Nurture Lock variant)
-- Burst 6: Wearable / IoT (Owlet Sock, Owlet Cam, Nanit, Miku, Snuza)
+- Burst 2 backburner: BabyTrack + Cradle (Play Store-only, need Google account or manual APK download)
+- Burst 4: MimiLog + Dymn Baby (2 FOSS offline apps; LunaTracker and Sara Baby Tracker dropped — no privacy claims)
+- Burst 5: BabyLog, Nara, Heartful Baby, Nestling, Pixy (5 privacy-first apps; Baby Daybook/Baby+/Nurture Lock already tested)
+- Scope reduced: Bursts 3 and 6 dropped entirely (no privacy/offline claims). Total testable apps reduced from 24 to 12.
 - Final report synthesizing all burst findings
 - Methodology publication and tool open-sourcing
 
