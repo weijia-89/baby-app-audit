@@ -245,6 +245,28 @@ else
     pass "Rejects path with shell metacharacters"
 fi
 
+# Test 13: Allowlisted AndroidX component does not trigger hidden_consent_flow
+echo "Test 13: Allowlisted browser_actions_context_menu_row.xml is skipped"
+APK_DIR="$FIXTURE_BASE/test13"
+mkdir -p "$APK_DIR/res/layout"
+cat > "$APK_DIR/res/layout/browser_actions_context_menu_row.xml" <<'EOF'
+<FrameLayout>
+    <WebView android:id="@+id/webview"
+             android:visibility="gone"
+             android:layout_width="1dp"
+             android:layout_height="1dp" />
+</FrameLayout>
+EOF
+if bash "$DETECTOR" "$APK_DIR" "$OUTPUT" >/dev/null 2>&1; then
+    if python3 -c "import json; d=json.load(open('$OUTPUT')); print(any(p.get('pattern_type')=='hidden_consent_flow' for p in d.get('patterns',[])))" | grep -q "False"; then
+        pass "Allowlisted file does not trigger hidden_consent_flow"
+    else
+        fail "Allowlisted file still triggers hidden_consent_flow"
+    fi
+else
+    fail "Should succeed on valid APK directory"
+fi
+
 echo ""
 if [ "$FAILED" -eq 0 ]; then
     echo "=== ALL TESTS PASSED ==="

@@ -162,6 +162,8 @@ scan_pre_checked_consent() {
 }
 
 # Scan for hidden consent flows
+# Allowlist: known AndroidX components that trigger false positives
+HIDDEN_CONSENT_ALLOWLIST="browser_actions_context_menu_row.xml"
 scan_hidden_consent_flow() {
     local res_dir="$APK_PATH/res"
     if [ ! -d "$res_dir" ]; then
@@ -169,6 +171,13 @@ scan_hidden_consent_flow() {
     fi
 
     while IFS= read -r -d '' file; do
+        # Skip allowlisted files (shared AndroidX components)
+        local basename_file
+        basename_file="$(basename "$file")"
+        if echo "$HIDDEN_CONSENT_ALLOWLIST" | grep -qw "$basename_file" 2>/dev/null; then
+            continue
+        fi
+
         if grep -q 'android:visibility="gone"' "$file" 2>/dev/null || \
            grep -q 'android:visibility="invisible"' "$file" 2>/dev/null; then
             if grep -qiE '(webview|web_view|browser)' "$file" 2>/dev/null; then

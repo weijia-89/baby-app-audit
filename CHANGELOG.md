@@ -21,11 +21,14 @@
 - `localonly/bursts/run-burst.sh`: Fix `local` variable scope bug in subshell context.
 - `APK_PRIVACY_TEST_HARNESS.md`: Updated all `mitmweb` references to `mitmdump` to match the headless harness. Removed web UI instructions, added HAR conversion notes.
 - `scripts/har_dump.py`: Fix `NoneType` crash when `flow.response.timestamp_end` is `None` (occurs on errored flows with incomplete chunked reads). Falls back to `flow.request.timestamp_start`. All unit tests still pass (3/3 decode, 12/12 dark patterns, 11/11 compare).
+- `scripts/detect-dark-patterns.sh`: Added `HIDDEN_CONSENT_ALLOWLIST` to skip `browser_actions_context_menu_row.xml`, a shared AndroidX component that triggered false-positive `hidden_consent_flow` detections on Amila and Baby Daybook.
+- `localonly/bursts/run-burst.sh`: Relaxed package-name validation regex to accept hyphens (needed for `com.dymnstudio.dymn-baby`).
+- `localonly/bursts/run-burst.sh`: Export `JAVA_HEAP_SIZE` (default 4096 MB) before jadx decompile to prevent OOM on large APKs.
+- `tests/test-dark-patterns.sh`: Added Test 13 to verify allowlisted files are skipped by the hidden-consent scanner.
 
 ### Planned
-- Burst 2 backburner: BabyTrack + Cradle (Play Store-only, need Google account or manual APK download)
-- Burst 4: MimiLog + Dymn Baby (2 FOSS offline apps; LunaTracker and Sara Baby Tracker dropped — no privacy claims)
-- Burst 5: BabyLog, Nara, Heartful Baby, Nestling, Pixy (5 privacy-first apps; Baby Daybook/Baby+/Nurture Lock already tested)
+- Burst 4 backburner: Dymn Baby APK not on APKPure or F-Droid; pending GitHub release download or Play Store account.
+- Burst 5: Nara, Heartful Baby, Pixy (3 Android-available privacy-first apps; BabyLog and Nestling dropped as iOS-only, Nurture Lock/Baby Daybook/Baby+ already tested in Bursts 1-2).
 - Scope reduced: Bursts 3 and 6 dropped entirely (no privacy/offline claims). Total testable apps reduced from 24 to 12.
 - Final report synthesizing all burst findings
 - Methodology publication and tool open-sourcing

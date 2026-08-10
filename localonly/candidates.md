@@ -11,9 +11,11 @@ These apps have high user bases or high privacy risk. I test them first.
 
 | Name | Slug | Platform | Package name | Source | Privacy posture | Evidence type |
 | --- | --- | --- | --- | --- | --- | --- |
-| BabyTrack | babytrack | Android | com.babytrack.app | Play Store search | Claims offline | network_capture, policy_text |
-| Amila | amila | Android | com.amila.babytracker | Play Store search | Unknown | exodus_static, network_capture |
-| Wachanga | wachanga | Android | com.wachanga.babymilestones | Play Store search | Milestone tracker | network_capture, policy_text |
+| BabyTrack | babytrack | Android | com.sociodigitals.babytrack | Play Store search | Claims offline | network_capture, policy_text |
+| Amila | amila | Android | com.amila.parenting | Play Store search | Unknown | exodus_static, network_capture |
+| ~~Wachanga~~ | ~~wachanga~~ | ~~Android~~ | ~~com.wachanga.babymilestones~~ | Play Store search | Wrong category (pregnancy tracker, not milestones) | DROPPED 2026-08-07 |
+
+**Note (2026-08-07):** Original package names for BabyTrack (`com.babytrack.app`) and Amila (`com.amila.babytracker`) were incorrect and returned Play Store 404. Correct names verified by fetching Play Store listing pages: BabyTrack is `com.sociodigitals.babytrack` (SocioDigitals, 0+ downloads, offline-first), Amila is `com.amila.parenting` (Amila Tech, 1M+ downloads, "Baby tracker - feeding, sleep"). Wachanga was dropped: the only Wachanga app on Play Store (`com.wachanga.pregnancy`) is a pregnancy tracker, not a baby-milestones app. The candidate description "Milestone tracker" did not match the real app.
 
 ---
 
@@ -52,17 +54,19 @@ These apps explicitly market themselves as privacy-first, local-only, or offline
 
 | Name | Slug | Platform | Package name | Source | Marketing claim | Evidence type |
 | --- | --- | --- | --- | --- | --- | --- |
-| Baby Daybook | baby-daybook | iOS / Android | com.babydaybook.app | Piranesi S1 (Pybus) | AdID not auto-enabled; no US processing | network_capture, exodus_static |
-| Baby+ | baby-plus | iOS / Android | com.babyplus.app | Piranesi S1 (Pybus) | AdID not auto-enabled; no US processing | network_capture, exodus_static |
-| Nurture Lock | nurture-lock | Android | com.nurturelock.app | Web search | 100% offline, no account, AES-256, local storage only | network_capture, exodus_static |
-| Cradly | cradly | iOS / Android | com.cradly.app | Web search | Privacy-first, local-first, AES-256, no account | network_capture, exodus_static |
+| Baby Daybook | baby-daybook | iOS / Android | com.drillyapps.babydaybook | Piranesi S1 (Pybus) | AdID not auto-enabled; no US processing | network_capture, exodus_static |
+| Baby+ | baby-plus | iOS / Android | com.hp.babyapp | Piranesi S1 (Pybus) | AdID not auto-enabled; no US processing | network_capture, exodus_static |
+| Nurture Lock | nurture-lock | Android | com.angry.shark.studio.nurturelock | Web search | 100% offline, no account, AES-256, local storage only | network_capture, exodus_static |
+| Cradle | cradle | iOS / Android | com.creatorlane.cradle | Web search | Privacy-first, encrypted at rest, no data sold | network_capture, exodus_static |
 | BabyLog | babylog | iOS | com.babylog.app | Web search | 100% offline, no account, no cloud | network_capture, exodus_static |
 | Nara | nara | iOS / Android | com.naraorganics.nara | Web search | Complete privacy, real-time sharing, no data sold | network_capture, exodus_static |
 | Heartful Baby | heartful-baby | iOS / Android | com.heartfulsprout.baby | Web search | HIPAA-compliant, never sell data | network_capture, exodus_static |
 | Nestling | nestling | iOS | com.nestling.app | Web search | Privacy-first, no ads, no data selling | network_capture, exodus_static |
 | Pixy | pixy | iOS / Android | com.pixykid.app | Web search | Bank-level encryption, HIPAA compliant, privacy first | network_capture, exodus_static |
 
-**Note:** Baby Daybook and Baby+ are Piranesi-verified (Pybus C-010: among only 4 of 14 apps that did NOT auto-enable AdIDs). Nurture Lock, Cradly, BabyLog, Nara, Heartful Baby, Nestling, and Pixy come from web search — marketing claims only, not yet code-verified.
+**Note:** Baby Daybook and Baby+ are Piranesi-verified (Pybus C-010: among only 4 of 14 apps that did NOT auto-enable AdIDs). Nurture Lock, Cradle, BabyLog, Nara, Heartful Baby, Nestling, and Pixy come from web search — marketing claims only, not yet code-verified.
+
+**Note (2026-08-07):** Original package names for Baby Daybook (`com.babydaybook.app`), Baby+ (`com.babyplus.app`), Nurture Lock (`com.nurturelock.app`), and Cradle (`com.cradly.app`, was "Cradly") were incorrect and returned Play Store 404. Correct names verified by fetching Play Store listing pages: Baby Daybook is `com.drillyapps.babydaybook` (Baltapis, 1M+ downloads), Baby+ is `com.hp.babyapp` (Philips Electronics UK, 5M+ downloads), Nurture Lock is `com.angry.shark.studio.nurturelock` (from installed emulator package), Cradle is `com.creatorlane.cradle` (Creator Lane Studios, 100+ downloads). The original "Cradly" spelling was wrong; the real app is "Cradle". Cradle's marketing says "Privacy first, encrypted at rest, no data sold" but it is a brand-new app (100+ downloads, launched Aug 2026) — low reach.
 
 ---
 
