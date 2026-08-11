@@ -1,0 +1,19 @@
+{
+  "app_name": "resources",
+  "package_name": "com.pixykid.app",
+  "scan_timestamp": "2026-08-11T18:03:10Z",
+  "patterns": [
+    {
+      "pattern_type": "pressure_tactic",
+      "evidence_file": "decompiled/pixy/resources/res/values/strings.xml",
+      "confidence": "low",
+      "description": "Found urgency or scarcity language in app strings"
+    }
+  ],
+  "summary": {
+    "total_patterns": 1,
+    "pattern_types_found": [
+      "pressure_tactic"
+    ]
+  }
+}

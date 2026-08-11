@@ -88,7 +88,7 @@ elif [ -f "$APK_PATH" ]; then
         error "APK file too large (${_filesize} bytes, max ${MAX_APK_SIZE})"
         exit 1
     fi
-    TEMP_DIR=$(mktemp -d /tmp/apk-scan-XXXXXX)
+    TEMP_DIR=$(mktemp -d "${TMPDIR:-/tmp}/apk-scan-XXXXXX")
     trap 'rm -rf "$TEMP_DIR"' EXIT INT TERM
     if command -v unzip >/dev/null 2>&1; then
         unzip -q "$APK_PATH" -d "$TEMP_DIR" 2>/dev/null || {
@@ -163,7 +163,7 @@ scan_pre_checked_consent() {
 
 # Scan for hidden consent flows
 # Allowlist: known AndroidX components that trigger false positives
-HIDDEN_CONSENT_ALLOWLIST="browser_actions_context_menu_row.xml"
+declare -a HIDDEN_CONSENT_ALLOWLIST=("browser_actions_context_menu_row.xml")
 scan_hidden_consent_flow() {
     local res_dir="$APK_PATH/res"
     if [ ! -d "$res_dir" ]; then
@@ -174,7 +174,7 @@ scan_hidden_consent_flow() {
         # Skip allowlisted files (shared AndroidX components)
         local basename_file
         basename_file="$(basename "$file")"
-        if echo "$HIDDEN_CONSENT_ALLOWLIST" | grep -qw "$basename_file" 2>/dev/null; then
+        if [[ " ${HIDDEN_CONSENT_ALLOWLIST[*]} " == *" $basename_file "* ]]; then
             continue
         fi
 

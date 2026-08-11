@@ -116,7 +116,7 @@ COMPARISON_TIMESTAMP=$(date -u +%Y-%m-%dT%H:%M:%SZ)
 export COMPARISON_TIMESTAMP
 
 # Build comparison using a temporary Python script
-TEMP_SCRIPT=$(mktemp /tmp/compare-XXXXXX.py)
+    TEMP_SCRIPT=$(mktemp "${TMPDIR:-/tmp}/compare-XXXXXX.py")
 trap 'rm -f "$TEMP_SCRIPT"' EXIT INT TERM
 
 cat > "$TEMP_SCRIPT" <<'PYEOF'
