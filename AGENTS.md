@@ -81,6 +81,6 @@ Sprint 6 closeout finalizes the baby-app-audit project's sprint cycle. All prere
 - Pipeline checks: run-tests.sh --check passes, schema validation, unit tests
 
 Outputs delivered:
-- prompts/sprint-6-closeout.md created
+- Sprint-6 closeout documented in this AGENTS.md section and the merge commit
 - Branch merged to main with all sprint 4 changes
 - AGENTS.md updated with sprint-6 section
