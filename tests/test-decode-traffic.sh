@@ -257,6 +257,7 @@ RW_HAR="$REPO_DIR/tests/fixtures/real-world-capture.har"
 RW_PEBBI="$REPO_DIR/tests/fixtures/output-rw-pebbi.json"
 RW_NL="$REPO_DIR/tests/fixtures/output-rw-nl.json"
 RW_NUBO="$REPO_DIR/tests/fixtures/output-rw-nubo.json"
+RW_PEBBI_TRK="$REPO_DIR/tests/fixtures/output-rw-pebbi-trk.json"
 
 # Create real-world HAR fixture if it doesn't exist
 if [ ! -f "$RW_HAR" ]; then
@@ -357,6 +358,21 @@ if bash "$DECODER" "$RW_HAR" com.clicksie.nuboapp "$RW_NUBO" >/dev/null 2>&1; th
     fi
 else
     fail "Nubo real-world decode failed"; RW_OK=0
+fi
+
+# Tracker-domain fidelity: SDK hosts (googleapis.com, firebaseio.com, crashlytics.com)
+# must be classified as trackers so cross-app shared-tracker detection works.
+# Pebbi HAR contains firebaselogging-pa.googleapis.com, which must now count.
+if bash "$DECODER" "$RW_HAR" com.pebbi.android "$RW_PEBBI_TRK" >/dev/null 2>&1; then
+    RW_TRK=$(python3 -c "import json; d=json.load(open('$RW_PEBBI_TRK')); print(d['summary']['tracker_flows'], d['summary']['unique_trackers'])")
+    RW_TRK_FLOWS=$(echo "$RW_TRK" | cut -d' ' -f1)
+    if [ "$RW_TRK_FLOWS" -ge 1 ]; then
+        pass "SDK host classified as tracker (tracker_flows=$RW_TRK_FLOWS)"
+    else
+        fail "Expected googleapis.com SDK flow to be classified as tracker, got tracker_flows=$RW_TRK_FLOWS"; RW_OK=0
+    fi
+else
+    fail "Pebbi tracker-fidelity decode failed"; RW_OK=0
 fi
 
 echo ""

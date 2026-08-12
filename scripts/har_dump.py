@@ -4,7 +4,7 @@ Usage: mitmdump -s scripts/har_dump.py --set har_output=output.har -nr input.mit
 """
 import json
 import base64
-from datetime import datetime
+from datetime import datetime, timezone
 from mitmproxy import ctx
 
 class HARWriter:
@@ -31,8 +31,10 @@ class HARWriter:
             return
 
         req_start = flow.request.timestamp_start or 0
+        if req_start == 0:
+            return
         resp_end = flow.response.timestamp_end or req_start
-        started = datetime.fromtimestamp(req_start).isoformat()
+        started = datetime.fromtimestamp(req_start, tz=timezone.utc).isoformat()
         total_time = max(0, int((resp_end - req_start) * 1000))
 
         # Request headers
