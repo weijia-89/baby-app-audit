@@ -22,6 +22,8 @@ fail() { echo "  FAIL: $1"; FAILED=1; }
 # Generate unique fixture dirs to avoid concurrent-run collisions
 FIXTURE_BASE=$(mktemp -d "$REPO_DIR/tests/fixtures/dark-pattern-apk-XXXXXX")
 OUTPUT="$REPO_DIR/tests/fixtures/dark-patterns-output-$$.json"
+OUTPUT14="$REPO_DIR/tests/fixtures/dark-patterns-output-14-$$.json"
+OUTPUT15="$REPO_DIR/tests/fixtures/dark-patterns-output-15-$$.json"
 
 cleanup() {
     rm -rf "$FIXTURE_BASE"
@@ -262,6 +264,47 @@ if bash "$DETECTOR" "$APK_DIR" "$OUTPUT" >/dev/null 2>&1; then
         pass "Allowlisted file does not trigger hidden_consent_flow"
     else
         fail "Allowlisted file still triggers hidden_consent_flow"
+    fi
+else
+    fail "Should succeed on valid APK directory"
+fi
+
+echo ""
+# Test 14: 0dp (ConstraintLayout match-constraints) must NOT be flagged as hidden
+echo "Test 14: 0dp width is not a hidden_consent_flow false positive"
+APK_DIR14="$FIXTURE_BASE/test14"
+mkdir -p "$APK_DIR14/res/layout"
+cat > "$APK_DIR14/res/layout/consent_view.xml" <<'EOF'
+<androidx.constraintlayout.widget.ConstraintLayout>
+    <WebView android:id="@+id/webview"
+             android:visibility="gone"
+             android:layout_width="0dp"
+             android:layout_height="0dp" />
+</androidx.constraintlayout.widget.ConstraintLayout>
+EOF
+if bash "$DETECTOR" "$APK_DIR14" "$OUTPUT14" >/dev/null 2>&1; then
+    if python3 -c "import json; d=json.load(open('$OUTPUT14')); print(any(p.get('pattern_type')=='hidden_consent_flow' for p in d.get('patterns',[])))" | grep -q "False"; then
+        pass "0dp width does not trigger hidden_consent_flow"
+    else
+        fail "0dp width incorrectly flagged as hidden_consent_flow"
+    fi
+else
+    fail "Should succeed on valid APK directory"
+fi
+
+# Test 15: benign 'timer' string (feed timer / Danish 'hours') is not a pressure tactic
+echo "Test 15: benign 'timer' string is not flagged as pressure_tactic"
+APK_DIR15="$FIXTURE_BASE/test15"
+mkdir -p "$APK_DIR15/res/values"
+cat > "$APK_DIR15/res/values/strings.xml" <<'EOF'
+<string name="feed_timer_label">Feed timer</string>
+<string name="timer_hint">Set a timer</string>
+EOF
+if bash "$DETECTOR" "$APK_DIR15" "$OUTPUT15" >/dev/null 2>&1; then
+    if python3 -c "import json; d=json.load(open('$OUTPUT15')); print(any(p.get('pattern_type')=='pressure_tactic' for p in d.get('patterns',[])))" | grep -q "False"; then
+        pass "Benign 'timer' string not flagged as pressure_tactic"
+    else
+        fail "Benign 'timer' incorrectly flagged as pressure_tactic"
     fi
 else
     fail "Should succeed on valid APK directory"
