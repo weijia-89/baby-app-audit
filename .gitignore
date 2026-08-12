@@ -29,3 +29,6 @@ ROADMAP-PROMPT-v*.md
 
 # Internal review artifacts
 .agent/
+
+# Prompts are local-only working material (research/closeout drafts). Never commit.
+prompts/
