@@ -249,7 +249,7 @@ I compared decoded traffic across the three apps with outbound data (Baby Buddy 
 
 ## Burst 2 Results (2026-08-08/09)
 
-Burst 2 tested 3 of 5 planned apps. Two apps (BabyTrack, Cradle) are blocked on Play Store access — they are not available on APKPure or F-Droid, and a Google account is required on the emulator to install from the Play Store. Wachanga was dropped from the burst after the candidate description ("baby milestones") did not match the real Play Store listing (pregnancy tracker).
+Burst 2 tested 3 of 5 planned apps. Two apps (BabyTrack, Cradle) are blocked on Play Store access - they are not available on APKPure or F-Droid, and a Google account is required on the emulator to install from the Play Store. Wachanga was dropped from the burst after the candidate description ("baby milestones") did not match the real Play Store listing (pregnancy tracker).
 
 ### Package name correction
 
@@ -341,7 +341,7 @@ Burst 5 tested 3 of 5 planned apps. BabyLog and Nestling are iOS-only and were d
 **Package:** `com.naraorganics.nara`  
 **Version:** Unknown  
 **Claim:** "Complete privacy, real-time sharing, no data sold"  
-**Verdict:** INCONCLUSIVE (needs dynamic UI testing)
+**Verdict:** INCONCLUSIVE (70% confidence)
 
 **Static analysis:** jadx decompiled 13,021 classes (127 errors - normal for large APKs). Resources scanned.
 
@@ -365,7 +365,7 @@ All TLS handshakes failed because the emulator does not trust the mitmproxy CA c
 **Package:** `com.heartfulsprout.baby`  
 **Version:** Unknown  
 **Claim:** "HIPAA-compliant, never sell data"  
-**Verdict:** INCONCLUSIVE (needs dynamic UI testing)
+**Verdict:** INCONCLUSIVE (70% confidence)
 
 **Static analysis:** jadx decompiled 17,524 classes (0 errors). Resources scanned.
 
@@ -387,7 +387,7 @@ All TLS handshakes failed because the emulator does not trust the mitmproxy CA c
 **Package:** `com.pixykid.app`  
 **Version:** Unknown  
 **Claim:** "Bank-level encryption, HIPAA compliant"  
-**Verdict:** INCONCLUSIVE (needs dynamic UI testing)
+**Verdict:** INCONCLUSIVE (70% confidence)
 
 **Static analysis:** jadx decompiled 14,654 classes (176 errors). Resources scanned.
 

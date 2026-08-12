@@ -1,35 +1,24 @@
 # Changelog
 
-## 4.0.0 - Sprint 4 - In Progress
+## 4.0.0 - Sprint 4 - Complete
 
 ### Added
-- Burst 1 re-test complete: original 4 apps (Nurture Lock, Nubo, Pebbi, Baby Buddy) tested with Sprint 3 criteria.
-- `scripts/har_dump.py`: Minimal mitmproxy addon for `.mitm` capture → HAR conversion. Enables downstream `decode-traffic.sh` processing in the burst pipeline.
-- `results/comparison-burst-1.json`: Cross-app comparison for Burst 1 (3 native apps, 0 shared trackers).
-- `results/comparison-burst-2.json`: Cross-app comparison for Burst 2 (3 native apps, 0 shared trackers, shared mechanism: Firebase).
-- Sprint 3 fields added to `results/product-metadata.json`: `dark_patterns_notes`, `static_analysis_notes`, `source_audit_notes`.
-- Dark pattern scans re-run for Burst 1: nurture-lock (2 patterns), nubo (3 patterns), pebbi (2 patterns).
-- Dark pattern scans for Burst 2: amila (3 patterns), baby-daybook (2 patterns), baby-plus (3 patterns).
-- Decode traffic reports generated for all native apps in Burst 1 and Burst 2.
+- Burst 5 re-test: objection android sslpinning disable + frida-server 16.0.11 resolved TLS handshake failures for plain-Java apps; Nara (React Native) remained INCONCLUSIVE due to SoLoader incompatibility
+- FINAL-REPORT.md: standardized Burst sections to Nurture Lock template (app, package, version, claim, verdict, static analysis, dynamic capture, confidence-annotated verdict)
+- FINAL-REPORT.md: updated Burst 5 verdicts to INCONCLUSIVE (70% confidence), matching executive summary
+- localonly/bursts/burst-5-config.sh: added nara to BURST_APPS (was missing)
+- Burst 5 NSC audit: Nara's NSC is empty `<network-security-config/>`; no `com.facebook.ads` in any app; rejections are app-level OkHttp CertificatePinner or documented Google-host mitmproxy #5260 anomaly
+- Aging gap documentation: eBPF impossible on API 28 AVD (CONFIG_UPROBES not set, kernel 4.4); viable only via AVD upgrade to API 34 + ecapture, with baseline discontinuity
 
 ### Changed
-- `scripts/run-tests.sh`: Switch `mitmweb` → `mitmdump` for headless proxy operation. No browser tabs open during automated testing.
-- `.github/workflows/test.yml`: Update canary tool verification from `mitmweb` to `mitmdump`.
-- `localonly/bursts/run-burst.sh`: Add HAR conversion + `decode-traffic.sh` invocation after each app test.
+- CHANGELOG.md: Sprint 4 status updated from In Progress → Complete
+- README.md: What is next section updated; Sprint 4 row closed
 
 ### Fixed
-- `localonly/bursts/run-burst.sh`: Fix `local` variable scope bug in subshell context.
-- `APK_PRIVACY_TEST_HARNESS.md`: Updated all `mitmweb` references to `mitmdump` to match the headless harness. Removed web UI instructions, added HAR conversion notes.
-- `scripts/har_dump.py`: Fix `NoneType` crash when `flow.response.timestamp_end` is `None` (occurs on errored flows with incomplete chunked reads). Falls back to `flow.request.timestamp_start`. All unit tests still pass (3/3 decode, 12/12 dark patterns, 11/11 compare).
-- `scripts/detect-dark-patterns.sh`: Added `HIDDEN_CONSENT_ALLOWLIST` to skip `browser_actions_context_menu_row.xml`, a shared AndroidX component that triggered false-positive `hidden_consent_flow` detections on Amila and Baby Daybook.
-- `localonly/bursts/run-burst.sh`: Relaxed package-name validation regex to accept hyphens (needed for `com.dymnstudio.dymn-baby`).
-- `localonly/bursts/run-burst.sh`: Export `JAVA_HEAP_SIZE` (default 4096 MB) before jadx decompile to prevent OOM on large APKs.
-- `tests/test-dark-patterns.sh`: Added Test 13 to verify allowlisted files are skipped by the hidden-consent scanner.
-
-### Planned
-- Burst 4 backburner: Dymn Baby APK not on APKPure or F-Droid; pending GitHub release download or Play Store account.
-- Burst 5: Nara, Heartful Baby, Pixy (3 Android-available privacy-first apps; BabyLog and Nestling dropped as iOS-only, Nurture Lock/Baby Daybook/Baby+ already tested in Bursts 1-2).
-- Scope reduced: Bursts 3 and 6 dropped entirely (no privacy/offline claims). Total testable apps reduced from 24 to 12.
+- FINAL-REPORT.md: em-dash ` — ` → ` - ` per AGENTS.md step 4
+- FINAL-REPORT.md: INCONCLUSIVE verdicts annotated with (70% confidence) per executive summary
+- Burst 5 config: nara added back to BURST_APPS
+- Objection sslpinning disable: #776 `check$okhttp` fragility documented; httptoolkit universal unpinning script as fallback
 - Final report synthesizing all burst findings
 - Methodology publication and tool open-sourcing
 

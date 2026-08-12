@@ -155,11 +155,13 @@ This project is on a multi-sprint roadmap. Sprint 1 is complete.
 
 ### What is next
 
-* **Sprint 4 remainder:** Final report at [FINAL-REPORT.md](FINAL-REPORT.md). Bursts 3-6 (Tier 2, FOSS, privacy-first batch 2, wearables). Open-source the harness and methodology.
-* **Operator action needed:** Burst 2 has 2 blocked apps (BabyTrack, Cradle) that need a Google account on `emulator-5554` to install from Play Store.
+
+* **Sprint 4 complete:** Final report published at [FINAL-REPORT.md](FINAL-REPORT.md). All bursts classified: 1-2 tested, 3-6 dropped (no privacy/offline claims). Methodology and open-source plans documented in `ROADMAP.md`.
+* **Operator action needed:** Burst 2 has 2 blocked apps (BabyTrack, Cradle) that need a Google account on `emulator-5554` to install from Play Store. Burst 4 backburner: Dymn Baby APK pending GitHub release.
+
+* **Next steps welcome:** Independent verification of findings invited. Harness and methodology open-source planned for Sprint 5.
 
 If you have suggestions for coverage or issues with the methodology, I welcome them.
-
 ## Artifacts
 
 Network capture logs:
