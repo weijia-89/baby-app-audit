@@ -61,7 +61,7 @@ brew install --cask docker
 pipx install objection
 ```
 
-`apkeep` is used by the burst runner to download APKs from APKPure when an app is not already on disk. Split APKs (`.xapk`) need to be extracted first; use `unzip` then `adb install-multiple` with the base APK plus the matching `config.<abi>.apk` and locale packs you need.
+`apkeep` downloads APKs from APKPure when an app is not already on disk. The test runner calls it to fetch each app before the audit. Split APKs (`.xapk`) need to be extracted first; use `unzip` then `adb install-multiple` with the base APK plus the matching `config.<abi>.apk` and locale packs you need.
 
 Set up the emulator once:
 
@@ -117,53 +117,22 @@ Full results with evidence: [results/RESULTS-20260803.md](results/RESULTS-202608
 
 ## Discussion and Roadmap
 
-This project is on a multi-sprint roadmap. Sprint 1 is complete.
+This project tests baby and parenting apps against their privacy claims. The current work covers 11 apps. The full results are in [FINAL-REPORT.md](FINAL-REPORT.md).
 
-### What Sprint 1 added
+### What the project can do
 
-* **Live data collection:** `scripts/decode-traffic.sh` v2 decodes HAR captures into structured JSON with per-product metadata.
-* **Per-product tracking:** Part 8.5 tracks retention, security EOL/CVE, and device identity for each product.
-* **Expanded candidates:** 16+ new apps in `localonly/candidates.md` across Tier 1-3, wearable/IoT, and out-of-scope lists.
-* **Research prompts:** Four prompts in `prompts/` for finding apps, building scoring rubrics, mapping prior art, and researching device identities.
-* **CI expansion:** Test matrix now covers 11 apps with ports 8080-8090.
-* **Unit tests:** `tests/test-decode-traffic.sh` has 11 tests for the decoder script.
-* **External config:** Product metadata now lives in `results/product-metadata.json` instead of hardcoded values.
-
-### What Sprint 2 added
-
-* **Schema enforcement:** CI now blocks builds if `decode-traffic.sh` output violates the schema. Set `DECODE_TRAFFIC_STRICT=1` to enable.
-* **Tier 1 harness support:** BabyTrack, Amila, and Wachanga are now in the default app list with skeleton entries.
-* **FOSS path validation:** Baby Buddy end-to-end test passes. Source clone, commit hash recording, and network reference audit all work.
-* **Bug fix:** `run-tests.sh` no longer word-splits on app names with spaces.
-
-### What Sprint 3 added
-
-* **Owlet ecosystem:** Owlet Sock (MDR) and Owlet Cam (RED) added to candidates.md with verified CVE data from NVD, regime classification, and test plan.
-* **Dark pattern detection:** `scripts/detect-dark-patterns.sh` scans APK resources for pre-checked consent, hidden flows, deceptive buttons, obfuscated disclaimers, and pressure tactics.
-* **Cross-app comparison:** `scripts/compare-apps.sh` compares decoded traffic across apps to find shared trackers, similar endpoints, and data volume differences.
-* **New schemas:** `results/dark-patterns.schema.json` and `results/comparison.schema.json` define the output format for the new tools.
-* **Unit tests:** `tests/test-dark-patterns.sh` (7 tests) and `tests/test-compare-apps.sh` (7 tests) cover the new scripts.
-
-### What Sprint 4 added
-
-* **Headless mitmproxy:** `scripts/run-tests.sh` and `localonly/bursts/run-burst.sh` now use `mitmdump` (no `mitmweb` browser tab). Documented in `APK_PRIVACY_TEST_HARNESS.md`.
-* **HAR conversion bridge:** `scripts/har_dump.py` is a minimal mitmproxy addon that converts `.mitm` captures to HAR so `scripts/decode-traffic.sh` can process them. Wired into the burst runner after each app test.
-* **Burst runner (v1.1.0):** `localonly/bursts/run-burst.sh <burst-number>` runs all apps in a burst config with `--live` capture, jadx decompile, dark pattern scan, and decode traffic for each one. Outputs go to `results/<slug>-test-<YYYYMMDD>/`.
-* **Burst 1 re-test complete:** Nurture Lock, Nubo, Pebbi, Baby Buddy re-audited with Sprint 3 criteria. `results/comparison-burst-1.json` confirms 0 shared trackers across the 3 native apps.
-* **Burst 2 (partial):** Amila, Baby Daybook, Baby+ tested. All 3 phone home on launch (Firebase is the shared mechanism). Baby Daybook hits Facebook Graph + RevenueCat; Baby+ hits Facebook Graph + Philips backend. `results/comparison-burst-2.json` is the comparison report. BabyTrack and Cradle are blocked on Play Store access (not on APKPure/F-Droid).
-* **Bug fix:** `scripts/har_dump.py` no longer crashes on errored flows (`NoneType - float` when `flow.response.timestamp_end` is `None`). Falls back to `flow.request.timestamp_start`.
+* **Live data collection:** `scripts/decode-traffic.sh` decodes network captures into structured JSON with per-app metadata.
+* **Dark pattern detection:** `scripts/detect-dark-patterns.sh` scans app resources for tricky consent screens.
+* **Cross-app comparison:** `scripts/compare-apps.sh` compares network traffic across apps to find shared trackers.
+* **CI checks:** the test matrix covers 11 apps, and unit tests check the decoder, dark-pattern, and comparison scripts.
 
 ### What is next
 
+* **Independent verification welcome:** the harness and method are open for others to confirm the findings.
+* **Open-source plan:** publishing the harness and method is on the roadmap.
+* **Code review (PR #22):** a review hardened the harness. HAR timestamps are now UTC, SDK hosts count as trackers, and dark-pattern false positives (0dp layouts, benign "timer" strings) are fixed, with new regression tests.
 
-* **Sprint 4 complete:** Final report published at [FINAL-REPORT.md](FINAL-REPORT.md). All bursts classified: 1-2 tested, 3-6 dropped (no privacy/offline claims). Methodology and open-source plans documented in `ROADMAP.md`.
-* **Operator action needed:** Burst 2 has 2 blocked apps (BabyTrack, Cradle) that need a Google account on `emulator-5554` to install from Play Store. Burst 4 backburner: Dymn Baby APK pending GitHub release.
-
-* **Next steps welcome:** Independent verification of findings invited. Harness and methodology open-source planned for Sprint 5.
-
-* **Post-closeout code review (PR #22):** a multi-posture review hardened the harness - HAR timestamps are now UTC, SDK hosts are classified as trackers, and dark-pattern false positives (0dp layouts, benign "timer" strings) are fixed, with new regression tests.
-
-If you have suggestions for coverage or issues with the methodology, I welcome them.
+If you have suggestions for coverage or issues with the method, I welcome them.
 ## Artifacts
 
 Network capture logs:

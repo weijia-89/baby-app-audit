@@ -69,6 +69,15 @@ These must pass on every push:
 - `bash -n` + shellcheck on all scripts
 - All unit tests pass
 
+## Secret hygiene — result artifacts
+
+Captured traffic artifacts contain live secrets. `.gitignore` excludes them on purpose.
+
+- `results/decode-traffic-*.json` and `*.mitm` captures contain captured Firebase JWTs, refresh tokens, and installation IDs.
+- NEVER `git add -f` or commit these files. Force-adding them leaks secrets AND fails CI (gitleaks detects the JWTs).
+- If a report needs to link per-app artifacts, link the committed, sanitized `results/dark-patterns-*.json` scans instead.
+- Raw network captures are generated locally and stay local only. See `METHODOLOGY.md` (Redaction) for the full policy.
+
 ## Sprint 6 Closeout
 
 Sprint 6 closeout finalizes the baby-app-audit project's sprint cycle. All prerequisites verified:
