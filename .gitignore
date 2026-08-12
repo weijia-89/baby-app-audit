@@ -9,7 +9,7 @@ results/*-test-*/
 *.mitm
 *.pid
 
-# Decoded traffic JSONs and HAR conversions contain the same live tokens as .mitm captures.
+# Decoded traffic JSONs and HAR conversions contain the same live tokens (Firebase JWTs, refresh tokens) as .mitm captures. NEVER force-add or commit these — gitleaks fails the build on the leaked JWTs.
 results/har-inputs/
 results/decode-traffic-*.json
 
