@@ -92,8 +92,8 @@ if [ -n "$OUTPUT_FILE" ]; then
         exit 1
     fi
 fi
-# Validate package name: no shell metacharacters
-if [[ "$PACKAGE_NAME" =~ [\"\`\'\$\;\|\&\<\>] ]]; then
+# Validate package name: no shell metacharacters or path separators (prevents traversal)
+if [[ "$PACKAGE_NAME" =~ [\"\`\'\$\;\|\&\<\>\/] ]] || [[ "$PACKAGE_NAME" == *$'\n'* ]]; then
     error "Invalid characters in package_name"
     exit 1
 fi
@@ -181,17 +181,24 @@ unique_trackers = set()
 TRACKER_DOMAINS = {
     'google-analytics.com': 'Google Analytics',
     'firebase.google.com': 'Firebase',
+    'firebaseio.com': 'Firebase',
+    'crashlytics.com': 'Firebase Crashlytics',
+    'app-measurement.com': 'Firebase Analytics',
+    'googleapis.com': 'Google',
+    'google.com': 'Google',
+    'gstatic.com': 'Google',
+    'googleadservices.com': 'Google Ads',
+    'googlesyndication.com': 'Google Syndication',
+    'doubleclick.net': 'DoubleClick',
     'mixpanel.com': 'Mixpanel',
     'facebook.com': 'Facebook',
+    'fbcdn.net': 'Facebook',
     'appsflyer.com': 'AppsFlyer',
     'adjust.com': 'Adjust',
     'onesignal.com': 'OneSignal',
     'clevertap.com': 'CleverTap',
     'tenjin.com': 'Tenjin',
     'revenuecat.com': 'RevenueCat',
-    'doubleclick.net': 'DoubleClick',
-    'googleadservices.com': 'Google Ads',
-    'googlesyndication.com': 'Google Syndication',
 }
 
 # Mechanism classification patterns

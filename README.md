@@ -161,6 +161,8 @@ This project is on a multi-sprint roadmap. Sprint 1 is complete.
 
 * **Next steps welcome:** Independent verification of findings invited. Harness and methodology open-source planned for Sprint 5.
 
+* **Post-closeout code review (PR #22):** a multi-posture review hardened the harness - HAR timestamps are now UTC, SDK hosts are classified as trackers, and dark-pattern false positives (0dp layouts, benign "timer" strings) are fixed, with new regression tests.
+
 If you have suggestions for coverage or issues with the methodology, I welcome them.
 ## Artifacts
 

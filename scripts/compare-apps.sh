@@ -173,8 +173,8 @@ for f in input_files:
             all_mechanisms[mechanism].add(package_name)
 
     # Data volume
-    total_req = sum(flow.get('request', {}).get('body_size_bytes', 0) for flow in flows)
-    total_resp = sum(flow.get('response', {}).get('body_size_bytes', 0) for flow in flows)
+    total_req = sum(max(0, flow.get('request', {}).get('body_size_bytes', 0)) for flow in flows)
+    total_resp = sum(max(0, flow.get('response', {}).get('body_size_bytes', 0)) for flow in flows)
     data_volume[package_name] = {
         'total_flows': summary.get('total_flows', 0),
         'tracker_flows': summary.get('tracker_flows', 0),

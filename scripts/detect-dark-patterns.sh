@@ -191,7 +191,9 @@ scan_hidden_consent_flow() {
         if grep -qE 'android:layout_width="[0-9]+dp"' "$file" 2>/dev/null; then
             local width
             width=$(grep -oE 'android:layout_width="[0-9]+dp"' "$file" | grep -oE '[0-9]+' | head -1)
-            if [ -n "$width" ] && [ "$width" -le 5 ] 2>/dev/null; then
+            # Width 0dp is ConstraintLayout "match constraints", not a hidden element.
+            # Exclude it to avoid a systematic false positive across all APK layouts.
+            if [ -n "$width" ] && [ "$width" -ne 0 ] && [ "$width" -le 5 ] 2>/dev/null; then
                 if grep -qiE '(webview|web_view|browser|privacy|consent)' "$file" 2>/dev/null; then
                     add_pattern "hidden_consent_flow" "$file" "medium" "Found very small WebView that may hide consent content"
                     break
@@ -306,7 +308,10 @@ scan_pressure_tactics() {
         return
     fi
 
-    local pressure_patterns="limited.time|expire|urgent|act.now|don.t.miss|only.left|last.chance|countdown|timer"
+    # Word-boundary anchored to avoid matching substrings like "timer" inside
+    # "babytimer"/Danish "timer" (hours) or "actnow" as one token. Bare "timer"
+    # is excluded: it is too noisy (feed timers, Danish "hours").
+    local pressure_patterns='\burgent\b|\bexpire[sd]?\b|\bact[ .]now\b|\bdon.t.miss\b|\bonly.left\b|\blast.chance\b|\bcountdown\b|\blast.day\b'
     for strings_file in "${strings_files[@]}"; do
         if grep -qiE "$pressure_patterns" "$strings_file" 2>/dev/null; then
             add_pattern "pressure_tactic" "$strings_file" "low" "Found urgency or scarcity language in app strings"

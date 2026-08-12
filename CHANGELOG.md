@@ -1,5 +1,23 @@
 # Changelog
 
+## 4.1.0 - 2026-08-12
+
+### Added
+- Regression test: `test-decode-traffic.sh` now asserts the decoder classifies SDK hosts (googleapis.com, etc.) as trackers, locking in shared-tracker detection.
+- Regression tests: `test-dark-patterns.sh` Test 14 (0dp ConstraintLayout not a hidden-consent false positive) and Test 15 (benign "timer" string not a pressure tactic).
+
+### Changed
+- `.gitignore`: `prompts/` is now ignored (local-only working material); tracked `prompts/` removed from the tree.
+
+### Fixed
+- `scripts/har_dump.py`: `startedDateTime` now emitted in UTC with an explicit timezone offset (was local time, ambiguous in HAR and across runs).
+- `scripts/har_dump.py`: guarded against a missing request timestamp to avoid a crash on malformed flows.
+- `scripts/decode-traffic.sh`: classify major SDK hosts (googleapis.com, firebaseio.com, crashlytics.com, fbcdn.net, gstatic.com, google.com) as trackers so `compare-apps.sh` shared-tracker detection works.
+- `scripts/decode-traffic.sh`: package-name validation now rejects path separators and newlines (traversal/injection guard).
+- `scripts/detect-dark-patterns.sh`: exclude `0dp` ConstraintLayout match-constraints from the hidden-consent small-width heuristic (systematic false positive).
+- `scripts/detect-dark-patterns.sh`: pressure-tactic regex anchored with word boundaries and bare `timer` removed (Danish "hours" / feed-timer false positives).
+- `scripts/compare-apps.sh`: defensive `max(0, …)` floor on per-app body-size sums.
+
 ## 4.0.0 - Sprint 4 - Complete
 
 ### Added
