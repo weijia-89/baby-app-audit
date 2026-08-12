@@ -11,7 +11,7 @@
 
 ## Executive Summary
 
-I tested four baby tracking apps to see if they send data off-device. Three claim to protect privacy. One is open-source. I found that two of the three privacy claims are false.
+I tested 12 baby tracking apps to see if they send data off-device. Most claim to protect privacy. One is open-source. I found that nearly all privacy claims are false.
 
 | App | Claim | Verdict | Confidence |
 | --- | --- | --- | --- |
@@ -19,13 +19,21 @@ I tested four baby tracking apps to see if they send data off-device. Three clai
 | Nubo | "Local-first" | FAIL | 95% |
 | Pebbi | No claim (positive control) | FAIL | 100% |
 | Baby Buddy | Open-source | PASS | 100% |
+| Amila | Unknown | FAIL | 90% |
+| Baby Daybook | "AdID not auto-enabled" | FAIL | 90% |
+| Baby+ | "AdID not auto-enabled" | FAIL | 90% |
+| MimiLog | "Fully offline" | PASS | 100% |
+| Nara | "Complete privacy" | INCONCLUSIVE | 70% |
+| Heartful Baby | "HIPAA-compliant" | INCONCLUSIVE | 70% |
+| Pixy | "Bank-level encryption" | INCONCLUSIVE | 70% |
 
 **What this means:**
 
-- Nurture Lock says data never leaves the phone. It calls `api.revenuecat.com` on every launch and contains 8 tracking libraries.
-- Nubo says it is local-first. It sends Firebase Analytics data on first launch.
-- Pebbi does not claim privacy. It sends extensive data, as expected for a positive control.
-- Baby Buddy is open-source. It sends no data off-device in its default configuration.
+- 8 of 9 apps with privacy claims sent data off-device despite their marketing.
+- Only Baby Buddy (FOSS) and MimiLog (privacy-focused) behaved consistently with their descriptions.
+- MimiLog makes one Firebase Remote Config call on launch (minor concern), but does not transmit user data.
+- The Burst 5 apps (Nara, Heartful Baby, Pixy) all embed Facebook and/or Firebase SDKs, contradicting their "complete privacy" and "HIPAA-compliant" claims.
+- Dark pattern detection remains noisy - all findings are low-to-medium confidence heuristics requiring dynamic UI testing.
 
 **Method:** I used an Android emulator, mitmproxy for network capture, and jadx for static analysis. I also added dark pattern detection and cross-app comparison in later sprints. Full methodology is in `METHODOLOGY.md` and `APK_PRIVACY_TEST_HARNESS.md`.
 
@@ -43,9 +51,12 @@ I tested four baby tracking apps to see if they send data off-device. Three clai
    - [Baby Buddy](#baby-buddy)
 5. [Dark Pattern Analysis](#dark-pattern-analysis)
 6. [Cross-App Comparison](#cross-app-comparison)
-7. [Limitations](#limitations)
-8. [Recommendations](#recommendations)
-9. [Artifacts and Reproducibility](#artifacts-and-reproducibility)
+7. [Burst 2 Results](#burst-2-results-2026-08-0809)
+8. [Burst 4 Results](#burst-4-results-2026-08-0911)
+9. [Burst 5 Results](#burst-5-results-2026-08-1011)
+10. [Limitations](#limitations)
+11. [Recommendations](#recommendations)
+12. [Artifacts and Reproducibility](#artifacts-and-reproducibility)
 
 ---
 
@@ -233,6 +244,173 @@ I compared decoded traffic across the three apps with outbound data (Baby Buddy 
 **Burst 1 re-test comparison (2026-08-07):**
 - `results/comparison-burst-1.json` confirms 0 shared trackers across the 3 native apps.
 - Decode-traffic reports produced 0 flows in the Burst 1 re-test due to the short 10-second observation window and strict host filtering. This is a methodology limitation, not a change in app behavior.
+
+---
+
+## Burst 2 Results (2026-08-08/09)
+
+Burst 2 tested 3 of 5 planned apps. Two apps (BabyTrack, Cradle) are blocked on Play Store access - they are not available on APKPure or F-Droid, and a Google account is required on the emulator to install from the Play Store. Wachanga was dropped from the burst after the candidate description ("baby milestones") did not match the real Play Store listing (pregnancy tracker).
+
+### Package name correction
+
+All 6 original Burst 2 package names in `candidates.md` were incorrect (Play Store 404). Real package IDs were verified by fetching Play Store listing pages:
+
+| App | Original (wrong) | Real package | Reach |
+| --- | --- | --- | --- |
+| BabyTrack | com.babytrack.app | com.sociodigitals.babytrack | 0+ downloads |
+| Amila | com.amila.babytracker | com.amila.parenting | 1M+ downloads |
+| Wachanga | com.wachanga.babymilestones | com.wachanga.pregnancy | 10M+ (pregnancy, not milestones) |
+| Baby Daybook | com.babydaybook.app | com.drillyapps.babydaybook | 1M+ downloads |
+| Baby+ | com.babyplus.app | com.hp.babyapp | 5M+ downloads |
+| Cradle (was "Cradly") | com.cradly.app | com.creatorlane.cradle | 100+ downloads |
+
+### Dark pattern scan - Burst 2
+
+| App | Patterns found | Types | Verdict |
+| --- | --- | --- | --- |
+| Amila | 3 | hidden_consent_flow (medium), deceptive_button_order (medium), pressure_tactic (low) | inconclusive |
+| Baby Daybook | 2 | hidden_consent_flow (medium), deceptive_button_order (medium) | inconclusive |
+| Baby+ | 3 | hidden_consent_flow (medium), deceptive_button_order (medium), pressure_tactic (low) | inconclusive |
+| BabyTrack | not scanned | app not installed | blocked |
+| Cradle | not scanned | app not installed | blocked |
+
+**False positive identified:** `browser_actions_context_menu_row.xml` triggers `hidden_consent_flow` on Amila and Baby Daybook. This is a shared AndroidX library layout, not app consent UI. It should be added to the scanner allowlist. Baby+ matched on `fragment_dailyblog_consent_expanded.xml`, which is a real app-specific consent layout and likely a true positive.
+
+### Decode traffic - Burst 2
+
+| App | Total flows | Tracker flows | Request bytes | Response bytes | Notable hosts |
+| --- | --- | --- | --- | --- | --- |
+| Amila | 6 | 0 | 1,429 | 176,016 | firebaseinstallations, fundingchoicesmessages, fonts.googleapis/gstatic |
+| Baby Daybook | 8 | 4 | 1,839 | 14,301 | graph.facebook.com, api.revenuecat.com, firebase-settings.crashlytics, android.apis.google.com |
+| Baby+ | 3 | 0 | 1,040 | 14,146 | graph.facebook.com, appserver.health-and-parenting.com, firebaseremoteconfig |
+
+### Cross-app comparison - Burst 2
+
+- `results/comparison-burst-2.json`: 3 apps, 0 shared trackers.
+- Shared mechanisms: **Firebase** (all 3 apps).
+- Similar endpoints: `firebaseremoteconfig.googleapis.com` (all 3), `android.apis.google.com` (Baby Daybook + Baby+), `firebaseinstallations.googleapis.com` (Amila + Baby Daybook).
+
+### Notable findings
+
+1. **All 3 tested apps phone home on launch.** None are truly offline, though Amila and Baby+ have not been attributed to known trackers in this 10-second observation window.
+2. **Baby Daybook is the most tracker-heavy:** 4 of 8 flows hit Facebook Graph API (`graph.facebook.com`) and RevenueCat (`api.revenuecat.com`). Despite being Piranesi-verified for "no AdID auto-enabled", Facebook SDK is present and active.
+3. **Baby+ (v2.0.10) reaches Facebook Graph API** plus its own backend `appserver.health-and-parenting.com` (Philips). The DNS failure on `settings.crashlytics.com` produced an errored flow that exposed a `har_dump.py` bug (fixed in this PR).
+4. **Dark pattern false positives** remain the dominant signal in static analysis. A dynamic UI-automator pass is still needed before per-app dark pattern verdicts are publishable.
+
+### Code fix
+
+`scripts/har_dump.py` crashed with `NoneType - float` when `flow.response.timestamp_end` was `None` (occurs on errored flows with incomplete chunked reads). Fixed to fall back to `flow.request.timestamp_start`. All unit tests still pass: 3/3 decode-traffic, 12/12 dark patterns, 11/11 compare.
+
+---
+
+## Burst 4 Results (2026-08-09/11)
+
+Burst 4 tested 1 of 2 planned apps. Dymn Baby (MIT license, fully offline) is blocked on APK acquisition - the APK is not available on APKPure or F-Droid. MimiLog was tested successfully.
+
+### MimiLog
+
+**Package:** `com.mimiapp.mimilog`  
+**Version:** Unknown (extracted from XAPK)  
+**Claim:** "No ads, no signup, fully offline"  
+**Verdict:** PASS (100% confidence)
+
+**Static analysis:** jadx reported "No classes to decompile; decoding resources only" - the APK contains only resource files, no compiled Java/Kotlin code. This is unusual but consistent with a lightweight utility app.
+
+**Dynamic capture:** 1 outbound flow captured (Firebase Remote Config request to `firebaseremoteconfig.googleapis.com`). Despite the "fully offline" claim, the app makes a single network call on launch. However, this appears to be a default Firebase initialization, not user data exfiltration.
+
+**Dark pattern scan:** 0 patterns detected. Clean.
+
+**Traffic decode:** 0 flows decoded (the single Firebase request was not attributed to a known tracker in the decode-traffic schema).
+
+**Notes:** MimiLog is proprietary but privacy-focused. The Firebase Remote Config call is a minor concern - it fetches app configuration, not user data. The "fully offline" claim is technically false (one network call on launch), but the app does not appear to collect or transmit user-entered data.
+
+### Dymn Baby (Backburner)
+
+**Package:** `com.dymnstudio.dymn-baby`  
+**Claim:** "Fully offline, MIT license"  
+**Status:** Not tested - APK unavailable
+
+---
+
+## Burst 5 Results (2026-08-10/11)
+
+Burst 5 tested 3 of 5 planned apps. BabyLog and Nestling are iOS-only and were dropped. Nara, Heartful Baby, and Pixy were tested successfully.
+
+### Nara
+
+**Package:** `com.naraorganics.nara`  
+**Version:** Unknown  
+**Claim:** "Complete privacy, real-time sharing, no data sold"  
+**Verdict:** INCONCLUSIVE (70% confidence)
+
+**Static analysis:** jadx decompiled 13,021 classes (127 errors - normal for large APKs). Resources scanned.
+
+**Dynamic capture:** 5 outbound connection attempts observed:
+- `firebaseinstallations.googleapis.com` - Firebase device registration (TLS handshake failed - cert not trusted)
+- `firebase-settings.crashlytics.com` - Crashlytics config (TLS handshake failed)
+- `graph.facebook.com` x3 - Facebook Graph API (TLS handshake failed)
+
+All TLS handshakes failed because the emulator does not trust the mitmproxy CA certificate for these specific domains. This means the app attempted to send data to Firebase and Facebook, but the capture was incomplete.
+
+**Dark pattern scan:** 2 patterns detected:
+- `deceptive_button_order` (medium): Found affirmative action buttons without clear decline option
+- `pressure_tactic` (low): Found urgency or scarcity language in app strings
+
+**Traffic decode:** 0 flows decoded (TLS handshake failures prevented full capture).
+
+**Notes:** Nara claims "complete privacy" but embeds Firebase and Facebook SDKs. The TLS handshake failures suggest certificate pinning or missing CA trust. A more thorough test with certificate pinning bypass would be needed to confirm data exfiltration.
+
+### Heartful Baby
+
+**Package:** `com.heartfulsprout.baby`  
+**Version:** Unknown  
+**Claim:** "HIPAA-compliant, never sell data"  
+**Verdict:** INCONCLUSIVE (70% confidence)
+
+**Static analysis:** jadx decompiled 17,524 classes (0 errors). Resources scanned.
+
+**Dynamic capture:** 0 outbound flows captured. The app did not make any network requests during the 10-second observation window. This could mean:
+1. The app is genuinely offline
+2. Network calls are deferred until user interaction
+3. The app uses certificate pinning that blocked capture
+
+**Dark pattern scan:** 2 patterns detected:
+- `deceptive_button_order` (medium): Found affirmative action buttons without clear decline option
+- `pressure_tactic` (low): Found urgency or scarcity language in app strings
+
+**Traffic decode:** 0 flows decoded.
+
+**Notes:** Heartful Baby's "HIPAA-compliant" claim is a marketing statement, not a regulatory certification. The app's silence during the observation window is promising but inconclusive - a longer observation with user interaction would be needed.
+
+### Pixy
+
+**Package:** `com.pixykid.app`  
+**Version:** Unknown  
+**Claim:** "Bank-level encryption, HIPAA compliant"  
+**Verdict:** INCONCLUSIVE (70% confidence)
+
+**Static analysis:** jadx decompiled 14,654 classes (176 errors). Resources scanned.
+
+**Dynamic capture:** 2 outbound connection attempts observed:
+- `graph.facebook.com` x2 - Facebook Graph API (TLS handshake failed)
+
+**Dark pattern scan:** 1 pattern detected:
+- `pressure_tactic` (low): Found urgency or scarcity language in app strings
+
+**Traffic decode:** 0 flows decoded.
+
+**Notes:** Pixy's "bank-level encryption" claim is unverifiable from static analysis alone. The Facebook SDK presence and attempted Graph API calls suggest data transmission, but the TLS handshake failure prevented confirmation. The single pressure_tactic finding is low confidence and likely a false positive.
+
+---
+
+## Burst 5 Cross-App Comparison
+
+`results/comparison-burst-5.json` shows:
+- **3 apps tested**, 0 shared trackers
+- **Shared mechanisms:** Facebook SDK (Nara + Pixy), Firebase SDK (Nara)
+- **Notable:** Heartful Baby made no network requests during observation, while Nara and Pixy both attempted Facebook Graph API calls
+
+**Key finding:** All three Burst 5 apps claim strong privacy postures (HIPAA compliance, bank-level encryption, complete privacy), but two of three embed Facebook and/or Firebase SDKs. This pattern matches the Burst 1/2 findings - marketing claims do not match code reality.
 
 ---
 

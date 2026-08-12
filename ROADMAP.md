@@ -30,21 +30,37 @@
 - Decode traffic reports generated for all native apps
 - Cross-app comparison: comparison-burst-1.json
 
-### Burst 2  -  Planned
-- Tier 1 apps: BabyTrack, Amila, Wachanga
-- Privacy-first batch 1: Baby Daybook, Baby+, Cradly
+### Burst 2  -  Partial (3 of 5 apps tested, 2 backburner)
+- Tier 1 apps: BabyTrack (backburner), Amila (done), Wachanga (dropped: wrong category)
+- Privacy-first batch 1: Baby Daybook (done), Baby+ (done), Cradle (backburner)
+- Dark pattern scans: amila (3), baby-daybook (2), baby-plus (3)
+- Cross-app comparison: comparison-burst-2.json (3 apps, 0 shared trackers, shared mechanism: Firebase)
+- Baby+ tested with older v2.0.10 (current v3.2 ships armeabi_v7a-only, incompatible with arm64 emulator)
 
-### Burst 3  -  Planned
-- Tier 2 apps: NighP, Milli, Baby Connect, SNUGL, Talli Baby
+### Burst 3  -  Dropped (no privacy/offline claims)
+- All 5 Tier 2 apps (NighP, Milli, Baby Connect, SNUGL, Talli Baby) dropped: none make privacy or offline promises
 
-### Burst 4  -  Planned
-- FOSS candidates: LunaTracker, MimiLog, Sara Baby Tracker, Dymn Baby
+### Burst 4  -  Partial (1 of 2 apps tested, 1 backburner)
+- MimiLog (done): fully offline, no ads, no signup; 0 dark patterns; 1 outbound flow to Firebase Remote Config
+- Dymn Baby (backburner): APK not on APKPure or F-Droid; pending GitHub release
+- Dropped: LunaTracker (WebDAV/cloud), Sara Baby Tracker (Firebase sync)
 
-### Burst 5  -  Planned
-- Privacy-first batch 2: BabyLog, Nara, Heartful Baby, Nestling, Pixy, Nurture Lock (variant)
+### Burst 5  -  Planned (3 apps, Android-only)
+- Nara (complete privacy, no data sold)
+- Heartful Baby (HIPAA-compliant, never sell data)
+- Pixy (bank-level encryption, HIPAA compliant)
+- Dropped: BabyLog (iOS only), Nestling (iOS only), Nurture Lock variant (already tested in Burst 1)
 
-### Burst 6  -  Planned
-- Wearable / IoT: Owlet Sock, Owlet Cam, Nanit, Miku, Snuza
+### Burst 6  -  Dropped (no privacy/offline claims)
+- All 5 wearable/IoT apps (Owlet Sock, Owlet Cam, Nanit, Miku, Snuza) dropped: none make privacy or offline promises
+
+### Backburner  -  Play Store-only or unavailable apps
+Apps that make privacy/offline claims but cannot be acquired via APKPure or F-Droid. Require Google account on emulator or manual APK download to test.
+- **BabyTrack** (com.sociodigitals.babytrack): claims offline, encrypted, no ads. 0+ downloads. Solo dev (Indonesia). Not indexed by AppBrain or AppStoreSpy.
+- **Cradle** (com.creatorlane.cradle): claims privacy-first, encrypted at rest, no data sold. 130 total downloads (8/month). Brand-new app (Aug 2026).
+- **Dymn Baby** (com.dymnstudio.dymn-baby): MIT license, fully offline. APK not on APKPure or F-Droid. Pending GitHub release download.
+
+**General rule:** Any future app that can only be acquired from the Play Store (not on APKPure, F-Droid, or other mirrors) goes to backburner. The operator must either (a) add a Google account to the emulator, or (b) manually download the APK from a browser and place it in `apks/`. Neither option blocks the rest of the testing pipeline — only APK acquisition.
 
 ### Final Report and Publication  -  Planned
 - Synthesize all burst findings into final report

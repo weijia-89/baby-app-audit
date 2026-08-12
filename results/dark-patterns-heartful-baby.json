@@ -1,0 +1,26 @@
+{
+  "app_name": "resources",
+  "package_name": "com.heartfulsprout.baby",
+  "scan_timestamp": "2026-08-11T17:59:32Z",
+  "patterns": [
+    {
+      "pattern_type": "deceptive_button_order",
+      "evidence_file": "decompiled/heartful-baby/resources/res/values/strings.xml",
+      "confidence": "medium",
+      "description": "Found affirmative action buttons without clear decline option"
+    },
+    {
+      "pattern_type": "pressure_tactic",
+      "evidence_file": "decompiled/heartful-baby/resources/res/values/strings.xml",
+      "confidence": "low",
+      "description": "Found urgency or scarcity language in app strings"
+    }
+  ],
+  "summary": {
+    "total_patterns": 2,
+    "pattern_types_found": [
+      "deceptive_button_order",
+      "pressure_tactic"
+    ]
+  }
+}

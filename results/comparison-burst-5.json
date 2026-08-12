@@ -1,0 +1,36 @@
+{
+  "apps": [
+    "com.naraorganics.nara",
+    "com.heartfulsprout.baby",
+    "com.pixykid.app"
+  ],
+  "comparison_timestamp": "2026-08-11T02:27:30Z",
+  "shared_trackers": [],
+  "similar_endpoints": [],
+  "data_volume": {
+    "com.naraorganics.nara": {
+      "total_flows": 0,
+      "tracker_flows": 0,
+      "total_request_bytes": 0,
+      "total_response_bytes": 0
+    },
+    "com.heartfulsprout.baby": {
+      "total_flows": 0,
+      "tracker_flows": 0,
+      "total_request_bytes": 0,
+      "total_response_bytes": 0
+    },
+    "com.pixykid.app": {
+      "total_flows": 0,
+      "tracker_flows": 0,
+      "total_request_bytes": 0,
+      "total_response_bytes": 0
+    }
+  },
+  "regime_coverage": {
+    "com.naraorganics.nara": "unknown",
+    "com.heartfulsprout.baby": "unknown",
+    "com.pixykid.app": "unknown"
+  },
+  "shared_mechanisms": []
+}

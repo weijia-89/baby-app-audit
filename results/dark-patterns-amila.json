@@ -1,0 +1,33 @@
+{
+  "app_name": "resources",
+  "package_name": "com.amila.parenting",
+  "scan_timestamp": "2026-08-09T00:11:54Z",
+  "patterns": [
+    {
+      "pattern_type": "hidden_consent_flow",
+      "evidence_file": "/Users/dubs/Projects/baby-app-audit-sprint4/decompiled/amila/resources/res/layout/browser_actions_context_menu_row.xml",
+      "confidence": "medium",
+      "description": "Found very small WebView that may hide consent content"
+    },
+    {
+      "pattern_type": "deceptive_button_order",
+      "evidence_file": "/Users/dubs/Projects/baby-app-audit-sprint4/decompiled/amila/resources/res/values-ja/strings.xml",
+      "confidence": "medium",
+      "description": "Found affirmative action buttons without clear decline option"
+    },
+    {
+      "pattern_type": "pressure_tactic",
+      "evidence_file": "/Users/dubs/Projects/baby-app-audit-sprint4/decompiled/amila/resources/res/values-ro/strings.xml",
+      "confidence": "low",
+      "description": "Found urgency or scarcity language in app strings"
+    }
+  ],
+  "summary": {
+    "total_patterns": 3,
+    "pattern_types_found": [
+      "deceptive_button_order",
+      "hidden_consent_flow",
+      "pressure_tactic"
+    ]
+  }
+}

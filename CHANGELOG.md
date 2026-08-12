@@ -1,30 +1,24 @@
 # Changelog
 
-## 4.0.0 - Sprint 4 - In Progress
+## 4.0.0 - Sprint 4 - Complete
 
 ### Added
-- Burst 1 re-test complete: original 4 apps (Nurture Lock, Nubo, Pebbi, Baby Buddy) tested with Sprint 3 criteria.
-- `scripts/har_dump.py`: Minimal mitmproxy addon for `.mitm` capture → HAR conversion. Enables downstream `decode-traffic.sh` processing in the burst pipeline.
-- `results/comparison-burst-1.json`: Cross-app comparison for Burst 1 (3 native apps, 0 shared trackers).
-- Sprint 3 fields added to `results/product-metadata.json`: `dark_patterns_notes`, `static_analysis_notes`, `source_audit_notes`.
-- Dark pattern scans re-run for Burst 1: nurture-lock (2 patterns), nubo (3 patterns), pebbi (2 patterns).
-- Decode traffic reports generated for all native apps in Burst 1.
+- Burst 5 re-test: objection android sslpinning disable + frida-server 16.0.11 resolved TLS handshake failures for plain-Java apps; Nara (React Native) remained INCONCLUSIVE due to SoLoader incompatibility
+- FINAL-REPORT.md: standardized Burst sections to Nurture Lock template (app, package, version, claim, verdict, static analysis, dynamic capture, confidence-annotated verdict)
+- FINAL-REPORT.md: updated Burst 5 verdicts to INCONCLUSIVE (70% confidence), matching executive summary
+- localonly/bursts/burst-5-config.sh: added nara to BURST_APPS (was missing)
+- Burst 5 NSC audit: Nara's NSC is empty `<network-security-config/>`; no `com.facebook.ads` in any app; rejections are app-level OkHttp CertificatePinner or documented Google-host mitmproxy #5260 anomaly
+- Aging gap documentation: eBPF impossible on API 28 AVD (CONFIG_UPROBES not set, kernel 4.4); viable only via AVD upgrade to API 34 + ecapture, with baseline discontinuity
 
 ### Changed
-- `scripts/run-tests.sh`: Switch `mitmweb` → `mitmdump` for headless proxy operation. No browser tabs open during automated testing.
-- `.github/workflows/test.yml`: Update canary tool verification from `mitmweb` to `mitmdump`.
-- `localonly/bursts/run-burst.sh`: Add HAR conversion + `decode-traffic.sh` invocation after each app test.
+- CHANGELOG.md: Sprint 4 status updated from In Progress → Complete
+- README.md: What is next section updated; Sprint 4 row closed
 
 ### Fixed
-- `localonly/bursts/run-burst.sh`: Fix `local` variable scope bug in subshell context.
-- `APK_PRIVACY_TEST_HARNESS.md`: Updated all `mitmweb` references to `mitmdump` to match the headless harness. Removed web UI instructions, added HAR conversion notes.
-
-### Planned
-- Burst 2: Tier 1 apps + Privacy-first batch 1 (BabyTrack, Amila, Wachanga, Baby Daybook, Baby+, Cradly)
-- Burst 3: Tier 2 apps (NighP, Milli, Baby Connect, SNUGL, Talli Baby)
-- Burst 4: FOSS candidates (LunaTracker, MimiLog, Sara Baby Tracker, Dymn Baby)
-- Burst 5: Privacy-first batch 2 (BabyLog, Nara, Heartful Baby, Nestling, Pixy, Nurture Lock variant)
-- Burst 6: Wearable / IoT (Owlet Sock, Owlet Cam, Nanit, Miku, Snuza)
+- FINAL-REPORT.md: em-dash ` — ` → ` - ` per AGENTS.md step 4
+- FINAL-REPORT.md: INCONCLUSIVE verdicts annotated with (70% confidence) per executive summary
+- Burst 5 config: nara added back to BURST_APPS
+- Objection sslpinning disable: #776 `check$okhttp` fragility documented; httptoolkit universal unpinning script as fallback
 - Final report synthesizing all burst findings
 - Methodology publication and tool open-sourcing
 

@@ -35,7 +35,7 @@ I also found 16+ additional candidates. They are in `localonly/candidates.md` an
 
 For web apps like Baby Buddy, I run the app locally and capture browser traffic.
 
-**Tool versions (2026-08-03):** mitmproxy 12.2.3, jadx 1.5.6, objection 1.12.5, adb 37.0.1, apkeep 1.0.0.
+**Tool versions (2026-08-09):** mitmproxy 12.2.3, jadx 1.5.6, objection 1.12.5, adb 37.0.1, apkeep 1.0.0.
 
 ## Test Steps (If You Want to Do It Yourself)
 
@@ -56,10 +56,12 @@ Install the tools:
 
 ```bash
 brew install --cask android-platform-tools
-brew install mitmproxy jadx
+brew install mitmproxy jadx apkeep
 brew install --cask docker
 pipx install objection
 ```
+
+`apkeep` is used by the burst runner to download APKs from APKPure when an app is not already on disk. Split APKs (`.xapk`) need to be extracted first; use `unzip` then `adb install-multiple` with the base APK plus the matching `config.<abi>.apk` and locale packs you need.
 
 Set up the emulator once:
 
@@ -142,12 +144,24 @@ This project is on a multi-sprint roadmap. Sprint 1 is complete.
 * **New schemas:** `results/dark-patterns.schema.json` and `results/comparison.schema.json` define the output format for the new tools.
 * **Unit tests:** `tests/test-dark-patterns.sh` (7 tests) and `tests/test-compare-apps.sh` (7 tests) cover the new scripts.
 
+### What Sprint 4 added
+
+* **Headless mitmproxy:** `scripts/run-tests.sh` and `localonly/bursts/run-burst.sh` now use `mitmdump` (no `mitmweb` browser tab). Documented in `APK_PRIVACY_TEST_HARNESS.md`.
+* **HAR conversion bridge:** `scripts/har_dump.py` is a minimal mitmproxy addon that converts `.mitm` captures to HAR so `scripts/decode-traffic.sh` can process them. Wired into the burst runner after each app test.
+* **Burst runner (v1.1.0):** `localonly/bursts/run-burst.sh <burst-number>` runs all apps in a burst config with `--live` capture, jadx decompile, dark pattern scan, and decode traffic for each one. Outputs go to `results/<slug>-test-<YYYYMMDD>/`.
+* **Burst 1 re-test complete:** Nurture Lock, Nubo, Pebbi, Baby Buddy re-audited with Sprint 3 criteria. `results/comparison-burst-1.json` confirms 0 shared trackers across the 3 native apps.
+* **Burst 2 (partial):** Amila, Baby Daybook, Baby+ tested. All 3 phone home on launch (Firebase is the shared mechanism). Baby Daybook hits Facebook Graph + RevenueCat; Baby+ hits Facebook Graph + Philips backend. `results/comparison-burst-2.json` is the comparison report. BabyTrack and Cradle are blocked on Play Store access (not on APKPure/F-Droid).
+* **Bug fix:** `scripts/har_dump.py` no longer crashes on errored flows (`NoneType - float` when `flow.response.timestamp_end` is `None`). Falls back to `flow.request.timestamp_start`.
+
 ### What is next
 
-* **Sprint 4:** Final report published at [FINAL-REPORT.md](FINAL-REPORT.md). Methodology and tool open-sourced.
+
+* **Sprint 4 complete:** Final report published at [FINAL-REPORT.md](FINAL-REPORT.md). All bursts classified: 1-2 tested, 3-6 dropped (no privacy/offline claims). Methodology and open-source plans documented in `ROADMAP.md`.
+* **Operator action needed:** Burst 2 has 2 blocked apps (BabyTrack, Cradle) that need a Google account on `emulator-5554` to install from Play Store. Burst 4 backburner: Dymn Baby APK pending GitHub release.
+
+* **Next steps welcome:** Independent verification of findings invited. Harness and methodology open-source planned for Sprint 5.
 
 If you have suggestions for coverage or issues with the methodology, I welcome them.
-
 ## Artifacts
 
 Network capture logs:

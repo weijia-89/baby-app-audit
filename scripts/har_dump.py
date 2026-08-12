@@ -30,8 +30,10 @@ class HARWriter:
         if not getattr(flow, 'response', None):
             return
 
-        started = datetime.fromtimestamp(flow.request.timestamp_start).isoformat()
-        total_time = max(0, int((flow.response.timestamp_end - flow.request.timestamp_start) * 1000))
+        req_start = flow.request.timestamp_start or 0
+        resp_end = flow.response.timestamp_end or req_start
+        started = datetime.fromtimestamp(req_start).isoformat()
+        total_time = max(0, int((resp_end - req_start) * 1000))
 
         # Request headers
         req_headers = [{"name": k, "value": v} for k, v in flow.request.headers.items(multi=True)]
