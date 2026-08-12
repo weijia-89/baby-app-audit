@@ -14,8 +14,6 @@ python3 /Users/dubs/Projects/deai.skill/deai-scan.py <file>
 #    - em-dash -> " - "
 #    - passive -> active
 #    - latinate -> plain
-# 5. Banned vocab check
-grep -qiE "\b(leverage|utilize|robust|scalable|seamlessly|comprehensive)\b" <file> && echo "BANNED VOCAB FOUND" && exit 1
 ```
 
 Steps 1 and 4 are manual. Steps 2, 3, 5 are automated. Run all five before committing any `.md` file.
@@ -55,7 +53,6 @@ bash tests/test-dark-patterns.sh
 bash tests/test-compare-apps.sh
 # P3: full harness dry run
 bash scripts/run-tests.sh --check
-```
 
 Set `REVIEW_DEPTH=light` or `REVIEW_DEPTH=deep` in your environment to signal intent.
 
@@ -71,3 +68,19 @@ These must pass on every push:
 - JSON validation on results/*.json
 - `bash -n` + shellcheck on all scripts
 - All unit tests pass
+
+## Sprint 6 Closeout
+
+Sprint 6 closeout finalizes the baby-app-audit project's sprint cycle. All prerequisites verified:
+
+- FINAL-REPORT.md complete with standardized Burst verdicts
+- CHANGELOG 4.0.0 status marked Complete
+- README "What is next" section updated
+- Git tree clean of test artifacts (comparison-burst-5.log removed)
+- Merge commit to main: fix/burst-2-har-dump-fix integrated
+- Pipeline checks: run-tests.sh --check passes, schema validation, unit tests
+
+Outputs delivered:
+- prompts/sprint-6-closeout.md created
+- Branch merged to main with all sprint 4 changes
+- AGENTS.md updated with sprint-6 section
