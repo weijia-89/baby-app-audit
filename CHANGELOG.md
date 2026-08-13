@@ -9,6 +9,7 @@
 - Regression tests: `test-decode-traffic.sh` Test 18 (wave-1 filter hosts reject common-word labels such as "lite" and "view") and Test 19 (Amila `com.amila.parenting` attributes `amila.example.com`).
 
 ### Changed
+- `README.md`: tested-app and results tables extended to all 11 apps; result links now point to `FINAL-REPORT.md`.
 - `results/network-log.schema.json`: flow `status` is now `oneOf` integer or the string `"unknown"` (was unconstrained).
 - `scripts/decode-traffic.sh`: explicit filter hosts for the five wave-1 packages (babycenter, nanit, whattoexpect, pregnancyplus, bellybloom) and for corrected Amila/BabyTrack package names; the last-segment fallback can no longer misattribute common-word labels.
 - `scripts/run-tests.sh`: DEFAULT_APPS aligned to the 11 classified apps with corrected names (Wachanga/BabyTrack out of scope); summary fallback fails loud (exit code 1) instead of reporting SUCCESS with empty data; `static_scan` no longer writes fabricated `trackers_found: 0` when no scan ran.
