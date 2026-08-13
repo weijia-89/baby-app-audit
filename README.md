@@ -103,33 +103,37 @@ open APK_PRIVACY_TEST_HARNESS.md
 
 Full results with evidence: [FINAL-REPORT.md](FINAL-REPORT.md) and machine-readable [results/RESULTS-20260803.json](results/RESULTS-20260803.json). See [CHANGELOG.md](CHANGELOG.md) for history.
 
-| App | Claim | Verdict | Key findings |
-| --- | --- | --- | --- |
-| Nurture Lock | "100% offline" | FAIL (95%) | Phones home to RevenueCat with device identifiers on launch. 8 tracking libraries found in the APK |
-| Nubo | "Local-first" | FAIL (95%) | Sends session analytics, screen views, and onboarding events to Google Firebase on first launch |
-| Pebbi | No claim (positive control) | FAIL (100%) | Extensive data collection via Firebase, Google AdServices, and FCM registration |
-| Baby Buddy | Open-source | PASS (100%) | No tracking libraries. All traffic stays on localhost in default configuration |
-| Amila | No claim | FAIL (90%) | Firebase Installations, Firebase Remote Config, and Google Fonts calls on launch |
-| Baby Daybook | "AdID not auto-enabled" | FAIL (90%) | Firebase and RevenueCat calls on launch; Facebook SDK found in code. The AdID claim does not cover this traffic |
-| Baby+ | "AdID not auto-enabled" | FAIL (90%) | Philips server, Firebase, and Google calls on launch. The AdID claim does not cover this traffic |
-| MimiLog | "Fully offline" | PASS (100%) | One Firebase configuration call; the device held no valid Firebase project, so no data was exchanged |
-| Nara | "Complete privacy" | FAIL (90%) | Nine Facebook Graph API calls and one Crashlytics report batch on launch |
-| Heartful Baby | "HIPAA-compliant" | FAIL (90%) | One Firebase logging batch on launch |
-| Pixy | "Bank-level encryption" | FAIL (90%) | Three Facebook Graph API calls and one Firebase Installations registration on launch |
+### How to read the results
 
-### Notes
+The full picture is in [FINAL-REPORT.md](FINAL-REPORT.md). Each app has its own section with evidence: what the app claims, what we captured, and how the verdict was reached.
 
-**Nurture Lock** - the "100% offline" claim is false. The APK contains 8 tracking libraries: RevenueCat, Mixpanel, Firebase, AppsFlyer, Adjust, OneSignal, CleverTap, and Tenjin. On launch the app calls `api.revenuecat.com` with the bundle ID, version, platform, and locale. One outbound connection is enough to break the claim. Details: [Nurture Lock section](FINAL-REPORT.md#nurture-lock).
+The privacy marks say what the app actually did:
 
-**Nubo** - the "local-first" claim is false. First launch registers with Firebase Installations and Crashlytics, then sends Firebase Analytics batches with session IDs, screen views, timing data, and onboarding progress. Details: [Nubo section](FINAL-REPORT.md#nubo).
+- **💖** means the app passed and behaved as described.
+- **❕** means the app failed, but the capture showed phone-home traffic without identifying user data.
+- **🚫** means the app failed and the capture showed identifying data or extensive tracking.
 
-**Pebbi** - tested as a positive control with no privacy claim. It sends extensive data: Firebase Crashlytics, Analytics, Sessions, Installations, and Remote Config, plus Google AdServices and Play Install Referrer. The `app.pebbi.co/app/version-policy` endpoint phones home every ~30 seconds. Details: [Pebbi section](FINAL-REPORT.md#pebbi).
+An app with no privacy claim cannot fail, because there is no promise to break. Its result says "no claim"; the privacy mark still shows what we observed.
 
-**Baby Buddy** - the FOSS control passed. Source audit found 67 network references, all in Django docs or configuration examples, and 0 tracking libraries. Dynamic test captured all traffic on localhost only. Details: [Baby Buddy section](FINAL-REPORT.md#baby-buddy).
+Every failed app links to its own sanitized network log (`results/network-log-<app>.json`). The logs list hosts, paths, and response status codes of captured traffic. They contain no query strings, headers, or bodies, because those carried authentication tokens. The raw captures stay local only.
 
-**Amila, Baby Daybook, Baby+, MimiLog, Nara, Heartful Baby, and Pixy** - tested in wave 2. All verdicts with per-app evidence: [FINAL-REPORT.md](FINAL-REPORT.md).
+The machine-readable summary is [results/RESULTS-20260803.json](results/RESULTS-20260803.json). See [CHANGELOG.md](CHANGELOG.md) for history.
 
-**Method and limits:** the full procedure is in [APK_PRIVACY_TEST_HARNESS.md](APK_PRIVACY_TEST_HARNESS.md). Method, consent, and known limits (no radio checks, no static scan for Nubo) are in [METHODOLOGY.md](METHODOLOGY.md). Version history in [CHANGELOG.md](CHANGELOG.md).
+| App | Privacy claim | Result | Privacy | Confidence | Key findings |
+| --- | --- | --- | --- | --- | --- |
+| Baby Buddy | Open-source | PASS | 💖 | 100% | No tracking libraries. All traffic stays on localhost in default configuration |
+| MimiLog | "Fully offline" | PASS | 💖 | 100% | One Firebase configuration call; the device held no valid Firebase project, so no data was exchanged |
+| Amila | No claim | No claim | ❕ | 90% | Firebase Installations, Firebase Remote Config, and Google Fonts calls on launch |
+| Baby+ | "AdID not auto-enabled" | FAIL | ❕ | 90% | Philips server, Firebase, and Google calls on launch. The AdID claim does not cover this traffic |
+| Heartful Baby | "HIPAA-compliant" | FAIL | ❕ | 90% | One Firebase logging batch on launch |
+| Baby Daybook | "AdID not auto-enabled" | FAIL | 🚫 | 90% | Firebase and RevenueCat calls on launch; Facebook SDK found in code. The AdID claim does not cover this traffic |
+| Nara | "Complete privacy" | FAIL | 🚫 | 90% | Nine Facebook Graph API calls and one Crashlytics report batch on launch |
+| Nubo | "Local-first" | FAIL | 🚫 | 95% | Sends session analytics, screen views, and onboarding events to Google Firebase on first launch |
+| Nurture Lock | "100% offline" | FAIL | 🚫 | 95% | Phones home to RevenueCat with device identifiers on launch. 8 tracking libraries found in the APK |
+| Pebbi | No claim (positive control) | No claim | 🚫 | 100% | Extensive data collection via Firebase, Google AdServices, and FCM registration |
+| Pixy | "Bank-level encryption" | FAIL | 🚫 | 90% | Three Facebook Graph API calls and one Firebase Installations registration on launch |
+
+The full procedure is in [APK_PRIVACY_TEST_HARNESS.md](APK_PRIVACY_TEST_HARNESS.md). Method, consent, and known limits (no radio checks, no static scan for Nubo) are in [METHODOLOGY.md](METHODOLOGY.md).
 
 ## Discussion and Roadmap
 
@@ -163,11 +167,20 @@ Sanitized network logs:
 
 ## Sources
 
-- Baby Buddy repository: https://github.com/babybuddy/babybuddy
-- Baby Buddy documentation: https://docs.baby-buddy.net
-- Baby Buddy license (BSD-2-Clause): https://github.com/babybuddy/babybuddy/blob/master/LICENSE
-- mitmproxy: https://mitmproxy.org
-- Exodus Privacy: https://exodus-privacy.eu.org
+### Tools
+
+- [mitmproxy](https://mitmproxy.org) - captures and decrypts HTTPS traffic between each app and its servers. I chose it over Charles or Fiddler because it is open source, scriptable from the CLI (`mitmdump`), and installs its CA certificate into the emulator's system store.
+- [jadx](https://github.com/skylot/jadx) - decompiles each APK back to readable Java. I chose it over apktool because it reconstructs source, which makes tracking libraries easier to spot than reading smali assembly.
+- [objection](https://github.com/sensepost/objection) - instruments the running app on the emulator for runtime checks. I chose it over raw Frida scripts because it runs on top of Frida with ready-made commands, which is simpler for this audit.
+- [apkeep](https://github.com/EFForg/apkeep) - downloads APKs from [APKPure](https://apkpure.com) and [APKMirror](https://www.apkmirror.com). I used a mirror source because Google Play does not offer APK downloads outside the store client. I chose apkeep over a browser download because it is scriptable and supports split-APK (`.xapk`) handling.
+- [Android SDK platform tools](https://developer.android.com/tools/releases/platform-tools) (adb) - installs APKs, drives the emulator, and pulls package data. This is the standard Google tool for device control; the harness calls it directly.
+- Android emulator with a Google-APIs ARM64 system image - the test device. I used an emulator rather than a physical phone because installing a custom CA certificate requires `adb root` and a writable system partition, which only works on a dedicated test device.
+- [Exodus Privacy](https://exodus-privacy.eu.org) - cross-checks tracked permissions and known tracking libraries in each APK. The [standalone Docker image](https://hub.docker.com/r/exodusprivacy/exodus-standalone) runs the tracker scan locally so APK contents never leave the machine. I used it as a second opinion alongside the jadx source read.
+- [APKPure](https://apkpure.com) - APK source. See apkeep above. [APKMirror](https://www.apkmirror.com) and [APKCombo](https://apkcombo.com) are the mirrors I fall back to when an APK is not on APKPure.
+
+### Referenced projects
+
+- [Baby Buddy](https://github.com/babybuddy/babybuddy) - the FOSS control app. [Documentation](https://docs.baby-buddy.net), [license (BSD-2-Clause)](https://github.com/babybuddy/babybuddy/blob/master/LICENSE).
 
 ---
 

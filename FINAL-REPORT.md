@@ -13,25 +13,27 @@ We tested 11 baby and parenting apps. Most say they protect your privacy. We che
 
 Nine apps make a privacy promise. Seven of them sent data off the device. Only Baby Buddy and MimiLog did what they said.
 
-| App | Privacy claim | Result | Class | Confidence |
-| --- | --- | --- | --- | --- |
-| Nurture Lock | "100% offline" | FAIL | 🚫 | 95% |
-| Nubo | "Local-first" | FAIL | 🚫 | 95% |
-| Pebbi | No claim (control) | FAIL | 🚫 | 100% |
-| Baby Buddy | Open source | PASS | 💖 | 100% |
-| Amila | No claim | FAIL | ❕ | 90% |
-| Baby Daybook | "AdID not auto-enabled" | FAIL | 🚫 | 90% |
-| Baby+ | "AdID not auto-enabled" | FAIL | ❕ | 90% |
-| MimiLog | "Fully offline" | PASS | 💖 | 100% |
-| Nara | "Complete privacy" | FAIL | 🚫 | 90% |
-| Heartful Baby | "HIPAA-compliant" | FAIL | ❕ | 90% |
-| Pixy | "Bank-level encryption" | FAIL | 🚫 | 90% |
+| App | Privacy claim | Result | Privacy | Confidence | Key findings |
+| --- | --- | --- | --- | --- | --- |
+| Baby Buddy | Open source | PASS | 💖 | 100% | No tracking libraries; all traffic stays on localhost in default configuration |
+| MimiLog | "Fully offline" | PASS | 💖 | 100% | One Firebase configuration call; no valid project, so no data exchanged |
+| Amila | No claim | No claim | ❕ | 90% | Firebase Installations, Remote Config, and Google Fonts calls on launch |
+| Baby+ | "AdID not auto-enabled" | FAIL | ❕ | 90% | Philips server, Firebase, and Google calls on launch |
+| Heartful Baby | "HIPAA-compliant" | FAIL | ❕ | 90% | One Firebase logging batch on launch |
+| Baby Daybook | "AdID not auto-enabled" | FAIL | 🚫 | 90% | Firebase and RevenueCat calls on launch; Facebook SDK found in code |
+| Nara | "Complete privacy" | FAIL | 🚫 | 90% | Nine Facebook Graph API calls and one Crashlytics batch on launch |
+| Nubo | "Local-first" | FAIL | 🚫 | 95% | Sends session analytics, screen views, and onboarding events to Firebase on first launch |
+| Nurture Lock | "100% offline" | FAIL | 🚫 | 95% | Calls `api.revenuecat.com` on launch; 8 tracking libraries in the APK |
+| Pebbi | No claim (control) | No claim | 🚫 | 100% | Extensive data collection via Firebase, Google AdServices, and FCM registration |
+| Pixy | "Bank-level encryption" | FAIL | 🚫 | 90% | Three Facebook Graph API calls and one Firebase Installations registration |
 
 Result key:
 
 - **💖** means the app passed and behaved as described.
 - **❕** means the app failed, but the capture showed phone-home traffic without identifying user data.
 - **🚫** means the app failed and the capture showed identifying data or extensive tracking.
+
+An app with no privacy claim cannot fail, because there is no promise to break. Its result says "no claim"; the privacy mark still shows what we observed.
 
 No test ended inconclusive.
 
@@ -55,15 +57,15 @@ No test ended inconclusive.
 
 ### Pebbi
 - **Claim:** No privacy claim (positive control)
-- **Result:** FAIL (100% confidence)
-- **What we found:** The app sends data to Firebase, Google, and a third-party analytics host. We expected this because it makes no privacy promise.
+- **Result:** No claim (100% confidence)
+- **What we found:** The app makes no privacy promise, so it cannot fail. It sends data to Firebase, Google, and a third-party analytics host. We expected this because it makes no privacy promise.
 - **Per-app scan:** [dark-pattern scan](results/dark-patterns-pebbi.json)
 - **Network log:** [network-log-pebbi.json](results/network-log-pebbi.json)
 
 ### Amila
 - **Claim:** No claim
-- **Result:** FAIL (90% confidence)
-- **What we found:** The launch capture shows calls to Firebase and Google Fonts. Static analysis found tracking libraries in the code.
+- **Result:** No claim (90% confidence)
+- **What we found:** The app makes no privacy promise, so it cannot fail. The launch capture shows calls to Firebase and Google Fonts. Static analysis found tracking libraries in the code.
 - **Per-app scan:** [dark-pattern scan](results/dark-patterns-amila.json)
 - **Network log:** [network-log-amila.json](results/network-log-amila.json)
 
