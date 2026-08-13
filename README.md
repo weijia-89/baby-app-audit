@@ -20,6 +20,13 @@ Some apps claim data never leaves the phone. No independent audit has backed tha
 | Nubo | Native Android | "Local-first" |
 | Pebbi | Native Android | No claim (positive control) |
 | Baby Buddy | FOSS / Web | Open-source |
+| Amila | Native Android | No claim |
+| Baby Daybook | Native Android | "AdID not auto-enabled" |
+| Baby+ | Native Android | "AdID not auto-enabled" |
+| MimiLog | Native Android | "Fully offline" |
+| Nara | Native Android | "Complete privacy" |
+| Heartful Baby | Native Android | "HIPAA-compliant" |
+| Pixy | Native Android | "Bank-level encryption" |
 
 These were apps my partner and I researched. The internet recommended them as "private."
 
@@ -94,7 +101,7 @@ open APK_PRIVACY_TEST_HARNESS.md
 
 ## Results
 
-Full results with evidence: [results/RESULTS-20260803.md](results/RESULTS-20260803.md) and machine-readable [results/RESULTS-20260803.json](results/RESULTS-20260803.json). See [CHANGELOG.md](CHANGELOG.md) for history.
+Full results with evidence: [FINAL-REPORT.md](FINAL-REPORT.md) and machine-readable [results/RESULTS-20260803.json](results/RESULTS-20260803.json). See [CHANGELOG.md](CHANGELOG.md) for history.
 
 | App | Claim | Verdict | Key findings |
 | --- | --- | --- | --- |
@@ -102,16 +109,25 @@ Full results with evidence: [results/RESULTS-20260803.md](results/RESULTS-202608
 | Nubo | "Local-first" | FAIL (95%) | Sends session analytics, screen views, and onboarding events to Google Firebase on first launch |
 | Pebbi | No claim (positive control) | FAIL (100%) | Extensive data collection via Firebase, Google AdServices, and FCM registration |
 | Baby Buddy | Open-source | PASS (100%) | No tracking libraries. All traffic stays on localhost in default configuration |
+| Amila | No claim | FAIL (90%) | Firebase Installations, Firebase Remote Config, and Google Fonts calls on launch |
+| Baby Daybook | "AdID not auto-enabled" | FAIL (90%) | Firebase and RevenueCat calls on launch; Facebook SDK found in code. The AdID claim does not cover this traffic |
+| Baby+ | "AdID not auto-enabled" | FAIL (90%) | Philips server, Firebase, and Google calls on launch. The AdID claim does not cover this traffic |
+| MimiLog | "Fully offline" | PASS (100%) | One Firebase configuration call; the device held no valid Firebase project, so no data was exchanged |
+| Nara | "Complete privacy" | FAIL (90%) | Nine Facebook Graph API calls and one Crashlytics report batch on launch |
+| Heartful Baby | "HIPAA-compliant" | FAIL (90%) | One Firebase logging batch on launch |
+| Pixy | "Bank-level encryption" | FAIL (90%) | Three Facebook Graph API calls and one Firebase Installations registration on launch |
 
 ### Notes
 
-**Nurture Lock** - the "100% offline" claim is false. The APK contains 8 tracking libraries: RevenueCat, Mixpanel, Firebase, AppsFlyer, Adjust, OneSignal, CleverTap, and Tenjin. On launch the app calls `api.revenuecat.com` with the bundle ID, version, platform, and locale. One outbound connection is enough to break the claim. Details: [Nurture Lock section](results/RESULTS-20260803.md#nurture-lock).
+**Nurture Lock** - the "100% offline" claim is false. The APK contains 8 tracking libraries: RevenueCat, Mixpanel, Firebase, AppsFlyer, Adjust, OneSignal, CleverTap, and Tenjin. On launch the app calls `api.revenuecat.com` with the bundle ID, version, platform, and locale. One outbound connection is enough to break the claim. Details: [Nurture Lock section](FINAL-REPORT.md#nurture-lock).
 
-**Nubo** - the "local-first" claim is false. First launch registers with Firebase Installations and Crashlytics, then sends Firebase Analytics batches with session IDs, screen views, timing data, and onboarding progress. Details: [Nubo section](results/RESULTS-20260803.md#nubo).
+**Nubo** - the "local-first" claim is false. First launch registers with Firebase Installations and Crashlytics, then sends Firebase Analytics batches with session IDs, screen views, timing data, and onboarding progress. Details: [Nubo section](FINAL-REPORT.md#nubo).
 
-**Pebbi** - tested as a positive control with no privacy claim. It sends extensive data: Firebase Crashlytics, Analytics, Sessions, Installations, and Remote Config, plus Google AdServices and Play Install Referrer. The `app.pebbi.co/app/version-policy` endpoint phones home every ~30 seconds. Details: [Pebbi section](results/RESULTS-20260803.md#pebbi).
+**Pebbi** - tested as a positive control with no privacy claim. It sends extensive data: Firebase Crashlytics, Analytics, Sessions, Installations, and Remote Config, plus Google AdServices and Play Install Referrer. The `app.pebbi.co/app/version-policy` endpoint phones home every ~30 seconds. Details: [Pebbi section](FINAL-REPORT.md#pebbi).
 
-**Baby Buddy** - the FOSS control passed. Source audit found 67 network references, all in Django docs or configuration examples, and 0 tracking libraries. Dynamic test captured all traffic on localhost only. Details: [Baby Buddy section](results/RESULTS-20260803.md#baby-buddy).
+**Baby Buddy** - the FOSS control passed. Source audit found 67 network references, all in Django docs or configuration examples, and 0 tracking libraries. Dynamic test captured all traffic on localhost only. Details: [Baby Buddy section](FINAL-REPORT.md#baby-buddy).
+
+**Amila, Baby Daybook, Baby+, MimiLog, Nara, Heartful Baby, and Pixy** - tested in wave 2. All verdicts with per-app evidence: [FINAL-REPORT.md](FINAL-REPORT.md).
 
 **Method and limits:** the full procedure is in [APK_PRIVACY_TEST_HARNESS.md](APK_PRIVACY_TEST_HARNESS.md). Method, consent, and known limits (no radio checks, no static scan for Nubo) are in [METHODOLOGY.md](METHODOLOGY.md). Version history in [CHANGELOG.md](CHANGELOG.md).
 
