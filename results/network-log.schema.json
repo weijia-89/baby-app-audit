@@ -1,0 +1,87 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Per-app network log (sanitized)",
+  "type": "object",
+  "required": [
+    "$schema",
+    "schema_version",
+    "app",
+    "package_name",
+    "capture_date",
+    "flows",
+    "summary"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "schema_version": {
+      "const": "1.0"
+    },
+    "app": {
+      "type": "string"
+    },
+    "package_name": {
+      "type": "string"
+    },
+    "capture_date": {
+      "type": "string"
+    },
+    "capture": {
+      "type": "string"
+    },
+    "redaction": {
+      "type": "string"
+    },
+    "note": {
+      "type": "string"
+    },
+    "flows": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "method",
+          "host",
+          "path"
+        ],
+        "properties": {
+          "method": {
+            "type": "string"
+          },
+          "host": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          },
+          "status": {},
+          "origin": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "summary": {
+      "type": "object",
+      "required": [
+        "total_flows",
+        "unique_destinations"
+      ],
+      "properties": {
+        "total_flows": {
+          "type": "integer"
+        },
+        "unique_destinations": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "tracked": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

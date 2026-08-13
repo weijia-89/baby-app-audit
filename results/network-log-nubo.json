@@ -1,0 +1,49 @@
+{
+  "$schema": "network-log/1.0",
+  "schema_version": "1.0",
+  "app": "Nubo",
+  "package_name": "com.clicksie.nuboapp",
+  "capture_date": "2026-08-03",
+  "capture": "2026-08-03 capture; destinations only (raw capture kept local)",
+  "redaction": "Query strings, headers, and bodies stripped. Project numbers and subscriber IDs replaced with [REDACTED].",
+  "flows": [
+    {
+      "method": "*",
+      "host": "firebaseinstallations.googleapis.com",
+      "path": "(destination only)",
+      "status": "unknown",
+      "origin": "app"
+    },
+    {
+      "method": "*",
+      "host": "firebase-settings.crashlytics.com",
+      "path": "(destination only)",
+      "status": "unknown",
+      "origin": "app"
+    },
+    {
+      "method": "*",
+      "host": "android.apis.google.com",
+      "path": "(destination only)",
+      "status": "unknown",
+      "origin": "app"
+    },
+    {
+      "method": "*",
+      "host": "app-measurement.com",
+      "path": "(destination only)",
+      "status": "unknown",
+      "origin": "app"
+    }
+  ],
+  "summary": {
+    "total_flows": 4,
+    "unique_destinations": [
+      "android.apis.google.com",
+      "app-measurement.com",
+      "firebase-settings.crashlytics.com",
+      "firebaseinstallations.googleapis.com"
+    ],
+    "tracked": "Hosts listed are carriers of tracking or analytics SDKs (Facebook, Firebase, RevenueCat, Crashlytics, FCM). Font and system checks are marked by origin."
+  }
+}

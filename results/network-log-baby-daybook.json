@@ -1,0 +1,78 @@
+{
+  "$schema": "network-log/1.0",
+  "schema_version": "1.0",
+  "app": "Baby Daybook",
+  "package_name": "com.drillyapps.babydaybook",
+  "capture_date": "2026-08-08",
+  "capture": "results/decode-traffic-baby-daybook.json (local only)",
+  "redaction": "Query strings, headers, and bodies stripped. Project numbers and subscriber IDs replaced with [REDACTED].",
+  "flows": [
+    {
+      "method": "POST",
+      "host": "firebaseinstallations.googleapis.com",
+      "path": "/v1/projects/baby-daybook-app/installations",
+      "status": 200,
+      "origin": "app"
+    },
+    {
+      "method": "GET",
+      "host": "api.revenuecat.com",
+      "path": "/v1/subscribers/$RCAnonymousID:[REDACTED]/offerings",
+      "status": 200,
+      "origin": "app"
+    },
+    {
+      "method": "GET",
+      "host": "api.revenuecat.com",
+      "path": "/v1/subscribers/$RCAnonymousID:[REDACTED]",
+      "status": 201,
+      "origin": "app"
+    },
+    {
+      "method": "POST",
+      "host": "firebaseremoteconfig.googleapis.com",
+      "path": "/v1/projects/219982030553/namespaces/firebase:fetch",
+      "status": 200,
+      "origin": "app"
+    },
+    {
+      "method": "GET",
+      "host": "api.revenuecat.com",
+      "path": "/v1/subscribers/$RCAnonymousID:[REDACTED]/offerings",
+      "status": 304,
+      "origin": "app"
+    },
+    {
+      "method": "POST",
+      "host": "android.apis.google.com",
+      "path": "/c2dm/register3",
+      "status": 200,
+      "origin": "app"
+    },
+    {
+      "method": "GET",
+      "host": "api.revenuecat.com",
+      "path": "/v1/product_entitlement_mapping",
+      "status": 200,
+      "origin": "app"
+    },
+    {
+      "method": "GET",
+      "host": "firebaseremoteconfigrealtime.googleapis.com",
+      "path": "/v1/projects/219982030553/namespaces/firebase:streamFetchInvalidations",
+      "status": 200,
+      "origin": "app"
+    }
+  ],
+  "summary": {
+    "total_flows": 8,
+    "unique_destinations": [
+      "android.apis.google.com",
+      "api.revenuecat.com",
+      "firebaseinstallations.googleapis.com",
+      "firebaseremoteconfig.googleapis.com",
+      "firebaseremoteconfigrealtime.googleapis.com"
+    ],
+    "tracked": "Hosts listed are carriers of tracking or analytics SDKs (Facebook, Firebase, RevenueCat, Crashlytics, FCM). Font and system checks are marked by origin."
+  }
+}

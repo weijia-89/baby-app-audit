@@ -1,0 +1,41 @@
+{
+  "$schema": "network-log/1.0",
+  "schema_version": "1.0",
+  "app": "Baby+",
+  "package_name": "com.hp.babyapp",
+  "capture_date": "2026-08-08",
+  "capture": "results/decode-traffic-baby-plus.json (local only)",
+  "redaction": "Query strings, headers, and bodies stripped. Project numbers and subscriber IDs replaced with [REDACTED].",
+  "flows": [
+    {
+      "method": "POST",
+      "host": "appserver.health-and-parenting.com",
+      "path": "/server/classes/_Installation",
+      "status": 201,
+      "origin": "app"
+    },
+    {
+      "method": "POST",
+      "host": "firebaseremoteconfig.googleapis.com",
+      "path": "/v1/projects/1009074339940/namespaces/firebase:fetch",
+      "status": 200,
+      "origin": "app"
+    },
+    {
+      "method": "POST",
+      "host": "android.apis.google.com",
+      "path": "/c2dm/register3",
+      "status": 200,
+      "origin": "app"
+    }
+  ],
+  "summary": {
+    "total_flows": 3,
+    "unique_destinations": [
+      "android.apis.google.com",
+      "appserver.health-and-parenting.com",
+      "firebaseremoteconfig.googleapis.com"
+    ],
+    "tracked": "Hosts listed are carriers of tracking or analytics SDKs (Facebook, Firebase, RevenueCat, Crashlytics, FCM). Font and system checks are marked by origin."
+  }
+}

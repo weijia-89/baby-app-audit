@@ -1,0 +1,63 @@
+{
+  "$schema": "network-log/1.0",
+  "schema_version": "1.0",
+  "app": "Amila",
+  "package_name": "com.amila.parenting",
+  "capture_date": "2026-08-08",
+  "capture": "results/decode-traffic-amila.json (local only)",
+  "redaction": "Query strings, headers, and bodies stripped. Project numbers and subscriber IDs replaced with [REDACTED].",
+  "flows": [
+    {
+      "method": "POST",
+      "host": "firebaseinstallations.googleapis.com",
+      "path": "/v1/projects/parenting-891b7/installations",
+      "status": 200,
+      "origin": "app"
+    },
+    {
+      "method": "POST",
+      "host": "firebaseremoteconfig.googleapis.com",
+      "path": "/v1/projects/946125544729/namespaces/firebase:fetch",
+      "status": 200,
+      "origin": "app"
+    },
+    {
+      "method": "POST",
+      "host": "firebaseremoteconfig.googleapis.com",
+      "path": "/v1/projects/946125544729/namespaces/firebase:fetch",
+      "status": 200,
+      "origin": "app"
+    },
+    {
+      "method": "GET",
+      "host": "fonts.googleapis.com",
+      "path": "/css",
+      "status": 200,
+      "origin": "app"
+    },
+    {
+      "method": "GET",
+      "host": "fonts.gstatic.com",
+      "path": "/s/poppins/v24/pxiByp8kv8JHgFVrLGT9Z1xlFd2JQEk.woff2",
+      "status": 200,
+      "origin": "app"
+    },
+    {
+      "method": "GET",
+      "host": "fonts.gstatic.com",
+      "path": "/s/roboto/v51/KFO7CnqEu92Fr1ME7kSn66aGLdTylUAMa3yUBHMdazQ.woff2",
+      "status": 200,
+      "origin": "app"
+    }
+  ],
+  "summary": {
+    "total_flows": 6,
+    "unique_destinations": [
+      "firebaseinstallations.googleapis.com",
+      "firebaseremoteconfig.googleapis.com",
+      "fonts.googleapis.com",
+      "fonts.gstatic.com"
+    ],
+    "tracked": "Hosts listed are carriers of tracking or analytics SDKs (Facebook, Firebase, RevenueCat, Crashlytics, FCM). Font and system checks are marked by origin."
+  }
+}

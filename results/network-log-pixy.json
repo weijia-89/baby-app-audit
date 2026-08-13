@@ -1,0 +1,47 @@
+{
+  "$schema": "network-log/1.0",
+  "schema_version": "1.0",
+  "app": "Pixy",
+  "package_name": "com.pixykid.app",
+  "capture_date": "2026-08-12",
+  "capture": "results/pixy-test-20260812/artifacts/captures/Pixy.mitm",
+  "redaction": "Query strings, headers, and bodies stripped. Project numbers and subscriber IDs replaced with [REDACTED].",
+  "flows": [
+    {
+      "method": "GET",
+      "host": "graph.facebook.com",
+      "path": "/v16.0/app",
+      "status": 200,
+      "origin": "app"
+    },
+    {
+      "method": "GET",
+      "host": "graph.facebook.com",
+      "path": "/v16.0/app/mobile_sdk_gk",
+      "status": 200,
+      "origin": "app"
+    },
+    {
+      "method": "POST",
+      "host": "firebaseinstallations.googleapis.com",
+      "path": "/v1/projects/pixybaby/installations",
+      "status": 200,
+      "origin": "app"
+    },
+    {
+      "method": "GET",
+      "host": "graph.facebook.com",
+      "path": "/v16.0/app/mobile_sdk_gk",
+      "status": 200,
+      "origin": "app"
+    }
+  ],
+  "summary": {
+    "total_flows": 4,
+    "unique_destinations": [
+      "firebaseinstallations.googleapis.com",
+      "graph.facebook.com"
+    ],
+    "tracked": "Hosts listed are carriers of tracking or analytics SDKs (Facebook, Firebase, RevenueCat, Crashlytics, FCM). Font and system checks are marked by origin."
+  }
+}
