@@ -119,19 +119,19 @@ Every failed app links to its own sanitized network log (`results/network-log-<a
 
 The machine-readable summary is [results/RESULTS-20260803.json](results/RESULTS-20260803.json). See [CHANGELOG.md](CHANGELOG.md) for history.
 
-| App | Privacy claim | Result | Privacy | Confidence |
-| --- | --- | --- | --- | --- |
-| Nurture Lock | "100% offline" | FAIL | 🚫 | 95% |
-| Nubo | "Local-first" | FAIL | 🚫 | 95% |
-| Pebbi | No claim (positive control) | No claim | 🚫 | 100% |
-| Baby Buddy | Open-source | PASS | 💖 | 100% |
-| Amila | No claim | No claim | ❕ | 90% |
-| Baby Daybook | "AdID not auto-enabled" | FAIL | 🚫 | 90% |
-| Baby+ | "AdID not auto-enabled" | FAIL | ❕ | 90% |
-| MimiLog | "Fully offline" | PASS | 💖 | 100% |
-| Nara | "Complete privacy" | FAIL | 🚫 | 90% |
-| Heartful Baby | "HIPAA-compliant" | FAIL | ❕ | 90% |
-| Pixy | "Bank-level encryption" | FAIL | 🚫 | 90% |
+| App | Privacy claim | Result | Privacy | Confidence | Key findings |
+| --- | --- | --- | --- | --- | --- |
+| Nurture Lock | "100% offline" | FAIL | 🚫 | 95% | Phones home to RevenueCat with device identifiers on launch. 8 tracking libraries found in the APK |
+| Nubo | "Local-first" | FAIL | 🚫 | 95% | Sends session analytics, screen views, and onboarding events to Google Firebase on first launch |
+| Pebbi | No claim (positive control) | No claim | 🚫 | 100% | Extensive data collection via Firebase, Google AdServices, and FCM registration |
+| Baby Buddy | Open-source | PASS | 💖 | 100% | No tracking libraries. All traffic stays on localhost in default configuration |
+| Amila | No claim | No claim | ❕ | 90% | Firebase Installations, Firebase Remote Config, and Google Fonts calls on launch |
+| Baby Daybook | "AdID not auto-enabled" | FAIL | 🚫 | 90% | Firebase and RevenueCat calls on launch; Facebook SDK found in code. The AdID claim does not cover this traffic |
+| Baby+ | "AdID not auto-enabled" | FAIL | ❕ | 90% | Philips server, Firebase, and Google calls on launch. The AdID claim does not cover this traffic |
+| MimiLog | "Fully offline" | PASS | 💖 | 100% | One Firebase configuration call; the device held no valid Firebase project, so no data was exchanged |
+| Nara | "Complete privacy" | FAIL | 🚫 | 90% | Nine Facebook Graph API calls and one Crashlytics report batch on launch |
+| Heartful Baby | "HIPAA-compliant" | FAIL | ❕ | 90% | One Firebase logging batch on launch |
+| Pixy | "Bank-level encryption" | FAIL | 🚫 | 90% | Three Facebook Graph API calls and one Firebase Installations registration on launch |
 
 The full procedure is in [APK_PRIVACY_TEST_HARNESS.md](APK_PRIVACY_TEST_HARNESS.md). Method, consent, and known limits (no radio checks, no static scan for Nubo) are in [METHODOLOGY.md](METHODOLOGY.md).
 

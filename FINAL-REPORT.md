@@ -13,19 +13,19 @@ We tested 11 baby and parenting apps. Most say they protect your privacy. We che
 
 Nine apps make a privacy promise. Seven of them sent data off the device. Only Baby Buddy and MimiLog did what they said.
 
-| App | Privacy claim | Result | Privacy | Confidence |
-| --- | --- | --- | --- | --- |
-| Nurture Lock | "100% offline" | FAIL | 🚫 | 95% |
-| Nubo | "Local-first" | FAIL | 🚫 | 95% |
-| Pebbi | No claim (control) | No claim | 🚫 | 100% |
-| Baby Buddy | Open source | PASS | 💖 | 100% |
-| Amila | No claim | No claim | ❕ | 90% |
-| Baby Daybook | "AdID not auto-enabled" | FAIL | 🚫 | 90% |
-| Baby+ | "AdID not auto-enabled" | FAIL | ❕ | 90% |
-| MimiLog | "Fully offline" | PASS | 💖 | 100% |
-| Nara | "Complete privacy" | FAIL | 🚫 | 90% |
-| Heartful Baby | "HIPAA-compliant" | FAIL | ❕ | 90% |
-| Pixy | "Bank-level encryption" | FAIL | 🚫 | 90% |
+| App | Privacy claim | Result | Privacy | Confidence | Key findings |
+| --- | --- | --- | --- | --- | --- |
+| Nurture Lock | "100% offline" | FAIL | 🚫 | 95% | Calls `api.revenuecat.com` on launch; 8 tracking libraries in the APK |
+| Nubo | "Local-first" | FAIL | 🚫 | 95% | Sends session analytics, screen views, and onboarding events to Firebase on first launch |
+| Pebbi | No claim (control) | No claim | 🚫 | 100% | Extensive data collection via Firebase, Google AdServices, and FCM registration |
+| Baby Buddy | Open source | PASS | 💖 | 100% | No tracking libraries; all traffic stays on localhost in default configuration |
+| Amila | No claim | No claim | ❕ | 90% | Firebase Installations, Remote Config, and Google Fonts calls on launch |
+| Baby Daybook | "AdID not auto-enabled" | FAIL | 🚫 | 90% | Firebase and RevenueCat calls on launch; Facebook SDK found in code |
+| Baby+ | "AdID not auto-enabled" | FAIL | ❕ | 90% | Philips server, Firebase, and Google calls on launch |
+| MimiLog | "Fully offline" | PASS | 💖 | 100% | One Firebase configuration call; no valid project, so no data exchanged |
+| Nara | "Complete privacy" | FAIL | 🚫 | 90% | Nine Facebook Graph API calls and one Crashlytics batch on launch |
+| Heartful Baby | "HIPAA-compliant" | FAIL | ❕ | 90% | One Firebase logging batch on launch |
+| Pixy | "Bank-level encryption" | FAIL | 🚫 | 90% | Three Facebook Graph API calls and one Firebase Installations registration |
 
 Result key:
 
