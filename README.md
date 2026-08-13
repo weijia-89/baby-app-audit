@@ -103,7 +103,21 @@ open APK_PRIVACY_TEST_HARNESS.md
 
 Full results with evidence: [FINAL-REPORT.md](FINAL-REPORT.md) and machine-readable [results/RESULTS-20260803.json](results/RESULTS-20260803.json). See [CHANGELOG.md](CHANGELOG.md) for history.
 
-| App | Privacy claim | Result | Class | Confidence |
+### How to read the results
+
+The full picture is in [FINAL-REPORT.md](FINAL-REPORT.md). Each app has its own section with evidence: what the app claims, what we captured, and how the verdict was reached.
+
+The privacy marks say what the app actually did:
+
+- **💖** means the app passed and behaved as described.
+- **❕** means the app failed, but the capture showed phone-home traffic without identifying user data.
+- **🚫** means the app failed and the capture showed identifying data or extensive tracking.
+
+Every failed app links to its own sanitized network log (`results/network-log-<app>.json`). The logs list hosts, paths, and response status codes of captured traffic. They contain no query strings, headers, or bodies, because those carried authentication tokens. The raw captures stay local only.
+
+The machine-readable summary is [results/RESULTS-20260803.json](results/RESULTS-20260803.json). See [CHANGELOG.md](CHANGELOG.md) for history.
+
+| App | Privacy claim | Result | Privacy | Confidence |
 | --- | --- | --- | --- | --- |
 | Nurture Lock | "100% offline" | FAIL | 🚫 | 95% |
 | Nubo | "Local-first" | FAIL | 🚫 | 95% |
@@ -116,20 +130,6 @@ Full results with evidence: [FINAL-REPORT.md](FINAL-REPORT.md) and machine-reada
 | Nara | "Complete privacy" | FAIL | 🚫 | 90% |
 | Heartful Baby | "HIPAA-compliant" | FAIL | ❕ | 90% |
 | Pixy | "Bank-level encryption" | FAIL | 🚫 | 90% |
-
-### How to read the results
-
-The full picture is in [FINAL-REPORT.md](FINAL-REPORT.md). Each app has its own section with evidence: what the app claims, what we captured, and how the verdict was reached.
-
-The class marks say how bad a failure is:
-
-- **💖** means the app passed and behaved as described.
-- **❕** means the app failed, but the capture showed phone-home traffic without identifying user data.
-- **🚫** means the app failed and the capture showed identifying data or extensive tracking.
-
-Every failed app links to its own sanitized network log (`results/network-log-<app>.json`). The logs list hosts, paths, and response status codes of captured traffic. They contain no query strings, headers, or bodies, because those carried authentication tokens. The raw captures stay local only.
-
-The machine-readable summary is [results/RESULTS-20260803.json](results/RESULTS-20260803.json). See [CHANGELOG.md](CHANGELOG.md) for history.
 
 The full procedure is in [APK_PRIVACY_TEST_HARNESS.md](APK_PRIVACY_TEST_HARNESS.md). Method, consent, and known limits (no radio checks, no static scan for Nubo) are in [METHODOLOGY.md](METHODOLOGY.md).
 
