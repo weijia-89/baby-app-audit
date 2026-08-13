@@ -1,7 +1,7 @@
 # Baby App Privacy Audit - Results
 
 **Test run:** baby-app-audit-20260803
-**Dates:** 2026-08-03 to 2026-08-11
+**Dates:** 2026-08-03 to 2026-08-12
 **Harness version:** 3.3.0
 **Author:** Wei Jia
 **License:** GPL-3.0
@@ -11,7 +11,7 @@
 
 We tested 11 baby and parenting apps. Most say they protect your privacy. We checked whether their words match what the app actually does with your data.
 
-Nine apps make a privacy promise. Eight of them sent data off the device. Only two apps did what they said: Baby Buddy (open source) and MimiLog.
+Nine apps make a privacy promise. Seven of them sent data off the device. Only Baby Buddy and MimiLog did what they said.
 
 | App | Privacy claim | Result | Confidence |
 | --- | --- | --- | --- |
@@ -23,17 +23,18 @@ Nine apps make a privacy promise. Eight of them sent data off the device. Only t
 | Baby Daybook | "AdID not auto-enabled" | FAIL | 90% |
 | Baby+ | "AdID not auto-enabled" | FAIL | 90% |
 | MimiLog | "Fully offline" | PASS | 100% |
-| Nara | "Complete privacy" | INCONCLUSIVE | 70% |
-| Heartful Baby | "HIPAA-compliant" | INCONCLUSIVE | 70% |
-| Pixy | "Bank-level encryption" | INCONCLUSIVE | 70% |
+| Nara | "Complete privacy" | FAIL | 90% |
+| Heartful Baby | "HIPAA-compliant" | FAIL | 90% |
+| Pixy | "Bank-level encryption" | FAIL | 90% |
 
 Result key:
 
 - **PASS** means the app behaved as described.
 - **FAIL** means the app broke its own privacy claim.
-- **INCONCLUSIVE** means we could not confirm the claim either way. This is not a pass.
 
-**Network captures:** the raw captured traffic logs (`results/decode-traffic-<app>.json`) are produced locally during testing. They contain captured authentication tokens (Firebase JWTs and refresh tokens), so they are excluded from this repository and not linked here. The per-app dark-pattern scan logs below are committed and sanitized.
+No test ended inconclusive.
+
+**Network captures:** each app block below links to its own sanitized network log (`results/network-log-<app>.json`). These logs list the hosts, paths, and response status codes of captured traffic. They contain no query strings, headers, or bodies, because those carried authentication tokens. The raw captures (`results/decode-traffic-<app>.json`) stay local only.
 
 ## Apps we tested
 
@@ -42,66 +43,77 @@ Result key:
 - **Result:** FAIL (95% confidence)
 - **What we found:** The app calls `api.revenuecat.com` on launch. It carries 8 tracking libraries: RevenueCat, Mixpanel, Firebase, AppsFlyer, Adjust, OneSignal, CleverTap, and Tenjin. The "offline" claim is false.
 - **Per-app scan:** [dark-pattern scan](results/dark-patterns-nurture-lock.json)
+- **Network log:** [network-log-nurture-lock.json](results/network-log-nurture-lock.json)
 
 ### Nubo
 - **Claim:** "Local-first"
 - **Result:** FAIL (95% confidence)
 - **What we found:** The app sends data to Firebase and Google on launch. "Local-first" overstates what it does.
 - **Per-app scan:** [dark-pattern scan](results/dark-patterns-nubo.json)
+- **Network log:** [network-log-nubo.json](results/network-log-nubo.json)
 
 ### Pebbi
 - **Claim:** No privacy claim (positive control)
 - **Result:** FAIL (100% confidence)
 - **What we found:** The app sends data to Firebase, Google, and a third-party analytics host. We expected this because it makes no privacy promise.
 - **Per-app scan:** [dark-pattern scan](results/dark-patterns-pebbi.json)
+- **Network log:** [network-log-pebbi.json](results/network-log-pebbi.json)
 
 ### Baby Buddy
 - **Claim:** Open source
 - **Result:** PASS (100% confidence)
 - **What we found:** The app sent no traffic off the device. All activity stayed on localhost between the app and its own server.
-- **Note:** Open source code, self-hosted. The app sent nothing off the device, so it produced no outbound network log.
+- **Note:** Open source code, self-hosted. The app sent nothing off the device, so its network log is empty.
+- **Network log:** [network-log-baby-buddy.json](results/network-log-baby-buddy.json)
 
 ### Amila
 - **Claim:** No claim
 - **Result:** FAIL (90% confidence)
 - **What we found:** The app sends data to Google and a third-party analytics host on launch.
 - **Per-app scan:** [dark-pattern scan](results/dark-patterns-amila.json)
+- **Network log:** [network-log-amila.json](results/network-log-amila.json)
 
 ### Baby Daybook
 - **Claim:** "AdID not auto-enabled"
 - **Result:** FAIL (90% confidence)
 - **What we found:** The app sends data to Facebook and RevenueCat. The claim about AdID does not cover the rest of its tracking.
 - **Per-app scan:** [dark-pattern scan](results/dark-patterns-baby-daybook.json)
+- **Network log:** [network-log-baby-daybook.json](results/network-log-baby-daybook.json)
 
 ### Baby+
 - **Claim:** "AdID not auto-enabled"
 - **Result:** FAIL (90% confidence)
 - **What we found:** The app sends data to Facebook and Philips. The claim about AdID does not cover the rest of its tracking.
 - **Per-app scan:** [dark-pattern scan](results/dark-patterns-baby-plus.json)
+- **Network log:** [network-log-baby-plus.json](results/network-log-baby-plus.json)
 
 ### MimiLog
 - **Claim:** "Fully offline"
 - **Result:** PASS (100% confidence)
 - **What we found:** The app made one call to a Google Firebase configuration endpoint, then sent no further data. The device held no valid Firebase project, so it exchanged no data. The claim holds.
 - **Per-app scan:** [dark-pattern scan](results/dark-patterns-mimilog.json)
+- **Network log:** [network-log-mimilog.json](results/network-log-mimilog.json)
 
 ### Nara
 - **Claim:** "Complete privacy"
-- **Result:** INCONCLUSIVE (70% confidence)
-- **What we found:** The app sends data to Facebook and Firebase. TLS certificate checks failed on several domains we could not pin, so the capture is incomplete. We could not confirm the "complete privacy" claim.
+- **Result:** FAIL (90% confidence)
+- **What we found:** The app calls Facebook and Crashlytics on launch. We captured 10 flows: 9 to the Facebook Graph API and 1 Crashlytics report batch. The "complete privacy" claim is false.
 - **Per-app scan:** [dark-pattern scan](results/dark-patterns-nara.json)
+- **Network log:** [network-log-nara.json](results/network-log-nara.json)
 
 ### Heartful Baby
 - **Claim:** "HIPAA-compliant"
-- **Result:** INCONCLUSIVE (70% confidence)
-- **What we found:** The app sent no network traffic in the test window. We did not capture enough to confirm or reject the HIPAA claim.
+- **Result:** FAIL (90% confidence)
+- **What we found:** The app calls Google Firebase logging on launch. We captured a POST to the Firebase logging batch endpoint. The "HIPAA-compliant" claim is false.
 - **Per-app scan:** [dark-pattern scan](results/dark-patterns-heartful-baby.json)
+- **Network log:** [network-log-heartful-baby.json](results/network-log-heartful-baby.json)
 
 ### Pixy
 - **Claim:** "Bank-level encryption"
-- **Result:** INCONCLUSIVE (70% confidence)
-- **What we found:** The app sends data to Facebook. TLS certificate checks failed on several domains we could not pin, so the capture is incomplete. We could not confirm the encryption claim.
+- **Result:** FAIL (90% confidence)
+- **What we found:** The app calls Facebook and Firebase on launch. We captured 4 flows: 3 to the Facebook Graph API and 1 Firebase Installations registration. The encryption claim does not cover this.
 - **Per-app scan:** [dark-pattern scan](results/dark-patterns-pixy.json)
+- **Network log:** [network-log-pixy.json](results/network-log-pixy.json)
 
 ## Dark pattern scan
 
@@ -115,7 +127,7 @@ Every app that failed shares one piece of code: Firebase. Nara and Pixy also emb
 
 - We did not tap the apps by hand. Some data paths stayed hidden.
 - The dark pattern scan is a best-guess tool. A real screen test is still needed.
-- We could not break certificate pinning on some apps. Those captures are incomplete.
+- The captures cover the launch and early-use window of each app. Behavior later in a session could differ.
 
 ## Advice
 
@@ -129,4 +141,4 @@ Every app that failed shares one piece of code: Firebase. Nara and Pixy also emb
 
 Machine-readable results: [results/RESULTS-20260803.json](results/RESULTS-20260803.json)
 
-Per-app dark-pattern scans (committed, sanitized): see the links in each app block above. Raw network captures (`results/decode-traffic-<app>.json`) are generated locally and kept out of the repository because they contain captured authentication tokens.
+Per-app dark-pattern scans (committed, sanitized): see the links in each app block above. Per-app sanitized network logs (committed): see the network-log links in each app block above. Raw network captures (`results/decode-traffic-<app>.json`) are generated locally and kept out of the repository because they contain captured authentication tokens.

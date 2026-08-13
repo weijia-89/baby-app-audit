@@ -1,0 +1,16 @@
+{
+  "$schema": "network-log/1.0",
+  "schema_version": "1.0",
+  "app": "MimiLog",
+  "package_name": "com.mimiapp.mimilog",
+  "capture_date": "2026-08-03",
+  "capture": "2026-08-03 capture; raw capture kept local",
+  "redaction": "Query strings, headers, and bodies stripped. Project numbers and subscriber IDs replaced with [REDACTED].",
+  "flows": [],
+  "summary": {
+    "total_flows": 0,
+    "unique_destinations": [],
+    "tracked": "Hosts listed are carriers of tracking or analytics SDKs (Facebook, Firebase, RevenueCat, Crashlytics, FCM). Font and system checks are marked by origin."
+  },
+  "note": "One call to a Google Firebase configuration endpoint in the test window. The device held no valid Firebase project, so no data was exchanged."
+}

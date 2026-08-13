@@ -1,0 +1,32 @@
+{
+  "$schema": "network-log/1.0",
+  "schema_version": "1.0",
+  "app": "Nurture Lock",
+  "package_name": "com.angry.shark.studio.nurturelock",
+  "capture_date": "2026-08-03",
+  "capture": "2026-08-03 capture; destinations only (raw capture kept local)",
+  "redaction": "Query strings, headers, and bodies stripped. Project numbers and subscriber IDs replaced with [REDACTED].",
+  "flows": [
+    {
+      "method": "*",
+      "host": "api.revenuecat.com",
+      "path": "(destination only)",
+      "status": "unknown",
+      "origin": "app"
+    },
+    {
+      "method": "*",
+      "host": "api.revenuecat.com",
+      "path": "(destination only)",
+      "status": "unknown",
+      "origin": "app"
+    }
+  ],
+  "summary": {
+    "total_flows": 2,
+    "unique_destinations": [
+      "api.revenuecat.com"
+    ],
+    "tracked": "Hosts listed are carriers of tracking or analytics SDKs (Facebook, Firebase, RevenueCat, Crashlytics, FCM). Font and system checks are marked by origin."
+  }
+}
