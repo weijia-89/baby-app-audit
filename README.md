@@ -165,11 +165,20 @@ Sanitized network logs:
 
 ## Sources
 
-- Baby Buddy repository: https://github.com/babybuddy/babybuddy
-- Baby Buddy documentation: https://docs.baby-buddy.net
-- Baby Buddy license (BSD-2-Clause): https://github.com/babybuddy/babybuddy/blob/master/LICENSE
-- mitmproxy: https://mitmproxy.org
-- Exodus Privacy: https://exodus-privacy.eu.org
+### Tools
+
+- [mitmproxy](https://mitmproxy.org) - captures and decrypts HTTPS traffic between each app and its servers. I chose it over Charles or Fiddler because it is open source, scriptable from the CLI (`mitmdump`), and installs its CA certificate into the emulator's system store.
+- [jadx](https://github.com/skylot/jadx) - decompiles each APK back to readable Java. I chose it over apktool because it reconstructs source, which makes tracking libraries easier to spot than reading smali assembly.
+- [objection](https://github.com/sensepost/objection) - instruments the running app on the emulator for runtime checks. I chose it over raw Frida scripts because it runs on top of Frida with ready-made commands, which is simpler for this audit.
+- [apkeep](https://github.com/EFForg/apkeep) - downloads APKs from [APKPure](https://apkpure.com) and [APKMirror](https://www.apkmirror.com). I used a mirror source because Google Play does not offer APK downloads outside the store client. I chose apkeep over a browser download because it is scriptable and supports split-APK (`.xapk`) handling.
+- [Android SDK platform tools](https://developer.android.com/tools/releases/platform-tools) (adb) - installs APKs, drives the emulator, and pulls package data. This is the standard Google tool for device control; the harness calls it directly.
+- Android emulator with a Google-APIs ARM64 system image - the test device. I used an emulator rather than a physical phone because installing a custom CA certificate requires `adb root` and a writable system partition, which only works on a dedicated test device.
+- [Exodus Privacy](https://exodus-privacy.eu.org) - cross-checks tracked permissions and known tracking libraries in each APK. The [standalone Docker image](https://hub.docker.com/r/exodusprivacy/exodus-standalone) runs the tracker scan locally so APK contents never leave the machine. I used it as a second opinion alongside the jadx source read.
+- [APKPure](https://apkpure.com) - APK source. See apkeep above. [APKMirror](https://www.apkmirror.com) and [APKCombo](https://apkcombo.com) are the mirrors I fall back to when an APK is not on APKPure.
+
+### Referenced projects
+
+- [Baby Buddy](https://github.com/babybuddy/babybuddy) - the FOSS control app. [Documentation](https://docs.baby-buddy.net), [license (BSD-2-Clause)](https://github.com/babybuddy/babybuddy/blob/master/LICENSE).
 
 ---
 
