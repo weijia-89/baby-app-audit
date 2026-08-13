@@ -69,21 +69,21 @@ No test ended inconclusive.
 ### Amila
 - **Claim:** No claim
 - **Result:** FAIL (90% confidence)
-- **What we found:** The app sends data to Google and a third-party analytics host on launch.
+- **What we found:** The launch capture shows calls to Firebase and Google Fonts. Static analysis found tracking libraries in the code.
 - **Per-app scan:** [dark-pattern scan](results/dark-patterns-amila.json)
 - **Network log:** [network-log-amila.json](results/network-log-amila.json)
 
 ### Baby Daybook
 - **Claim:** "AdID not auto-enabled"
 - **Result:** FAIL (90% confidence)
-- **What we found:** The app sends data to Facebook and RevenueCat. The claim about AdID does not cover the rest of its tracking.
+- **What we found:** The launch capture shows calls to RevenueCat, Firebase, and Google. Static analysis found the Facebook SDK in the code. The "AdID not auto-enabled" claim does not cover this traffic.
 - **Per-app scan:** [dark-pattern scan](results/dark-patterns-baby-daybook.json)
 - **Network log:** [network-log-baby-daybook.json](results/network-log-baby-daybook.json)
 
 ### Baby+
 - **Claim:** "AdID not auto-enabled"
 - **Result:** FAIL (90% confidence)
-- **What we found:** The app sends data to Facebook and Philips. The claim about AdID does not cover the rest of its tracking.
+- **What we found:** The launch capture shows calls to Philips servers, Firebase, and Google. Static analysis found the Facebook SDK in the code. The "AdID not auto-enabled" claim does not cover this traffic.
 - **Per-app scan:** [dark-pattern scan](results/dark-patterns-baby-plus.json)
 - **Network log:** [network-log-baby-plus.json](results/network-log-baby-plus.json)
 
