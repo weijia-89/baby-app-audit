@@ -13,13 +13,13 @@ We tested 11 baby and parenting apps. Most say they protect your privacy. We che
 
 Nine apps make a privacy promise. Seven of them sent data off the device. Only Baby Buddy and MimiLog did what they said.
 
-| App | Privacy claim | Result | Class | Confidence |
+| App | Privacy claim | Result | Privacy | Confidence |
 | --- | --- | --- | --- | --- |
 | Nurture Lock | "100% offline" | FAIL | 🚫 | 95% |
 | Nubo | "Local-first" | FAIL | 🚫 | 95% |
-| Pebbi | No claim (control) | FAIL | 🚫 | 100% |
+| Pebbi | No claim (control) | No claim | 🚫 | 100% |
 | Baby Buddy | Open source | PASS | 💖 | 100% |
-| Amila | No claim | FAIL | ❕ | 90% |
+| Amila | No claim | No claim | ❕ | 90% |
 | Baby Daybook | "AdID not auto-enabled" | FAIL | 🚫 | 90% |
 | Baby+ | "AdID not auto-enabled" | FAIL | ❕ | 90% |
 | MimiLog | "Fully offline" | PASS | 💖 | 100% |
@@ -32,6 +32,8 @@ Result key:
 - **💖** means the app passed and behaved as described.
 - **❕** means the app failed, but the capture showed phone-home traffic without identifying user data.
 - **🚫** means the app failed and the capture showed identifying data or extensive tracking.
+
+An app with no privacy claim cannot fail, because there is no promise to break. Its result says "no claim"; the privacy mark still shows what we observed.
 
 No test ended inconclusive.
 
@@ -55,15 +57,15 @@ No test ended inconclusive.
 
 ### Pebbi
 - **Claim:** No privacy claim (positive control)
-- **Result:** FAIL (100% confidence)
-- **What we found:** The app sends data to Firebase, Google, and a third-party analytics host. We expected this because it makes no privacy promise.
+- **Result:** No claim (100% confidence)
+- **What we found:** The app makes no privacy promise, so it cannot fail. It sends data to Firebase, Google, and a third-party analytics host. We expected this because it makes no privacy promise.
 - **Per-app scan:** [dark-pattern scan](results/dark-patterns-pebbi.json)
 - **Network log:** [network-log-pebbi.json](results/network-log-pebbi.json)
 
 ### Amila
 - **Claim:** No claim
-- **Result:** FAIL (90% confidence)
-- **What we found:** The launch capture shows calls to Firebase and Google Fonts. Static analysis found tracking libraries in the code.
+- **Result:** No claim (90% confidence)
+- **What we found:** The app makes no privacy promise, so it cannot fail. The launch capture shows calls to Firebase and Google Fonts. Static analysis found tracking libraries in the code.
 - **Per-app scan:** [dark-pattern scan](results/dark-patterns-amila.json)
 - **Network log:** [network-log-amila.json](results/network-log-amila.json)
 
