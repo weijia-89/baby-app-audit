@@ -11,8 +11,9 @@ readonly MAX_APK_SIZE=$((100 * 1024 * 1024))  # 100 MB zip bomb limit
 # Source common functions
 . "$(dirname "$0")/lib/common.sh"
 
-# Dependency checks
-check_dep jq unzip python3 sed grep find || exit 1
+# Dependency checks. unzip is only required for APK-file input; the
+# APK-file branch validates it before extracting.
+check_dep jq python3 sed grep find || exit 1
 
 usage() {
     cat <<EOF

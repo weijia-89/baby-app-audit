@@ -6,8 +6,7 @@ Any change to a `.md` file must run through this pipeline before commit.
 
 ```bash
 # 1. Write content (simple-english pragmatic mode)
-# 2. Check style
-bash /Users/dubs/Projects/toren/tic.skills/tic.sh <file>
+# 2. Check style manually with the simple-english rules. No TIC script is present in this checkout.
 # 3. Scan for AI tells
 python3 /Users/dubs/Projects/deai.skill/deai-scan.py <file>
 # 4. Fix AI slop manually:
@@ -16,7 +15,7 @@ python3 /Users/dubs/Projects/deai.skill/deai-scan.py <file>
 #    - latinate -> plain
 ```
 
-Steps 1 and 4 are manual. Steps 2, 3, 5 are automated. Run all five before committing any `.md` file.
+Steps 1, 2, and 4 are manual. Step 3 is automated. Run all four before committing any `.md` file.
 
 ## Review Depth
 
@@ -27,11 +26,11 @@ Reviews come in two depths. Pick based on risk.
 Use for small fixes, doc updates, config changes.
 
 ```bash
-# Run P1 checks only: syntax, banned vocab, schema, version agreement
+# Run the banned-vocabulary check from .github/workflows/test.yml
+# ("Check for banned vocabulary" step - single source of truth)
 bash -n scripts/run-tests.sh && bash scripts/run-tests.sh --check
 bash -n scripts/detect-dark-patterns.sh && bash scripts/detect-dark-patterns.sh --check
 bash -n scripts/compare-apps.sh && bash scripts/compare-apps.sh --check
-grep -qiE "\b(WORD_A|WORD_B)\b" APK_PRIVACY_TEST_HARNESS.md README.md METHODOLOGY.md CHANGELOG.md && exit 1
 ```
 
 ### Deep (P1 + P2 + P3)
@@ -47,6 +46,7 @@ python3 -m json.tool results/schema.json > /dev/null
 python3 -m json.tool results/decode-traffic.schema.json > /dev/null
 python3 -m json.tool results/dark-patterns.schema.json > /dev/null
 python3 -m json.tool results/comparison.schema.json > /dev/null
+python3 -m json.tool results/network-log.schema.json > /dev/null
 # P2: run all unit tests
 bash tests/test-decode-traffic.sh
 bash tests/test-dark-patterns.sh

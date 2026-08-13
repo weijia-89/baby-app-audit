@@ -22,6 +22,7 @@
       "package_name": "com.angry.shark.studio.nurturelock",
       "app_type": "native",
       "verdict": "fail",
+      "privacy_class": "major",
       "verdict_confidence": 95,
       "evidence": "RevenueCat subscriber API called on every launch (api.revenuecat.com); 8 tracking libraries found in static analysis (RevenueCat, Mixpanel, Firebase, AppsFlyer, Adjust, OneSignal, CleverTap, Tenjin). Claim of '100% offline' is false.",
       "apk_hash": {
@@ -46,6 +47,7 @@
       "package_name": "com.clicksie.nuboapp",
       "app_type": "native",
       "verdict": "fail",
+      "privacy_class": "major",
       "verdict_confidence": 95,
       "evidence": "Firebase Installations registration, Crashlytics config, FCM push registration, and Firebase Analytics session/screen-view batches on first launch. Claim of 'local-first' is false. Static analysis not performed (dynamic evidence only).",
       "apk_hash": {
@@ -104,6 +106,7 @@
       "package_name": "com.pebbi.android",
       "app_type": "native",
       "verdict": "fail",
+      "privacy_class": "major",
       "verdict_confidence": 100,
       "evidence": "Positive control. Firebase Crashlytics/Analytics/Sessions/Installations/Remote Config, version-policy endpoint phoning home every ~30s (app.pebbi.co), FCM registration, AdServices, Install Referrer, RevenueCat, PairIP LicenseCheck.",
       "apk_hash": {
@@ -133,6 +136,7 @@
       "package_name": "org.babybuddy.babybuddy",
       "app_type": "foss",
       "verdict": "pass",
+      "privacy_class": "pass",
       "verdict_confidence": 100,
       "evidence": "Source audit of github.com/babybuddy/babybuddy at commit 16b8848c7bc2031fc5936f8da89c8056ec5624d2: 67 network references all in documentation comments or config examples, 0 tracker libraries. Dynamic test: all traffic on localhost only.",
       "source_audit": {
@@ -146,6 +150,125 @@
         "outbound_requests_count": 0,
         "outbound_destinations": [],
         "flow_file": "results/baby-buddy-test-20260803/baby-buddy-flows.mitm"
+      }
+    },
+    {
+      "name": "Amila",
+      "package_name": "com.amila.parenting",
+      "app_type": "native",
+      "verdict": "fail",
+      "privacy_class": "minor",
+      "verdict_confidence": 90,
+      "evidence": "The launch capture shows Firebase Installations, Firebase Remote Config, and Google Fonts traffic. Static analysis found tracking libraries, but no analytics or advertising payload was observed in the capture.",
+      "offline_test": {
+        "outbound_requests_count": 6,
+        "outbound_destinations": [
+          "firebaseinstallations.googleapis.com",
+          "firebaseremoteconfig.googleapis.com",
+          "fonts.googleapis.com",
+          "fonts.gstatic.com"
+        ],
+        "flow_file": "results/decode-traffic-amila.json"
+      }
+    },
+    {
+      "name": "Baby Daybook",
+      "package_name": "com.drillyapps.babydaybook",
+      "app_type": "native",
+      "verdict": "fail",
+      "privacy_class": "major",
+      "verdict_confidence": 90,
+      "evidence": "The launch capture shows Firebase Installations, RevenueCat subscriber calls, Firebase Remote Config, and FCM registration. Static analysis found the Facebook SDK. The AdID claim does not cover this traffic.",
+      "offline_test": {
+        "outbound_requests_count": 8,
+        "outbound_destinations": [
+          "android.apis.google.com",
+          "api.revenuecat.com",
+          "firebaseinstallations.googleapis.com",
+          "firebaseremoteconfig.googleapis.com",
+          "firebaseremoteconfigrealtime.googleapis.com"
+        ],
+        "flow_file": "results/decode-traffic-baby-daybook.json"
+      }
+    },
+    {
+      "name": "Baby+",
+      "package_name": "com.hp.babyapp",
+      "app_type": "native",
+      "verdict": "fail",
+      "privacy_class": "minor",
+      "verdict_confidence": 90,
+      "evidence": "The launch capture shows a Parse installation call, Firebase Remote Config, and FCM registration. Static analysis found the Facebook SDK, but no advertising or analytics payload was observed in the capture.",
+      "offline_test": {
+        "outbound_requests_count": 3,
+        "outbound_destinations": [
+          "android.apis.google.com",
+          "appserver.health-and-parenting.com",
+          "firebaseremoteconfig.googleapis.com"
+        ],
+        "flow_file": "results/decode-traffic-baby-plus.json"
+      }
+    },
+    {
+      "name": "MimiLog",
+      "package_name": "com.mimiapp.mimilog",
+      "app_type": "native",
+      "verdict": "pass",
+      "privacy_class": "pass",
+      "verdict_confidence": 100,
+      "evidence": "The app made one Firebase configuration call, but the device held no valid Firebase project. No app data was exchanged, so the fully offline claim holds.",
+      "offline_test": {
+        "outbound_requests_count": 0,
+        "outbound_destinations": [],
+        "flow_file": "results/network-log-mimilog.json"
+      }
+    },
+    {
+      "name": "Nara",
+      "package_name": "com.naraorganics.nara",
+      "app_type": "native",
+      "verdict": "fail",
+      "privacy_class": "major",
+      "verdict_confidence": 90,
+      "evidence": "The launch capture shows nine Facebook Graph API calls and one Crashlytics report batch. The complete privacy claim is false.",
+      "offline_test": {
+        "outbound_requests_count": 10,
+        "outbound_destinations": [
+          "crashlyticsreports-pa.googleapis.com",
+          "graph.facebook.com"
+        ],
+        "flow_file": "results/nara-test-20260812/artifacts/captures/Nara.mitm"
+      }
+    },
+    {
+      "name": "Heartful Baby",
+      "package_name": "com.heartfulsprout.baby",
+      "app_type": "native",
+      "verdict": "fail",
+      "privacy_class": "minor",
+      "verdict_confidence": 90,
+      "evidence": "The launch capture shows one Firebase logging batch and four Android connectivity checks. No identifying user data was observed in the sanitized capture.",
+      "offline_test": {
+        "outbound_requests_count": 1,
+        "outbound_destinations": ["firebaselogging.googleapis.com"],
+        "flow_file": "results/heartful-baby-test-20260812/artifacts/captures/Heartful-baby.mitm"
+      }
+    },
+    {
+      "name": "Pixy",
+      "package_name": "com.pixykid.app",
+      "app_type": "native",
+      "verdict": "fail",
+      "privacy_class": "major",
+      "verdict_confidence": 90,
+      "evidence": "The launch capture shows three Facebook Graph API calls and one Firebase Installations registration. The bank-level encryption claim does not cover this traffic.",
+      "offline_test": {
+        "outbound_requests_count": 4,
+        "outbound_destinations": [
+          "firebaseinstallations.googleapis.com",
+          "graph.facebook.com"
+        ],
+        "flow_file": "results/pixy-test-20260812/artifacts/captures/Pixy.mitm"
       }
     }
   ],

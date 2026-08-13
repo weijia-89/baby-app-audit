@@ -1,5 +1,21 @@
 # Changelog
 
+## 4.2.0 - 2026-08-12
+
+### Added
+- `RESULTS-20260803.json` and `FINAL-REPORT.md`: 11-app classification with `privacy_class` (pass/minor/major) covering Amila, Baby Daybook, Baby+, MimiLog, Nara, Heartful Baby, and Pixy on top of the original four.
+- `FINAL-REPORT.md`: Class column with 💖/❕/🚫 result key; FOSS self-hosted section; "Popular Google Play apps - next wave" table (BabyCenter, Nanit, What to Expect, Pregnancy+, BellyBloom) with Play Store data-safety statements and verified package names.
+- Regression tests: `test-results-artifacts.sh` asserts the 11-app set, exact `privacy_class` mapping, report emoji/class agreement, and that every reported destination appears in the matching sanitized network log.
+- Regression tests: `test-decode-traffic.sh` Test 18 (wave-1 filter hosts reject common-word labels such as "lite" and "view") and Test 19 (Amila `com.amila.parenting` attributes `amila.example.com`).
+
+### Changed
+- `results/network-log.schema.json`: flow `status` is now `oneOf` integer or the string `"unknown"` (was unconstrained).
+- `scripts/decode-traffic.sh`: explicit filter hosts for the five wave-1 packages (babycenter, nanit, whattoexpect, pregnancyplus, bellybloom) and for corrected Amila/BabyTrack package names; the last-segment fallback can no longer misattribute common-word labels.
+- `scripts/run-tests.sh`: DEFAULT_APPS aligned to the 11 classified apps with corrected names (Wachanga/BabyTrack out of scope); summary fallback fails loud (exit code 1) instead of reporting SUCCESS with empty data; `static_scan` no longer writes fabricated `trackers_found: 0` when no scan ran.
+- `scripts/detect-dark-patterns.sh`: unzip is now required only for APK-file input, not directory scans.
+- `.github/workflows/test.yml`: test-matrix and summary aligned to the 11 classified apps; banned-vocabulary scan now covers `localonly/candidates.md`; strict-mode schema check writes to `/tmp` instead of the repo root.
+- `results/RESULTS-20260803.md`: marked superseded in favor of `FINAL-REPORT.md`.
+
 ## 4.1.0 - 2026-08-12
 
 ### Added

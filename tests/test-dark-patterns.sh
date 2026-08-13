@@ -28,6 +28,8 @@ OUTPUT15="$REPO_DIR/tests/fixtures/dark-patterns-output-15-$$.json"
 cleanup() {
     rm -rf "$FIXTURE_BASE"
     rm -f "$OUTPUT"
+    rm -f "$OUTPUT14"
+    rm -f "$OUTPUT15"
     rm -f "$REPO_DIR/tests/fixtures/dark-patterns-bad-$$.json"
     rm -f "$REPO_DIR/tests/fixtures/test-apk-$$.zip"
 }

@@ -42,7 +42,7 @@
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["name", "package_name", "app_type", "verdict"],
+        "required": ["name", "package_name", "app_type", "verdict", "privacy_class"],
         "properties": {
           "name": {
             "type": "string",
@@ -64,6 +64,11 @@
           "verdict": {
             "type": "string",
             "enum": ["pass", "fail", "untested", "provisional_pass"]
+          },
+          "privacy_class": {
+            "type": "string",
+            "enum": ["pass", "minor", "major"],
+            "description": "Report class: pass, phone-home without observed identifying data, or identifying/extensive sharing"
           },
           "verdict_confidence": {
             "type": "number",

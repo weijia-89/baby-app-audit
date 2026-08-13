@@ -15,7 +15,7 @@ fail() { echo "  FAIL: $1"; FAILED=1; }
 
 # Setup: create test HAR with one matching flow
 cleanup() {
-    rm -f "$REPO_DIR/tests/fixtures/bad.json" "$REPO_DIR/tests/fixtures/output.json" "$REPO_DIR/tests/fixtures/output2.json" "$REPO_DIR/tests/fixtures/output3.json" "$REPO_DIR/tests/fixtures/output4.json" "$REPO_DIR/tests/fixtures/stderr3.txt" "$REPO_DIR/tests/fixtures/stderr4.txt" "$REPO_DIR/tests/fixtures/missing-config.json" "$REPO_DIR/tests/fixtures/bad-schema.json" "$REPO_DIR/tests/fixtures/empty.har" "$REPO_DIR/tests/fixtures/output-empty.json" "$REPO_DIR/tests/fixtures/corrupted-schema.json" "$REPO_DIR/tests/fixtures/output-badschema.json" "$REPO_DIR/tests/fixtures/output-rw-pebbi.json" "$REPO_DIR/tests/fixtures/output-rw-nl.json" "$REPO_DIR/tests/fixtures/output-rw-nubo.json"
+    rm -f "$REPO_DIR/tests/fixtures/bad.json" "$REPO_DIR/tests/fixtures/output.json" "$REPO_DIR/tests/fixtures/output2.json" "$REPO_DIR/tests/fixtures/output3.json" "$REPO_DIR/tests/fixtures/output4.json" "$REPO_DIR/tests/fixtures/stderr3.txt" "$REPO_DIR/tests/fixtures/stderr4.txt" "$REPO_DIR/tests/fixtures/missing-config.json" "$REPO_DIR/tests/fixtures/bad-schema.json" "$REPO_DIR/tests/fixtures/empty.har" "$REPO_DIR/tests/fixtures/output-empty.json" "$REPO_DIR/tests/fixtures/corrupted-schema.json" "$REPO_DIR/tests/fixtures/output-badschema.json" "$REPO_DIR/tests/fixtures/output-rw-pebbi.json" "$REPO_DIR/tests/fixtures/output-rw-nl.json" "$REPO_DIR/tests/fixtures/output-rw-nubo.json" "$REPO_DIR/tests/fixtures/output-rw-pregnancyplus.json" "$REPO_DIR/tests/fixtures/output-rw-wte.json" "$REPO_DIR/tests/fixtures/output-rw-amila.json"
 }
 trap cleanup EXIT
 
@@ -373,6 +373,127 @@ if bash "$DECODER" "$RW_HAR" com.pebbi.android "$RW_PEBBI_TRK" >/dev/null 2>&1; 
     fi
 else
     fail "Pebbi tracker-fidelity decode failed"; RW_OK=0
+fi
+
+# Test 18: Wave-1 packages get explicit filter hosts. Common-word labels
+# ("lite" from com.hp.pregnancy.lite, "view" from com.wte.view) must NOT
+# attribute unrelated hosts; the real product hostname label must.
+echo "Test 18: Wave-1 filter hosts reject common-word labels"
+W1_HAR="$REPO_DIR/tests/fixtures/wave1-capture.har"
+W1_PREG="$REPO_DIR/tests/fixtures/output-rw-pregnancyplus.json"
+W1_WTE="$REPO_DIR/tests/fixtures/output-rw-wte.json"
+
+if [ ! -f "$W1_HAR" ]; then
+    cat > "$W1_HAR" <<'EOF'
+{
+  "log": {
+    "version": "1.2",
+    "creator": {"name": "mitmproxy", "version": "12.2.3"},
+    "entries": [
+      {
+        "startedDateTime": "2026-08-12T12:00:00Z",
+        "request": {
+          "method": "GET",
+          "url": "https://lite.example.com/api/v1/config",
+          "headers": [],
+          "bodySize": -1
+        },
+        "response": {"status": 200, "headers": [], "bodySize": 10}
+      },
+      {
+        "startedDateTime": "2026-08-12T12:00:01Z",
+        "request": {
+          "method": "GET",
+          "url": "https://view.example.com/api/v1/config",
+          "headers": [],
+          "bodySize": -1
+        },
+        "response": {"status": 200, "headers": [], "bodySize": 10}
+      },
+      {
+        "startedDateTime": "2026-08-12T12:00:02Z",
+        "request": {
+          "method": "GET",
+          "url": "https://pregnancyplus.example.com/api/v1/config",
+          "headers": [],
+          "bodySize": -1
+        },
+        "response": {"status": 200, "headers": [], "bodySize": 10}
+      },
+      {
+        "startedDateTime": "2026-08-12T12:00:03Z",
+        "request": {
+          "method": "GET",
+          "url": "https://whattoexpect.example.com/api/v1/config",
+          "headers": [],
+          "bodySize": -1
+        },
+        "response": {"status": 200, "headers": [], "bodySize": 10}
+      },
+      {
+        "startedDateTime": "2026-08-12T12:00:04Z",
+        "request": {
+          "method": "GET",
+          "url": "https://amila.example.com/api/v1/config",
+          "headers": [],
+          "bodySize": -1
+        },
+        "response": {"status": 200, "headers": [], "bodySize": 10}
+      }
+    ]
+  }
+}
+EOF
+fi
+
+# Pregnancy+ (com.hp.pregnancy.lite): lite.example.com must NOT attribute;
+# pregnancyplus.example.com must.
+if bash "$DECODER" "$W1_HAR" com.hp.pregnancy.lite "$W1_PREG" >/dev/null 2>&1; then
+    W1_PREG_HOSTS=$(python3 -c "import json; print(' '.join(f.get('request',{}).get('host','') for f in json.load(open('$W1_PREG')).get('flows',[])))")
+    if echo "$W1_PREG_HOSTS" | grep -q "lite.example.com"; then
+        fail "Pregnancy+ wrongly attributed lite.example.com"; W1_OK=0
+    else
+        pass "Pregnancy+ does not attribute common-word label lite.example.com"
+    fi
+    if echo "$W1_PREG_HOSTS" | grep -q "pregnancyplus.example.com"; then
+        pass "Pregnancy+ attributes pregnancyplus.example.com"
+    else
+        fail "Pregnancy+ missing pregnancyplus.example.com attribution"; W1_OK=0
+    fi
+else
+    fail "Wave-1 Pregnancy+ decode failed"; W1_OK=0
+fi
+# What to Expect (com.wte.view): view.example.com must NOT attribute;
+# whattoexpect.example.com must.
+W1_OK=1
+if bash "$DECODER" "$W1_HAR" com.wte.view "$W1_WTE" >/dev/null 2>&1; then
+    W1_WTE_HOSTS=$(python3 -c "import json; print(' '.join(f.get('request',{}).get('host','') for f in json.load(open('$W1_WTE')).get('flows',[])))")
+    if echo "$W1_WTE_HOSTS" | grep -q "view.example.com"; then
+        fail "What to Expect wrongly attributed view.example.com"; W1_OK=0
+    else
+        pass "What to Expect does not attribute common-word label view.example.com"
+    fi
+    if echo "$W1_WTE_HOSTS" | grep -q "whattoexpect.example.com"; then
+        pass "What to Expect attributes whattoexpect.example.com"
+    else
+        fail "What to Expect missing whattoexpect.example.com attribution"; W1_OK=0
+    fi
+else
+    fail "Wave-1 What to Expect decode failed"; W1_OK=0
+fi
+
+# Test 19: corrected Amila package (com.amila.parenting) attributes its product host
+echo "Test 19: Corrected Amila package attributes amila.example.com"
+W1_AMILA="$REPO_DIR/tests/fixtures/output-rw-amila.json"
+if bash "$DECODER" "$W1_HAR" com.amila.parenting "$W1_AMILA" >/dev/null 2>&1; then
+    W1_AMILA_HOSTS=$(python3 -c "import json; print(' '.join(f.get('request',{}).get('host','') for f in json.load(open('$W1_AMILA')).get('flows',[])))")
+    if echo "$W1_AMILA_HOSTS" | grep -q "amila.example.com"; then
+        pass "Amila (com.amila.parenting) attributes amila.example.com"
+    else
+        fail "Amila missing amila.example.com attribution"; W1_OK=0
+    fi
+else
+    fail "Wave-1 Amila decode failed"; W1_OK=0
 fi
 
 echo ""

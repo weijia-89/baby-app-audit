@@ -129,6 +129,7 @@ This project tests baby and parenting apps against their privacy claims. The cur
 ### What is next
 
 * **Independent verification welcome:** the harness and method are open for others to confirm the findings.
+* **Wave 1 coverage:** the next test set targets five high-download Google Play parenting apps. The final report records each app's data-safety statement before testing.
 * **Open-source plan:** publishing the harness and method is on the roadmap.
 * **Code review (PR #22):** a review hardened the harness. HAR timestamps are now UTC, SDK hosts count as trackers, and dark-pattern false positives (0dp layouts, benign "timer" strings) are fixed, with new regression tests.
 
@@ -139,6 +140,10 @@ Network capture logs:
 - `results/baby-buddy-test-20260803/` - Baby Buddy mitmproxy capture
 - `results/nurture-lock-test-20260803/capture.mitm` - Nurture Lock capture
 - `results/nubo-test-20260803/capture.mitm` - Nubo capture
+
+Sanitized network logs:
+- `results/network-log-<app>.json` - host, path, and status data for each tested app
+- Raw decoded captures stay local because they contain authentication tokens and installation IDs.
 
 ## Sources
 

@@ -55,7 +55,7 @@ These apps explicitly market themselves as privacy-first, local-only, or offline
 | Name | Slug | Platform | Package name | Source | Marketing claim | Evidence type |
 | --- | --- | --- | --- | --- | --- | --- |
 | Baby Daybook | baby-daybook | iOS / Android | com.drillyapps.babydaybook | Piranesi S1 (Pybus) | AdID not auto-enabled; no US processing | network_capture, exodus_static |
-| Baby+ | baby-plus | iOS / Android | com.hp.babyapp | Piranesi S1 (Pybus) | AdID not auto-enabled; no US processing | network_capture, exodus_static |
+| Baby+ (Baby Plus) | baby-plus | iOS / Android | com.hp.babyapp | Piranesi S1 (Pybus) | AdID not auto-enabled; no US processing | network_capture, exodus_static |
 | Nurture Lock | nurture-lock | Android | com.angry.shark.studio.nurturelock | Web search | 100% offline, no account, AES-256, local storage only | network_capture, exodus_static |
 | Cradle | cradle | iOS / Android | com.creatorlane.cradle | Web search | Privacy-first, encrypted at rest, no data sold | network_capture, exodus_static |
 | BabyLog | babylog | iOS | com.babylog.app | Web search | 100% offline, no account, no cloud | network_capture, exodus_static |
@@ -81,11 +81,25 @@ These apps are on my list but not scheduled yet.
 | Huckleberry | huckleberry | iOS / Android | com.huckleberry.app | Play Store search | Sleep tracker | policy_text, external_citation |
 | Tinyhood | tinyhood | iOS / Android | com.tinyhood.app | Play Store search | Parenting app | policy_text, external_citation |
 | Kinedu | kinedu | iOS / Android | com.kinedu.app | Play Store search | Baby development | policy_text, external_citation |
-| Pregnancy+ | pregnancy-plus | iOS / Android | com.pregnancyplus.app | Play Store search | Pregnancy tracker | policy_text |
-| What to Expect | what-to-expect | iOS / Android | com.wte.app | Play Store search | Pregnancy tracker | policy_text |
-| BabyCenter | babycenter | iOS / Android | com.babycenter.app | Play Store search | Pregnancy tracker | policy_text |
+| Pregnancy+ | pregnancy-plus | iOS / Android | com.hp.pregnancy.lite | Play Store search | Pregnancy tracker | policy_text |
+| What to Expect | what-to-expect | iOS / Android | com.wte.view | Play Store search | Pregnancy tracker | policy_text |
+| BabyCenter | babycenter | iOS / Android | com.babycenter.pregnancytracker | Play Store search | Pregnancy tracker | policy_text |
 
 **Note:** What to Expect, BabyCenter, and Pregnancy+ are pregnancy apps, not baby-milestone apps. I track them separately because the data type differs.
+
+## Popular Google Play apps - Wave 1
+
+These are the next five APK targets. I checked each Play Store page on 2026-08-12 before testing.
+
+| Name | Slug | Platform | Package name | Play Store signal | Privacy posture | Evidence type |
+| --- | --- | --- | --- | --- | --- | --- |
+| BabyCenter | babycenter | Android / iOS | com.babycenter.pregnancytracker | 4.9 stars, 1.54M reviews, 10M+ downloads, #3 top free parenting | Shares Personal info and Health and fitness, plus five other data types. No privacy promise found. | policy_text, network_capture |
+| Nanit | nanit | Android / iOS | com.nanit.baby | 3.9 stars, 10.6K reviews, 500K+ downloads, #5 top grossing parenting | Shares Personal info, App activity, and App info and performance. Hardware companion. No privacy promise found. | policy_text, network_capture |
+| What to Expect | what-to-expect | Android / iOS | com.wte.view | 4.9 stars, 121K reviews, 5M+ downloads, #7 top free parenting | Shares Personal info and Health and fitness, plus five other data types. No privacy promise found. | policy_text, network_capture |
+| Pregnancy+ | pregnancy-plus | Android / iOS | com.hp.pregnancy.lite | 4.8 stars, 3.64M reviews, 50M+ downloads, #10 top free parenting | Shares Location and Device or other IDs. No privacy promise found. | policy_text, network_capture |
+| BellyBloom | bellybloom | Android | com.bellyBloom.pregnancy.tracker | 4.6 stars, 988 reviews, 1M+ downloads | Shares Health and fitness, Photos and videos, and Calendar. Data is not encrypted and cannot be deleted. | policy_text, network_capture |
+
+**Wave 1 note:** None of these pages promises no data sharing or offline operation. BellyBloom's page says that data is not encrypted and cannot be deleted.
 
 ---
 
@@ -97,7 +111,7 @@ These are hardware devices with companion apps. I test them after I finish the m
 | --- | --- | --- | --- | --- | --- | --- |
 | Owlet Sock | owlet-sock | Android / iOS | com.owletcare.sock | SpO2 monitor | MDR | Piranesi S4 |
 | Owlet Cam | owlet-cam | Android / iOS | com.owletcare.cam | Wi-Fi camera | RED | Piranesi S4 |
-| Nanit | nanit | Android / iOS | com.nanit.app | Baby monitor camera | RED | Play Store search |
+| Nanit | nanit | Android / iOS | com.nanit.baby | Baby monitor camera | RED | Play Store search |
 | Miku | miku | Android / iOS | com.miku.app | Breathing monitor | MDR | Play Store search |
 | Snuza | snuza | Android / iOS | com.snuza.app | Movement monitor | MDR | Play Store search |
 
