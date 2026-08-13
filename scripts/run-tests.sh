@@ -28,7 +28,10 @@ fi
 # Type: native | foss | web
 # Package: empty string for FOSS/web apps without a package name.
 # Example: APK_HARNESS_APPS="Nurture Lock|native|com.angry.shark.studio.nurturelock;Nubo|native|com.clicksie.nuboapp"
-DEFAULT_APPS="Nurture Lock|native|com.angry.shark.studio.nurturelock;Nubo|native|com.clicksie.nuboapp;Pebbi|native|com.pebbi.android;Baby Buddy|foss|;BabyTrack|native|com.babytrack.app;Amila|native|com.amila.babytracker;Wachanga|native|com.wachanga.babymilestones"
+# The default set tracks the 11 classified apps in results/RESULTS-20260803.json
+# (package names corrected 2026-08-07: Amila is com.amila.parenting, BabyTrack
+# is com.sociodigitals.babytrack and dropped as out of scope with Wachanga).
+DEFAULT_APPS="Nurture Lock|native|com.angry.shark.studio.nurturelock;Nubo|native|com.clicksie.nuboapp;Pebbi|native|com.pebbi.android;Baby Buddy|foss|;Amila|native|com.amila.parenting;Baby Daybook|native|com.drillyapps.babydaybook;Baby+|native|com.hp.babyapp;MimiLog|native|com.mimiapp.mimilog;Nara|native|com.naraorganics.nara;Heartful Baby|native|com.heartfulsprout.baby;Pixy|native|com.pixykid.app"
 APK_HARNESS_APPS="${APK_HARNESS_APPS:-$DEFAULT_APPS}"
 
 # Backward compatibility check: space delimiter was removed in v3.2.0.
@@ -476,9 +479,10 @@ test_native_app() {
     # automated scan (exodus-standalone) is documented but not run here.
     if command -v jadx >/dev/null 2>&1; then
         log "[$app_name] jadx available for manual static review (see decompiled/)"
+        # No automated static scan runs here (exodus-standalone not wired), so
+        # no tracker counts are claimed. Trackers found in decompiled/ are
+        # recorded manually by the operator.
         jq '.static_scan = {
-            "trackers_found": 0,
-            "tracker_names": [],
             "note": "jadx manual review required; exodus-standalone not run (architecture)"
         }' "$results_file" > "$results_file.tmp" && mv "$results_file.tmp" "$results_file"
     else
@@ -689,7 +693,10 @@ main() {
             apps: $apps
         }' \
         > "$summary" || {
-            # Fallback: empty apps array on malformed input
+            # Fallback: empty apps array on malformed input. This is a
+            # fail-loud path - a partial result set must not read as SUCCESS.
+            warn "Summary build failed (malformed per-app result file); writing empty apps array"
+            exit_code=1
             jq -n \
                 --arg hv "$HARNESS_VERSION" \
                 --arg ts "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \

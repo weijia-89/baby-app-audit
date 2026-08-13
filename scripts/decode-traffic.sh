@@ -123,6 +123,12 @@ case "$PACKAGE_NAME" in
     com.amila.babytracker)
         FILTER_HOST="amila"
         ;;
+    com.amila.parenting)
+        FILTER_HOST="amila"
+        ;;
+    com.sociodigitals.babytrack)
+        FILTER_HOST="babytrack"
+        ;;
     com.wachanga.babymilestones)
         FILTER_HOST="wachanga"
         ;;
@@ -131,6 +137,21 @@ case "$PACKAGE_NAME" in
         ;;
     com.owletcare.cam)
         FILTER_HOST="owletcare"
+        ;;
+    com.babycenter.pregnancytracker)
+        FILTER_HOST="babycenter"
+        ;;
+    com.nanit.baby)
+        FILTER_HOST="nanit"
+        ;;
+    com.wte.view)
+        FILTER_HOST="whattoexpect"
+        ;;
+    com.hp.pregnancy.lite)
+        FILTER_HOST="pregnancyplus"
+        ;;
+    com.bellyBloom.pregnancy.tracker)
+        FILTER_HOST="bellybloom"
         ;;
     *)
         # Fallback: use the last segment of the package name

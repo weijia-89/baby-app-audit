@@ -55,7 +55,12 @@
           "path": {
             "type": "string"
           },
-          "status": {},
+          "status": {
+            "oneOf": [
+              { "type": "integer" },
+              { "const": "unknown" }
+            ]
+          },
           "origin": {
             "type": "string"
           }

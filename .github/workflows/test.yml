@@ -51,7 +51,7 @@ jobs:
       - name: Check for banned vocabulary (all public docs)
         run: |
           failed=0
-          for file in APK_PRIVACY_TEST_HARNESS.md README.md METHODOLOGY.md CHANGELOG.md results/RESULTS-20260803.md localonly/entries/TIMESTAMP_LOG.md; do
+          for file in APK_PRIVACY_TEST_HARNESS.md README.md METHODOLOGY.md CHANGELOG.md results/RESULTS-20260803.md localonly/entries/TIMESTAMP_LOG.md localonly/candidates.md; do
             if [ -f "$file" ]; then
               if grep -qiE "\b(leverage|utilize|robust|scalable|seamlessly|comprehensive)\b" "$file"; then
                 echo "ERROR: Banned vocabulary found in $file"
@@ -68,10 +68,14 @@ jobs:
         run: |
           python3 -m json.tool results/schema.json > /dev/null
           python3 -m json.tool results/decode-traffic.schema.json > /dev/null
+          python3 -m json.tool results/network-log.schema.json > /dev/null
           python3 -m json.tool results/RESULTS-20260803.json > /dev/null
+          for log in results/network-log-*.json; do
+            python3 -m json.tool "$log" > /dev/null
+          done
           jq -e 'has("harness_version") and has("test_run_id") and has("apps")' results/RESULTS-20260803.json > /dev/null
-          for app in "Nurture Lock" "Nubo" "Pebbi" "Baby Buddy"; do
-            jq -e --arg n "$app" '.apps[] | select(.name == $n) | has("verdict")' results/RESULTS-20260803.json > /dev/null
+          for app in "Nurture Lock" "Nubo" "Pebbi" "Baby Buddy" "Amila" "Baby Daybook" "Baby+" "MimiLog" "Nara" "Heartful Baby" "Pixy"; do
+            jq -e --arg n "$app" '.apps[] | select(.name == $n) | has("verdict") and has("privacy_class")' results/RESULTS-20260803.json > /dev/null
           done
           echo "Results JSON conforms to required structure"
 
@@ -112,6 +116,7 @@ jobs:
           bash -n tests/test-dark-patterns.sh || exit 1
           bash -n tests/test-compare-apps.sh || exit 1
           bash -n tests/test-burst-runner.sh || exit 1
+          bash -n tests/test-results-artifacts.sh || exit 1
           echo "All unit test scripts parse cleanly"
 
       - name: Secret scan (gitleaks)
@@ -165,19 +170,38 @@ jobs:
       - name: Run compare-apps unit tests
         run: bash tests/test-compare-apps.sh
 
+      - name: Run results artifact tests
+        run: bash tests/test-results-artifacts.sh
+
       - name: Verify product-metadata.json is valid JSON
         run: python3 -m json.tool results/product-metadata.json > /dev/null
 
       - name: Schema validation gate
         run: |
-          DECODE_TRAFFIC_STRICT=1 bash scripts/decode-traffic.sh tests/fixtures/test-capture.har com.pebbi.android schema-test-output.json
+          DECODE_TRAFFIC_STRICT=1 bash scripts/decode-traffic.sh tests/fixtures/test-capture.har com.pebbi.android /tmp/schema-test-output.json
           echo "Schema validation passed (strict mode)"
 
       - name: Validate new schemas
         run: |
           python3 -m json.tool results/dark-patterns.schema.json > /dev/null
           python3 -m json.tool results/comparison.schema.json > /dev/null
-          echo "New schemas are valid JSON"
+          python3 -m json.tool results/network-log.schema.json > /dev/null
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          from jsonschema import Draft7Validator
+
+          root = Path(".")
+          results_schema = json.loads((root / "results/schema.json").read_text())
+          results = json.loads((root / "results/RESULTS-20260803.json").read_text())
+          Draft7Validator(results_schema).validate(results)
+
+          network_schema = json.loads((root / "results/network-log.schema.json").read_text())
+          validator = Draft7Validator(network_schema)
+          for path in sorted((root / "results").glob("network-log-*.json")):
+              validator.validate(json.loads(path.read_text()))
+          PY
+          echo "New schemas and sanitized network logs are valid"
 
   canary-test:
     name: Canary Test (Pebbi Positive Control)
@@ -221,7 +245,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        app: [nurturelock, nubo, pebbi, babybuddy, babytrack, amila, wachanga, nighp, milli, baby-connect, snugl]
+        app: [nurturelock, nubo, pebbi, babybuddy, amila, baby-daybook, baby-plus, mimilog, nara, heartful-baby, pixy]
         include:
           - app: nurturelock
             proxy_port: "8080"
@@ -231,19 +255,19 @@ jobs:
             proxy_port: "8082"
           - app: babybuddy
             proxy_port: "8083"
-          - app: babytrack
-            proxy_port: "8084"
           - app: amila
+            proxy_port: "8084"
+          - app: baby-daybook
             proxy_port: "8085"
-          - app: wachanga
+          - app: baby-plus
             proxy_port: "8086"
-          - app: nighp
+          - app: mimilog
             proxy_port: "8087"
-          - app: milli
+          - app: nara
             proxy_port: "8088"
-          - app: baby-connect
+          - app: heartful-baby
             proxy_port: "8089"
-          - app: snugl
+          - app: pixy
             proxy_port: "8090"
     steps:
       - uses: actions/checkout@v4
@@ -320,7 +344,7 @@ jobs:
           echo "| App | Status |" >> $GITHUB_STEP_SUMMARY
           echo "| --- | --- |" >> $GITHUB_STEP_SUMMARY
           # NOTE: Keep this list in sync with the test-matrix.app list above
-          for app in nurturelock nubo pebbi babybuddy babytrack amila wachanga nighp milli baby-connect snugl; do
+          for app in nurturelock nubo pebbi babybuddy amila baby-daybook baby-plus mimilog nara heartful-baby pixy; do
             echo "| ${app} | CI_VALIDATION_PASSED |" >> $GITHUB_STEP_SUMMARY
           done
           echo "" >> $GITHUB_STEP_SUMMARY
