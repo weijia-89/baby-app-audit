@@ -113,6 +113,8 @@ The privacy marks say what the app actually did:
 - **❕** means the app failed, but the capture showed phone-home traffic without identifying user data.
 - **🚫** means the app failed and the capture showed identifying data or extensive tracking.
 
+An app with no privacy claim cannot fail, because there is no promise to break. Its result says "no claim"; the privacy mark still shows what we observed.
+
 Every failed app links to its own sanitized network log (`results/network-log-<app>.json`). The logs list hosts, paths, and response status codes of captured traffic. They contain no query strings, headers, or bodies, because those carried authentication tokens. The raw captures stay local only.
 
 The machine-readable summary is [results/RESULTS-20260803.json](results/RESULTS-20260803.json). See [CHANGELOG.md](CHANGELOG.md) for history.
@@ -121,9 +123,9 @@ The machine-readable summary is [results/RESULTS-20260803.json](results/RESULTS-
 | --- | --- | --- | --- | --- |
 | Nurture Lock | "100% offline" | FAIL | 🚫 | 95% |
 | Nubo | "Local-first" | FAIL | 🚫 | 95% |
-| Pebbi | No claim (positive control) | FAIL | 🚫 | 100% |
+| Pebbi | No claim (positive control) | No claim | 🚫 | 100% |
 | Baby Buddy | Open-source | PASS | 💖 | 100% |
-| Amila | No claim | FAIL | ❕ | 90% |
+| Amila | No claim | No claim | ❕ | 90% |
 | Baby Daybook | "AdID not auto-enabled" | FAIL | 🚫 | 90% |
 | Baby+ | "AdID not auto-enabled" | FAIL | ❕ | 90% |
 | MimiLog | "Fully offline" | PASS | 💖 | 100% |
