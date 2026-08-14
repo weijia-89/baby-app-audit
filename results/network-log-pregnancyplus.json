@@ -1,33 +1,782 @@
 {
   "$schema": "network-log/1.0",
   "schema_version": "1.0",
-  "app": "Pregnancy+",
+  "app": "pregnancyplus",
   "package_name": "com.hp.pregnancy.lite",
   "capture_date": "2026-08-14",
-  "capture": "results/decode-traffic-pregnancyplus.json (local only)",
-  "redaction": "Query strings, headers, and bodies stripped. Project numbers and subscriber IDs replaced with [REDACTED].",
+  "capture": "results/pregnancyplus-test-20260814/artifacts/captures/Pregnancyplus.mitm",
+  "redaction": "Query strings removed; token-like path segments replaced by [REDACTED]; body values, headers, and cookies never included; body JSON keys only.",
   "flows": [
     {
       "method": "POST",
-      "host": "firebaseinstallations.googleapis.com",
-      "path": "https://firebaseinstallations.googleapis.com/v1/projects/[REDACTED]/installations",
+      "host": "firebaselogging.googleapis.com",
+      "path": "https://[REDACTED]/v0cc/log/batch",
       "status": 200,
-      "origin": "app"
+      "origin": "session",
+      "count": 1,
+      "request": {
+        "size": 1959,
+        "content_type": "application/json",
+        "body_keys": null,
+        "headers": []
+      },
+      "response": {
+        "size": 352,
+        "content_type": "application/json; charset=UTF-8",
+        "body_keys": [
+          "logSourceBatchingDenylist",
+          "nextRequestWaitMillis",
+          "qosTier"
+        ]
+      }
+    },
+    {
+      "method": "POST",
+      "host": "b.clarity.ms",
+      "path": "https://b.clarity.ms/collect",
+      "status": 204,
+      "origin": "session",
+      "count": 1,
+      "request": {
+        "size": 822,
+        "content_type": "application/json",
+        "body_keys": null,
+        "headers": []
+      },
+      "response": {
+        "size": 0,
+        "content_type": "",
+        "body_keys": null
+      }
+    },
+    {
+      "method": "GET",
+      "host": "firebase-settings.crashlytics.com",
+      "path": "https://[REDACTED]/spi/v2/platforms/android/gmp/1:1073993904376:android:f4c2e1baecc62ade/settings",
+      "status": 200,
+      "origin": "session",
+      "count": 1,
+      "request": {
+        "size": 0,
+        "content_type": null,
+        "body_keys": null,
+        "headers": []
+      },
+      "response": {
+        "size": 747,
+        "content_type": "application/json; charset=utf-8",
+        "body_keys": [
+          "app",
+          "app_quality",
+          "cache_duration",
+          "fabric",
+          "features",
+          "on_demand_backoff_base",
+          "on_demand_backoff_step_duration_seconds",
+          "on_demand_thread_recording_suspension_enabled",
+          "on_demand_upload_rate_per_minute",
+          "settings_version"
+        ]
+      }
+    },
+    {
+      "method": "POST",
+      "host": "firebaseinstallations.googleapis.com",
+      "path": "https://[REDACTED]/v1/projects/[REDACTED]/installations",
+      "status": 200,
+      "origin": "app",
+      "count": 2,
+      "request": {
+        "size": 130,
+        "content_type": "application/json",
+        "body_keys": null,
+        "headers": [
+          "x-android-cert",
+          "x-android-package",
+          "x-firebase-client",
+          "x-goog-api-key"
+        ]
+      },
+      "response": {
+        "size": 627,
+        "content_type": "application/json; charset=UTF-8",
+        "body_keys": [
+          "authToken",
+          "fid",
+          "name",
+          "refreshToken"
+        ]
+      }
+    },
+    {
+      "method": "GET",
+      "host": "graph.facebook.com",
+      "path": "https://graph.facebook.com/v16.0/app/mobile_sdk_gk",
+      "status": 200,
+      "origin": "session",
+      "count": 2,
+      "request": {
+        "size": 0,
+        "content_type": "application/x-www-form-urlencoded",
+        "body_keys": null,
+        "headers": []
+      },
+      "response": {
+        "size": 3701,
+        "content_type": "application/json; charset=utf-8",
+        "body_keys": [
+          "data"
+        ]
+      }
+    },
+    {
+      "method": "POST",
+      "host": "cognito-identity.us-east-1.amazonaws.com",
+      "path": "https://[REDACTED]/",
+      "status": 200,
+      "origin": "session",
+      "count": 2,
+      "request": {
+        "size": 79,
+        "content_type": "application/x-amz-json-1.1",
+        "body_keys": null,
+        "headers": []
+      },
+      "response": {
+        "size": 63,
+        "content_type": "application/x-amz-json-1.1",
+        "body_keys": [
+          "IdentityId"
+        ]
+      }
+    },
+    {
+      "method": "GET",
+      "host": "graph.facebook.com",
+      "path": "https://graph.facebook.com/v16.0/app",
+      "status": 200,
+      "origin": "session",
+      "count": 1,
+      "request": {
+        "size": 0,
+        "content_type": "application/x-www-form-urlencoded",
+        "body_keys": null,
+        "headers": []
+      },
+      "response": {
+        "size": 1053,
+        "content_type": "text/javascript; charset=UTF-8",
+        "body_keys": [
+          "aam_rules",
+          "android_sdk_error_categories",
+          "app_events_feature_bitmask",
+          "app_events_session_timeout",
+          "auto_log_app_events_default",
+          "gdpv4_nux_enabled",
+          "id",
+          "protected_mode_rules",
+          "seamless_login",
+          "smart_login_bookmark_icon_url",
+          "smart_login_menu_icon_url",
+          "suggested_events_setting",
+          "supports_implicit_sdk_logging"
+        ]
+      }
+    },
+    {
+      "method": "GET",
+      "host": "fallback.adapty.io",
+      "path": "https://fallback.adapty.io/api/v1/sdk/company/[REDACTED]/app/net-config.json",
+      "status": 404,
+      "origin": "session",
+      "count": 1,
+      "request": {
+        "size": 0,
+        "content_type": null,
+        "body_keys": null,
+        "headers": []
+      },
+      "response": {
+        "size": 27503,
+        "content_type": "text/html",
+        "body_keys": null
+      }
+    },
+    {
+      "method": "GET",
+      "host": "api-eu.adapty.io",
+      "path": "https://api-eu.adapty.io/api/v1/sdk/in-apps/[REDACTED]/products/play_store/",
+      "status": 200,
+      "origin": "device",
+      "count": 1,
+      "request": {
+        "size": 0,
+        "content_type": null,
+        "body_keys": null,
+        "headers": [
+          "authorization"
+        ]
+      },
+      "response": {
+        "size": 2028,
+        "content_type": "application/json",
+        "body_keys": [
+          "data"
+        ]
+      }
+    },
+    {
+      "method": "GET",
+      "host": "www.global.api.philips.com",
+      "path": "https://[REDACTED]/configService/appConfigurations",
+      "status": 200,
+      "origin": "session",
+      "count": 1,
+      "request": {
+        "size": 0,
+        "content_type": null,
+        "body_keys": null,
+        "headers": []
+      },
+      "response": {
+        "size": 2641,
+        "content_type": "application/json;charset=UTF-8",
+        "body_keys": [
+          "data",
+          "meta"
+        ]
+      }
+    },
+    {
+      "method": "HEAD",
+      "host": "s3-us-west-1.amazonaws.com",
+      "path": "https://[REDACTED]/[REDACTED]/",
+      "status": 301,
+      "origin": "device",
+      "count": 1,
+      "request": {
+        "size": 0,
+        "content_type": "application/octet-stream",
+        "body_keys": null,
+        "headers": [
+          "authorization"
+        ]
+      },
+      "response": {
+        "size": 0,
+        "content_type": "application/xml",
+        "body_keys": null
+      }
+    },
+    {
+      "method": "POST",
+      "host": "api-eu.adapty.io",
+      "path": "https://api-eu.adapty.io/api/v1/sdk/analytics/profiles/[REDACTED]/",
+      "status": 201,
+      "origin": "device",
+      "count": 1,
+      "request": {
+        "size": 713,
+        "content_type": "application/vnd.api+json",
+        "body_keys": null,
+        "headers": [
+          "authorization"
+        ]
+      },
+      "response": {
+        "size": 555,
+        "content_type": "application/vnd.api+json",
+        "body_keys": [
+          "data"
+        ]
+      }
+    },
+    {
+      "method": "PUT",
+      "host": "s3.amazonaws.com",
+      "path": "https://s3.amazonaws.com/[REDACTED]/85B/[REDACTED]/[REDACTED]",
+      "status": 200,
+      "origin": "device",
+      "count": 2,
+      "request": {
+        "size": 3514,
+        "content_type": "application/octet-stream",
+        "body_keys": null,
+        "headers": [
+          "authorization"
+        ]
+      },
+      "response": {
+        "size": 0,
+        "content_type": "",
+        "body_keys": null
+      }
+    },
+    {
+      "method": "GET",
+      "host": "graph.facebook.com",
+      "path": "https://graph.facebook.com/v16.0/app/model_asset",
+      "status": 200,
+      "origin": "session",
+      "count": 1,
+      "request": {
+        "size": 0,
+        "content_type": "application/x-www-form-urlencoded",
+        "body_keys": null,
+        "headers": []
+      },
+      "response": {
+        "size": 11,
+        "content_type": "text/javascript; charset=UTF-8",
+        "body_keys": [
+          "data"
+        ]
+      }
+    },
+    {
+      "method": "GET",
+      "host": "api-eu.adapty.io",
+      "path": "https://api-eu.adapty.io/api/v1/sdk/analytics/profiles/[REDACTED]/",
+      "status": 200,
+      "origin": "device",
+      "count": 2,
+      "request": {
+        "size": 0,
+        "content_type": null,
+        "body_keys": null,
+        "headers": [
+          "authorization"
+        ]
+      },
+      "response": {
+        "size": 555,
+        "content_type": "application/vnd.api+json",
+        "body_keys": [
+          "data"
+        ]
+      }
+    },
+    {
+      "method": "GET",
+      "host": "api-eu.adapty.io",
+      "path": "https://api-eu.adapty.io/api/v1/sdk/in-apps/[REDACTED]/paywall/variations/old_tools_iap/[REDACTED]/",
+      "status": 200,
+      "origin": "device",
+      "count": 1,
+      "request": {
+        "size": 0,
+        "content_type": null,
+        "body_keys": null,
+        "headers": [
+          "authorization"
+        ]
+      },
+      "response": {
+        "size": 1298,
+        "content_type": "application/vnd.api+json",
+        "body_keys": [
+          "data",
+          "meta"
+        ]
+      }
+    },
+    {
+      "method": "POST",
+      "host": "api-ua.adapty.io",
+      "path": "https://api-ua.adapty.io/api/v1/attribution/install",
+      "status": 202,
+      "origin": "device",
+      "count": 1,
+      "request": {
+        "size": 447,
+        "content_type": "application/json",
+        "body_keys": null,
+        "headers": [
+          "authorization"
+        ]
+      },
+      "response": {
+        "size": 102,
+        "content_type": "application/json",
+        "body_keys": [
+          "data",
+          "meta",
+          "success"
+        ]
+      }
+    },
+    {
+      "method": "GET",
+      "host": "api-eu.adapty.io",
+      "path": "https://api-eu.adapty.io/api/v1/sdk/in-apps/profile/[REDACTED]/",
+      "status": 200,
+      "origin": "device",
+      "count": 1,
+      "request": {
+        "size": 0,
+        "content_type": null,
+        "body_keys": null,
+        "headers": [
+          "authorization"
+        ]
+      },
+      "response": {
+        "size": 68,
+        "content_type": "application/json",
+        "body_keys": [
+          "data"
+        ]
+      }
+    },
+    {
+      "method": "POST",
+      "host": "api-eu.adapty.io",
+      "path": "https://api-eu.adapty.io/api/v1/sdk/events/",
+      "status": 200,
+      "origin": "device",
+      "count": 4,
+      "request": {
+        "size": 372,
+        "content_type": "application/vnd.api+json",
+        "body_keys": null,
+        "headers": [
+          "authorization"
+        ]
+      },
+      "response": {
+        "size": 13,
+        "content_type": "application/vnd.api+json",
+        "body_keys": [
+          "data"
+        ]
+      }
     },
     {
       "method": "POST",
       "host": "firebaseremoteconfig.googleapis.com",
-      "path": "https://firebaseremoteconfig.googleapis.com/v1/projects/1073993904376/namespaces/firebase:fetch",
+      "path": "https://[REDACTED]/v1/projects/1073993904376/namespaces/firebase:fetch",
       "status": 200,
-      "origin": "app"
+      "origin": "app",
+      "count": 1,
+      "request": {
+        "size": 698,
+        "content_type": "application/json",
+        "body_keys": null,
+        "headers": [
+          "x-android-cert",
+          "x-android-package",
+          "x-goog-api-key"
+        ]
+      },
+      "response": {
+        "size": 169024,
+        "content_type": "application/json; charset=UTF-8",
+        "body_keys": [
+          "appName",
+          "entries",
+          "state",
+          "templateVersion"
+        ]
+      }
+    },
+    {
+      "method": "GET",
+      "host": "api.onesignal.com",
+      "path": "https://api.onesignal.com/apps/[REDACTED]/android_params.js",
+      "status": 200,
+      "origin": "session",
+      "count": 1,
+      "request": {
+        "size": 0,
+        "content_type": null,
+        "body_keys": null,
+        "headers": []
+      },
+      "response": {
+        "size": 339,
+        "content_type": "application/json; charset=utf-8",
+        "body_keys": [
+          "android_sender_id",
+          "awl_list",
+          "chnl_lst",
+          "enterp",
+          "jwt_required",
+          "logging_config",
+          "outcomes",
+          "receive_receipts_enable"
+        ]
+      }
+    },
+    {
+      "method": "GET",
+      "host": "api-eu.adapty.io",
+      "path": "https://api-eu.adapty.io/api/v1/sdk/in-apps/[REDACTED]/paywall/variations/wallet_card/[REDACTED]/",
+      "status": 200,
+      "origin": "device",
+      "count": 1,
+      "request": {
+        "size": 0,
+        "content_type": null,
+        "body_keys": null,
+        "headers": [
+          "authorization"
+        ]
+      },
+      "response": {
+        "size": 237962,
+        "content_type": "application/vnd.api+json",
+        "body_keys": [
+          "data",
+          "meta"
+        ]
+      }
+    },
+    {
+      "method": "GET",
+      "host": "api-eu.adapty.io",
+      "path": "https://api-eu.adapty.io/api/v1/sdk/in-apps/[REDACTED]/paywall/variations/defaultPlacementId/[REDACTED]/",
+      "status": 200,
+      "origin": "device",
+      "count": 1,
+      "request": {
+        "size": 0,
+        "content_type": null,
+        "body_keys": null,
+        "headers": [
+          "authorization"
+        ]
+      },
+      "response": {
+        "size": 237976,
+        "content_type": "application/vnd.api+json",
+        "body_keys": [
+          "data",
+          "meta"
+        ]
+      }
+    },
+    {
+      "method": "POST",
+      "host": "graph.facebook.com",
+      "path": "https://graph.facebook.com/v16.0/546319842074484/activities",
+      "status": 200,
+      "origin": "session",
+      "count": 1,
+      "request": {
+        "size": 511,
+        "content_type": "application/x-www-form-urlencoded",
+        "body_keys": null,
+        "headers": []
+      },
+      "response": {
+        "size": 16,
+        "content_type": "text/javascript; charset=UTF-8",
+        "body_keys": [
+          "success"
+        ]
+      }
+    },
+    {
+      "method": "POST",
+      "host": "firebaselogging-pa.googleapis.com",
+      "path": "https://[REDACTED]/v1/firelog/legacy/batchlog",
+      "status": 200,
+      "origin": "device",
+      "count": 2,
+      "request": {
+        "size": 2878,
+        "content_type": "application/json",
+        "body_keys": null,
+        "headers": [
+          "x-goog-api-key"
+        ]
+      },
+      "response": {
+        "size": 233,
+        "content_type": "application/json; charset=UTF-8",
+        "body_keys": [
+          "logResponseDetails",
+          "nextRequestWaitMillis"
+        ]
+      }
+    },
+    {
+      "method": "GET",
+      "host": "public-media.adapty.io",
+      "path": "https://[REDACTED]/public/0c/a1/[REDACTED]/3c7f1d00.png",
+      "status": 200,
+      "origin": "session",
+      "count": 1,
+      "request": {
+        "size": 0,
+        "content_type": null,
+        "body_keys": null,
+        "headers": []
+      },
+      "response": {
+        "size": 23556,
+        "content_type": "image/png",
+        "body_keys": null
+      }
+    },
+    {
+      "method": "GET",
+      "host": "public-media.adapty.io",
+      "path": "https://[REDACTED]/public/f0/0f/[REDACTED]/561d1546.png",
+      "status": 200,
+      "origin": "session",
+      "count": 1,
+      "request": {
+        "size": 0,
+        "content_type": null,
+        "body_keys": null,
+        "headers": []
+      },
+      "response": {
+        "size": 8525,
+        "content_type": "image/png",
+        "body_keys": null
+      }
+    },
+    {
+      "method": "POST",
+      "host": "iam-api.philips-digital.com",
+      "path": "https://[REDACTED]/live",
+      "status": 200,
+      "origin": "session",
+      "count": 1,
+      "request": {
+        "size": 630,
+        "content_type": "text/plain; charset=UTF-8",
+        "body_keys": null,
+        "headers": []
+      },
+      "response": {
+        "size": 4520,
+        "content_type": "application/json",
+        "body_keys": [
+          "B2BPartnerResponse",
+          "JourneyResponse",
+          "Metadata"
+        ]
+      }
+    },
+    {
+      "method": "GET",
+      "host": "public-media.adapty.io",
+      "path": "https://[REDACTED]/public/ac/06/[REDACTED]/0d359c42.png",
+      "status": 200,
+      "origin": "session",
+      "count": 1,
+      "request": {
+        "size": 0,
+        "content_type": null,
+        "body_keys": null,
+        "headers": []
+      },
+      "response": {
+        "size": 27296,
+        "content_type": "image/png",
+        "body_keys": null
+      }
+    },
+    {
+      "method": "GET",
+      "host": "public-media.adapty.io",
+      "path": "https://[REDACTED]/public/13/54/[REDACTED]/f5eaf9de.png",
+      "status": 200,
+      "origin": "session",
+      "count": 1,
+      "request": {
+        "size": 0,
+        "content_type": null,
+        "body_keys": null,
+        "headers": []
+      },
+      "response": {
+        "size": 9475,
+        "content_type": "image/png",
+        "body_keys": null
+      }
+    },
+    {
+      "method": "GET",
+      "host": "public-media.adapty.io",
+      "path": "https://[REDACTED]/public/f9/69/[REDACTED]/96f93d54.png",
+      "status": 200,
+      "origin": "session",
+      "count": 1,
+      "request": {
+        "size": 0,
+        "content_type": null,
+        "body_keys": null,
+        "headers": []
+      },
+      "response": {
+        "size": 1693,
+        "content_type": "image/png",
+        "body_keys": null
+      }
+    },
+    {
+      "method": "GET",
+      "host": "public-media.adapty.io",
+      "path": "https://[REDACTED]/public/46/46/[REDACTED]/47c1980c.png",
+      "status": 200,
+      "origin": "session",
+      "count": 1,
+      "request": {
+        "size": 0,
+        "content_type": null,
+        "body_keys": null,
+        "headers": []
+      },
+      "response": {
+        "size": 10070,
+        "content_type": "image/png",
+        "body_keys": null
+      }
+    },
+    {
+      "method": "GET",
+      "host": "public-media.adapty.io",
+      "path": "https://[REDACTED]/public/73/09/[REDACTED]/5baa0587.png",
+      "status": 200,
+      "origin": "session",
+      "count": 1,
+      "request": {
+        "size": 0,
+        "content_type": null,
+        "body_keys": null,
+        "headers": []
+      },
+      "response": {
+        "size": 110833,
+        "content_type": "image/png",
+        "body_keys": null
+      }
     }
   ],
   "summary": {
-    "total_flows": 3,
+    "total_flows": 42,
     "unique_destinations": [
+      "api-eu.adapty.io",
+      "api-ua.adapty.io",
+      "api.onesignal.com",
+      "b.clarity.ms",
+      "cognito-identity.us-east-1.amazonaws.com",
+      "fallback.adapty.io",
+      "firebase-settings.crashlytics.com",
       "firebaseinstallations.googleapis.com",
-      "firebaseremoteconfig.googleapis.com"
-    ],
-    "tracked": "Hosts listed are carriers of Google Firebase SDKs (Installations, Remote Config)."
+      "firebaselogging-pa.googleapis.com",
+      "firebaselogging.googleapis.com",
+      "firebaseremoteconfig.googleapis.com",
+      "graph.facebook.com",
+      "iam-api.philips-digital.com",
+      "public-media.adapty.io",
+      "s3-us-west-1.amazonaws.com",
+      "s3.amazonaws.com",
+      "www.global.api.philips.com"
+    ]
   }
 }

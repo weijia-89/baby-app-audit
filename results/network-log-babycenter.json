@@ -1,73 +1,465 @@
 {
   "$schema": "network-log/1.0",
   "schema_version": "1.0",
-  "app": "BabyCenter",
+  "app": "babycenter",
   "package_name": "com.babycenter.pregnancytracker",
   "capture_date": "2026-08-14",
-  "capture": "results/decode-traffic-babycenter.json (local only)",
-  "redaction": "Query strings, headers, and bodies stripped. Project numbers and subscriber IDs replaced with [REDACTED].",
+  "capture": "results/babycenter-test-20260814/artifacts/captures/Babycenter.mitm",
+  "redaction": "Query strings removed; token-like path segments replaced by [REDACTED]; body values, headers, and cookies never included; body JSON keys only.",
   "flows": [
+    {
+      "method": "POST",
+      "host": "semanticlocation-pa.googleapis.com",
+      "path": "https://[REDACTED]/[REDACTED]/[REDACTED]",
+      "status": 200,
+      "origin": "device",
+      "count": 1,
+      "request": {
+        "size": 22,
+        "content_type": "application/grpc",
+        "body_keys": null,
+        "headers": [
+          "x-android-cert",
+          "x-android-package",
+          "x-goog-api-key"
+        ]
+      },
+      "response": {
+        "size": 0,
+        "content_type": "application/grpc",
+        "body_keys": null
+      }
+    },
+    {
+      "method": "GET",
+      "host": "2snoab.cdn-settings.appsflyersdk.com",
+      "path": "https://[REDACTED]/android/v2/[REDACTED]/settings",
+      "status": 200,
+      "origin": "session",
+      "count": 3,
+      "request": {
+        "size": 0,
+        "content_type": "application/json",
+        "body_keys": null,
+        "headers": []
+      },
+      "response": {
+        "size": 45,
+        "content_type": "application/json",
+        "body_keys": [
+          "features",
+          "ver"
+        ]
+      }
+    },
+    {
+      "method": "GET",
+      "host": "mobile-data.onetrust.io",
+      "path": "https://[REDACTED]/cfw/cmp/v1/banner",
+      "status": 200,
+      "origin": "session",
+      "count": 1,
+      "request": {
+        "size": 0,
+        "content_type": "application/json",
+        "body_keys": null,
+        "headers": []
+      },
+      "response": {
+        "size": 5900,
+        "content_type": "application/json",
+        "body_keys": [
+          "appConfig",
+          "bannerUIData",
+          "errors",
+          "groupsHierarchy",
+          "otConsentString",
+          "storageKeys"
+        ]
+      }
+    },
+    {
+      "method": "GET",
+      "host": "c.amazon-adsystem.com",
+      "path": "https://[REDACTED]/[REDACTED]",
+      "status": 200,
+      "origin": "session",
+      "count": 1,
+      "request": {
+        "size": 0,
+        "content_type": null,
+        "body_keys": null,
+        "headers": []
+      },
+      "response": {
+        "size": 463,
+        "content_type": "application/json",
+        "body_keys": [
+          "feature_toggle",
+          "metrics",
+          "om_sdk_feature",
+          "sample_rates"
+        ]
+      }
+    },
+    {
+      "method": "POST",
+      "host": "s.amazon-adsystem.com",
+      "path": "https://[REDACTED]/api3/update_dev_info",
+      "status": 200,
+      "origin": "session",
+      "count": 1,
+      "request": {
+        "size": 1047,
+        "content_type": "application/x-www-form-urlencoded",
+        "body_keys": null,
+        "headers": []
+      },
+      "response": {
+        "size": 86,
+        "content_type": "text/plain;charset=ISO-8859-1",
+        "body_keys": [
+          "adId",
+          "idChanged",
+          "msg",
+          "opt-out",
+          "rcode"
+        ]
+      }
+    },
+    {
+      "method": "GET",
+      "host": "www.clarity.ms",
+      "path": "https://www.clarity.ms/tag/mobile/vnmy25t03u",
+      "status": 200,
+      "origin": "session",
+      "count": 1,
+      "request": {
+        "size": 0,
+        "content_type": null,
+        "body_keys": null,
+        "headers": []
+      },
+      "response": {
+        "size": 595,
+        "content_type": "application/json",
+        "body_keys": [
+          "activate",
+          "adsStorage",
+          "analyticsStorage",
+          "imageCompression",
+          "ingestUrl",
+          "lean",
+          "lightMode",
+          "lowEndDevices",
+          "maskingMode",
+          "nativeMask",
+          "nativeUnmask",
+          "network",
+          "reportUrl",
+          "screenCapture",
+          "webMask",
+          "webUnmask",
+          "webViewCapture"
+        ]
+      }
+    },
+    {
+      "method": "POST",
+      "host": "analytics.localytics.com",
+      "path": "https://[REDACTED]/api/v4/applications/[REDACTED]/uploads",
+      "status": 202,
+      "origin": "session",
+      "count": 1,
+      "request": {
+        "size": 3872,
+        "content_type": "application/x-gzip",
+        "body_keys": null,
+        "headers": []
+      },
+      "response": {
+        "size": 0,
+        "content_type": "text/plain;charset=utf-8",
+        "body_keys": null
+      }
+    },
+    {
+      "method": "GET",
+      "host": "manifest.localytics.com",
+      "path": "https://[REDACTED]/api/v5/applications/[REDACTED]",
+      "status": 200,
+      "origin": "session",
+      "count": 1,
+      "request": {
+        "size": 0,
+        "content_type": "application/json; charset=utf-8",
+        "body_keys": null,
+        "headers": []
+      },
+      "response": {
+        "size": 77,
+        "content_type": "application/json; charset=utf-8",
+        "body_keys": [
+          "config",
+          "inboxes",
+          "places"
+        ]
+      }
+    },
+    {
+      "method": "POST",
+      "host": "profile.localytics.com",
+      "path": "https://[REDACTED]/v1/apps/[REDACTED]/profiles/[REDACTED]",
+      "status": 202,
+      "origin": "session",
+      "count": 1,
+      "request": {
+        "size": 1207,
+        "content_type": "application/json",
+        "body_keys": null,
+        "headers": []
+      },
+      "response": {
+        "size": 49,
+        "content_type": "application/json; charset=utf-8",
+        "body_keys": [
+          "message",
+          "success"
+        ]
+      }
+    },
+    {
+      "method": "GET",
+      "host": "analytics.localytics.com",
+      "path": "https://[REDACTED]/api/v4/applications/[REDACTED]/amp",
+      "status": 200,
+      "origin": "session",
+      "count": 1,
+      "request": {
+        "size": 0,
+        "content_type": "application/json; charset=utf-8",
+        "body_keys": null,
+        "headers": []
+      },
+      "response": {
+        "size": 0,
+        "content_type": "text/plain;charset=utf-8",
+        "body_keys": null
+      }
+    },
     {
       "method": "POST",
       "host": "r.clarity.ms",
       "path": "https://r.clarity.ms/collect",
       "status": 204,
-      "origin": "app"
+      "origin": "session",
+      "count": 4,
+      "request": {
+        "size": 745,
+        "content_type": "application/json",
+        "body_keys": null,
+        "headers": []
+      },
+      "response": {
+        "size": 0,
+        "content_type": "",
+        "body_keys": null
+      }
     },
     {
       "method": "GET",
       "host": "googleads.g.doubleclick.net",
-      "path": "https://googleads.g.doubleclick.net/getconfig/pubsetting",
+      "path": "https://[REDACTED]/getconfig/pubsetting",
       "status": 200,
-      "origin": "app"
+      "origin": "session",
+      "count": 1,
+      "request": {
+        "size": 0,
+        "content_type": null,
+        "body_keys": null,
+        "headers": []
+      },
+      "response": {
+        "size": 341,
+        "content_type": "application/json; charset=UTF-8",
+        "body_keys": [
+          "app_id",
+          "exp_param",
+          "odf_settings",
+          "publisher_permissions",
+          "status"
+        ]
+      }
     },
     {
       "method": "GET",
       "host": "geo.babycenter.com",
       "path": "https://geo.babycenter.com/v1",
       "status": 200,
-      "origin": "app"
+      "origin": "session",
+      "count": 1,
+      "request": {
+        "size": 0,
+        "content_type": null,
+        "body_keys": null,
+        "headers": []
+      },
+      "response": {
+        "size": 5,
+        "content_type": "text/html",
+        "body_keys": null
+      }
     },
     {
       "method": "GET",
       "host": "www.babycenter.com",
-      "path": "https://www.babycenter.com/app_config/android/en-US/welcomeScreenABTest.json",
+      "path": "https://www.babycenter.com/app_config/android/en-US/[REDACTED]",
       "status": 200,
-      "origin": "app"
+      "origin": "session",
+      "count": 1,
+      "request": {
+        "size": 0,
+        "content_type": null,
+        "body_keys": null,
+        "headers": []
+      },
+      "response": {
+        "size": 5207,
+        "content_type": "application/json",
+        "body_keys": [
+          "variations",
+          "variationsCustomStorePage",
+          "welcomeScreenTestEnabled"
+        ]
+      }
     },
     {
       "method": "POST",
       "host": "2snoab.launches.appsflyersdk.com",
-      "path": "https://2snoab.launches.appsflyersdk.com/api/v6.18/androidevent",
+      "path": "https://[REDACTED]/api/v6.18/androidevent",
       "status": 200,
-      "origin": "app"
+      "origin": "session",
+      "count": 1,
+      "request": {
+        "size": 2136,
+        "content_type": "application/octet-stream",
+        "body_keys": null,
+        "headers": []
+      },
+      "response": {
+        "size": 63,
+        "content_type": "application/json",
+        "body_keys": [
+          "ol_domain",
+          "ol_id",
+          "ol_ver"
+        ]
+      }
+    },
+    {
+      "method": "POST",
+      "host": "r.clarity.ms",
+      "path": "https://r.clarity.ms/vnmy25t03u/check-asset",
+      "status": 200,
+      "origin": "session",
+      "count": 1,
+      "request": {
+        "size": 136,
+        "content_type": "application/json",
+        "body_keys": null,
+        "headers": []
+      },
+      "response": {
+        "size": 97,
+        "content_type": "application/json; charset=utf-8",
+        "body_keys": [
+          "PLs4UMkTK193XpR0XPZjUw==",
+          "VrdOUQ1kl_3kv_TIlSO33w==",
+          "zm3OmRMGPHMf86b0PNsq5w=="
+        ]
+      }
     },
     {
       "method": "POST",
       "host": "bcsp.babycenter.com",
-      "path": "https://bcsp.babycenter.com/com.snowplowanalytics.snowplow/tp2",
+      "path": "https://bcsp.babycenter.com/[REDACTED]/tp2",
       "status": 200,
-      "origin": "app"
+      "origin": "session",
+      "count": 1,
+      "request": {
+        "size": 4854,
+        "content_type": "application/json; charset=utf-8",
+        "body_keys": null,
+        "headers": []
+      },
+      "response": {
+        "size": 2,
+        "content_type": "text/plain; charset=UTF-8",
+        "body_keys": null
+      }
+    },
+    {
+      "method": "POST",
+      "host": "logs.ads.vungle.com",
+      "path": "https://logs.ads.vungle.com/sdk/metrics",
+      "status": 200,
+      "origin": "session",
+      "count": 1,
+      "request": {
+        "size": 419,
+        "content_type": "application/x-protobuf",
+        "body_keys": null,
+        "headers": []
+      },
+      "response": {
+        "size": 23,
+        "content_type": "application/json; charset=utf-8",
+        "body_keys": [
+          "code",
+          "msg"
+        ]
+      }
     },
     {
       "method": "GET",
       "host": "census-app.scorecardresearch.com",
-      "path": "https://census-app.scorecardresearch.com/p2",
+      "path": "https://[REDACTED]/p2",
       "status": 200,
-      "origin": "app"
+      "origin": "session",
+      "count": 12,
+      "request": {
+        "size": 0,
+        "content_type": null,
+        "body_keys": null,
+        "headers": []
+      },
+      "response": {
+        "size": 43,
+        "content_type": "image/gif",
+        "body_keys": null
+      }
     }
   ],
   "summary": {
-    "total_flows": 21,
+    "total_flows": 35,
     "unique_destinations": [
+      "2snoab.cdn-settings.appsflyersdk.com",
       "2snoab.launches.appsflyersdk.com",
+      "analytics.localytics.com",
       "bcsp.babycenter.com",
+      "c.amazon-adsystem.com",
       "census-app.scorecardresearch.com",
       "geo.babycenter.com",
       "googleads.g.doubleclick.net",
+      "logs.ads.vungle.com",
+      "manifest.localytics.com",
+      "mobile-data.onetrust.io",
+      "profile.localytics.com",
       "r.clarity.ms",
-      "www.babycenter.com"
-    ],
-    "tracked": "Hosts listed are carriers of advertising or analytics SDKs (AppsFlyer, DoubleClick, Microsoft Clarity, Scorecard Research) plus Google Firebase. First-party babycenter.com hosts carry app content and analytics."
+      "s.amazon-adsystem.com",
+      "semanticlocation-pa.googleapis.com",
+      "www.babycenter.com",
+      "www.clarity.ms"
+    ]
   }
 }

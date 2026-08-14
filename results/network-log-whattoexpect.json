@@ -1,105 +1,428 @@
 {
   "$schema": "network-log/1.0",
   "schema_version": "1.0",
-  "app": "What to Expect",
+  "app": "whattoexpect",
   "package_name": "com.wte.view",
   "capture_date": "2026-08-14",
-  "capture": "results/decode-traffic-whattoexpect.json (local only)",
-  "redaction": "Query strings, headers, and bodies stripped. Project numbers and subscriber IDs replaced with [REDACTED].",
+  "capture": "results/whattoexpect-test-20260814/artifacts/captures/Whattoexpect.mitm",
+  "redaction": "Query strings removed; token-like path segments replaced by [REDACTED]; body values, headers, and cookies never included; body JSON keys only.",
   "flows": [
     {
       "method": "POST",
       "host": "firebaseinstallations.googleapis.com",
-      "path": "https://firebaseinstallations.googleapis.com/v1/projects/[REDACTED]/installations",
+      "path": "https://[REDACTED]/v1/projects/[REDACTED]/installations",
       "status": 200,
-      "origin": "app"
+      "origin": "app",
+      "count": 1,
+      "request": {
+        "size": 129,
+        "content_type": "application/json",
+        "body_keys": null,
+        "headers": [
+          "x-android-cert",
+          "x-android-package",
+          "x-firebase-client",
+          "x-goog-api-key"
+        ]
+      },
+      "response": {
+        "size": 623,
+        "content_type": "application/json; charset=UTF-8",
+        "body_keys": [
+          "authToken",
+          "fid",
+          "name",
+          "refreshToken"
+        ]
+      }
+    },
+    {
+      "method": "GET",
+      "host": "mobile-data.onetrust.io",
+      "path": "https://[REDACTED]/cfw/cmp/v1/banner",
+      "status": 200,
+      "origin": "session",
+      "count": 1,
+      "request": {
+        "size": 0,
+        "content_type": "application/json",
+        "body_keys": null,
+        "headers": []
+      },
+      "response": {
+        "size": 5723,
+        "content_type": "application/json",
+        "body_keys": [
+          "appConfig",
+          "bannerUIData",
+          "errors",
+          "groupsHierarchy",
+          "otConsentString",
+          "storageKeys"
+        ]
+      }
+    },
+    {
+      "method": "GET",
+      "host": "a2lve5.cdn-settings.appsflyersdk.com",
+      "path": "https://[REDACTED]/android/v2/[REDACTED]/settings",
+      "status": 200,
+      "origin": "session",
+      "count": 3,
+      "request": {
+        "size": 0,
+        "content_type": "application/json",
+        "body_keys": null,
+        "headers": []
+      },
+      "response": {
+        "size": 45,
+        "content_type": "application/json",
+        "body_keys": [
+          "features",
+          "ver"
+        ]
+      }
+    },
+    {
+      "method": "GET",
+      "host": "www.clarity.ms",
+      "path": "https://www.clarity.ms/tag/mobile/tgi1pxdmic",
+      "status": 200,
+      "origin": "session",
+      "count": 1,
+      "request": {
+        "size": 0,
+        "content_type": null,
+        "body_keys": null,
+        "headers": []
+      },
+      "response": {
+        "size": 509,
+        "content_type": "application/json",
+        "body_keys": [
+          "activate",
+          "adsStorage",
+          "analyticsStorage",
+          "imageCompression",
+          "ingestUrl",
+          "lean",
+          "lightMode",
+          "lowEndDevices",
+          "maskingMode",
+          "nativeMask",
+          "nativeUnmask",
+          "network",
+          "reportUrl",
+          "screenCapture",
+          "webMask",
+          "webUnmask",
+          "webViewCapture"
+        ]
+      }
+    },
+    {
+      "method": "GET",
+      "host": "firebase-settings.crashlytics.com",
+      "path": "https://[REDACTED]/spi/v2/platforms/android/gmp/1:179542082127:android:06856a46f97260e1/settings",
+      "status": 200,
+      "origin": "session",
+      "count": 1,
+      "request": {
+        "size": 0,
+        "content_type": null,
+        "body_keys": null,
+        "headers": []
+      },
+      "response": {
+        "size": 738,
+        "content_type": "application/json; charset=utf-8",
+        "body_keys": [
+          "app",
+          "app_quality",
+          "cache_duration",
+          "fabric",
+          "features",
+          "on_demand_backoff_base",
+          "on_demand_backoff_step_duration_seconds",
+          "on_demand_thread_recording_suspension_enabled",
+          "on_demand_upload_rate_per_minute",
+          "settings_version"
+        ]
+      }
+    },
+    {
+      "method": "POST",
+      "host": "api.mixpanel.com",
+      "path": "https://api.mixpanel.com/track/",
+      "status": 200,
+      "origin": "session",
+      "count": 1,
+      "request": {
+        "size": 7593,
+        "content_type": "application/x-www-form-urlencoded; charset=utf-8",
+        "body_keys": null,
+        "headers": []
+      },
+      "response": {
+        "size": 1,
+        "content_type": "application/json",
+        "body_keys": [
+          "[non-object]"
+        ]
+      }
+    },
+    {
+      "method": "POST",
+      "host": "events-stream-svc.usw2.cordial.com",
+      "path": "https://[REDACTED]/mobile/events",
+      "status": 200,
+      "origin": "device",
+      "count": 1,
+      "request": {
+        "size": 690,
+        "content_type": "application/json",
+        "body_keys": null,
+        "headers": [
+          "authorization"
+        ]
+      },
+      "response": {
+        "size": 16,
+        "content_type": "application/json",
+        "body_keys": [
+          "success"
+        ]
+      }
     },
     {
       "method": "POST",
       "host": "firebaseremoteconfig.googleapis.com",
-      "path": "https://firebaseremoteconfig.googleapis.com/v1/projects/179542082127/namespaces/firebase:fetch",
+      "path": "https://[REDACTED]/v1/projects/179542082127/namespaces/firebase:fetch",
       "status": 200,
-      "origin": "app"
+      "origin": "app",
+      "count": 1,
+      "request": {
+        "size": 686,
+        "content_type": "application/json",
+        "body_keys": null,
+        "headers": [
+          "x-android-cert",
+          "x-android-package",
+          "x-goog-api-key"
+        ]
+      },
+      "response": {
+        "size": 62918,
+        "content_type": "application/json; charset=UTF-8",
+        "body_keys": [
+          "appName",
+          "entries",
+          "state",
+          "templateVersion"
+        ]
+      }
     },
     {
       "method": "POST",
       "host": "a2lve5.register.appsflyersdk.com",
-      "path": "https://a2lve5.register.appsflyersdk.com/api/v6.18/androidevent",
+      "path": "https://[REDACTED]/api/v6.18/androidevent",
       "status": 200,
-      "origin": "app"
+      "origin": "session",
+      "count": 3,
+      "request": {
+        "size": 673,
+        "content_type": "application/json",
+        "body_keys": null,
+        "headers": []
+      },
+      "response": {
+        "size": 2,
+        "content_type": "text/plain",
+        "body_keys": null
+      }
+    },
+    {
+      "method": "POST",
+      "host": "b.clarity.ms",
+      "path": "https://b.clarity.ms/tgi1pxdmic/check-asset",
+      "status": 200,
+      "origin": "session",
+      "count": 2,
+      "request": {
+        "size": 91,
+        "content_type": "application/json",
+        "body_keys": null,
+        "headers": []
+      },
+      "response": {
+        "size": 65,
+        "content_type": "application/json; charset=utf-8",
+        "body_keys": [
+          "0UJsCSDgLh0c8S0QbUEupg==",
+          "T2WcE80pVDzDku2JTwjEcg=="
+        ]
+      }
     },
     {
       "method": "POST",
       "host": "b.clarity.ms",
       "path": "https://b.clarity.ms/collect",
       "status": 204,
-      "origin": "app"
+      "origin": "session",
+      "count": 3,
+      "request": {
+        "size": 3080,
+        "content_type": "application/json",
+        "body_keys": null,
+        "headers": []
+      },
+      "response": {
+        "size": 0,
+        "content_type": "",
+        "body_keys": null
+      }
     },
     {
       "method": "POST",
       "host": "a2lve5.dlsdk.appsflyersdk.com",
-      "path": "https://a2lve5.dlsdk.appsflyersdk.com/v1.0/android/com.wte.view",
+      "path": "https://[REDACTED]/v1.0/android/com.wte.view",
       "status": 200,
-      "origin": "app"
-    },
-    {
-      "method": "POST",
-      "host": "a2lve5.conversions.appsflyersdk.com",
-      "path": "https://a2lve5.conversions.appsflyersdk.com/api/v6.18/androidevent",
-      "status": 200,
-      "origin": "app"
+      "origin": "session",
+      "count": 1,
+      "request": {
+        "size": 259,
+        "content_type": "application/json",
+        "body_keys": null,
+        "headers": []
+      },
+      "response": {
+        "size": 32,
+        "content_type": "application/json; charset=utf-8",
+        "body_keys": [
+          "click_event",
+          "found"
+        ]
+      }
     },
     {
       "method": "POST",
       "host": "a2lve5.pia.appsflyersdk.com",
-      "path": "https://a2lve5.pia.appsflyersdk.com/api/v1.0/pia-android-event",
+      "path": "https://[REDACTED]/api/v1.0/pia-android-event",
       "status": 200,
-      "origin": "app"
+      "origin": "session",
+      "count": 1,
+      "request": {
+        "size": 440,
+        "content_type": "application/octet-stream",
+        "body_keys": null,
+        "headers": []
+      },
+      "response": {
+        "size": 0,
+        "content_type": "",
+        "body_keys": null
+      }
     },
     {
       "method": "POST",
-      "host": "a2lve5.inapps.appsflyersdk.com",
-      "path": "https://a2lve5.inapps.appsflyersdk.com/api/v6.18/androidevent",
+      "host": "b.clarity.ms",
+      "path": "https://b.clarity.ms/tgi1pxdmic/upload-asset/[REDACTED]%3D%3D/1",
       "status": 200,
-      "origin": "app"
+      "origin": "session",
+      "count": 1,
+      "request": {
+        "size": 2753,
+        "content_type": "application/octet-stream",
+        "body_keys": null,
+        "headers": []
+      },
+      "response": {
+        "size": 0,
+        "content_type": "",
+        "body_keys": null
+      }
     },
     {
       "method": "POST",
       "host": "sp.whattoexpect.com",
-      "path": "https://sp.whattoexpect.com/com.snowplowanalytics.snowplow/tp2",
+      "path": "https://sp.whattoexpect.com/[REDACTED]/tp2",
       "status": 200,
-      "origin": "app"
+      "origin": "session",
+      "count": 1,
+      "request": {
+        "size": 8890,
+        "content_type": "application/json; charset=utf-8",
+        "body_keys": null,
+        "headers": []
+      },
+      "response": {
+        "size": 2,
+        "content_type": "text/plain; charset=UTF-8",
+        "body_keys": null
+      }
     },
     {
       "method": "GET",
       "host": "census-app.scorecardresearch.com",
-      "path": "https://census-app.scorecardresearch.com/p2",
+      "path": "https://[REDACTED]/p2",
       "status": 200,
-      "origin": "app"
+      "origin": "session",
+      "count": 2,
+      "request": {
+        "size": 0,
+        "content_type": null,
+        "body_keys": null,
+        "headers": []
+      },
+      "response": {
+        "size": 43,
+        "content_type": "image/gif",
+        "body_keys": null
+      }
     },
     {
       "method": "GET",
       "host": "a2lve5.gcdsdk.appsflyersdk.com",
-      "path": "https://a2lve5.gcdsdk.appsflyersdk.com/install_data/v5.0/com.wte.view",
+      "path": "https://[REDACTED]/install_data/v5.0/com.wte.view",
       "status": 200,
-      "origin": "app"
+      "origin": "session",
+      "count": 1,
+      "request": {
+        "size": 0,
+        "content_type": "application/json",
+        "body_keys": null,
+        "headers": []
+      },
+      "response": {
+        "size": 95,
+        "content_type": "application/json; charset=utf-8",
+        "body_keys": [
+          "af_message",
+          "af_status",
+          "install_time"
+        ]
+      }
     }
   ],
   "summary": {
-    "total_flows": 14,
+    "total_flows": 25,
     "unique_destinations": [
-      "a2lve5.conversions.appsflyersdk.com",
+      "a2lve5.cdn-settings.appsflyersdk.com",
       "a2lve5.dlsdk.appsflyersdk.com",
       "a2lve5.gcdsdk.appsflyersdk.com",
-      "a2lve5.inapps.appsflyersdk.com",
       "a2lve5.pia.appsflyersdk.com",
       "a2lve5.register.appsflyersdk.com",
+      "api.mixpanel.com",
       "b.clarity.ms",
       "census-app.scorecardresearch.com",
+      "events-stream-svc.usw2.cordial.com",
+      "firebase-settings.crashlytics.com",
       "firebaseinstallations.googleapis.com",
       "firebaseremoteconfig.googleapis.com",
-      "sp.whattoexpect.com"
-    ],
-    "tracked": "Hosts listed are carriers of advertising or analytics SDKs (AppsFlyer, Microsoft Clarity, Scorecard Research) plus Google Firebase. First-party sp.whattoexpect.com carries app content."
+      "mobile-data.onetrust.io",
+      "sp.whattoexpect.com",
+      "www.clarity.ms"
+    ]
   }
 }

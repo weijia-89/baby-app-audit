@@ -1,46 +1,72 @@
 {
   "$schema": "network-log/1.0",
   "schema_version": "1.0",
-  "app": "Heartful Baby",
+  "app": "heartful-baby",
   "package_name": "com.heartfulsprout.baby",
   "capture_date": "2026-08-12",
-  "capture": "results/heartful-baby-test-20260812/artifacts/captures/Heartful-baby.mitm",
-  "redaction": "Query strings, headers, and bodies stripped. Project numbers and subscriber IDs replaced with [REDACTED].",
+  "capture": "results/heartful-baby-test-20260812/artifacts/captures/heartful-baby.mitm",
+  "redaction": "Query strings removed; token-like path segments replaced by [REDACTED]; body values, headers, and cookies never included; body JSON keys only.",
   "flows": [
     {
       "method": "GET",
       "host": "connectivitycheck.gstatic.com",
-      "path": "/generate_204",
+      "path": "http://[REDACTED]/generate_204",
       "status": 204,
-      "origin": "android system"
+      "origin": "session",
+      "count": 2,
+      "request": {
+        "size": 0,
+        "content_type": null,
+        "body_keys": null,
+        "headers": []
+      },
+      "response": {
+        "size": 0,
+        "content_type": "",
+        "body_keys": null
+      }
     },
     {
       "method": "GET",
       "host": "www.google.com",
-      "path": "/generate_204",
+      "path": "https://www.google.com/generate_204",
       "status": 204,
-      "origin": "android system"
-    },
-    {
-      "method": "GET",
-      "host": "connectivitycheck.gstatic.com",
-      "path": "/generate_204",
-      "status": 204,
-      "origin": "android system"
-    },
-    {
-      "method": "GET",
-      "host": "www.google.com",
-      "path": "/generate_204",
-      "status": 204,
-      "origin": "android system"
+      "origin": "session",
+      "count": 2,
+      "request": {
+        "size": 0,
+        "content_type": null,
+        "body_keys": null,
+        "headers": []
+      },
+      "response": {
+        "size": 0,
+        "content_type": "",
+        "body_keys": null
+      }
     },
     {
       "method": "POST",
       "host": "firebaselogging.googleapis.com",
-      "path": "/v0cc/log/batch",
+      "path": "https://[REDACTED]/v0cc/log/batch",
       "status": 200,
-      "origin": "app"
+      "origin": "session",
+      "count": 1,
+      "request": {
+        "size": 6671,
+        "content_type": "application/json",
+        "body_keys": null,
+        "headers": []
+      },
+      "response": {
+        "size": 352,
+        "content_type": "application/json; charset=UTF-8",
+        "body_keys": [
+          "logSourceBatchingDenylist",
+          "nextRequestWaitMillis",
+          "qosTier"
+        ]
+      }
     }
   ],
   "summary": {
@@ -49,7 +75,6 @@
       "connectivitycheck.gstatic.com",
       "firebaselogging.googleapis.com",
       "www.google.com"
-    ],
-    "tracked": "Hosts listed are carriers of tracking or analytics SDKs (Facebook, Firebase, RevenueCat, Crashlytics, FCM). Font and system checks are marked by origin."
+    ]
   }
 }

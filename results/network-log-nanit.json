@@ -1,56 +1,317 @@
 {
   "$schema": "network-log/1.0",
   "schema_version": "1.0",
-  "app": "Nanit",
+  "app": "nanit",
   "package_name": "com.nanit.baby",
   "capture_date": "2026-08-14",
-  "capture": "results/decode-traffic-nanit.json (local only)",
-  "redaction": "Query strings, headers, and bodies stripped. Project numbers and subscriber IDs replaced with [REDACTED].",
+  "capture": "results/nanit-test-20260814/artifacts/captures/nanit.mitm",
+  "redaction": "Query strings removed; token-like path segments replaced by [REDACTED]; body values, headers, and cookies never included; body JSON keys only.",
   "flows": [
     {
       "method": "POST",
-      "host": "firebaseinstallations.googleapis.com",
-      "path": "https://firebaseinstallations.googleapis.com/v1/projects/nanit-144706/installations",
+      "host": "r.clarity.ms",
+      "path": "https://r.clarity.ms/collect",
+      "status": 204,
+      "origin": "session",
+      "count": 1,
+      "request": {
+        "size": 1108,
+        "content_type": "application/json",
+        "body_keys": null,
+        "headers": []
+      },
+      "response": {
+        "size": 0,
+        "content_type": "",
+        "body_keys": null
+      }
+    },
+    {
+      "method": "GET",
+      "host": "firebase-settings.crashlytics.com",
+      "path": "https://[REDACTED]/spi/v2/platforms/android/gmp/1:25705829844:android:83a90cd56c7431e0/settings",
       "status": 200,
-      "origin": "app"
+      "origin": "session",
+      "count": 1,
+      "request": {
+        "size": 0,
+        "content_type": null,
+        "body_keys": null,
+        "headers": []
+      },
+      "response": {
+        "size": 740,
+        "content_type": "application/json; charset=utf-8",
+        "body_keys": [
+          "app",
+          "app_quality",
+          "cache_duration",
+          "fabric",
+          "features",
+          "on_demand_backoff_base",
+          "on_demand_backoff_step_duration_seconds",
+          "on_demand_thread_recording_suspension_enabled",
+          "on_demand_upload_rate_per_minute",
+          "settings_version"
+        ]
+      }
+    },
+    {
+      "method": "POST",
+      "host": "firebaseinstallations.googleapis.com",
+      "path": "https://[REDACTED]/v1/projects/nanit-144706/installations",
+      "status": 200,
+      "origin": "app",
+      "count": 1,
+      "request": {
+        "size": 128,
+        "content_type": "application/json",
+        "body_keys": null,
+        "headers": [
+          "x-android-cert",
+          "x-android-package",
+          "x-firebase-client",
+          "x-goog-api-key"
+        ]
+      },
+      "response": {
+        "size": 618,
+        "content_type": "application/json; charset=UTF-8",
+        "body_keys": [
+          "authToken",
+          "fid",
+          "name",
+          "refreshToken"
+        ]
+      }
+    },
+    {
+      "method": "GET",
+      "host": "firebase-settings.crashlytics.com",
+      "path": "https://[REDACTED]/spi/v2/platforms/android/gmp/1%3A25705829844%3Aandroid%3A83a90cd56c7431e0/settings",
+      "status": 200,
+      "origin": "session",
+      "count": 1,
+      "request": {
+        "size": 0,
+        "content_type": null,
+        "body_keys": null,
+        "headers": []
+      },
+      "response": {
+        "size": 740,
+        "content_type": "application/json; charset=utf-8",
+        "body_keys": [
+          "app",
+          "app_quality",
+          "cache_duration",
+          "fabric",
+          "features",
+          "on_demand_backoff_base",
+          "on_demand_backoff_step_duration_seconds",
+          "on_demand_thread_recording_suspension_enabled",
+          "on_demand_upload_rate_per_minute",
+          "settings_version"
+        ]
+      }
     },
     {
       "method": "GET",
       "host": "api.nanit.com",
       "path": "https://api.nanit.com/plans",
       "status": 200,
-      "origin": "app"
+      "origin": "session",
+      "count": 1,
+      "request": {
+        "size": 0,
+        "content_type": null,
+        "body_keys": null,
+        "headers": []
+      },
+      "response": {
+        "size": 56833,
+        "content_type": "application/json",
+        "body_keys": [
+          "plans"
+        ]
+      }
     },
     {
       "method": "GET",
       "host": "api.nanit.com",
       "path": "https://api.nanit.com/cards",
       "status": 401,
-      "origin": "app"
+      "origin": "device",
+      "count": 1,
+      "request": {
+        "size": 0,
+        "content_type": null,
+        "body_keys": null,
+        "headers": [
+          "authorization"
+        ]
+      },
+      "response": {
+        "size": 28,
+        "content_type": "application/json",
+        "body_keys": [
+          "message"
+        ]
+      }
+    },
+    {
+      "method": "POST",
+      "host": "analytics.localytics.com",
+      "path": "https://[REDACTED]/api/v4/applications/[REDACTED]/uploads",
+      "status": 202,
+      "origin": "session",
+      "count": 1,
+      "request": {
+        "size": 1327,
+        "content_type": "application/x-gzip",
+        "body_keys": null,
+        "headers": []
+      },
+      "response": {
+        "size": 0,
+        "content_type": "text/plain;charset=utf-8",
+        "body_keys": null
+      }
     },
     {
       "method": "POST",
       "host": "firebaseremoteconfig.googleapis.com",
-      "path": "https://firebaseremoteconfig.googleapis.com/v1/projects/25705829844/namespaces/firebase:fetch",
+      "path": "https://[REDACTED]/v1/projects/25705829844/namespaces/firebase:fetch",
       "status": 200,
-      "origin": "app"
+      "origin": "app",
+      "count": 1,
+      "request": {
+        "size": 687,
+        "content_type": "application/json",
+        "body_keys": null,
+        "headers": [
+          "x-android-cert",
+          "x-android-package",
+          "x-goog-api-key"
+        ]
+      },
+      "response": {
+        "size": 60447,
+        "content_type": "application/json; charset=UTF-8",
+        "body_keys": [
+          "appName",
+          "entries",
+          "experimentDescriptions",
+          "rolloutMetadata",
+          "state",
+          "templateVersion"
+        ]
+      }
+    },
+    {
+      "method": "POST",
+      "host": "events-stream-svc.usw2.cordial.com",
+      "path": "https://[REDACTED]/mobile/auth/[REDACTED]",
+      "status": 200,
+      "origin": "session",
+      "count": 1,
+      "request": {
+        "size": 0,
+        "content_type": "application/json",
+        "body_keys": null,
+        "headers": []
+      },
+      "response": {
+        "size": 236,
+        "content_type": "application/json",
+        "body_keys": [
+          "success",
+          "token"
+        ]
+      }
+    },
+    {
+      "method": "POST",
+      "host": "events-stream-svc.usw2.cordial.com",
+      "path": "https://[REDACTED]/mobile/contacts",
+      "status": 200,
+      "origin": "device",
+      "count": 1,
+      "request": {
+        "size": 496,
+        "content_type": "application/json",
+        "body_keys": null,
+        "headers": [
+          "authorization"
+        ]
+      },
+      "response": {
+        "size": 16,
+        "content_type": "application/json",
+        "body_keys": [
+          "success"
+        ]
+      }
+    },
+    {
+      "method": "POST",
+      "host": "ingress.eu1.rum-ingress-coralogix.com",
+      "path": "https://[REDACTED]/browser/v1beta/logs",
+      "status": 202,
+      "origin": "device",
+      "count": 1,
+      "request": {
+        "size": 15634,
+        "content_type": "application/json; charset=utf-8",
+        "body_keys": null,
+        "headers": [
+          "authorization"
+        ]
+      },
+      "response": {
+        "size": 31,
+        "content_type": "application/json",
+        "body_keys": [
+          "error"
+        ]
+      }
     },
     {
       "method": "POST",
       "host": "firebaseremoteconfigrealtime.googleapis.com",
-      "path": "https://firebaseremoteconfigrealtime.googleapis.com/v1/projects/25705829844/namespaces/firebase:streamFetchInvalidations",
+      "path": "https://[REDACTED]/v1/projects/25705829844/namespaces/firebase:[REDACTED]",
       "status": 200,
-      "origin": "app"
+      "origin": "app",
+      "count": 1,
+      "request": {
+        "size": 189,
+        "content_type": "application/json",
+        "body_keys": null,
+        "headers": [
+          "x-android-cert",
+          "x-android-package",
+          "x-goog-api-key"
+        ]
+      },
+      "response": {
+        "size": 0,
+        "content_type": "application/json; charset=UTF-8",
+        "body_keys": null
+      }
     }
   ],
   "summary": {
-    "total_flows": 5,
+    "total_flows": 12,
     "unique_destinations": [
+      "analytics.localytics.com",
       "api.nanit.com",
+      "events-stream-svc.usw2.cordial.com",
+      "firebase-settings.crashlytics.com",
       "firebaseinstallations.googleapis.com",
       "firebaseremoteconfig.googleapis.com",
-      "firebaseremoteconfigrealtime.googleapis.com"
-    ],
-    "tracked": "Hosts listed are carriers of Google Firebase SDKs (Installations, Remote Config)."
+      "firebaseremoteconfigrealtime.googleapis.com",
+      "ingress.eu1.rum-ingress-coralogix.com",
+      "r.clarity.ms"
+    ]
   }
 }

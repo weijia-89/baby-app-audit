@@ -62,7 +62,40 @@
             ]
           },
           "origin": {
-            "type": "string"
+            "type": "string",
+            "description": "app = request carries the app's own package header; device = carries another package header (e.g. Play services); session = no package header"
+          },
+          "count": {
+            "type": "integer",
+            "description": "Number of identical flows merged into this row; enriched logs only"
+          },
+          "request": {
+            "type": "object",
+            "description": "Sanitized request detail; enriched logs only",
+            "properties": {
+              "size": { "type": "integer" },
+              "content_type": { "type": "string" },
+              "body_keys": {
+                "type": ["array", "null"],
+                "items": { "type": "string" }
+              },
+              "headers": {
+                "type": "array",
+                "items": { "type": "string" }
+              }
+            }
+          },
+          "response": {
+            "type": "object",
+            "description": "Sanitized response detail; enriched logs only",
+            "properties": {
+              "size": { "type": "integer" },
+              "content_type": { "type": "string" },
+              "body_keys": {
+                "type": ["array", "null"],
+                "items": { "type": "string" }
+              }
+            }
           }
         }
       }
