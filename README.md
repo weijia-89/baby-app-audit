@@ -152,9 +152,9 @@ This project tests baby and parenting apps against their privacy claims. The cur
 ### What the project can do
 
 * **Live data collection:** `scripts/decode-traffic.sh` decodes network captures into structured JSON with per-app metadata.
-* **Dark pattern detection:** `scripts/detect-dark-patterns.sh` scans app resources for tricky consent screens.
 * **Cross-app comparison:** `scripts/compare-apps.sh` compares network traffic across apps to find shared trackers.
-* **CI checks:** the test matrix covers 16 apps, and unit tests check the decoder, dark-pattern, and comparison scripts.
+* **Granular test results:** `FINAL-REPORT.md` lists every captured call per app in a Service | Data shared | Call/Log table.
+* **CI checks:** the test matrix covers 16 apps, and unit tests check the decoder and comparison scripts.
 
 ### What is next
 

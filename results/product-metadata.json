@@ -7,9 +7,6 @@
       "regulatory_regime": "unknown",
       "device_identity": {"basic_udi_di": "", "model_number": "", "regime": "unknown"},
       "burst_tested": "1",
-      "dark_patterns_scanned": true,
-      "dark_patterns_verdict": "inconclusive",
-      "dark_patterns_notes": "2 patterns detected (deceptive_button_order medium, pressure_tactic low) - heuristics, high false-positive risk",
       "static_analysis_complete": true,
       "static_analysis_notes": "jadx decompiled 2026-08-07",
       "dynamic_capture_complete": true
@@ -21,9 +18,6 @@
       "regulatory_regime": "unknown",
       "device_identity": {"basic_udi_di": "", "model_number": "", "regime": "unknown"},
       "burst_tested": "1",
-      "dark_patterns_scanned": true,
-      "dark_patterns_verdict": "inconclusive",
-      "dark_patterns_notes": "3 patterns detected (hidden_consent_flow medium, deceptive_button_order medium, pressure_tactic low) - heuristics, high false-positive risk",
       "static_analysis_complete": true,
       "static_analysis_notes": "jadx decompiled 2026-08-07",
       "dynamic_capture_complete": true
@@ -39,9 +33,6 @@
       "regulatory_regime": "RED",
       "device_identity": {"basic_udi_di": "", "model_number": "Pebbi-Cam-2", "regime": "RED"},
       "burst_tested": "1",
-      "dark_patterns_scanned": true,
-      "dark_patterns_verdict": "inconclusive",
-      "dark_patterns_notes": "2 patterns detected (deceptive_button_order medium, pressure_tactic low) - heuristics, high false-positive risk",
       "static_analysis_complete": true,
       "static_analysis_notes": "jadx decompiled 2026-08-07",
       "dynamic_capture_complete": true
@@ -53,8 +44,6 @@
       "regulatory_regime": "N/A",
       "device_identity": {"basic_udi_di": "", "model_number": "", "regime": "N/A"},
       "burst_tested": "1",
-      "dark_patterns_scanned": false,
-      "dark_patterns_notes": "N/A - Django web app, no Android resources",
       "source_audit_complete": true,
       "source_audit_notes": "Cloned 2026-08-07, commit 7a2b2dfb, 67 network refs, 2 tracker refs",
       "dynamic_capture_complete": true
