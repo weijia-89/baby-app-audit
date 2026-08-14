@@ -9,7 +9,7 @@
 
 ## What we found
 
-We tested 11 baby and parenting apps. Most say they protect your privacy. We checked whether their words match what the app actually does with your data.
+We tested 16 baby and parenting apps. Most say they protect their privacy. We checked whether their words match what the app actually does with your data.
 
 Nine apps make a privacy promise. Seven of them sent data off the device. Only Baby Buddy and MimiLog did what they said.
 
@@ -26,6 +26,11 @@ Nine apps make a privacy promise. Seven of them sent data off the device. Only B
 | Nurture Lock | "100% offline" | FAIL | 🚫 | 95% | Calls `api.revenuecat.com` on launch; 8 tracking libraries in the APK |
 | Pebbi | No claim (control) | No claim | 🚫 | 100% | Extensive data collection via Firebase, Google AdServices, and FCM registration |
 | Pixy | "Bank-level encryption" | FAIL | 🚫 | 90% | Three Facebook Graph API calls and one Firebase Installations registration |
+| BabyCenter | No claim | No claim | 🚫 | 95% | AppsFlyer, DoubleClick, Microsoft Clarity, Scorecard Research, and Firebase calls on launch |
+| BellyBloom | No claim | No claim | 🚫 | 90% | Adjust, DoubleClick, Facebook, and Firebase calls on launch |
+| Nanit | No claim | No claim | ❕ | 90% | Firebase Installations and Remote Config plus the Nanit API on launch; no ad SDK traffic |
+| Pregnancy+ | No claim | No claim | ❕ | 90% | Firebase Installations and Remote Config on launch; no ad SDK traffic |
+| What to Expect | No claim | No claim | 🚫 | 90% | AppsFlyer, Microsoft Clarity, Scorecard Research, and Firebase calls on launch |
 
 Result key:
 
@@ -120,9 +125,11 @@ No test ended inconclusive.
 - **Note:** Open source code, self-hosted. The app sent nothing off the device, so its network log is empty.
 - **Network log:** [network-log-baby-buddy.json](results/network-log-baby-buddy.json)
 
-## Popular Google Play apps - next wave
+## Popular Google Play apps - Wave 1 burst tests
 
-These five apps are next-wave targets. They are not part of the 11 tested results above.
+These five apps are the first wave of popular Google Play targets. They make no privacy promise, so their result says "No claim"; the privacy mark still shows what we observed in the launch capture.
+
+The Play Store pages make no no-data-sharing or offline promise. We acquired these APKs from a mirror and ran burst tests on an API 29 emulator. None of the five kept traffic on the device. BellyBloom 1.0.9 requires Android 12L (API 32), so the tested build is 1.0.8, which shares the same package signature.
 
 | App | Package | Play Store signal | Data-safety statement |
 | --- | --- | --- | --- |
@@ -132,7 +139,40 @@ These five apps are next-wave targets. They are not part of the 11 tested result
 | [Pregnancy+](https://play.google.com/store/apps/details?id=com.hp.pregnancy.lite) | `com.hp.pregnancy.lite` | 4.8 stars, 3.64M reviews, 50M+ downloads, #10 top free parenting | Shares Location and Device or other IDs. No privacy promise found. |
 | [BellyBloom](https://play.google.com/store/apps/details?id=com.bellyBloom.pregnancy.tracker) | `com.bellyBloom.pregnancy.tracker` | 4.6 stars, 988 reviews, 1M+ downloads | Shares Health and fitness, Photos and videos, and Calendar. Data is not encrypted and cannot be deleted. |
 
-The Play Store pages make no no-data-sharing or offline promise. We will acquire these APKs and run burst tests next.
+### BabyCenter
+- **Claim:** No claim
+- **Result:** No claim (95% confidence)
+- **What we found:** The app calls AppsFlyer, DoubleClick, Microsoft Clarity, Scorecard Research, and Firebase on launch. We captured 21 flows, 18 to tracking destinations. The manifest declares ACCESS_ADSERVICES_AD_ID plus an install-referrer receiver. The dark-pattern scan found 4 patterns.
+- **Per-app scan:** [dark-pattern scan](results/dark-patterns-babycenter.json)
+- **Network log:** [network-log-babycenter.json](results/network-log-babycenter.json)
+
+### BellyBloom
+- **Claim:** No claim
+- **Result:** No claim (90% confidence)
+- **What we found:** The app calls Adjust, DoubleClick, Facebook, and Firebase on launch. We captured 8 flows, all to tracking destinations. We used version 1.0.8 because 1.0.9 requires Android 12L (API 32). The dark-pattern scan found 2 patterns.
+- **Per-app scan:** [dark-pattern scan](results/dark-patterns-bellybloom.json)
+- **Network log:** [network-log-bellybloom.json](results/network-log-bellybloom.json)
+
+### Nanit
+- **Claim:** No claim
+- **Result:** No claim (90% confidence)
+- **What we found:** The app calls Google Firebase Installations and Remote Config plus the Nanit API on launch. We captured 5 flows, 3 to tracking destinations. No advertising SDK traffic appeared in the launch window. Full features need the camera and an account; the capture covers onboarding only. The dark-pattern scan found 2 patterns.
+- **Per-app scan:** [dark-pattern scan](results/dark-patterns-nanit.json)
+- **Network log:** [network-log-nanit.json](results/network-log-nanit.json)
+
+### Pregnancy+
+- **Claim:** No claim
+- **Result:** No claim (90% confidence)
+- **What we found:** The app calls Google Firebase Installations and Remote Config on launch. We captured 3 flows, all to tracking destinations. No advertising SDK traffic appeared in the launch window. Automation accepted the consent screens; the capture disabled sensitivity. The dark-pattern scan found 2 patterns.
+- **Per-app scan:** [dark-pattern scan](results/dark-patterns-pregnancyplus.json)
+- **Network log:** [network-log-pregnancyplus.json](results/network-log-pregnancyplus.json)
+
+### What to Expect
+- **Claim:** No claim
+- **Result:** No claim (90% confidence)
+- **What we found:** The app calls AppsFlyer (six endpoints), Microsoft Clarity, Scorecard Research, and Firebase on launch. We captured 14 flows, 13 to tracking destinations. The manifest declares ACCESS_ADSERVICES_AD_ID and AD_SERVICES_CONFIG. The dark-pattern scan found 3 patterns.
+- **Per-app scan:** [dark-pattern scan](results/dark-patterns-whattoexpect.json)
+- **Network log:** [network-log-whattoexpect.json](results/network-log-whattoexpect.json)
 
 ## Dark pattern scan
 
