@@ -1,0 +1,56 @@
+{
+  "$schema": "network-log/1.0",
+  "schema_version": "1.0",
+  "app": "Nanit",
+  "package_name": "com.nanit.baby",
+  "capture_date": "2026-08-14",
+  "capture": "results/decode-traffic-nanit.json (local only)",
+  "redaction": "Query strings, headers, and bodies stripped. Project numbers and subscriber IDs replaced with [REDACTED].",
+  "flows": [
+    {
+      "method": "POST",
+      "host": "firebaseinstallations.googleapis.com",
+      "path": "https://firebaseinstallations.googleapis.com/v1/projects/nanit-144706/installations",
+      "status": 200,
+      "origin": "app"
+    },
+    {
+      "method": "GET",
+      "host": "api.nanit.com",
+      "path": "https://api.nanit.com/plans",
+      "status": 200,
+      "origin": "app"
+    },
+    {
+      "method": "GET",
+      "host": "api.nanit.com",
+      "path": "https://api.nanit.com/cards",
+      "status": 401,
+      "origin": "app"
+    },
+    {
+      "method": "POST",
+      "host": "firebaseremoteconfig.googleapis.com",
+      "path": "https://firebaseremoteconfig.googleapis.com/v1/projects/25705829844/namespaces/firebase:fetch",
+      "status": 200,
+      "origin": "app"
+    },
+    {
+      "method": "POST",
+      "host": "firebaseremoteconfigrealtime.googleapis.com",
+      "path": "https://firebaseremoteconfigrealtime.googleapis.com/v1/projects/25705829844/namespaces/firebase:streamFetchInvalidations",
+      "status": 200,
+      "origin": "app"
+    }
+  ],
+  "summary": {
+    "total_flows": 5,
+    "unique_destinations": [
+      "api.nanit.com",
+      "firebaseinstallations.googleapis.com",
+      "firebaseremoteconfig.googleapis.com",
+      "firebaseremoteconfigrealtime.googleapis.com"
+    ],
+    "tracked": "Hosts listed are carriers of Google Firebase SDKs (Installations, Remote Config)."
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "$schema": "network-log/1.0",
+  "schema_version": "1.0",
+  "app": "Pregnancy+",
+  "package_name": "com.hp.pregnancy.lite",
+  "capture_date": "2026-08-14",
+  "capture": "results/decode-traffic-pregnancyplus.json (local only)",
+  "redaction": "Query strings, headers, and bodies stripped. Project numbers and subscriber IDs replaced with [REDACTED].",
+  "flows": [
+    {
+      "method": "POST",
+      "host": "firebaseinstallations.googleapis.com",
+      "path": "https://firebaseinstallations.googleapis.com/v1/projects/[REDACTED]/installations",
+      "status": 200,
+      "origin": "app"
+    },
+    {
+      "method": "POST",
+      "host": "firebaseremoteconfig.googleapis.com",
+      "path": "https://firebaseremoteconfig.googleapis.com/v1/projects/1073993904376/namespaces/firebase:fetch",
+      "status": 200,
+      "origin": "app"
+    }
+  ],
+  "summary": {
+    "total_flows": 3,
+    "unique_destinations": [
+      "firebaseinstallations.googleapis.com",
+      "firebaseremoteconfig.googleapis.com"
+    ],
+    "tracked": "Hosts listed are carriers of Google Firebase SDKs (Installations, Remote Config)."
+  }
+}

@@ -1,0 +1,114 @@
+{
+  "apps": [
+    "com.babycenter.pregnancytracker",
+    "com.nanit.baby",
+    "com.wte.view",
+    "com.hp.pregnancy.lite",
+    "com.bellyBloom.pregnancy.tracker"
+  ],
+  "comparison_timestamp": "2026-08-14T19:19:34Z",
+  "shared_trackers": [
+    "AppsFlyer",
+    "DoubleClick",
+    "Google",
+    "Microsoft Clarity",
+    "Scorecard Research"
+  ],
+  "similar_endpoints": [
+    {
+      "host": "census-app.scorecardresearch.com",
+      "apps": [
+        "com.babycenter.pregnancytracker",
+        "com.wte.view"
+      ],
+      "flow_counts": {
+        "com.babycenter.pregnancytracker": 1,
+        "com.wte.view": 1
+      }
+    },
+    {
+      "host": "firebaseinstallations.googleapis.com",
+      "apps": [
+        "com.bellyBloom.pregnancy.tracker",
+        "com.hp.pregnancy.lite",
+        "com.nanit.baby",
+        "com.wte.view"
+      ],
+      "flow_counts": {
+        "com.nanit.baby": 1,
+        "com.wte.view": 1,
+        "com.hp.pregnancy.lite": 1,
+        "com.bellyBloom.pregnancy.tracker": 1
+      }
+    },
+    {
+      "host": "firebaseremoteconfig.googleapis.com",
+      "apps": [
+        "com.bellyBloom.pregnancy.tracker",
+        "com.hp.pregnancy.lite",
+        "com.nanit.baby",
+        "com.wte.view"
+      ],
+      "flow_counts": {
+        "com.nanit.baby": 1,
+        "com.wte.view": 1,
+        "com.hp.pregnancy.lite": 1,
+        "com.bellyBloom.pregnancy.tracker": 1
+      }
+    },
+    {
+      "host": "googleads.g.doubleclick.net",
+      "apps": [
+        "com.babycenter.pregnancytracker",
+        "com.bellyBloom.pregnancy.tracker"
+      ],
+      "flow_counts": {
+        "com.babycenter.pregnancytracker": 1,
+        "com.bellyBloom.pregnancy.tracker": 1
+      }
+    }
+  ],
+  "data_volume": {
+    "com.babycenter.pregnancytracker": {
+      "total_flows": 21,
+      "tracker_flows": 18,
+      "total_request_bytes": 13299,
+      "total_response_bytes": 6134
+    },
+    "com.nanit.baby": {
+      "total_flows": 5,
+      "tracker_flows": 3,
+      "total_request_bytes": 1004,
+      "total_response_bytes": 117926
+    },
+    "com.wte.view": {
+      "total_flows": 14,
+      "tracker_flows": 13,
+      "total_request_bytes": 26649,
+      "total_response_bytes": 63762
+    },
+    "com.hp.pregnancy.lite": {
+      "total_flows": 3,
+      "tracker_flows": 3,
+      "total_request_bytes": 963,
+      "total_response_bytes": 170281
+    },
+    "com.bellyBloom.pregnancy.tracker": {
+      "total_flows": 8,
+      "tracker_flows": 8,
+      "total_request_bytes": 3885,
+      "total_response_bytes": 793535
+    }
+  },
+  "regime_coverage": {
+    "com.babycenter.pregnancytracker": "unknown",
+    "com.nanit.baby": "unknown",
+    "com.wte.view": "unknown",
+    "com.hp.pregnancy.lite": "unknown",
+    "com.bellyBloom.pregnancy.tracker": "unknown"
+  },
+  "shared_mechanisms": [
+    "analytics",
+    "firebase"
+  ]
+}

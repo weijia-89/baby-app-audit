@@ -1,0 +1,78 @@
+{
+  "$schema": "network-log/1.0",
+  "schema_version": "1.0",
+  "app": "BellyBloom",
+  "package_name": "com.bellyBloom.pregnancy.tracker",
+  "capture_date": "2026-08-14",
+  "capture": "results/decode-traffic-bellybloom.json (local only)",
+  "redaction": "Query strings, headers, and bodies stripped. Project numbers and subscriber IDs replaced with [REDACTED].",
+  "flows": [
+    {
+      "method": "POST",
+      "host": "firebaseinstallations.googleapis.com",
+      "path": "https://firebaseinstallations.googleapis.com/v1/projects/[REDACTED]/installations",
+      "status": 200,
+      "origin": "app"
+    },
+    {
+      "method": "POST",
+      "host": "firebaseremoteconfig.googleapis.com",
+      "path": "https://firebaseremoteconfig.googleapis.com/v1/projects/254761198014/namespaces/firebase:fetch",
+      "status": 200,
+      "origin": "app"
+    },
+    {
+      "method": "GET",
+      "host": "googleads.g.doubleclick.net",
+      "path": "https://googleads.g.doubleclick.net/mads/static/sdk/native/sdk-core-android.html",
+      "status": 200,
+      "origin": "app"
+    },
+    {
+      "method": "GET",
+      "host": "googleads.g.doubleclick.net",
+      "path": "https://googleads.g.doubleclick.net/mads/static/mad/sdk/native/sdk-core-v40-loader.appcache",
+      "status": 200,
+      "origin": "app"
+    },
+    {
+      "method": "GET",
+      "host": "googleads.g.doubleclick.net",
+      "path": "https://googleads.g.doubleclick.net/favicon.ico",
+      "status": 200,
+      "origin": "app"
+    },
+    {
+      "method": "GET",
+      "host": "googleads.g.doubleclick.net",
+      "path": "https://googleads.g.doubleclick.net/getconfig/pubsetting",
+      "status": 200,
+      "origin": "app"
+    },
+    {
+      "method": "POST",
+      "host": "www.facebook.com",
+      "path": "https://www.facebook.com/adnw_sync2",
+      "status": 200,
+      "origin": "app"
+    },
+    {
+      "method": "GET",
+      "host": "app.adjust.com",
+      "path": "https://app.adjust.com/attribution",
+      "status": 200,
+      "origin": "app"
+    }
+  ],
+  "summary": {
+    "total_flows": 8,
+    "unique_destinations": [
+      "app.adjust.com",
+      "firebaseinstallations.googleapis.com",
+      "firebaseremoteconfig.googleapis.com",
+      "googleads.g.doubleclick.net",
+      "www.facebook.com"
+    ],
+    "tracked": "Hosts listed are carriers of advertising or analytics SDKs (Adjust, DoubleClick, Facebook) plus Google Firebase."
+  }
+}
