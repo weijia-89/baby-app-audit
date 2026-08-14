@@ -15,7 +15,7 @@ fail() { echo "  FAIL: $1"; FAILED=1; }
 
 # Setup: create test HAR with one matching flow
 cleanup() {
-    rm -f "$REPO_DIR/tests/fixtures/bad.json" "$REPO_DIR/tests/fixtures/output.json" "$REPO_DIR/tests/fixtures/output2.json" "$REPO_DIR/tests/fixtures/output3.json" "$REPO_DIR/tests/fixtures/output4.json" "$REPO_DIR/tests/fixtures/stderr3.txt" "$REPO_DIR/tests/fixtures/stderr4.txt" "$REPO_DIR/tests/fixtures/missing-config.json" "$REPO_DIR/tests/fixtures/bad-schema.json" "$REPO_DIR/tests/fixtures/empty.har" "$REPO_DIR/tests/fixtures/output-empty.json" "$REPO_DIR/tests/fixtures/corrupted-schema.json" "$REPO_DIR/tests/fixtures/output-badschema.json" "$REPO_DIR/tests/fixtures/output-rw-pebbi.json" "$REPO_DIR/tests/fixtures/output-rw-nl.json" "$REPO_DIR/tests/fixtures/output-rw-nubo.json" "$REPO_DIR/tests/fixtures/output-rw-pregnancyplus.json" "$REPO_DIR/tests/fixtures/output-rw-wte.json" "$REPO_DIR/tests/fixtures/output-rw-amila.json"
+    rm -f "$REPO_DIR/tests/fixtures/bad.json" "$REPO_DIR/tests/fixtures/output.json" "$REPO_DIR/tests/fixtures/output2.json" "$REPO_DIR/tests/fixtures/output3.json" "$REPO_DIR/tests/fixtures/output4.json" "$REPO_DIR/tests/fixtures/stderr3.txt" "$REPO_DIR/tests/fixtures/stderr4.txt" "$REPO_DIR/tests/fixtures/missing-config.json" "$REPO_DIR/tests/fixtures/bad-schema.json" "$REPO_DIR/tests/fixtures/empty.har" "$REPO_DIR/tests/fixtures/output-empty.json" "$REPO_DIR/tests/fixtures/corrupted-schema.json" "$REPO_DIR/tests/fixtures/output-badschema.json" "$REPO_DIR/tests/fixtures/output-rw-pebbi.json" "$REPO_DIR/tests/fixtures/output-rw-nl.json" "$REPO_DIR/tests/fixtures/output-rw-nubo.json" "$REPO_DIR/tests/fixtures/output-rw-pregnancyplus.json" "$REPO_DIR/tests/fixtures/output-rw-wte.json" "$REPO_DIR/tests/fixtures/output-rw-amila.json" "$REPO_DIR/tests/fixtures/output-rw-trackers.json"
 }
 trap cleanup EXIT
 
@@ -494,6 +494,72 @@ if bash "$DECODER" "$W1_HAR" com.amila.parenting "$W1_AMILA" >/dev/null 2>&1; th
     fi
 else
     fail "Wave-1 Amila decode failed"; W1_OK=0
+fi
+
+# Test 20: Wave-1 ad-SDK domains must classify as trackers. Captures show
+# *.appsflyersdk.com, *.clarity.ms, *.scorecardresearch.com alongside known
+# tracker domains; each must map to its vendor for shared-tracker detection.
+echo "Test 20: Wave-1 ad-SDK domains (AppsFlyer SDK, Clarity, Scorecard) classify as trackers"
+W1_TRK_HAR="$REPO_DIR/tests/fixtures/wave1-trackers.har"
+W1_TRK_OUT="$REPO_DIR/tests/fixtures/output-rw-trackers.json"
+
+if [ ! -f "$W1_TRK_HAR" ]; then
+    cat > "$W1_TRK_HAR" <<'EOF'
+{
+  "log": {
+    "version": "1.2",
+    "creator": {"name": "mitmproxy", "version": "12.2.3"},
+    "entries": [
+      {
+        "startedDateTime": "2026-08-14T12:00:00Z",
+        "request": {
+          "method": "POST",
+          "url": "https://2snoab.launches.appsflyersdk.com/launch",
+          "headers": [{"name": "ApplicationPackage", "value": "com.babycenter.pregnancytracker"}],
+          "bodySize": -1
+        },
+        "response": {"status": 200, "headers": [], "bodySize": 10}
+      },
+      {
+        "startedDateTime": "2026-08-14T12:00:01Z",
+        "request": {
+          "method": "POST",
+          "url": "https://r.clarity.ms/collect",
+          "headers": [{"name": "ApplicationPackage", "value": "com.babycenter.pregnancytracker"}],
+          "bodySize": -1
+        },
+        "response": {"status": 204, "headers": [], "bodySize": 0}
+      },
+      {
+        "startedDateTime": "2026-08-14T12:00:02Z",
+        "request": {
+          "method": "GET",
+          "url": "https://census-app.scorecardresearch.com/b/1/cs?cs=1",
+          "headers": [{"name": "ApplicationPackage", "value": "com.babycenter.pregnancytracker"}],
+          "bodySize": -1
+        },
+        "response": {"status": 200, "headers": [], "bodySize": 10}
+      }
+    ]
+  }
+}
+EOF
+fi
+
+if bash "$DECODER" "$W1_TRK_HAR" com.babycenter.pregnancytracker "$W1_TRK_OUT" >/dev/null 2>&1; then
+    W1_TRK_FLOWS=$(python3 -c "
+import json
+d = json.load(open('$W1_TRK_OUT'))
+by = {f['request']['host']: (f['classification']['is_tracker'], f['classification']['tracker_source'])
+      for f in d['flows']}
+print(by.get('2snoab.launches.appsflyersdk.com'), by.get('r.clarity.ms'), by.get('census-app.scorecardresearch.com'))")
+    if [[ "$W1_TRK_FLOWS" == "(True, 'AppsFlyer') (True, 'Microsoft Clarity') (True, 'Scorecard Research')" ]]; then
+        pass "All three ad-SDK domains classify as trackers"
+    else
+        fail "Tracker classification wrong for ad-SDK domains: $W1_TRK_FLOWS"; W1_OK=0
+    fi
+else
+    fail "Wave-1 tracker-fidelity decode failed"; W1_OK=0
 fi
 
 echo ""

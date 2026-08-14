@@ -22,6 +22,11 @@ expected = {
     "Nara": "major",
     "Heartful Baby": "minor",
     "Pixy": "major",
+    "BabyCenter": "major",
+    "BellyBloom": "major",
+    "Nanit": "minor",
+    "Pregnancy+": "minor",
+    "What to Expect": "major",
 }
 
 apps = {app["name"]: app for app in results["apps"]}
