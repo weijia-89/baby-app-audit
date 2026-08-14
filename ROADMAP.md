@@ -41,7 +41,7 @@
 - All 5 Tier 2 apps (NighP, Milli, Baby Connect, SNUGL, Talli Baby) dropped: none make privacy or offline promises
 
 ### Burst 4  -  Partial (1 of 2 apps tested, 1 backburner)
-- MimiLog (done): fully offline, no ads, no signup; 0 dark patterns; 1 outbound flow to Firebase Remote Config
+- MimiLog (done): fully offline, no ads, no signup; no outbound flows in capture; 1 Firebase Remote Config attempt never completed
 - Dymn Baby (backburner): APK not on APKPure or F-Droid; pending GitHub release
 - Dropped: LunaTracker (WebDAV/cloud), Sara Baby Tracker (Firebase sync)
 

@@ -3,7 +3,7 @@
 **Strategy:** Test apps in bursts of 3-5 apps. Re-audit previously tested apps with Sprint 3 criteria before testing new apps.
 
 **Sprint 3 New Criteria:**
-1. Dark pattern detection (static APK resource scan)
+1. Dark pattern detection (static APK resource scan) - archived in 4.4.0; paused, moving to operator-integrated testing per ROADMAP.md
 2. Cross-app comparison (shared trackers, endpoints, data volume)
 3. Product metadata (retention, EOL, CVE, regulatory regime)
 4. Per-product governance (Part 8.5)
@@ -22,13 +22,13 @@
 
 **Tests to run:**
 - [ ] Static analysis (jadx decompile + string search)
-- [ ] Dark pattern scan (`scripts/detect-dark-patterns.sh`)
+- [x] Dark pattern scan (archived in 4.4.0 - see ROADMAP.md)
 - [ ] Dynamic capture (mitmproxy - if available)
 - [ ] Product metadata update (`results/product-metadata.json`)
 - [ ] Cross-app comparison prep (decode traffic)
 
 **Expected outputs:**
-- Updated `results/dark-patterns-*.json` for each app
+- Dark pattern scans (archived in 4.4.0 - files removed)
 - Updated `results/product-metadata.json`
 - New or updated decoded traffic JSONs
 - `results/comparison-*.json` with all 4 apps
@@ -57,7 +57,7 @@
 
 **Expected outputs:**
 - 6 new app entries in results
-- 6 dark-patterns JSONs
+- 6 dark-pattern scans (archived in 4.4.0 - files removed)
 - 6 decoded traffic JSONs
 - Updated comparison JSON
 

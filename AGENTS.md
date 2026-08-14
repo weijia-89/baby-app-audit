@@ -29,7 +29,6 @@ Use for small fixes, doc updates, config changes.
 # Run the banned-vocabulary check from .github/workflows/test.yml
 # ("Check for banned vocabulary" step - single source of truth)
 bash -n scripts/run-tests.sh && bash scripts/run-tests.sh --check
-bash -n scripts/detect-dark-patterns.sh && bash scripts/detect-dark-patterns.sh --check
 bash -n scripts/compare-apps.sh && bash scripts/compare-apps.sh --check
 ```
 
@@ -44,12 +43,10 @@ shellcheck scripts/*.sh
 # P2: JSON schema validation
 python3 -m json.tool results/schema.json > /dev/null
 python3 -m json.tool results/decode-traffic.schema.json > /dev/null
-python3 -m json.tool results/dark-patterns.schema.json > /dev/null
 python3 -m json.tool results/comparison.schema.json > /dev/null
 python3 -m json.tool results/network-log.schema.json > /dev/null
 # P2: run all unit tests
 bash tests/test-decode-traffic.sh
-bash tests/test-dark-patterns.sh
 bash tests/test-compare-apps.sh
 # P3: full harness dry run
 bash scripts/run-tests.sh --check
@@ -75,7 +72,7 @@ Captured traffic artifacts contain live secrets. `.gitignore` excludes them on p
 
 - `results/decode-traffic-*.json` and `*.mitm` captures contain captured Firebase JWTs, refresh tokens, and installation IDs.
 - NEVER `git add -f` or commit these files. Force-adding them leaks secrets AND fails CI (gitleaks detects the JWTs).
-- If a report needs to link per-app artifacts, link the committed, sanitized `results/dark-patterns-*.json` scans instead.
+- If a report needs to link per-app artifacts, link the committed, sanitized `results/network-log-*.json` logs instead.
 - Raw network captures are generated locally and stay local only. See `METHODOLOGY.md` (Redaction) for the full policy.
 
 ## Sprint 6 Closeout

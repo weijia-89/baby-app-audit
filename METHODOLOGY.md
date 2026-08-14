@@ -163,41 +163,27 @@ I welcome independent verification. If you run the test and get different result
 
 ---
 
-## Dark Pattern Detection
+## Dark pattern detection - paused, moving to operator testing
 
-I added static dark pattern detection to the test harness in Sprint 3. This is a separate evidence stream from data transmission findings.
+The static dark pattern scanner (`scripts/detect-dark-patterns.sh`) ran from Sprint 3 through wave 1, then was removed from the pipeline. Reasons:
 
-### What I detect
+* Static analysis only. It never runs the app to see the actual UI.
+* Heuristic results. A finding does not prove intent.
+* False positives were common - the most frequent false signal was the word "timer", which is also the Danish word for "hours".
+* Runtime dark patterns (dialogs that block the back button) are invisible to static scans.
 
-The script `scripts/detect-dark-patterns.sh` scans decompiled APK resources for these patterns:
+The removal reverted the artifacts too: `results/dark-patterns-*.json` files and the schema were dropped from the repository.
 
-1. **Pre-checked consent** - Checkboxes or toggles that default to "checked" on consent-related screens.
-2. **Hidden consent flows** - WebViews or dialogs that load privacy terms but are hidden from view.
-3. **Deceptive button order** - Affirmative action buttons ("Accept All", "Continue") that appear without a clear decline option.
-4. **Obfuscated disclaimers** - Text that is too small or low contrast to read easily.
-5. **Pressure tactics** - Urgency language ("limited time", "act now") in user-facing strings.
+### Replacement: operator-integrated testing (roadmap)
 
-### How I detect them
+Dark pattern findings return in the next phase, tied to real data entry:
 
-I search XML layout files and string resources for tell-tale signs:
+1. Set up a fictional baby profile in the app under test: name, birth date, weight, feeding and sleep logs. Use values that are easy to spot in a packet log (for example, birth date 2015-05-05).
+2. Enter that data by hand while the app runs through the capture proxy.
+3. Watch the capture logs for the fake values and for consent-screen pressure (decline options hidden, defaults pre-checked, repeated prompts).
+4. Report both: what data left the device, and how the consent screens behaved.
 
-* `android:checked="true"` near consent-related text.
-* `android:visibility="gone"` on WebViews that load privacy URLs.
-* Very small layout dimensions (`layout_width="1dp"`) that hide content.
-* Button labels like "Accept All" without matching "Decline" or "Reject" strings.
-* Text sizes below 8sp on disclaimer text.
-* Light text colors (RGB all > 200) that create low contrast.
-
-### Limits
-
-* Static analysis only. I do not run the app to see the actual UI.
-* Patterns are heuristic. A finding does not prove intent.
-* False positives are possible. A checked checkbox might be for a functional setting, not data consent.
-* I do not detect runtime dark patterns (e.g., dialogs that block the back button).
-
-### Separation from transmission findings
-
-Dark pattern findings are kept in a separate JSON file (`results/dark-patterns.schema.json`). They do not affect the pass/fail verdict on data transmission. An app can have dark patterns but still pass the privacy test if it sends no data.
+This answers the question static scans could not: does the data we type in leave the phone, and do the screens push toward sharing?
 
 ---
 
