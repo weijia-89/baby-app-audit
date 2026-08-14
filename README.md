@@ -27,6 +27,11 @@ Some apps claim data never leaves the phone. No independent audit has backed tha
 | Nara | Native Android | "Complete privacy" |
 | Heartful Baby | Native Android | "HIPAA-compliant" |
 | Pixy | Native Android | "Bank-level encryption" |
+| BabyCenter | Native Android | No claim |
+| BellyBloom | Native Android | No claim |
+| Nanit | Native Android | No claim |
+| Pregnancy+ | Native Android | No claim |
+| What to Expect | Native Android | No claim |
 
 These were apps my partner and I researched. The internet recommended them as "private."
 
@@ -132,19 +137,24 @@ The machine-readable summary is [results/RESULTS-20260803.json](results/RESULTS-
 | Nurture Lock | "100% offline" | FAIL | 🚫 | 95% | Phones home to RevenueCat with device identifiers on launch. 8 tracking libraries found in the APK |
 | Pebbi | No claim (positive control) | No claim | 🚫 | 100% | Extensive data collection via Firebase, Google AdServices, and FCM registration |
 | Pixy | "Bank-level encryption" | FAIL | 🚫 | 90% | Three Facebook Graph API calls and one Firebase Installations registration on launch |
+| BabyCenter | No claim | No claim | 🚫 | 95% | AppsFlyer, DoubleClick, Microsoft Clarity, Scorecard Research, and Firebase calls on launch |
+| BellyBloom | No claim | No claim | 🚫 | 90% | Adjust, DoubleClick, Facebook, and Firebase calls on launch |
+| Nanit | No claim | No claim | ❕ | 90% | Firebase Installations and Remote Config plus the Nanit API on launch; no ad SDK traffic |
+| Pregnancy+ | No claim | No claim | ❕ | 90% | Firebase Installations and Remote Config on launch; no ad SDK traffic |
+| What to Expect | No claim | No claim | 🚫 | 90% | AppsFlyer, Microsoft Clarity, Scorecard Research, and Firebase calls on launch |
 
 The full procedure is in [APK_PRIVACY_TEST_HARNESS.md](APK_PRIVACY_TEST_HARNESS.md). Method, consent, and known limits (no radio checks, no static scan for Nubo) are in [METHODOLOGY.md](METHODOLOGY.md).
 
 ## Discussion and Roadmap
 
-This project tests baby and parenting apps against their privacy claims. The current work covers 11 apps. The full results are in [FINAL-REPORT.md](FINAL-REPORT.md).
+This project tests baby and parenting apps against their privacy claims. The current work covers 16 apps. The full results are in [FINAL-REPORT.md](FINAL-REPORT.md).
 
 ### What the project can do
 
 * **Live data collection:** `scripts/decode-traffic.sh` decodes network captures into structured JSON with per-app metadata.
 * **Dark pattern detection:** `scripts/detect-dark-patterns.sh` scans app resources for tricky consent screens.
 * **Cross-app comparison:** `scripts/compare-apps.sh` compares network traffic across apps to find shared trackers.
-* **CI checks:** the test matrix covers 11 apps, and unit tests check the decoder, dark-pattern, and comparison scripts.
+* **CI checks:** the test matrix covers 16 apps, and unit tests check the decoder, dark-pattern, and comparison scripts.
 
 ### What is next
 

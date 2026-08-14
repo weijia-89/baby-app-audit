@@ -1,0 +1,105 @@
+{
+  "$schema": "network-log/1.0",
+  "schema_version": "1.0",
+  "app": "What to Expect",
+  "package_name": "com.wte.view",
+  "capture_date": "2026-08-14",
+  "capture": "results/decode-traffic-whattoexpect.json (local only)",
+  "redaction": "Query strings, headers, and bodies stripped. Project numbers and subscriber IDs replaced with [REDACTED].",
+  "flows": [
+    {
+      "method": "POST",
+      "host": "firebaseinstallations.googleapis.com",
+      "path": "https://firebaseinstallations.googleapis.com/v1/projects/[REDACTED]/installations",
+      "status": 200,
+      "origin": "app"
+    },
+    {
+      "method": "POST",
+      "host": "firebaseremoteconfig.googleapis.com",
+      "path": "https://firebaseremoteconfig.googleapis.com/v1/projects/179542082127/namespaces/firebase:fetch",
+      "status": 200,
+      "origin": "app"
+    },
+    {
+      "method": "POST",
+      "host": "a2lve5.register.appsflyersdk.com",
+      "path": "https://a2lve5.register.appsflyersdk.com/api/v6.18/androidevent",
+      "status": 200,
+      "origin": "app"
+    },
+    {
+      "method": "POST",
+      "host": "b.clarity.ms",
+      "path": "https://b.clarity.ms/collect",
+      "status": 204,
+      "origin": "app"
+    },
+    {
+      "method": "POST",
+      "host": "a2lve5.dlsdk.appsflyersdk.com",
+      "path": "https://a2lve5.dlsdk.appsflyersdk.com/v1.0/android/com.wte.view",
+      "status": 200,
+      "origin": "app"
+    },
+    {
+      "method": "POST",
+      "host": "a2lve5.conversions.appsflyersdk.com",
+      "path": "https://a2lve5.conversions.appsflyersdk.com/api/v6.18/androidevent",
+      "status": 200,
+      "origin": "app"
+    },
+    {
+      "method": "POST",
+      "host": "a2lve5.pia.appsflyersdk.com",
+      "path": "https://a2lve5.pia.appsflyersdk.com/api/v1.0/pia-android-event",
+      "status": 200,
+      "origin": "app"
+    },
+    {
+      "method": "POST",
+      "host": "a2lve5.inapps.appsflyersdk.com",
+      "path": "https://a2lve5.inapps.appsflyersdk.com/api/v6.18/androidevent",
+      "status": 200,
+      "origin": "app"
+    },
+    {
+      "method": "POST",
+      "host": "sp.whattoexpect.com",
+      "path": "https://sp.whattoexpect.com/com.snowplowanalytics.snowplow/tp2",
+      "status": 200,
+      "origin": "app"
+    },
+    {
+      "method": "GET",
+      "host": "census-app.scorecardresearch.com",
+      "path": "https://census-app.scorecardresearch.com/p2",
+      "status": 200,
+      "origin": "app"
+    },
+    {
+      "method": "GET",
+      "host": "a2lve5.gcdsdk.appsflyersdk.com",
+      "path": "https://a2lve5.gcdsdk.appsflyersdk.com/install_data/v5.0/com.wte.view",
+      "status": 200,
+      "origin": "app"
+    }
+  ],
+  "summary": {
+    "total_flows": 14,
+    "unique_destinations": [
+      "a2lve5.conversions.appsflyersdk.com",
+      "a2lve5.dlsdk.appsflyersdk.com",
+      "a2lve5.gcdsdk.appsflyersdk.com",
+      "a2lve5.inapps.appsflyersdk.com",
+      "a2lve5.pia.appsflyersdk.com",
+      "a2lve5.register.appsflyersdk.com",
+      "b.clarity.ms",
+      "census-app.scorecardresearch.com",
+      "firebaseinstallations.googleapis.com",
+      "firebaseremoteconfig.googleapis.com",
+      "sp.whattoexpect.com"
+    ],
+    "tracked": "Hosts listed are carriers of advertising or analytics SDKs (AppsFlyer, Microsoft Clarity, Scorecard Research) plus Google Firebase. First-party sp.whattoexpect.com carries app content."
+  }
+}

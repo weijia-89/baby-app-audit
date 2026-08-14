@@ -107,6 +107,16 @@ The four apps:
 
 I resolved the package names from the live Play Store listings on 2026-08-03 and used them in the audit run.
 
+Wave 1 added five popular Google Play apps. They make no privacy promise, so the result is always "No claim" and the privacy mark comes from the capture only. The burst runner uses the slug as the short name in `results/`.
+
+| App | Package name | Burst-test slug | Notes |
+| --- | --- | --- | --- |
+| BabyCenter | `com.babycenter.pregnancytracker` | `babycenter` | 10M+ downloads. Captured AppsFlyer, DoubleClick, Microsoft Clarity, Scorecard Research, Firebase on launch. |
+| Nanit | `com.nanit.baby` | `nanit` | Baby monitor. Requires API 29+; captured Firebase and the Nanit API on launch. |
+| What to Expect | `com.wte.view` | `whattoexpect` | 5M+ downloads. Captured AppsFlyer, Microsoft Clarity, Scorecard Research, Firebase on launch. |
+| Pregnancy+ | `com.hp.pregnancy.lite` | `pregnancyplus` | 50M+ downloads. Captured Firebase only. Consent screens accepted by automation. |
+| BellyBloom | `com.bellyBloom.pregnancy.tracker` | `bellybloom` | 1.0.8 tested (1.0.9 needs API 32). Captured Adjust, DoubleClick, Facebook, Firebase on launch. |
+
 ---
 
 ## The one test that matters most

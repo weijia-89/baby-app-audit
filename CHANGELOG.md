@@ -1,5 +1,21 @@
 # Changelog
 
+## 4.3.0 - 2026-08-14
+
+### Added
+- Wave 1 burst tests: BabyCenter, BellyBloom, Nanit, Pregnancy+, and What to Expect. All five keep no traffic on the device; none make a privacy promise, so each result is "No claim" with a privacy mark from the launch capture.
+- `RESULTS-20260803.json` and `FINAL-REPORT.md`: 16-app classification. Wave-1 verdicts: BabyCenter major (AppsFlyer, DoubleClick, Microsoft Clarity, Scorecard Research, Firebase), BellyBloom major (Adjust, DoubleClick, Facebook, Firebase), What to Expect major (AppsFlyer, Microsoft Clarity, Scorecard Research, Firebase), Nanit minor (Firebase plus the Nanit API), Pregnancy+ minor (Firebase only).
+- `results/dark-patterns-{babycenter,bellybloom,nanit,pregnancyplus,whattoexpect}.json`: dark-pattern scans of the five wave-1 APKs.
+- `results/network-log-{babycenter,bellybloom,nanit,pregnancyplus,whattoexpect}.json`: sanitized network logs for the five wave-1 apps.
+- Regression tests: `test-results-artifacts.sh` asserts the 16-app set, exact `privacy_class` mapping, report emoji/class agreement, and network-log coverage.
+- Regression tests: `test-decode-traffic.sh` Test 20 (wave-1 tracker domains: appsflyersdk.com, clarity.ms, scorecardresearch.com).
+
+### Changed
+- `README.md` and `FINAL-REPORT.md`: results tables extended to all 16 apps; "Popular Google Play apps - next wave" became the tested Wave 1 section with per-app evidence blocks.
+- `.github/workflows/test.yml`: test matrix and verification loop extended from 11 to 16 apps (proxy ports 8091-8095).
+- `APK_PRIVACY_TEST_HARNESS.md`: Wave 1 target table with package names and burst-test slugs.
+- BellyBloom 1.0.9 requires Android 12L (API 32); the tested build is 1.0.8, which shares the same package signature. Coverage limit documented in FINAL-REPORT.md.
+
 ## 4.2.0 - 2026-08-12
 
 ### Added

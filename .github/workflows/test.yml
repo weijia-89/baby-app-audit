@@ -74,7 +74,7 @@ jobs:
             python3 -m json.tool "$log" > /dev/null
           done
           jq -e 'has("harness_version") and has("test_run_id") and has("apps")' results/RESULTS-20260803.json > /dev/null
-          for app in "Nurture Lock" "Nubo" "Pebbi" "Baby Buddy" "Amila" "Baby Daybook" "Baby+" "MimiLog" "Nara" "Heartful Baby" "Pixy"; do
+          for app in "Nurture Lock" "Nubo" "Pebbi" "Baby Buddy" "Amila" "Baby Daybook" "Baby+" "MimiLog" "Nara" "Heartful Baby" "Pixy" "BabyCenter" "BellyBloom" "Nanit" "Pregnancy+" "What to Expect"; do
             jq -e --arg n "$app" '.apps[] | select(.name == $n) | has("verdict") and has("privacy_class")' results/RESULTS-20260803.json > /dev/null
           done
           echo "Results JSON conforms to required structure"
@@ -245,7 +245,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        app: [nurturelock, nubo, pebbi, babybuddy, amila, baby-daybook, baby-plus, mimilog, nara, heartful-baby, pixy]
+        app: [nurturelock, nubo, pebbi, babybuddy, amila, baby-daybook, baby-plus, mimilog, nara, heartful-baby, pixy, babycenter, nanit, whattoexpect, pregnancyplus, bellybloom]
         include:
           - app: nurturelock
             proxy_port: "8080"
@@ -269,6 +269,16 @@ jobs:
             proxy_port: "8089"
           - app: pixy
             proxy_port: "8090"
+          - app: babycenter
+            proxy_port: "8091"
+          - app: nanit
+            proxy_port: "8092"
+          - app: whattoexpect
+            proxy_port: "8093"
+          - app: pregnancyplus
+            proxy_port: "8094"
+          - app: bellybloom
+            proxy_port: "8095"
     steps:
       - uses: actions/checkout@v4
 
@@ -344,7 +354,7 @@ jobs:
           echo "| App | Status |" >> $GITHUB_STEP_SUMMARY
           echo "| --- | --- |" >> $GITHUB_STEP_SUMMARY
           # NOTE: Keep this list in sync with the test-matrix.app list above
-          for app in nurturelock nubo pebbi babybuddy amila baby-daybook baby-plus mimilog nara heartful-baby pixy; do
+          for app in nurturelock nubo pebbi babybuddy amila baby-daybook baby-plus mimilog nara heartful-baby pixy babycenter nanit whattoexpect pregnancyplus bellybloom; do
             echo "| ${app} | CI_VALIDATION_PASSED |" >> $GITHUB_STEP_SUMMARY
           done
           echo "" >> $GITHUB_STEP_SUMMARY

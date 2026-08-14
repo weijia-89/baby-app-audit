@@ -1,0 +1,73 @@
+{
+  "$schema": "network-log/1.0",
+  "schema_version": "1.0",
+  "app": "BabyCenter",
+  "package_name": "com.babycenter.pregnancytracker",
+  "capture_date": "2026-08-14",
+  "capture": "results/decode-traffic-babycenter.json (local only)",
+  "redaction": "Query strings, headers, and bodies stripped. Project numbers and subscriber IDs replaced with [REDACTED].",
+  "flows": [
+    {
+      "method": "POST",
+      "host": "r.clarity.ms",
+      "path": "https://r.clarity.ms/collect",
+      "status": 204,
+      "origin": "app"
+    },
+    {
+      "method": "GET",
+      "host": "googleads.g.doubleclick.net",
+      "path": "https://googleads.g.doubleclick.net/getconfig/pubsetting",
+      "status": 200,
+      "origin": "app"
+    },
+    {
+      "method": "GET",
+      "host": "geo.babycenter.com",
+      "path": "https://geo.babycenter.com/v1",
+      "status": 200,
+      "origin": "app"
+    },
+    {
+      "method": "GET",
+      "host": "www.babycenter.com",
+      "path": "https://www.babycenter.com/app_config/android/en-US/welcomeScreenABTest.json",
+      "status": 200,
+      "origin": "app"
+    },
+    {
+      "method": "POST",
+      "host": "2snoab.launches.appsflyersdk.com",
+      "path": "https://2snoab.launches.appsflyersdk.com/api/v6.18/androidevent",
+      "status": 200,
+      "origin": "app"
+    },
+    {
+      "method": "POST",
+      "host": "bcsp.babycenter.com",
+      "path": "https://bcsp.babycenter.com/com.snowplowanalytics.snowplow/tp2",
+      "status": 200,
+      "origin": "app"
+    },
+    {
+      "method": "GET",
+      "host": "census-app.scorecardresearch.com",
+      "path": "https://census-app.scorecardresearch.com/p2",
+      "status": 200,
+      "origin": "app"
+    }
+  ],
+  "summary": {
+    "total_flows": 21,
+    "unique_destinations": [
+      "2snoab.launches.appsflyersdk.com",
+      "bcsp.babycenter.com",
+      "census-app.scorecardresearch.com",
+      "geo.babycenter.com",
+      "googleads.g.doubleclick.net",
+      "r.clarity.ms",
+      "www.babycenter.com"
+    ],
+    "tracked": "Hosts listed are carriers of advertising or analytics SDKs (AppsFlyer, DoubleClick, Microsoft Clarity, Scorecard Research) plus Google Firebase. First-party babycenter.com hosts carry app content and analytics."
+  }
+}
