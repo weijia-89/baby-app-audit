@@ -24,8 +24,8 @@ expected = {
     "Pixy": "major",
     "BabyCenter": "major",
     "BellyBloom": "major",
-    "Nanit": "minor",
-    "Pregnancy+": "minor",
+    "Nanit": "major",
+    "Pregnancy+": "major",
     "What to Expect": "major",
 }
 
@@ -63,6 +63,32 @@ for name, app in apps.items():
     assert set(dests) <= set(network_logs[pkg]), (
         f"{name}: offline_test destination not in network log"
     )
+
+for log in (
+    json.loads(p.read_text())
+    for p in sorted((root / "results").glob("network-log-*.json"))
+):
+    flows = log["flows"]
+    if not flows or "request" not in flows[0]:
+        continue
+    for flow in flows:
+        assert flow["origin"] in ("app", "device", "session"), (
+            f"{log['app']}: bad origin {flow['origin']}"
+        )
+        assert "?" not in flow["path"], f"{log['app']}: query string in path"
+        assert "[REDACTED]" not in flow["host"], f"{log['app']}: redacted host"
+        assert "count" in flow and flow["count"] >= 1, (
+            f"{log['app']}: missing or zero count"
+        )
+        for side in ("request", "response"):
+            detail = flow.get(side) or {}
+            assert "size" in detail and "content_type" in detail, (
+                f"{log['app']}: {side} detail incomplete"
+            )
+            for header in detail.get("headers", []):
+                assert len(header) <= 40, (
+                    f"{log['app']}: oversized header name {header!r}"
+                )
 PY
 
 echo "Result artifact classification checks passed"
