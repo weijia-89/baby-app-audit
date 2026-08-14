@@ -85,6 +85,12 @@ for log in (
             assert "size" in detail and "content_type" in detail, (
                 f"{log['app']}: {side} detail incomplete"
             )
+            assert isinstance(detail["size"], int) and not isinstance(detail["size"], bool), (
+                f"{log['app']}: {side} size not an integer"
+            )
+            assert detail["content_type"] is None or isinstance(detail["content_type"], str), (
+                f"{log['app']}: {side} content_type not string or null"
+            )
             for header in detail.get("headers", []):
                 assert len(header) <= 40, (
                     f"{log['app']}: oversized header name {header!r}"
