@@ -312,7 +312,7 @@
     {
       "name": "BabyCenter",
       "package_name": "com.babycenter.pregnancytracker",
-      "app_type": "Native Android",
+      "app_type": "native",
       "verdict": "fail",
       "privacy_class": "major",
       "verdict_confidence": 95,
@@ -359,7 +359,7 @@
     {
       "name": "BellyBloom",
       "package_name": "com.bellyBloom.pregnancy.tracker",
-      "app_type": "Native Android",
+      "app_type": "native",
       "verdict": "fail",
       "privacy_class": "major",
       "verdict_confidence": 90,
@@ -404,7 +404,7 @@
     {
       "name": "Nanit",
       "package_name": "com.nanit.baby",
-      "app_type": "Native Android",
+      "app_type": "native",
       "verdict": "fail",
       "privacy_class": "minor",
       "verdict_confidence": 90,
@@ -447,7 +447,7 @@
     {
       "name": "Pregnancy+",
       "package_name": "com.hp.pregnancy.lite",
-      "app_type": "Native Android",
+      "app_type": "native",
       "verdict": "fail",
       "privacy_class": "minor",
       "verdict_confidence": 90,
@@ -488,7 +488,7 @@
     {
       "name": "What to Expect",
       "package_name": "com.wte.view",
-      "app_type": "Native Android",
+      "app_type": "native",
       "verdict": "fail",
       "privacy_class": "major",
       "verdict_confidence": 90,
