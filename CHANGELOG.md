@@ -1,5 +1,15 @@
 # Changelog
 
+## 4.5.0 - 2026-08-14
+
+### Added
+- `scripts/build-network-logs.sh`: builds each committed `results/network-log-*.json` directly from the raw `.mitm` capture. Flow rows gain `count`, `origin` (`app` / `device` / `session`), request and response sizes, content types, JSON body keys (names only), and header-flag names (names only). The script removes query strings, replaces token-like path segments with `[REDACTED]`, and never emits body values.
+- `results/network-log.schema.json`: documents the new optional flow properties (`count`, `request`, `response`) and the three-way `origin` field.
+
+### Changed
+- `results/RESULTS-20260803.json`: Nanit and Pregnancy+ reclassified from `minor` to `major` after the full launch captures exposed additional SDK families (Nanit: Microsoft Clarity, Localytics, Cordial, Coralogix; Pregnancy+: Microsoft Clarity, Facebook, Adapty with install attribution, OneSignal, first-party Philips APIs). Pixy's offline test now reflects only what the raw capture holds (three Facebook Graph bootstrap flows; the earlier Firebase Installations entry is not reproduced by the preserved `.mitm`). What to Expect and wave-1 offline counts align with the raw captures.
+- `FINAL-REPORT.md` and `README.md`: wave-1 blocks and summary rows updated to the enriched capture evidence (BabyCenter 35 flows across nine SDK families; BellyBloom 53 flows including TikTok Pangle; Nanit and Pregnancy+ `🚫` at 95%).
+
 ## 4.4.0 - 2026-08-14
 
 ### Added
