@@ -1,5 +1,13 @@
 # Changelog
 
+## 4.6.0 - 2026-08-14
+
+### Added
+- Synthetic baby-data transmission test tooling: `results/synthetic-baby-profile.json` defines a fixed fictional baby ("Privatia Rigatoni", born 2026-03-14 at 6 lbs 8 oz) with sentinel feeding, sleep, and diaper values, and the marker strings used to detect them in a capture.
+- `scripts/scan-synthetic-baby-data.sh`: reads a raw local capture (`.mitm` or `decode-traffic-*.json`), greps it for the profile's marker strings, and reports which fictional values appear in a request body, a response body, or a request URL, with the recipient host, path, method, and status. It emits no adjacent body content, so its report is safe to commit. The committed, sanitized network logs are not searched because their bodies are redacted.
+- `tests/test-synthetic-baby-data.sh`: asserts the scan detects a transmission in a positive fixture (third-party and first-party hosts, numeric sentinel, response echo handled correctly) and reports none for a negative fixture.
+- METHODOLOGY.md and ROADMAP.md: reproducible capture procedure and plan for the synthetic baby-data test. FINAL-REPORT.md: new "Synthetic baby-data transmission test" section and a Limits update; live captures across the 16 apps remain pending operator execution.
+
 ## 4.5.2 - 2026-08-14
 
 ### Added

@@ -165,12 +165,26 @@ I welcome independent verification. If you run the test and get different result
 
 ## Synthetic baby-data transmission test
 
-Static dark-pattern searching is no longer part of the project. The operator test has one purpose: determine whether fictional baby data leaves the device.
+Static dark-pattern searching is no longer part of the project. This operator test has one purpose: determine whether fictional baby data leaves the device. It closes the launch-capture gap described in the Final Report Limits section.
 
-1. Create a fictional baby profile with a name, birth date, weight, feeding logs, and sleep logs.
-2. Enter the data by hand while the app runs through the capture proxy.
-3. Watch every captured call for the fictional values and related identifiers.
-4. Record the recipient, the data category, the call status, and the assessment limit.
+The fictional profile is fixed and reusable. It is "Privatia Rigatoni", born 2026-03-14 at 6 lbs 8 oz, with sentinel feeding, sleep, and diaper values chosen to be unusual so they do not appear by chance in normal traffic. The full profile and its marker strings live in `results/synthetic-baby-profile.json`. Do not change the markers between apps; the point is to reuse one identity across all 16 apps.
+
+### Procedure
+
+1. Start the emulator and route its traffic through mitmproxy (same setup as Step 1 of How I Tested).
+2. Install the app under test and pull its APK for the hash record (Step 2).
+3. Open `results/synthetic-baby-profile.json`. Enter the values by hand in the app's own data-entry screens while the capture proxy is live: baby name, birth date and weight, one feeding of 482 mL with the formula note, one sleep session of 777 minutes, one diaper weight of 1234 g, and the free-text note `PRIVATIA-RIGATONI-SYNTH` in any note field.
+4. Where an app forces account creation, create a fictional account with the same profile values. Note in the report that the transmission may be to the app's own server.
+5. Save the raw capture as `results/<app>-test-<date>/artifacts/captures/<app>.mitm`. Keep it local. It holds live tokens and must never be committed.
+6. Build the sanitized network log with `scripts/build-network-logs.sh` and commit only that.
+7. Run the transmission scan against the raw local capture:
+
+   `bash scripts/scan-synthetic-baby-data.sh results/<app>-test-<date>/artifacts/captures/<app>.mitm`
+
+   The script reads the markers from `results/synthetic-baby-profile.json`, greps the raw capture for each one, and reports which fictional values appear in a request body, a response body, or a request URL, with the recipient host, path, method, and status. It emits no adjacent body content, so its report is safe to commit.
+8. Record the verdict per app in the Final Report: `transmission_observed` (a marker left the device) or `no_transmission_detected` (the capture shows the entered values did not leave).
+
+The committed, sanitized network logs are NOT searched by this test. Their bodies are replaced by redaction slugs, so the fictional values would be invisible there. Only the raw local capture can prove exfiltration.
 
 Do not use real baby data. Do not infer consent pressure or user intent from this test.
 

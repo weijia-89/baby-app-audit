@@ -70,13 +70,24 @@ Apps that make privacy/offline claims but cannot be acquired via APKPure or F-Dr
 
 **Goal:** Test whether fictional baby data leaves the device and scan every captured analytics or tracking call for PII indicators.
 
-- Create a fictional baby profile and enter fictional birth, feeding, sleep, and diaper data.
-- Capture the full interaction and background window. Record every sent call, not only calls to known vendors.
-- Run `scripts/scan-analytics-pii.sh` across all committed network logs. Include unclassified hosts and static SDK capability findings.
-- Mark each category as observed, capability-only, or not assessable because scrubbing removed the values.
-- Treat screen capture, screen-image upload, contacts, authentication tokens, and device identifiers as high-risk findings and bold them in the report.
-- Use the new redaction slugs so public logs keep the call record without exposing values.
-- Success criterion: every app has a fanout entry, every sent call remains in the scan, and no scrubbed body is reported as empty of PII.
+### Analytics and PII fanout (done)
+
+- `scripts/scan-analytics-pii.sh` scans every committed network log, keeps unclassified hosts, and records every sent call with its data categories and assessment limit.
+- `results/analytics-pii-20260803.json` is the machine-readable inventory for all 16 apps and 212 captured calls.
+- High-risk findings (screen capture, screen-image upload, contact data, auth tokens, device identifiers) are bolded in the Final Report.
+
+### Synthetic baby-data transmission test (in progress)
+
+**Goal:** Prove or disprove that entered baby data leaves the device, and to which recipient.
+
+- Fictional profile is fixed: "Privatia Rigatoni", born 2026-03-14 at 6 lbs 8 oz, with sentinel feeding (482 mL), sleep (777 min), and diaper (1234 g) values. The profile and its marker strings are in `results/synthetic-baby-profile.json`.
+- `scripts/scan-synthetic-baby-data.sh` greps the raw local capture (`.mitm` or `decode-traffic-*.json`) for the marker strings and reports which fictional values appear in a request body, a response body, or a request URL, with the recipient host, path, method, and status. It emits no adjacent body content, so the report is safe to commit.
+- The committed, sanitized network logs are NOT searched: their bodies are redacted, so the fictional values would be invisible there. Only the raw local capture can show exfiltration.
+- Procedure is documented in `METHODOLOGY.md` (Synthetic baby-data transmission test).
+
+**Status:** Profile, scan tool, and unit test are committed. Live captures across the 16 apps are pending operator execution on the emulator, after which the per-app verdicts feed the Final Report.
+
+**Success criterion:** Every app exercised with the fictional profile has a verdict in the Final Report: `transmission_observed` (a marker left the device, with recipient) or `no_transmission_detected` (the capture shows the entered values did not leave).
 
 ## Sprint 5  -  Planned  -  Legacy re-capture and evidence parity
 
