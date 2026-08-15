@@ -86,6 +86,18 @@ The capture records Facebook calls in BellyBloom, Pregnancy+, Nara, and Pixy. Th
 | Network metadata | A server can receive connection metadata such as source address and time | **Not assessable from the sanitized capture.** |
 | Health, contacts, photos, and precise location | These are possible SDK inputs only when the app passes them to the SDK | **Not observed in the scrubbed request values. This is not evidence of absence.** |
 
+## Synthetic baby-data transmission test
+
+The launch captures could not see user-entered baby data (feeding, sleep, diaper), because no fictional profile was entered during those windows. This test closes that gap. It does not replace the findings above. It adds a direct check for entered values leaving the device.
+
+Method:
+
+- A fixed fictional baby, "Privatia Rigatoni", born 2026-03-14 at 6 lbs 8 oz, with unusual sentinel values for feeding (482 mL), sleep (777 minutes), and diaper (1234 g). The operator enters these by hand in each app while the capture proxy is live. The full profile is in `results/synthetic-baby-profile.json`.
+- After capture, `scripts/scan-synthetic-baby-data.sh` greps the raw local capture for the profile's marker strings. It reports which fictional values appear in a request body, a response body, or a request URL, and the recipient host for each.
+- The committed, sanitized network logs are not searched. Their bodies are redacted, so the fictional values would be invisible there. Only the raw local capture can show exfiltration.
+
+Status: the profile, the scan tool, and a unit test are in place. Live captures across the 16 apps are pending operator execution. Per-app verdicts (transmission observed or not) will be added here when the captures exist.
+
 ## Proprietary apps - long report
 
 These are the five most popular Google Play targets. They make no privacy promise, so their result says "No claim"; the privacy mark shows what we saw in the launch capture.
@@ -349,14 +361,14 @@ Four of the five wave-1 apps ship at least one program that records installs and
 
 ## Roadmap
 
-- **Synthetic baby-data transmission testing (next).** Static dark-pattern searching is no longer part of this project. The next operator test creates a fictional baby profile, enters fictional feeding, sleep, and diaper data, and watches the capture logs for those values. The test records whether the baby data leaves the phone and which recipient receives it. See `METHODOLOGY.md` for the capture procedure and `ROADMAP.md` for the plan.
+- **Synthetic baby-data transmission testing (in progress).** Static dark-pattern searching is no longer part of this project. The operator test uses a fixed fictional baby, "Privatia Rigatoni", enters fictional feeding, sleep, and diaper data, and watches the raw capture for those values. The test records whether the baby data leaves the phone and which recipient receives it. The profile, scan tool, and unit test are committed; live captures across the 16 apps are pending. See the report's "Synthetic baby-data transmission test" section, `METHODOLOGY.md` for the capture procedure, and `ROADMAP.md` for the plan.
 - **Full analytics and PII fanout (now).** `scripts/scan-analytics-pii.sh` scans every committed network log. It records all analytics, attribution, advertising, diagnostics, messaging, and replay-related calls, including unclassified hosts.
 - **Wave 2 testing.** Tier 1 candidates in `localonly/candidates.md` (gitignored) are the next wave.
 - **Legacy re-capture.** Eight apps (Nurture Lock, Nubo, Pebbi, Amila, Baby Buddy, Baby Daybook, Baby+, MimiLog) lost their raw captures before the retention rule existed. Their results rest on session summaries, which are thinner: Nanit and Pregnancy+ looked clean at that depth and flipped to major once the raw captures were replayed. A planned sprint will re-test these eight and preserve the captures permanently. See `ROADMAP.md` for details.
 
 ## Limits
 
-- We did not enter a fictional baby profile during these launch captures. Some data paths stayed hidden. The synthetic baby-data test closes this gap.
+- We did not enter a fictional baby profile during the launch captures used for the findings above. Some data paths stayed hidden. The synthetic baby-data transmission test (see its section) now has a fixed profile, a scan tool, and a unit test; live captures across the 16 apps are pending operator execution. Once run, that test will state per app whether entered baby data left the device and to which recipient.
 - The captures cover the launch and early-use window of each app. Behavior later in a session could differ.
 - We removed response bodies and header values from this report and the network logs because they can carry tokens or PII. New sanitized logs replace removed values with slugs such as `[REDACTED:request-body-values:secret-or-PII]`. The method, host, path, status, count, and sizes remain, so the record still proves that the call was sent. A scrubbed body is not evidence that PII was absent.
 - Evidence depth is not equal across the 16 apps. Eight apps (BabyCenter, BellyBloom, Nanit, Pregnancy+, What to Expect, Heartful Baby, Nara, Pixy) have `evidence_source: raw-replay` - we replayed and mined every call in the preserved capture. The other eight (Nurture Lock, Nubo, Pebbi, Amila, Baby Buddy, Baby Daybook, Baby+, MimiLog) have `evidence_source: session-summary` - their raw captures disappeared before the retention rule existed. Treat session-summary rows as lower-bound evidence; see ROADMAP.md for the planned legacy re-capture.

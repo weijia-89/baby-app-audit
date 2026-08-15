@@ -1,0 +1,90 @@
+{
+  "$schema": "synthetic-baby-profile/1.0",
+  "schema_version": "1.0",
+  "profile_name": "Privatia Rigatoni",
+  "description": "Fictional baby profile used by the synthetic baby-data transmission test. Every value is invented. The operator enters these exact values in each app's own data-entry screens while the app runs through the capture proxy. The scan then searches the raw local capture for the marker strings below. No real baby data is used and no consent is implied.",
+  "usage": "Enter the values verbatim where the app has a matching field. Where a field has no natural home, paste the synth_token into any free-text or note field. Numbers are chosen to be unusual (not physiologically typical) so they are unlikely to appear by chance in normal app traffic; they are supporting markers only. A real transmission finding requires at least one high- or medium-confidence string marker, or a numeric marker found in a request body.",
+  "baby": {
+    "name": "Privatia Rigatoni",
+    "birth_date": "2026-03-14",
+    "birth_weight": "6 lbs 8 oz",
+    "birth_weight_grams": 2948,
+    "feeding_example_volume_ml": 482,
+    "sleep_example_minutes": 777,
+    "diaper_example_weight_g": 1234,
+    "free_text_note": "PRIVATIA-RIGATONI-SYNTH",
+    "formula_brand_note": "Rigatoni-8823-synthfeed"
+  },
+  "markers": [
+    {
+      "id": "name",
+      "value": "Privatia Rigatoni",
+      "type": "name",
+      "confidence": "high",
+      "entry_instruction": "Baby name field, verbatim."
+    },
+    {
+      "id": "name_nospace",
+      "value": "PrivatiaRigatoni",
+      "type": "name",
+      "confidence": "medium",
+      "entry_instruction": "Some apps concatenate name parts without a space; included as a fallback match."
+    },
+    {
+      "id": "synth_token",
+      "value": "PRIVATIA-RIGATONI-SYNTH",
+      "type": "note",
+      "confidence": "high",
+      "entry_instruction": "Paste into any free-text or note field the app offers."
+    },
+    {
+      "id": "synth_feed",
+      "value": "Rigatoni-8823-synthfeed",
+      "type": "note",
+      "confidence": "high",
+      "entry_instruction": "Paste into a feeding note or any free-text field."
+    },
+    {
+      "id": "birth_weight_lb",
+      "value": "6 lbs 8 oz",
+      "type": "weight",
+      "confidence": "medium",
+      "entry_instruction": "Birth weight field, verbatim."
+    },
+    {
+      "id": "birth_weight_g",
+      "value": "2948",
+      "type": "numeric",
+      "confidence": "low",
+      "entry_instruction": "If the app shows grams, enter 2948. Supporting only."
+    },
+    {
+      "id": "birth_date",
+      "value": "2026-03-14",
+      "type": "date",
+      "confidence": "medium",
+      "entry_instruction": "Birth date field. App may reformat the date; if so the reformatted value is the one to look for."
+    },
+    {
+      "id": "feed_volume",
+      "value": "482",
+      "type": "numeric",
+      "confidence": "low",
+      "entry_instruction": "Enter 482 in a feeding amount field (mL). Supporting only."
+    },
+    {
+      "id": "sleep_minutes",
+      "value": "777",
+      "type": "numeric",
+      "confidence": "low",
+      "entry_instruction": "Enter 777 in a sleep-duration field (minutes). Supporting only."
+    },
+    {
+      "id": "diaper_weight",
+      "value": "1234",
+      "type": "numeric",
+      "confidence": "low",
+      "entry_instruction": "Enter 1234 in a diaper weight field (grams). Supporting only."
+    }
+  ]
+}

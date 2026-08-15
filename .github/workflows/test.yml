@@ -117,6 +117,7 @@ jobs:
           bash -n tests/test-compare-apps.sh || exit 1
           bash -n tests/test-burst-runner.sh || exit 1
           bash -n tests/test-results-artifacts.sh || exit 1
+          bash -n tests/test-synthetic-baby-data.sh || exit 1
           echo "All unit test scripts parse cleanly"
 
       - name: Secret scan (gitleaks)
@@ -174,6 +175,7 @@ jobs:
         run: |
           bash tests/test-analytics-pii.sh
           bash tests/test-network-log-redaction.sh
+          bash tests/test-synthetic-baby-data.sh
 
       - name: Verify product-metadata.json is valid JSON
         run: python3 -m json.tool results/product-metadata.json > /dev/null
