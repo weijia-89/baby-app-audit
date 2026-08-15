@@ -45,9 +45,13 @@ python3 -m json.tool results/schema.json > /dev/null
 python3 -m json.tool results/decode-traffic.schema.json > /dev/null
 python3 -m json.tool results/comparison.schema.json > /dev/null
 python3 -m json.tool results/network-log.schema.json > /dev/null
+python3 -m json.tool results/analytics-pii.schema.json > /dev/null
+python3 -m json.tool results/analytics-pii-20260803.json > /dev/null
 # P2: run all unit tests
 bash tests/test-decode-traffic.sh
 bash tests/test-compare-apps.sh
+bash tests/test-analytics-pii.sh
+bash tests/test-network-log-redaction.sh
 # P3: full harness dry run
 bash scripts/run-tests.sh --check
 

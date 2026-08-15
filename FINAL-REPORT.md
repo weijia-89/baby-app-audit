@@ -24,11 +24,11 @@ Nine apps make a privacy promise. Seven of them sent data off the device. Only B
 | Nurture Lock | "100% offline" | FAIL | 🚫 | 95% | The app calls a subscription service at launch. Its package contains code from eight tracking companies |
 | Pebbi | No claim (control) | No claim | 🚫 | 100% | The app sends data to Firebase, Google ads, and Google's message service at launch |
 | Pixy | "Bank-level encryption" | FAIL | 🚫 | 90% | The app calls Facebook three times at launch to load Facebook's tracking rules |
-| BabyCenter | No claim | No claim | 🚫 | 95% | The app sends your advertising ID, a usage log, and what you do on screen to many companies at launch |
+| BabyCenter | No claim | No claim | 🚫 | 95% | **Microsoft Clarity receives screen content, text, pictures, and taps.** The app also sends an advertising ID and usage data to many companies at launch |
 | BellyBloom | No claim | No claim | 🚫 | 90% | The app sends your advertising ID, usage, and a record of which advert brought you, to many companies at launch |
-| Nanit | No claim | No claim | 🚫 | 95% | The app records what you see and do on screen and sends it, plus usage logs and contact data, to several companies at launch |
-| Pregnancy+ | No claim | No claim | 🚫 | 95% | The app sends your advertising ID, usage, consent answers, and a record of which advert brought you, to five companies at launch |
-| What to Expect | No claim | No claim | 🚫 | 90% | The app sends your advertising ID, usage, what you do on screen, and consent answers to several companies at launch |
+| Nanit | No claim | No claim | 🚫 | 95% | **Microsoft Clarity receives screen activity.** Coralogix receives a 15.6-kilobyte browser log, and Cordial receives contact data |
+| Pregnancy+ | No claim | No claim | 🚫 | 95% | **Microsoft Clarity receives screen activity.** The app also sends an advertising ID, usage, consent answers, and attribution data to five companies |
+| What to Expect | No claim | No claim | 🚫 | 90% | **Microsoft Clarity uploads screen images.** The app also sends an advertising ID, usage, and consent answers to several companies |
 
 Result key:
 
@@ -53,6 +53,38 @@ Three kinds of data repeat across the tables, so they have one name each here:
 - **Advertising ID** - the number that your phone shows to apps and ad companies. It tells them "this is the same phone" across apps, so they can show you targeted ads. You can reset it in Android settings.
 - **Install ID** - a new random number that the app makes once, when you install it on your phone. It tells the company "this is one phone with one install".
 - **Usage log** - a record of what you do in the app: which screens you open and which buttons you press.
+
+### Evidence labels
+
+- **Call sent** - the capture records the method, address, path, status, and call count.
+- **Content not assessable** - the call was sent, but privacy scrubbing removed the body or header values. This is not evidence that PII was absent.
+- **Capability observed** - a response, static file, or SDK name shows that a feature exists. This does not prove that the feature sent data.
+- **Destination only** - an older capture records the destination but not the request body or response details.
+
+## Analytics and PII fanout
+
+The fanout scan covers all 16 committed network logs. It scanned 212 calls and found 18 vendor or host groups. It does not limit the result to a short list of popular vendors.
+
+The scan records every call, including calls to an unclassified host. Each call records whether it was sent, its data categories, the assessment status, and the redaction slugs. See [results/analytics-pii-20260803.json](results/analytics-pii-20260803.json) and its schema.
+
+**High-risk findings:**
+
+- **Microsoft Clarity:** The capture shows screen-capture settings. Clarity collection calls were sent. What to Expect also sent a screen-image upload. The request contents were scrubbed, so the exact screen data in each request is not assessable.
+- **Sentry in Heartful Baby:** The decompiled app contains Sentry `rrweb` classes. No Sentry destination appeared in the preserved network capture. This is static capability evidence, not proof of transmission.
+- **Other replay tools:** FullStory, Smartlook, UXCam, Appsee, Glassbox, LogRocket, Contentsquare, Heap, Quantum Metric, Mouseflow, Hotjar, and Instabug were not observed in the committed capture logs. This is a capture-window result, not proof that those tools are absent from every app version or later session.
+
+### Facebook assessment
+
+The capture records Facebook calls in BellyBloom, Pregnancy+, Nara, and Pixy. The list below gives the data categories that the observed Facebook SDK calls can handle. It does not claim that every category was in every request.
+
+| Data category | Why it is in scope | Assessment in this capture |
+| --- | --- | --- |
+| App activity and events | Facebook `activities` calls were sent | **Call sent. Request body not assessable because scrubbing removed its values.** |
+| Device and app identifiers | Facebook event and Audience Network calls can use identifiers for the app or device | **Call sent. Exact fields not assessable because scrubbing removed its values.** |
+| Advertising and attribution data | The calls include Facebook event and ad-network endpoints | **Call sent. Exact fields not assessable because scrubbing removed its values.** |
+| Device and software details | Facebook SDK configuration and model endpoints were contacted | **Configuration response observed. User-data request content was not assessable.** |
+| Network metadata | A server can receive connection metadata such as source address and time | **Not assessable from the sanitized capture.** |
+| Health, contacts, photos, and precise location | These are possible SDK inputs only when the app passes them to the SDK | **Not observed in the scrubbed request values. This is not evidence of absence.** |
 
 ## Proprietary apps - long report
 
@@ -81,7 +113,7 @@ The Play Store pages make no no-data-sharing or offline promise. We acquired the
 | Amazon (ads) | Sends your advertising ID and whether you asked out of ads. The reply echoes the advertising ID back | POST s.amazon-adsystem.com/api3/update_dev_info -> 200 (a 1,047-byte message; the reply echoes the advertising ID) |
 | Localytics | Receives a usage log: what you do in the app. The log is likely tied to an ID for this phone | POST analytics.localytics.com/api/v4/applications/.../upload -> 202; POST profile.localytics.com/v1/apps/.../profiles/... -> 202 |
 | Vungle (ads) | Likely receives ad-measurement numbers: which ads it showed you | POST logs.ads.vungle.com/sdk/metrics -> 200 |
-| Microsoft (Clarity) | Receives a recording of what you see and do in the app: which screens open and where you tap, with the text and pictures on them | POST r.clarity.ms/collect -> 204 (4 calls); GET www.clarity.ms/tag/mobile/vnmy25t03u -> 200 |
+| Microsoft (Clarity) | **Receives a recording of what you see and do in the app: which screens open and where you tap, with the text and pictures on them** | POST r.clarity.ms/collect -> 204 (4 calls); GET www.clarity.ms/tag/mobile/vnmy25t03u -> 200 |
 | Scorecard Research | Receives a small "this phone is here" call, twelve times. Likely used to count visitors and identify your phone for surveys | GET census-app.scorecardresearch.com/p2 -> 200 (12 calls) |
 | Google (ads) | Downloads the rules for showing ads, plus settings that say which permissions the ad code may use | GET googleads.g.doubleclick.net/getconfig/pubsetting -> 200 |
 | Google (Play services) | Receives location-analytics data. This call comes from Google's system software on the phone, not from the app itself | POST semanticlocation-pa.googleapis.com (application/grpc) |
@@ -101,8 +133,8 @@ The Play Store pages make no no-data-sharing or offline promise. We acquired the
 | --- | --- | --- |
 | TikTok (Pangle ads) | Likely sends your advertising ID and phone details, downloads ad rules, and loads full-screen ad games (one file is 1.8 million bytes) | POST api16-access-ttp.tiktokpangle.us/api/ad/union/sdk/settings/ -> 200 (3 calls); POST api16-access-ttp.tiktokpangle.us/service/2/dual_events/ -> 200; GET lf-static.tiktokpangle-cdn-us.com/obj/union-fe-tx/playable/sdk/... -> 206 |
 | Adjust | Records when you started the app and which advert brought you. We saw its reply carry an account ID and your tracking state | POST app.adjust.com/session -> 200; GET app.adjust.com/attribution -> 200 (reply keys: adid, app_token, attribution) |
-| Facebook | Loads Facebook's tracking rules and sends a usage beacon. Likely identifies your phone to Facebook | GET graph.facebook.com/v16.0/app -> 200 (3 calls); POST graph.facebook.com/v16.0/26540417615628323/activities -> 200 (3 calls) |
-| Facebook (Audience Network) | Sends a sync beacon, likely with your advertising ID, so Facebook ads can follow you across apps | POST www.facebook.com/adnw_sync2 -> 200 |
+| Facebook | **Sends an app-activity event to Facebook. The request body was scrubbed, so the exact event fields are not assessable.** | GET graph.facebook.com/v16.0/app -> 200 (3 calls); POST graph.facebook.com/v16.0/26540417615628323/activities -> 200 (3 calls) |
+| Facebook (Audience Network) | **Sends a Facebook ad-network sync call. The request body was scrubbed, so identifier and ad-matching fields are not assessable.** | POST www.facebook.com/adnw_sync2 -> 200 |
 | InMobi (ads) | Downloads ad rules and settings | POST config.inmobi.com/config-server/v1/config/secure.cfg -> 200 (2 calls) |
 | Mixpanel | Receives a usage log: what you do in the app | POST api.mixpanel.com/track/ -> 200 |
 | Google (ads) | Downloads the ad files (one file of 719,476 bytes) and the rules for showing ads | GET googleads.g.doubleclick.net/mads/static/sdk/native/sdk-core-android.html -> 200; GET googleads.g.doubleclick.net/getconfig/pubsetting -> 200 (61 kilobytes) |
@@ -122,10 +154,10 @@ The Play Store pages make no no-data-sharing or offline promise. We acquired the
 | --- | --- | --- |
 | Google (Firebase) | Registers this install. The reply carries an install ID, a security token, and a way to refresh it | POST firebaseinstallations.googleapis.com/v1/projects/nanit-144706/installations -> 200 |
 | Google (Firebase) | Downloads app settings and crash rules. No data about you | POST firebaseremoteconfig.googleapis.com/v1/projects/25705829844/namespaces/firebase:fetch -> 200; GET firebase-settings.crashlytics.com/... -> 200 |
-| Microsoft (Clarity) | Receives a recording of what you see and do in the app: which screens open and where you tap | POST r.clarity.ms/collect -> 204 |
+| Microsoft (Clarity) | **Receives a recording of what you see and do in the app: which screens open and where you tap** | POST r.clarity.ms/collect -> 204 |
 | Localytics | Receives a usage log likely tied to an ID for this phone | POST analytics.localytics.com/api/v4/applications/.../upload -> 202 |
 | Cordial | Receives contact data for its email service. The login call's reply carries a token | POST events-stream-svc.usw2.cordial.com/mobile/auth/... -> 200 (the reply carries a token); POST events-stream-svc.usw2.cordial.com/mobile/contacts -> 200 |
-| Coralogix | Receives error and speed data about the app while you use it, plus one 15.6-kilobyte browser log of what the app does | POST ingress.eu1.rum-ingress-coralogix.com (RUM collection); POST ingress.eu1.rum-ingress-coralogix.com/browser/v1beta/logs -> 202 |
+| Coralogix | **Receives error and speed data about the app while you use it, plus one 15.6-kilobyte browser log of what the app does** | POST ingress.eu1.rum-ingress-coralogix.com (RUM collection); POST ingress.eu1.rum-ingress-coralogix.com/browser/v1beta/logs -> 202 |
 | Nanit (own) | Asks its own server for product plans and card features. We were not signed in, so the cards call was refused (401) | GET api.nanit.com/plans -> 200; GET api.nanit.com/cards -> 401 |
 
 - **Network log:** [network-log-nanit.json](results/network-log-nanit.json)
@@ -139,7 +171,7 @@ The Play Store pages make no no-data-sharing or offline promise. We acquired the
 | Service | Data shared | Call/Log |
 | --- | --- | --- |
 | Microsoft (Clarity) | Receives a recording of what you see and do in the app: which screens open and where you tap | POST b.clarity.ms/collect -> 204 |
-| Facebook | Loads Facebook's tracking rules and sends a usage beacon. Likely identifies your phone to Facebook | GET graph.facebook.com/v16.0/app -> 200; POST graph.facebook.com/v16.0/546319842074484/activities -> 200 |
+| Facebook | **Sends a Facebook app-activity event. The request body was scrubbed, so the exact event and identifier fields are not assessable.** | GET graph.facebook.com/v16.0/app -> 200; POST graph.facebook.com/v16.0/546319842074484/activities -> 200 |
 | Adapty | Controls what you can buy in the app. It sends your subscription state, which advert brought you, and usage events, and it keeps them on Amazon computers | POST api-eu.adapty.io (paywall and events); POST api-ua.adapty.io (install record); Amazon Cognito and Amazon S3 serve the data |
 | OneSignal | Downloads rules for push messages. If you allow push, it sends a token that addresses your phone | GET api.onesignal.com (android_params.js) |
 | Philips (own) | Asks the Philips account server to identify your phone. This is the maker's own service | iam-api.philips-digital.com; www.global.api.philips.com |
@@ -156,7 +188,7 @@ The Play Store pages make no no-data-sharing or offline promise. We acquired the
 | Service | Data shared | Call/Log |
 | --- | --- | --- |
 | AppsFlyer | Records when you started the app and which advert brought you. The calls likely carry an install ID, and one call returns your install date and status | POST a2lve5.register.appsflyersdk.com/api/v6.18/androidevent -> 200; GET a2lve5.gcdsdk.appsflyersdk.com/install_data/v5.0/com.wte.view -> 200 |
-| Microsoft (Clarity) | Receives a recording of what you see and do in the app, including the pictures on each screen (it uploads them as files) | POST b.clarity.ms/collect -> 204 (3 calls); POST b.clarity.ms/tgi1pxdmic/upload-asset/... -> 200 |
+| Microsoft (Clarity) | **Receives a recording of what you see and do in the app, including the pictures on each screen. It uploads those pictures as files.** | POST b.clarity.ms/collect -> 204 (3 calls); POST b.clarity.ms/tgi1pxdmic/upload-asset/... -> 200 |
 | Mixpanel | Receives a usage log: what you do in the app (one message is 7,593 bytes) | POST api.mixpanel.com/track/ -> 200 |
 | Cordial | Receives usage events for email messages | POST events-stream-svc.usw2.cordial.com/mobile/events -> 200 |
 | Scorecard Research | Receives a small "this phone is here" call. Likely used to count visitors | GET census-app.scorecardresearch.com/p2 -> 200 |
@@ -187,7 +219,7 @@ The Play Store pages make no no-data-sharing or offline promise. We acquired the
 
 | Service | Data shared | Call/Log |
 | --- | --- | --- |
-| Facebook | Loads Facebook's tracking rules four times and its setup files. The calls likely carry your phone model, Android version, and app version | GET graph.facebook.com/v16.0/app -> 200 (4 calls); GET graph.facebook.com/v16.0/app/mobile_sdk_gk -> 200 (4 calls); GET graph.facebook.com/v16.0/app/model_asset -> 200 |
+| Facebook | **Downloads Facebook SDK settings and model files. The request body was empty in this capture, so no user-data payload was assessed.** | GET graph.facebook.com/v16.0/app -> 200 (4 calls); GET graph.facebook.com/v16.0/app/mobile_sdk_gk -> 200 (4 calls); GET graph.facebook.com/v16.0/app/model_asset -> 200 |
 | Google (Crashlytics) | Receives a crash report 60 kilobytes in size: what the app was doing when it stopped, plus phone details | POST crashlyticsreports-pa.googleapis.com/v1/firelog/legacy/batchlog -> 200 |
 
 - **Network log:** [network-log-nara.json](results/network-log-nara.json)
@@ -200,7 +232,7 @@ The Play Store pages make no no-data-sharing or offline promise. We acquired the
 
 | Service | Data shared | Call/Log |
 | --- | --- | --- |
-| Facebook | Loads Facebook's tracking rules and setup files. The calls likely carry your phone model, Android version, and app version | GET graph.facebook.com/v16.0/app -> 200; GET graph.facebook.com/v16.0/app/mobile_sdk_gk -> 200 (2 calls) |
+| Facebook | **Downloads Facebook SDK settings and setup files. The request body was empty in this capture, so no user-data payload was assessed.** | GET graph.facebook.com/v16.0/app -> 200; GET graph.facebook.com/v16.0/app/mobile_sdk_gk -> 200 (2 calls) |
 
 - **Network log:** [network-log-pixy.json](results/network-log-pixy.json)
 
@@ -313,19 +345,20 @@ The Play Store pages make no no-data-sharing or offline promise. We acquired the
 
 Every app that failed shares one piece of code: Firebase. Nara and Pixy also embed Facebook. The words "complete privacy" and "HIPAA-compliant" sit next to code that sends data to others.
 
-Four of the five wave-1 apps ship at least one program that records installs and shows ads (from Facebook, Adjust, TikTok, or Google/Amazon). Nanit ships screen-recording and email software instead. The Google Play data-safety pages for all five say they share data; none promise to keep data on the device.
+Four of the five wave-1 apps ship at least one program that records installs and shows ads (from Facebook, Adjust, TikTok, or Google/Amazon). **Nanit sends screen and browser telemetry to Microsoft Clarity and Coralogix, plus contact data to Cordial.** The Google Play data-safety pages for all five say they share data; none promise to keep data on the device.
 
 ## Roadmap
 
-- **Operator-integrated dark pattern testing (next).** We paused the static dark-pattern scan and removed its artifacts from this pipeline. Static heuristics gave weak signals (the word "timer" is also Danish for "hours") and cannot see runtime behavior. The next phase replaces it with hands-on operator testing: set up a fictional baby profile in the app (name, birth date, weight, feeding and sleep logs), enter that data by hand, and watch the capture logs for the fake values and for consent-screen pressure patterns. This finds out whether the data we type in leaves the phone, and whether consent screens push toward sharing. See `METHODOLOGY.md` for the capture procedure and `ROADMAP.md` for the plan.
+- **Synthetic baby-data transmission testing (next).** Static dark-pattern searching is no longer part of this project. The next operator test creates a fictional baby profile, enters fictional feeding, sleep, and diaper data, and watches the capture logs for those values. The test records whether the baby data leaves the phone and which recipient receives it. See `METHODOLOGY.md` for the capture procedure and `ROADMAP.md` for the plan.
+- **Full analytics and PII fanout (now).** `scripts/scan-analytics-pii.sh` scans every committed network log. It records all analytics, attribution, advertising, diagnostics, messaging, and replay-related calls, including unclassified hosts.
 - **Wave 2 testing.** Tier 1 candidates in `localonly/candidates.md` (gitignored) are the next wave.
 - **Legacy re-capture.** Eight apps (Nurture Lock, Nubo, Pebbi, Amila, Baby Buddy, Baby Daybook, Baby+, MimiLog) lost their raw captures before the retention rule existed. Their results rest on session summaries, which are thinner: Nanit and Pregnancy+ looked clean at that depth and flipped to major once the raw captures were replayed. A planned sprint will re-test these eight and preserve the captures permanently. See `ROADMAP.md` for details.
 
 ## Limits
 
-- We did not tap the apps by hand. Some data paths stayed hidden. The operator-integrated roadmap item closes this gap.
+- We did not enter a fictional baby profile during these launch captures. Some data paths stayed hidden. The synthetic baby-data test closes this gap.
 - The captures cover the launch and early-use window of each app. Behavior later in a session could differ.
-- We removed response bodies and headers from this report and the network logs because they carry login tokens. "We saw" means the capture itself showed the data exchange; "likely" means we inferred it from the address and the program that made the call.
+- We removed response bodies and header values from this report and the network logs because they can carry tokens or PII. New sanitized logs replace removed values with slugs such as `[REDACTED:request-body-values:secret-or-PII]`. The method, host, path, status, count, and sizes remain, so the record still proves that the call was sent. A scrubbed body is not evidence that PII was absent.
 - Evidence depth is not equal across the 16 apps. Eight apps (BabyCenter, BellyBloom, Nanit, Pregnancy+, What to Expect, Heartful Baby, Nara, Pixy) have `evidence_source: raw-replay` - we replayed and mined every call in the preserved capture. The other eight (Nurture Lock, Nubo, Pebbi, Amila, Baby Buddy, Baby Daybook, Baby+, MimiLog) have `evidence_source: session-summary` - their raw captures disappeared before the retention rule existed. Treat session-summary rows as lower-bound evidence; see ROADMAP.md for the planned legacy re-capture.
 
 ## Advice
@@ -338,4 +371,4 @@ Four of the five wave-1 apps ship at least one program that records installs and
 
 ## Artifacts
 
-Per-app sanitized network logs (committed): see the network-log links in each app block above. Cross-app view: [results/comparison-burst-7.json](results/comparison-burst-7.json). Raw network captures (results/decode-traffic-<app>.json) are generated locally and kept out of the repository because they contain captured login tokens.
+Per-app sanitized network logs (committed): see the network-log links in each app block above. Analytics and PII fanout: [results/analytics-pii-20260803.json](results/analytics-pii-20260803.json). Cross-app view: [results/comparison-burst-7.json](results/comparison-burst-7.json). Raw network captures (results/decode-traffic-<app>.json) are generated locally and kept out of the repository because they contain captured login tokens.

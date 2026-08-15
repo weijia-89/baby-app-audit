@@ -31,7 +31,22 @@
       "type": "string"
     },
     "redaction": {
-      "type": "string"
+      "oneOf": [
+        { "type": "string" },
+        {
+          "type": "object",
+          "required": ["policy", "slugs", "body_keys"],
+          "properties": {
+            "policy": { "type": "string" },
+            "slugs": {
+              "type": "object",
+              "additionalProperties": { "type": "string" }
+            },
+            "body_keys": { "type": "string" }
+          },
+          "additionalProperties": false
+        }
+      ]
     },
     "note": {
       "type": "string"
@@ -96,6 +111,11 @@
                 "items": { "type": "string" }
               }
             }
+          },
+          "redactions": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Descriptive slugs for values removed from this flow. Call metadata remains present."
           }
         }
       }

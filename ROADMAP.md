@@ -16,7 +16,7 @@
 ## Sprint 3  -  Done
 
 - Wearable ecosystem deep-dive (Owlet)
-- Dark pattern detection automation
+- Dark pattern detection automation - archived; no longer part of the current plan
 - Cross-app data comparison
 
 ## Sprint 4  -  Current  -  Testing Phase
@@ -26,14 +26,14 @@
 ### Burst 1  -  Done
 - Re-audit original 4 apps (Nurture Lock, Nubo, Pebbi, Baby Buddy) with new Sprint 3 criteria
 - Validate harness on known targets before expanding
-- Dark pattern scans: nurture-lock (2), nubo (3), pebbi (2)
+- Archived static dark-pattern scans: nurture-lock (2), nubo (3), pebbi (2). No new dark-pattern search is planned.
 - Decode traffic reports generated for all native apps
 - Cross-app comparison: comparison-burst-1.json
 
 ### Burst 2  -  Partial (3 of 5 apps tested, 2 backburner)
 - Tier 1 apps: BabyTrack (backburner), Amila (done), Wachanga (dropped: wrong category)
 - Privacy-first batch 1: Baby Daybook (done), Baby+ (done), Cradle (backburner)
-- Dark pattern scans: amila (3), baby-daybook (2), baby-plus (3)
+- Archived static dark-pattern scans: amila (3), baby-daybook (2), baby-plus (3). No new dark-pattern search is planned.
 - Cross-app comparison: comparison-burst-2.json (3 apps, 0 shared trackers, shared mechanism: Firebase)
 - Baby+ tested with older v2.0.10 (current v3.2 ships armeabi_v7a-only, incompatible with arm64 emulator)
 
@@ -66,6 +66,18 @@ Apps that make privacy/offline claims but cannot be acquired via APKPure or F-Dr
 - Synthesize all burst findings into final report
 - Publish methodology and open-source the tool
 
+## Current next step - Synthetic baby data and analytics fanout
+
+**Goal:** Test whether fictional baby data leaves the device and scan every captured analytics or tracking call for PII indicators.
+
+- Create a fictional baby profile and enter fictional birth, feeding, sleep, and diaper data.
+- Capture the full interaction and background window. Record every sent call, not only calls to known vendors.
+- Run `scripts/scan-analytics-pii.sh` across all committed network logs. Include unclassified hosts and static SDK capability findings.
+- Mark each category as observed, capability-only, or not assessable because scrubbing removed the values.
+- Treat screen capture, screen-image upload, contacts, authentication tokens, and device identifiers as high-risk findings and bold them in the report.
+- Use the new redaction slugs so public logs keep the call record without exposing values.
+- Success criterion: every app has a fanout entry, every sent call remains in the scan, and no scrubbed body is reported as empty of PII.
+
 ## Sprint 5  -  Planned  -  Legacy re-capture and evidence parity
 
 **Goal:** Bring the 8 legacy apps (nurture-lock, nubo, pebbi, amila, baby-buddy, baby-daybook, baby-plus, mimilog) up to the same evidence depth as the wave-1/wave-2 apps. Their raw `.mitm` captures disappeared before the retention rule existed (AGENTS.md "Evidence retention"); their results are decode-level only, and two of them (Amila, Baby+) are the same shape of thin evidence that flipped Nanit and Pregnancy+ to major.
@@ -74,5 +86,6 @@ Apps that make privacy/offline claims but cannot be acquired via APKPure or F-Dr
 - Re-run the harness on all 8 legacy apps with the new retention rule in force; preserve `results/<app>-test-<date>/artifacts/captures/*.mitm` permanently (evidence-inventory guard now enforces this).
 - Expected caveat: current APK versions differ from the tested builds (e.g. we tested Baby+ at v2.0.10 and BellyBloom at v1.0.8). Record the tested APK hash in RESULTS and note version drift in the report; if archived APKs exist locally, prefer them for continuity.
 - After each capture: run `scripts/build-network-logs.sh` to produce enriched network logs, then re-audit `privacy_class` and evidence at full depth (expect: Amila and Baby+ may flip minor -> major like Nanit/Pregnancy+ did).
+- After each capture: run `scripts/scan-analytics-pii.sh` to inventory all analytics and PII-bearing calls, including unknown hosts.
 - Update `RESULTS-20260803.json` `evidence_source` for the 8 apps from `session-summary` to `raw-replay`, refresh the FINAL-REPORT blocks, and re-run all gates (unit tests, evidence inventory, schema validation).
 - Success criterion: all 16 apps have `evidence_source: raw-replay` and a preserved, non-zero-byte capture tree; zero apps classified on decode-level evidence alone.

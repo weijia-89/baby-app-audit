@@ -56,9 +56,11 @@ For web apps like Baby Buddy, I run the app locally and capture browser traffic.
 3. Compute a SHA-256 hash of the APK.
 4. Run the app and use it normally.
 5. Watch mitmproxy for outbound requests.
-6. Run a static scan for trackers and permissions.
+6. Run a static scan for analytics, replay, advertising, diagnostics, and permissions.
 7. Capture dynamic traffic.
 8. Check for covert channels (BLE, NFC, ultrasound, DNS tunneling).
+9. Enter fictional baby data and monitor every call for that data.
+10. Run the full analytics and PII fanout scan.
 
 Note - Radio checks need physical hardware. I did not perform them. They are also an impractical way to siphon data. Future work may add them if accessories use these protocols to sync with the app. The current focus is on the apps alone.
 
@@ -120,7 +122,7 @@ The privacy marks say what the app actually did:
 
 An app with no privacy claim cannot fail, because there is no promise to break. Its result says "no claim"; the privacy mark still shows what we observed.
 
-Every failed app links to its own sanitized network log (`results/network-log-<app>.json`). The logs list hosts, redacted paths, status codes, flow counts, request and response sizes, JSON body keys, and header-flag names for each captured flow. They contain no query strings, header values, or body values, because those carried authentication tokens. The logs are generated from the raw `.mitm` captures by `scripts/build-network-logs.sh`; the raw captures stay local only.
+Every failed app links to its own sanitized network log (`results/network-log-<app>.json`). The logs list hosts, redacted paths, status codes, flow counts, request and response sizes, JSON body keys, header-flag names, and redaction slugs for each captured flow. They contain no query strings, header values, or body values. The slugs state what was removed and why. The method, host, path, status, count, and sizes remain, so the record still proves that the call was sent. The logs are generated from the raw `.mitm` captures by `scripts/build-network-logs.sh`; the raw captures stay local only.
 
 The machine-readable summary is [results/RESULTS-20260803.json](results/RESULTS-20260803.json). Each app row carries an `evidence_source`: `raw-replay` (every flow in the preserved capture was replayed and mined) or `session-summary` (raw capture no longer exists; results rest on the original session summaries). The eight session-summary apps are lower-bound evidence until the planned legacy re-capture. See [CHANGELOG.md](CHANGELOG.md) for history.
 
@@ -154,6 +156,7 @@ This project tests baby and parenting apps against their privacy claims. The cur
 * **Live data collection:** `scripts/decode-traffic.sh` decodes network captures into structured JSON with per-app metadata.
 * **Cross-app comparison:** `scripts/compare-apps.sh` compares network traffic across apps to find shared trackers.
 * **Granular test results:** `FINAL-REPORT.md` lists every captured call per app in a Service | Data shared | Call/Log table.
+* **Full analytics and PII fanout:** `scripts/scan-analytics-pii.sh` scans every committed network log, including unclassified hosts, for analytics roles and PII indicators.
 * **CI checks:** the test matrix covers 16 apps, and unit tests check the decoder and comparison scripts.
 
 ### What is next
@@ -161,7 +164,7 @@ This project tests baby and parenting apps against their privacy claims. The cur
 * **Independent verification welcome:** the harness and method are open for others to confirm the findings.
 * **Wave 1 coverage:** the next test set targets five high-download Google Play parenting apps. The final report records each app's data-safety statement before testing.
 * **Open-source plan:** publishing the harness and method is on the roadmap.
-* **Code review (PR #22):** a review hardened the harness. HAR timestamps are now UTC, SDK hosts count as trackers, and dark-pattern false positives (0dp layouts, benign "timer" strings) are fixed, with new regression tests.
+* **Code review (PR #22):** a review hardened the harness. HAR timestamps are now UTC, SDK hosts count as trackers, and archived static dark-pattern false positives (0dp layouts, benign "timer" strings) are recorded as historical context only.
 
 If you have suggestions for coverage or issues with the method, I welcome them.
 ## Artifacts
@@ -172,7 +175,8 @@ Network capture logs:
 - `results/nubo-test-20260803/capture.mitm` - Nubo capture
 
 Sanitized network logs:
-- `results/network-log-<app>.json` - per-flow host, redacted path, status, count, sizes, JSON body keys, and header-flag names for each tested app; built from the raw `.mitm` captures by `scripts/build-network-logs.sh`
+- `results/network-log-<app>.json` - per-flow host, redacted path, status, count, sizes, JSON body keys, header-flag names, and redaction slugs for each tested app; built from the raw `.mitm` captures by `scripts/build-network-logs.sh`
+- `results/analytics-pii-20260803.json` - full fanout scan across every committed network log
 - Raw decoded captures stay local because they contain authentication tokens and installation IDs.
 
 ## Sources

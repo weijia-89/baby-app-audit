@@ -145,11 +145,11 @@ You do everything on the Mac. No cloud. No other computer.
 
 **Security warning:** This procedure requires `adb root`, `adb remount`, and installing a custom CA certificate into the emulator system store. These actions compromise the security model of the test device. Only run this on a dedicated test emulator. Never on a personal device.
 
-**Privacy warning:** This test captures baby data (names, dates of birth, feeding/sleep/diaper patterns). Before testing, ensure you have:
+**Privacy warning:** Use fictional baby data only. Never enter data about a real baby. Before testing, ensure you have:
 1. A completed Data Protection Impact Assessment (DPIA) if required by jurisdiction.
-2. Consent from the parent/guardian of the baby whose data will be entered.
-3. A documented purpose limitation: data is used ONLY for privacy testing.
-4. A commitment to data minimization: capture ONLY app traffic, not all emulator traffic.
+2. A documented purpose limitation: data is used ONLY for privacy testing.
+3. A commitment to data minimization: capture ONLY app traffic, not all emulator traffic.
+4. A local retention and access rule for the captured evidence.
 
 **Resource requirements:** 4 CPU cores, 8 GB RAM, 20 GB free disk (10 GB minimum).
 
@@ -376,7 +376,7 @@ Step 5. Open the app.
 
 Step 6. Do these actions, one at a time. Use **adversarial test data** to trigger edge cases:
 
-* Create a baby profile (use reproducible test data: name = "TestBaby", DOB = 2024-01-01).
+* Create a fictional baby profile (use reproducible test data: name = "TestBaby", DOB = 2024-01-01).
 * **Metamorphic variant:** Also test with name = "あいうえお" (Unicode), DOB = 2030-01-01 (future date), and empty name.
 * Log a feed.
 * Log a sleep.
@@ -493,7 +493,7 @@ Step 5. Search the decompiled files for clues with an **improved, obfuscation-aw
 
 ```bash
 grep -rEi \
-  'https?://[^"\s]+|firebase|analytics|crashlytics|unity3d|facebook|mixpanel| amplitude|segment|appsflyer|bugsnag|sentry|adjust|mParticle|localytics|collect|track|telemetry|metrics' \
+  'https?://[^"\s]+|firebase|analytics|crashlytics|unity3d|facebook|mixpanel|amplitude|segment|appsflyer|bugsnag|sentry|adjust|mParticle|localytics|cordial|coralogix|adapty|vungle|inmobi|pangle|onesignal|revenuecat|fullstory|smartlook|uxcam|appsee|glassbox|logrocket|instabug|rrweb|screenCapture|upload-asset|collect|track|telemetry|metrics' \
   artifacts/reports/jadx-out/ \
   | sort -u \
   > artifacts/reports/string-hits.txt
@@ -531,8 +531,10 @@ Step 4. Review the capture file with `mitmdump -nr artifacts/captures/dynamic-te
 Step 5. For each request, write down:
 
 * The destination address (where it went)
-* Is that address a known tracker?
-* What data was in the request body?
+* Is that address a known tracker or an unclassified analytics host?
+* What data category was in the request body?
+* Was the body assessable, or did privacy scrubbing remove its values?
+* Which redaction slug explains each removed value?
 * **Protocol:** HTTP, HTTPS, DNS, WebSocket, or other?
 * **DoH/DoT check:** If destination is a known DoH provider (Cloudflare 1.1.1.1, Google 8.8.8.8, Quad9), flag for deeper inspection.
 * **ECH check:** TLS 1.3 Encrypted Client Hello may hide the true SNI. If you see TLS 1.3 with ECH, note that the destination domain may be concealed.
@@ -605,7 +607,7 @@ Fill in this table for each app.
 | Question | Nurture Lock | Nubo | Pebbi | Baby Buddy |
 | --- | --- | --- | --- | --- |
 | Did any data leave the phone? | | | | |
-| How many trackers found (static)? | | | | |
+| How many analytics, replay, advertising, and diagnostics libraries found (static)? | | | | |
 | What permissions did it ask for? | | | | |
 | List every outside address it contacted | | | | |
 | Does the app match its own privacy claim? | | | | |
@@ -746,7 +748,7 @@ Step 5. Archive artifacts with retention policy:
 ```bash
 tar czf "artifacts-$(date -u +%Y%m%d-%H%M%S).tar.gz" artifacts/
 shasum -a 256 "artifacts-"*.tar.gz > artifacts-archive.sha256
-echo "Artifacts archived. Retain for 90 days maximum. After 90 days, securely delete."
+echo "Artifacts archived. Retain captured evidence permanently under results/. Keep raw values local and never commit them."
 ```
 
 Step 6. Restore emulator from snapshot or delete the AVD:
@@ -867,9 +869,9 @@ Step 2. **Purpose limitation:** Document the exact purpose of this test in `arti
 
 ```text
 Purpose: Determine whether [App Name] transmits baby data off-device.
-Data collected: Network traffic metadata and payloads.
+Data collected: Network traffic metadata and payloads from fictional test data.
 Data NOT collected: Unrelated emulator traffic.
-Retention: 90 days maximum.
+Retention: Permanent evidence under `results/`. Raw values stay local and are never committed.
 ```
 
 Step 3. **Anonymization:** Before sharing artifacts, strip device IDs, IP addresses, and timestamps that could re-identify the test subject:
@@ -1207,10 +1209,10 @@ For `verdict = fail` (accusing an app of privacy violation), require consensus f
 
 ### Subagent 6  -  static
 
-* Goal: list trackers and permissions without running the app.
-* Commands: `docker run --platform linux/amd64` exodus-standalone with pinned digest, `-j -o report.json` per APK; `jadx` decompile; grep for URLs and SDK names with improved pattern.
+* Goal: list analytics, replay, advertising, diagnostics, messaging SDKs, and permissions without running the app.
+* Commands: `docker run --platform linux/amd64` exodus-standalone with pinned digest, `-j -o report.json` per APK; `jadx` decompile; grep for URLs and all analytics or replay SDK names with the improved pattern.
 * **Circuit breaker:** If Docker Hub is unreachable, skip exodus and continue with jadx only.
-* Done-check: a JSON report and a grep hit list saved per package; report includes APK checksum.
+* Done-check: a JSON report and a grep hit list saved per package; the report includes APK checksum and every analytics or replay capability hit.
 * Note: record explicitly that no public exodus report exists for the nurturelock package, so this local report is the first one.
 * On fail: check the platform flag and Docker; retry once; else HUMAN-GATE.
 
@@ -1218,13 +1220,13 @@ For `verdict = fail` (accusing an app of privacy violation), require consensus f
 
 ### Subagent 7  -  dynamic (deep capture, and pinning bypass if needed)
 
-* Goal: record every real destination and payload.
+* Goal: record every real destination and payload category.
 * Commands: repeat the standard interactions under mitmdump; if pinning suspected, run `objection -g <package> explore` then `android sslpinning disable`, and retry.
 * **Gotcha handling:** if objection errors on Frida version, install the dev build; for split APKs place the Frida gadget in the arm64_v8a split before repack.
 * **Max retry bound:** If pinning bypass fails after `${MAX_RETRIES}` attempts, record "could not decrypt" and stop.
 * **Covert channel check:** Run `tcpdump` on host to catch non-HTTP traffic if mitmproxy shows nothing. Check BLE, NFC, ultrasound.
 * **Memory forensics:** If zero traffic after all checks, note "possible in-memory encryption or custom protocol."
-* Done-check: `dynamic_findings` has a destination list per package; each destination tagged `tracker` or `not`; payload noted; covert channel check performed or documented as skipped.
+* Done-check: `dynamic_findings` has a destination list per package; each destination tagged `tracker`, `analytics`, or `unclassified`; payload category and redaction status noted; covert channel check performed or documented as skipped.
 * On fail: if pinning cannot be broken, record "could not decrypt" and do not guess; set the package's network claim to `untested`.
 
 ---
@@ -1242,8 +1244,8 @@ For `verdict = fail` (accusing an app of privacy violation), require consensus f
 
 ### Subagent 9  -  report
 
-* Goal: produce the final result table and verdicts.
-* Commands: merge static, dynamic, and FOSS audit findings; fill the Part 5 table; apply the pass/fail rule; where findings disagree, trust dynamic and note it; append final state to audit log; archive artifacts; compute archive SHA-256.
+* Goal: produce the final result table, fanout inventory, and verdicts.
+* Commands: merge static, dynamic, and FOSS audit findings; run `scripts/scan-analytics-pii.sh` over every committed network log; fill the Part 5 table; apply the pass/fail rule; where findings disagree, trust dynamic and note it; append final state to audit log; archive artifacts; compute archive SHA-256.
 * **Consensus implementation:** For `verdict = fail`, Subagent 9 spawns Subagent 9b with ONLY the raw flow data and package name (no prior verdict). Subagent 9b independently analyzes flows and returns its own `verdict` and `evidence`. If 9 and 9b agree on `fail`, the verdict is final. If they disagree, escalate to HUMAN-GATE.
 * **Consensus rule:** For `verdict = fail`, require 2 independent subagents to agree. Disagreement = HUMAN-GATE.
 * Done-check: every app has a filled row and a pass or fail (or untested) with one evidence line; audit log closed; artifacts archived; archive hash computed.

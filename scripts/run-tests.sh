@@ -263,6 +263,21 @@ preflight() {
         error "Evidence inventory broken - fix or restore before running the harness"
     fi
 
+    # Scan every committed network log. The checked-in result is deterministic
+    # and keeps the deep analytics/PII fanout in the normal pre-flight path.
+    local repo_root
+    repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+    local fanout_output
+    fanout_output="$(mktemp "${TMPDIR:-/tmp}/analytics-pii-check.XXXXXX.json")"
+    if ! bash "$repo_root/scripts/scan-analytics-pii.sh" "$repo_root/results" "$fanout_output"; then
+        error "Analytics and PII fanout scan failed"
+        return 1
+    elif ! cmp -s "$fanout_output" "$repo_root/results/analytics-pii-20260803.json"; then
+        error "Analytics and PII fanout result is out of date; regenerate with: bash scripts/scan-analytics-pii.sh results results/analytics-pii-20260803.json"
+        return 1
+    fi
+    rm -f "$fanout_output"
+
     if [ "$failed" -eq 1 ]; then
         warn "Some required tools are missing. Running in BEST_EFFORT mode."
         echo "TOOLS_MISSING" > "$ARTIFACTS_DIR/logs/preflight-status.txt"

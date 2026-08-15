@@ -67,9 +67,11 @@ jobs:
       - name: Verify results artifacts are valid JSON
         run: |
           python3 -m json.tool results/schema.json > /dev/null
-          python3 -m json.tool results/decode-traffic.schema.json > /dev/null
-          python3 -m json.tool results/network-log.schema.json > /dev/null
-          python3 -m json.tool results/RESULTS-20260803.json > /dev/null
+           python3 -m json.tool results/decode-traffic.schema.json > /dev/null
+           python3 -m json.tool results/network-log.schema.json > /dev/null
+           python3 -m json.tool results/analytics-pii.schema.json > /dev/null
+           python3 -m json.tool results/analytics-pii-20260803.json > /dev/null
+           python3 -m json.tool results/RESULTS-20260803.json > /dev/null
           for log in results/network-log-*.json; do
             python3 -m json.tool "$log" > /dev/null
           done
@@ -168,6 +170,11 @@ jobs:
       - name: Run results artifact tests
         run: bash tests/test-results-artifacts.sh
 
+      - name: Run analytics and redaction tests
+        run: |
+          bash tests/test-analytics-pii.sh
+          bash tests/test-network-log-redaction.sh
+
       - name: Verify product-metadata.json is valid JSON
         run: python3 -m json.tool results/product-metadata.json > /dev/null
 
@@ -194,6 +201,10 @@ jobs:
           validator = Draft7Validator(network_schema)
           for path in sorted((root / "results").glob("network-log-*.json")):
               validator.validate(json.loads(path.read_text()))
+
+          analytics_schema = json.loads((root / "results/analytics-pii.schema.json").read_text())
+          validator = Draft7Validator(analytics_schema)
+          validator.validate(json.loads((root / "results/analytics-pii-20260803.json").read_text()))
           PY
           echo "New schemas and sanitized network logs are valid"
 

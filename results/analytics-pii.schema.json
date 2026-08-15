@@ -1,0 +1,93 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Analytics and PII fanout scan",
+  "type": "object",
+  "required": ["$schema", "schema_version", "scope", "static_capabilities", "vendors", "apps"],
+  "properties": {
+    "$schema": { "const": "analytics-pii/1.0" },
+    "schema_version": { "const": "1.0" },
+    "scope": {
+      "type": "object",
+      "required": ["input_pattern", "apps_scanned", "calls_scanned", "assessment_rule"],
+      "properties": {
+        "input_pattern": { "type": "string" },
+        "apps_scanned": { "type": "integer", "minimum": 0 },
+        "calls_scanned": { "type": "integer", "minimum": 0 },
+        "assessment_rule": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "static_capabilities": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["app", "package_name", "name", "assessment"],
+        "properties": {
+          "app": { "type": "string" },
+          "package_name": { "type": "string" },
+          "name": { "type": "string" },
+          "assessment": { "const": "capability_only" }
+        },
+        "additionalProperties": false
+      }
+    },
+    "vendors": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["vendor", "hosts", "apps", "call_count", "roles", "pii_categories", "assessments"],
+        "properties": {
+          "vendor": { "type": "string" },
+          "hosts": { "type": "array", "items": { "type": "string" } },
+          "apps": { "type": "array", "items": { "type": "string" } },
+          "call_count": { "type": "integer", "minimum": 0 },
+          "roles": { "type": "array", "items": { "type": "string" } },
+          "pii_categories": { "type": "array", "items": { "type": "string" } },
+          "assessments": { "type": "array", "items": { "type": "string" } }
+        },
+        "additionalProperties": false
+      }
+    },
+    "apps": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["app", "package_name", "call_count", "analytics_call_count", "pii_call_count", "unassessed_call_count", "calls"],
+        "properties": {
+          "app": { "type": "string" },
+          "package_name": { "type": "string" },
+          "call_count": { "type": "integer", "minimum": 0 },
+          "analytics_call_count": { "type": "integer", "minimum": 0 },
+          "pii_call_count": { "type": "integer", "minimum": 0 },
+          "unassessed_call_count": { "type": "integer", "minimum": 0 },
+          "calls": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["method", "host", "path", "status", "count", "vendor", "roles", "sent_call", "analytics_call", "pii_categories", "assessments", "redaction_slugs"],
+              "properties": {
+                "method": { "type": "string" },
+                "host": { "type": "string" },
+                "path": { "type": "string" },
+                "status": { "oneOf": [{ "type": "integer" }, { "const": "unknown" }] },
+                "count": { "type": "integer", "minimum": 1 },
+                "vendor": { "type": "string" },
+                "roles": { "type": "array", "items": { "type": "string" } },
+                "sent_call": { "const": true },
+                "request_size": { "type": ["integer", "null"] },
+                "response_size": { "type": ["integer", "null"] },
+                "analytics_call": { "type": "boolean" },
+                "pii_categories": { "type": "array", "items": { "type": "string" } },
+                "assessments": { "type": "array", "items": { "type": "string" } },
+                "redaction_slugs": { "type": "array", "items": { "type": "string" } }
+              },
+              "additionalProperties": false
+            }
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

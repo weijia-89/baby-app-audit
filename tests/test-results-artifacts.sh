@@ -10,6 +10,7 @@ from pathlib import Path
 
 root = Path(os.environ["REPO_ROOT"])
 results = json.loads((root / "results/RESULTS-20260803.json").read_text())
+analytics = json.loads((root / "results/analytics-pii-20260803.json").read_text())
 expected = {
     "Nurture Lock": "major",
     "Nubo": "major",
@@ -34,6 +35,10 @@ assert len(results["apps"]) == len(expected), "result list contains duplicate or
 assert set(apps) == set(expected), f"unexpected app set: {sorted(apps)}"
 assert {name: app["privacy_class"] for name, app in apps.items()} == expected
 assert all((app["verdict"] == "pass") == (app["privacy_class"] == "pass") for app in apps.values())
+assert analytics["scope"]["apps_scanned"] == len(expected)
+assert analytics["scope"]["calls_scanned"] > 0
+assert any(v["vendor"] == "Unclassified host" for v in analytics["vendors"])
+assert all(call["sent_call"] is True for app in analytics["apps"] for call in app["calls"])
 
 assert {name: app["evidence_source"] for name, app in apps.items()} == {
     "BabyCenter": "raw-replay", "BellyBloom": "raw-replay", "Nanit": "raw-replay",
