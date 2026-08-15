@@ -145,7 +145,7 @@ The test harness does not use real baby data. All traffic captured on the emulat
 
 * **Data minimization:** I captured only app traffic, not all emulator traffic.
 * **Purpose limitation:** I used the data only for privacy testing.
-* **Retention:** Local capture artifacts are kept for a maximum of 90 days and then deleted.
+* **Retention:** Raw captures, decode files, and network logs are permanent evidence. They stay on disk indefinitely under `results/` (gitignored because they contain live tokens) and are never swept or deleted. The harness deletes only its own work directory under `${HOME}/apk-privacy-test-*`, which it created; `KEEP_WORK_DIR=1` preserves even that. `scripts/evidence-inventory.sh --check` enforces the inventory on every harness run.
 * **Redaction:** Captures that contain tokens or identifiers (Firebase installation IDs, JWTs, anonymous IDs) are kept only under `results/mitm-capture/`, which is excluded from the repository by `.gitignore`. Public documents redact such values. Committed network logs are generated from the raw `.mitm` captures by `scripts/build-network-logs.sh`, which removes query strings, replaces token-like path segments with `[REDACTED]`, keeps JSON body keys (names only) and header-flag names (names only), and never emits body or header values.
 * **No consent requirement:** Because no real user data was used, no parent consent was needed or obtained. No claims of consent are made.
 
