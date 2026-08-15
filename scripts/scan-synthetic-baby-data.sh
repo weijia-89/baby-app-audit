@@ -147,7 +147,7 @@ def load_flows(path):
                 ["mitmdump", "-q", "-s",
                  str(har_dump),
                  "--set", f"har_output={har}", "-nr", str(path)],
-                check=True, capture_output=True,
+                check=True, capture_output=True, timeout=60,
             )
         except (subprocess.CalledProcessError, FileNotFoundError) as exc:
             print(f"ERROR: could not convert {path} with mitmdump: {exc}", file=sys.stderr)
@@ -212,10 +212,21 @@ def load_flows(path):
 
 def main():
     profile = json.loads(Path(profile_path).read_text())
+    # Minimal schema validation
+    if profile.get("$schema") != "synthetic-baby-profile/1.0":
+        print("ERROR: profile schema mismatch", file=sys.stderr)
+        sys.exit(1)
+    if "profile_name" not in profile or "description" not in profile:
+        print("ERROR: profile missing required fields", file=sys.stderr)
+        sys.exit(1)
     markers = profile.get("markers", [])
     if not markers:
         print("ERROR: profile has no markers", file=sys.stderr)
         sys.exit(1)
+    for m in markers:
+        if not all(k in m for k in ("id", "value", "type", "confidence")):
+            print(f"ERROR: marker missing fields: {m}", file=sys.stderr)
+            sys.exit(1)
 
     apps = []
     total_transmissions = 0

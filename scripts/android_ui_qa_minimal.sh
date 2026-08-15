@@ -60,8 +60,9 @@ SAVE_Y_BASE=1800
 
 scale_coord() {
   local base=$1
-  local density=$(get_density)
-  awk "BEGIN {printf \"%.0f\", $base * $density / $BASE_DENSITY}"
+  local density
+  density=$(get_density)
+  awk -v base="$base" -v density="$density" -v base_density="$BASE_DENSITY" 'BEGIN {printf "%.0f", base * density / base_density}'
 }
 
 WAIT_SHORT=0.5
@@ -89,13 +90,15 @@ wait_for_text() {
   local text="$1"
   local timeout="${2:-10}"
   local elapsed=0
-  while [ $elapsed -lt $timeout ]; do
+  export WAIT_TEXT="$text"
+  export WAIT_PATH="$ARTIFACT_DIR/uidump_check.xml"
+  while [ $elapsed -lt "$timeout" ]; do
     adb_safe shell uiautomator dump /sdcard/uidump_check.xml >/dev/null 2>&1
     adb_safe pull /sdcard/uidump_check.xml "$ARTIFACT_DIR/uidump_check.xml" >/dev/null 2>&1
-    if python3 - <<PY >/dev/null 2>&1
-import xml.etree.ElementTree as ET, sys
-path = "$ARTIFACT_DIR/uidump_check.xml"
-text = "$text"
+    if python3 - <<'PY' >/dev/null 2>&1
+import xml.etree.ElementTree as ET, sys, os
+path = os.environ.get('WAIT_PATH')
+text = os.environ.get('WAIT_TEXT', '')
 try:
     tree = ET.parse(path)
     for n in tree.iter():
