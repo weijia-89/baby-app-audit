@@ -2,6 +2,8 @@
   "$schema": "synthetic-baby-profile/1.0",
   "schema_version": "1.0",
   "profile_name": "Privatia Rigatoni",
+  "mother_age": 30,
+  "parity": "yes",
   "description": "Fictional baby profile used by the synthetic baby-data transmission test. Every value is invented. The operator enters these exact values in each app's own data-entry screens while the app runs through the capture proxy. The scan then searches the raw local capture for the marker strings below. No real baby data is used and no consent is implied.",
   "usage": "Enter the values verbatim where the app has a matching field. Where a field has no natural home, paste the synth_token into any free-text or note field. Numbers are chosen to be unusual (not physiologically typical) so they are unlikely to appear by chance in normal app traffic; they are supporting markers only. A real transmission finding requires at least one high- or medium-confidence string marker, or a numeric marker found in a request body.",
   "baby": {
