@@ -427,6 +427,7 @@
       ],
       "assessments": [
         "call_sent_body_scrubbed",
+        "capability_or_endpoint_inference",
         "response_key_names_observed_values_scrubbed"
       ]
     },
@@ -1585,8 +1586,8 @@
       "app": "bellybloom",
       "package_name": "com.bellyBloom.pregnancy.tracker",
       "call_count": 53,
-      "analytics_call_count": 42,
-      "pii_call_count": 40,
+      "analytics_call_count": 48,
+      "pii_call_count": 46,
       "unassessed_call_count": 21,
       "calls": [
         {
@@ -1623,9 +1624,14 @@
           "sent_call": true,
           "request_size": 0,
           "response_size": 7832,
-          "analytics_call": false,
-          "pii_categories": [],
+          "analytics_call": true,
+          "pii_categories": [
+            "advertising_or_attribution",
+            "app_activity_events",
+            "device_or_app_identifiers"
+          ],
           "assessments": [
+            "capability_or_endpoint_inference",
             "response_key_names_observed_values_scrubbed"
           ],
           "redaction_slugs": []
@@ -1643,9 +1649,14 @@
           "sent_call": true,
           "request_size": 0,
           "response_size": 3699,
-          "analytics_call": false,
-          "pii_categories": [],
+          "analytics_call": true,
+          "pii_categories": [
+            "advertising_or_attribution",
+            "app_activity_events",
+            "device_or_app_identifiers"
+          ],
           "assessments": [
+            "capability_or_endpoint_inference",
             "response_key_names_observed_values_scrubbed"
           ],
           "redaction_slugs": []
@@ -1742,9 +1753,14 @@
           "sent_call": true,
           "request_size": 0,
           "response_size": 11,
-          "analytics_call": false,
-          "pii_categories": [],
+          "analytics_call": true,
+          "pii_categories": [
+            "advertising_or_attribution",
+            "app_activity_events",
+            "device_or_app_identifiers"
+          ],
           "assessments": [
+            "capability_or_endpoint_inference",
             "response_key_names_observed_values_scrubbed"
           ],
           "redaction_slugs": []
@@ -2038,6 +2054,7 @@
           "analytics_call": true,
           "pii_categories": [
             "advertising_or_attribution",
+            "app_activity_events",
             "device_or_app_identifiers"
           ],
           "assessments": [
@@ -3054,8 +3071,8 @@
       "app": "nara",
       "package_name": "com.naraorganics.nara",
       "call_count": 10,
-      "analytics_call_count": 1,
-      "pii_call_count": 1,
+      "analytics_call_count": 10,
+      "pii_call_count": 10,
       "unassessed_call_count": 1,
       "calls": [
         {
@@ -3069,9 +3086,14 @@
           "sent_call": true,
           "request_size": 0,
           "response_size": 7678,
-          "analytics_call": false,
-          "pii_categories": [],
+          "analytics_call": true,
+          "pii_categories": [
+            "advertising_or_attribution",
+            "app_activity_events",
+            "device_or_app_identifiers"
+          ],
           "assessments": [
+            "capability_or_endpoint_inference",
             "response_key_names_observed_values_scrubbed"
           ],
           "redaction_slugs": []
@@ -3089,9 +3111,14 @@
           "sent_call": true,
           "request_size": 0,
           "response_size": 3698,
-          "analytics_call": false,
-          "pii_categories": [],
+          "analytics_call": true,
+          "pii_categories": [
+            "advertising_or_attribution",
+            "app_activity_events",
+            "device_or_app_identifiers"
+          ],
           "assessments": [
+            "capability_or_endpoint_inference",
             "response_key_names_observed_values_scrubbed"
           ],
           "redaction_slugs": []
@@ -3138,9 +3165,14 @@
           "sent_call": true,
           "request_size": 0,
           "response_size": 11,
-          "analytics_call": false,
-          "pii_categories": [],
+          "analytics_call": true,
+          "pii_categories": [
+            "advertising_or_attribution",
+            "app_activity_events",
+            "device_or_app_identifiers"
+          ],
           "assessments": [
+            "capability_or_endpoint_inference",
             "response_key_names_observed_values_scrubbed"
           ],
           "redaction_slugs": []
@@ -3394,8 +3426,8 @@
       "app": "pixy",
       "package_name": "com.pixykid.app",
       "call_count": 3,
-      "analytics_call_count": 0,
-      "pii_call_count": 0,
+      "analytics_call_count": 3,
+      "pii_call_count": 3,
       "unassessed_call_count": 0,
       "calls": [
         {
@@ -3411,9 +3443,14 @@
           "sent_call": true,
           "request_size": 0,
           "response_size": 3701,
-          "analytics_call": false,
-          "pii_categories": [],
+          "analytics_call": true,
+          "pii_categories": [
+            "advertising_or_attribution",
+            "app_activity_events",
+            "device_or_app_identifiers"
+          ],
           "assessments": [
+            "capability_or_endpoint_inference",
             "response_key_names_observed_values_scrubbed"
           ],
           "redaction_slugs": []
@@ -3429,9 +3466,14 @@
           "sent_call": true,
           "request_size": 0,
           "response_size": 2006,
-          "analytics_call": false,
-          "pii_categories": [],
+          "analytics_call": true,
+          "pii_categories": [
+            "advertising_or_attribution",
+            "app_activity_events",
+            "device_or_app_identifiers"
+          ],
           "assessments": [
+            "capability_or_endpoint_inference",
             "response_key_names_observed_values_scrubbed"
           ],
           "redaction_slugs": []
@@ -3442,8 +3484,8 @@
       "app": "pregnancyplus",
       "package_name": "com.hp.pregnancy.lite",
       "call_count": 42,
-      "analytics_call_count": 27,
-      "pii_call_count": 25,
+      "analytics_call_count": 31,
+      "pii_call_count": 29,
       "unassessed_call_count": 19,
       "calls": [
         {
@@ -3563,9 +3605,14 @@
           "sent_call": true,
           "request_size": 0,
           "response_size": 3701,
-          "analytics_call": false,
-          "pii_categories": [],
+          "analytics_call": true,
+          "pii_categories": [
+            "advertising_or_attribution",
+            "app_activity_events",
+            "device_or_app_identifiers"
+          ],
           "assessments": [
+            "capability_or_endpoint_inference",
             "response_key_names_observed_values_scrubbed"
           ],
           "redaction_slugs": []
@@ -3605,9 +3652,14 @@
           "sent_call": true,
           "request_size": 0,
           "response_size": 1053,
-          "analytics_call": false,
-          "pii_categories": [],
+          "analytics_call": true,
+          "pii_categories": [
+            "advertising_or_attribution",
+            "app_activity_events",
+            "device_or_app_identifiers"
+          ],
           "assessments": [
+            "capability_or_endpoint_inference",
             "response_key_names_observed_values_scrubbed"
           ],
           "redaction_slugs": []
@@ -3773,9 +3825,14 @@
           "sent_call": true,
           "request_size": 0,
           "response_size": 11,
-          "analytics_call": false,
-          "pii_categories": [],
+          "analytics_call": true,
+          "pii_categories": [
+            "advertising_or_attribution",
+            "app_activity_events",
+            "device_or_app_identifiers"
+          ],
           "assessments": [
+            "capability_or_endpoint_inference",
             "response_key_names_observed_values_scrubbed"
           ],
           "redaction_slugs": []

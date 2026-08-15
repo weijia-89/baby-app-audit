@@ -241,6 +241,11 @@ def pii_categories(vendor, host, path, flow, roles):
     categories = set()
 
     if vendor == "Facebook":
+        # Every observed Facebook SDK call (app config, events, ad-network
+        # sync) can carry these categories. The report lists them as the full
+        # set Facebook could collect; the per-call assessment still records
+        # whether the payload was actually readable.
+        categories.update({"app_activity_events", "device_or_app_identifiers", "advertising_or_attribution"})
         if "/activities" in path.lower():
             categories.update({"app_activity_events", "device_or_app_identifiers", "advertising_or_attribution"})
         elif "adnw_sync" in path.lower():
@@ -293,7 +298,14 @@ result_packages = {
 }
 
 for log_path in logs:
-    data = json.loads(log_path.read_text())
+    try:
+        data = json.loads(log_path.read_text())
+    except (json.JSONDecodeError, OSError) as exc:
+        print(f"WARN: skipping unreadable log {log_path.name}: {exc}", file=sys.stderr)
+        continue
+    if not isinstance(data, dict) or "flows" not in data:
+        print(f"WARN: skipping malformed log {log_path.name} (no flows)", file=sys.stderr)
+        continue
     if result_data is not None and data.get("package_name") not in result_packages:
         continue
     app_name = data.get("app", log_path.stem.removeprefix("network-log-"))

@@ -53,7 +53,10 @@ app_packages = {
 }
 package = app_packages.get(slug)
 if package is None:
-    meta = json.load(open(os.path.join(repo_root, "results/product-metadata.json")))
+    try:
+        meta = json.load(open(os.path.join(repo_root, "results/product-metadata.json")))
+    except (json.JSONDecodeError, OSError):
+        meta = {}
     for key, value in meta.get("products", {}).items():
         if slug in key.lower() or str(value.get("slug", "")).lower() == slug.lower():
             package = key
@@ -97,7 +100,14 @@ def flow_key(method, path, status):
     return (method, path, status)
 
 
-har = json.load(open(har))
+try:
+    har = json.load(open(har))
+except (json.JSONDecodeError, OSError) as exc:
+    print(f"ERROR: failed to read HAR from {har}: {exc}", file=sys.stderr)
+    sys.exit(1)
+if not isinstance(har, dict) or "log" not in har or "entries" not in har.get("log", {}):
+    print(f"ERROR: HAR {har} has no log.entries", file=sys.stderr)
+    sys.exit(1)
 flows_by_key = {}
 order = []
 for entry in har["log"]["entries"]:

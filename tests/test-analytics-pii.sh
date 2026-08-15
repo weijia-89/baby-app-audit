@@ -153,6 +153,9 @@ cat > "$tmp_dir/network-log-vendors.json" <<'EOF'
 }
 EOF
 
+# A corrupt log must be skipped, not crash the whole scan.
+printf '{ this is not valid json' > "$tmp_dir/network-log-bad.json"
+
 bash "$scanner" "$tmp_dir" "$output"
 
 OUTPUT="$output" python3 - <<'PY'
