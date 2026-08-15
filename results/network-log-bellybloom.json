@@ -5,12 +5,23 @@
   "package_name": "com.bellyBloom.pregnancy.tracker",
   "capture_date": "2026-08-14",
   "capture": "results/bellybloom-test-20260814/artifacts/captures/Bellybloom.mitm",
-  "redaction": "Query strings removed; token-like path segments replaced by [REDACTED]; body values, headers, and cookies never included; body JSON keys only.",
+  "redaction": {
+    "policy": "Sensitive values never appear. Call metadata remains so the sent call can be assessed.",
+    "slugs": {
+      "query": "[REDACTED:query-string:privacy]",
+      "path": "[REDACTED:path-token-or-id:secret-or-PII]",
+      "request_body": "[REDACTED:request-body-values:secret-or-PII]",
+      "request_headers": "[REDACTED:request-header-values:secret-or-PII]",
+      "response_body": "[REDACTED:response-body-values:secret-or-PII]",
+      "response_headers": "[REDACTED:response-header-values:secret-or-PII]"
+    },
+    "body_keys": "Names only. Values are scrubbed."
+  },
   "flows": [
     {
       "method": "GET",
       "host": "firebase-settings.crashlytics.com",
-      "path": "https://[REDACTED]/spi/v2/platforms/android/gmp/1:254761198014:android:[REDACTED]/settings",
+      "path": "https://firebase-settings.crashlytics.com/spi/v2/platforms/android/gmp/1:254761198014:android:373f5d46375af9d4d999ef/settings",
       "status": 200,
       "origin": "session",
       "count": 1,
@@ -35,7 +46,13 @@
           "on_demand_upload_rate_per_minute",
           "settings_version"
         ]
-      }
+      },
+      "redactions": [
+        "[REDACTED:query-string:privacy]",
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-body-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
     },
     {
       "method": "GET",
@@ -69,12 +86,18 @@
           "suggested_events_setting",
           "supports_implicit_sdk_logging"
         ]
-      }
+      },
+      "redactions": [
+        "[REDACTED:query-string:privacy]",
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-body-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
     },
     {
       "method": "GET",
       "host": "graph.facebook.com",
-      "path": "https://graph.facebook.com/v16.0/app/mobile_sdk_gk",
+      "path": "https://graph.facebook.com/v16.0/app/[REDACTED:path-token-or-id]",
       "status": 200,
       "origin": "session",
       "count": 2,
@@ -90,12 +113,19 @@
         "body_keys": [
           "data"
         ]
-      }
+      },
+      "redactions": [
+        "[REDACTED:path-token-or-id:secret-or-PII]",
+        "[REDACTED:query-string:privacy]",
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-body-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
     },
     {
       "method": "POST",
       "host": "firebaseinstallations.googleapis.com",
-      "path": "https://[REDACTED]/v1/projects/[REDACTED]/installations",
+      "path": "https://firebaseinstallations.googleapis.com/v1/projects/[REDACTED:path-token-or-id]/installations",
       "status": 200,
       "origin": "app",
       "count": 1,
@@ -119,12 +149,19 @@
           "name",
           "refreshToken"
         ]
-      }
+      },
+      "redactions": [
+        "[REDACTED:path-token-or-id:secret-or-PII]",
+        "[REDACTED:request-body-values:secret-or-PII]",
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-body-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
     },
     {
       "method": "GET",
       "host": "firebase-settings.crashlytics.com",
-      "path": "https://[REDACTED]/spi/v2/platforms/android/gmp/1%3A254761198014%3Aandroid%[REDACTED]/settings",
+      "path": "https://firebase-settings.crashlytics.com/spi/v2/platforms/android/gmp/1%3A254761198014%3Aandroid%3A373f5d46375af9d4d999ef/settings",
       "status": 200,
       "origin": "session",
       "count": 1,
@@ -149,12 +186,18 @@
           "on_demand_upload_rate_per_minute",
           "settings_version"
         ]
-      }
+      },
+      "redactions": [
+        "[REDACTED:query-string:privacy]",
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-body-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
     },
     {
       "method": "POST",
       "host": "graph.facebook.com",
-      "path": "https://graph.facebook.com/v16.0/26540417615628323/activities",
+      "path": "https://graph.facebook.com/v16.0/[REDACTED:path-token-or-id]/activities",
       "status": 200,
       "origin": "session",
       "count": 3,
@@ -170,7 +213,14 @@
         "body_keys": [
           "success"
         ]
-      }
+      },
+      "redactions": [
+        "[REDACTED:path-token-or-id:secret-or-PII]",
+        "[REDACTED:request-body-values:secret-or-PII]",
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-body-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
     },
     {
       "method": "GET",
@@ -191,12 +241,18 @@
         "body_keys": [
           "data"
         ]
-      }
+      },
+      "redactions": [
+        "[REDACTED:query-string:privacy]",
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-body-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
     },
     {
       "method": "POST",
       "host": "firebaseremoteconfig.googleapis.com",
-      "path": "https://[REDACTED]/v1/projects/254761198014/namespaces/firebase:fetch",
+      "path": "https://firebaseremoteconfig.googleapis.com/v1/projects/[REDACTED:path-token-or-id]/namespaces/firebase:fetch",
       "status": 200,
       "origin": "app",
       "count": 1,
@@ -219,12 +275,19 @@
           "state",
           "templateVersion"
         ]
-      }
+      },
+      "redactions": [
+        "[REDACTED:path-token-or-id:secret-or-PII]",
+        "[REDACTED:request-body-values:secret-or-PII]",
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-body-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
     },
     {
       "method": "POST",
       "host": "fundingchoicesmessages.google.com",
-      "path": "https://[REDACTED]/a/consent",
+      "path": "https://fundingchoicesmessages.google.com/a/consent",
       "status": 200,
       "origin": "session",
       "count": 1,
@@ -238,12 +301,18 @@
         "size": 895,
         "content_type": "application/json; charset=utf-8",
         "body_keys": null
-      }
+      },
+      "redactions": [
+        "[REDACTED:request-body-values:secret-or-PII]",
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-body-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
     },
     {
       "method": "POST",
       "host": "fundingchoicesmessages.google.com",
-      "path": "https://[REDACTED]/um/[REDACTED]=",
+      "path": "https://fundingchoicesmessages.google.com/um/AGSKWxUjEGnuvMVRAizQvZdf80qk-qVLNGDFNNBZNVbfESdhy2Qr33wZChVR273AUr1GVKcGVjFIfQm3xJiPGmQprD6urTQTSkay5ktHMAPMZkzZGmxpb31kuSQt9XbtZxk=",
       "status": 204,
       "origin": "session",
       "count": 1,
@@ -257,15 +326,20 @@
         "size": 0,
         "content_type": "text/html; charset=utf-8",
         "body_keys": null
-      }
+      },
+      "redactions": [
+        "[REDACTED:request-body-values:secret-or-PII]",
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
     },
     {
       "method": "HEAD",
       "host": "googleads.g.doubleclick.net",
-      "path": "https://[REDACTED]/",
+      "path": "https://googleads.g.doubleclick.net/",
       "status": 301,
       "origin": "session",
-      "count": 2,
+      "count": 1,
       "request": {
         "size": 0,
         "content_type": null,
@@ -276,12 +350,39 @@
         "size": 0,
         "content_type": "text/html; charset=UTF-8",
         "body_keys": null
-      }
+      },
+      "redactions": [
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
+    },
+    {
+      "method": "HEAD",
+      "host": "pubads.g.doubleclick.net",
+      "path": "https://pubads.g.doubleclick.net/",
+      "status": 301,
+      "origin": "session",
+      "count": 1,
+      "request": {
+        "size": 0,
+        "content_type": null,
+        "body_keys": null,
+        "headers": []
+      },
+      "response": {
+        "size": 0,
+        "content_type": "text/html; charset=UTF-8",
+        "body_keys": null
+      },
+      "redactions": [
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
     },
     {
       "method": "GET",
       "host": "googleads.g.doubleclick.net",
-      "path": "https://[REDACTED]/mads/static/sdk/native/[REDACTED]",
+      "path": "https://googleads.g.doubleclick.net/mads/static/sdk/native/[REDACTED:path-token-or-id]",
       "status": 200,
       "origin": "session",
       "count": 1,
@@ -295,12 +396,18 @@
         "size": 719476,
         "content_type": "text/html; charset=UTF-8",
         "body_keys": null
-      }
+      },
+      "redactions": [
+        "[REDACTED:path-token-or-id:secret-or-PII]",
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-body-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
     },
     {
       "method": "HEAD",
       "host": "marketingplatform.google.com",
-      "path": "https://[REDACTED]/about/enterprise/",
+      "path": "https://marketingplatform.google.com/about/enterprise/",
       "status": 200,
       "origin": "session",
       "count": 2,
@@ -314,14 +421,18 @@
         "size": 0,
         "content_type": "text/html",
         "body_keys": null
-      }
+      },
+      "redactions": [
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
     },
     {
       "method": "POST",
       "host": "app.adjust.com",
       "path": "https://app.adjust.com/session",
       "status": 200,
-      "origin": "device",
+      "origin": "session",
       "count": 1,
       "request": {
         "size": 1101,
@@ -339,12 +450,18 @@
           "app_token",
           "ask_in"
         ]
-      }
+      },
+      "redactions": [
+        "[REDACTED:request-body-values:secret-or-PII]",
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-body-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
     },
     {
       "method": "GET",
       "host": "googleads.g.doubleclick.net",
-      "path": "https://[REDACTED]/mads/static/mad/sdk/native/[REDACTED]",
+      "path": "https://googleads.g.doubleclick.net/mads/static/mad/sdk/native/[REDACTED:path-token-or-id]",
       "status": 200,
       "origin": "session",
       "count": 1,
@@ -358,12 +475,18 @@
         "size": 192,
         "content_type": "text/cache-manifest; charset=UTF-8",
         "body_keys": null
-      }
+      },
+      "redactions": [
+        "[REDACTED:path-token-or-id:secret-or-PII]",
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-body-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
     },
     {
       "method": "GET",
       "host": "googleads.g.doubleclick.net",
-      "path": "https://[REDACTED]/favicon.ico",
+      "path": "https://googleads.g.doubleclick.net/favicon.ico",
       "status": 200,
       "origin": "session",
       "count": 1,
@@ -377,12 +500,17 @@
         "size": 1150,
         "content_type": "image/x-icon",
         "body_keys": null
-      }
+      },
+      "redactions": [
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-body-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
     },
     {
       "method": "GET",
       "host": "googleads.g.doubleclick.net",
-      "path": "https://[REDACTED]/getconfig/pubsetting",
+      "path": "https://googleads.g.doubleclick.net/getconfig/pubsetting",
       "status": 200,
       "origin": "session",
       "count": 1,
@@ -408,12 +536,18 @@
           "publisher_permissions",
           "status"
         ]
-      }
+      },
+      "redactions": [
+        "[REDACTED:query-string:privacy]",
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-body-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
     },
     {
       "method": "POST",
       "host": "config.inmobi.com",
-      "path": "https://config.inmobi.com/config-server/v1/config/secure.cfg",
+      "path": "https://config.inmobi.com/[REDACTED:path-token-or-id]/v1/config/secure.cfg",
       "status": 200,
       "origin": "session",
       "count": 2,
@@ -429,7 +563,14 @@
         "body_keys": [
           "root"
         ]
-      }
+      },
+      "redactions": [
+        "[REDACTED:path-token-or-id:secret-or-PII]",
+        "[REDACTED:request-body-values:secret-or-PII]",
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-body-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
     },
     {
       "method": "POST",
@@ -452,15 +593,21 @@
           "refresh",
           "response"
         ]
-      }
+      },
+      "redactions": [
+        "[REDACTED:request-body-values:secret-or-PII]",
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-body-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
     },
     {
       "method": "POST",
       "host": "api16-access-ttp.tiktokpangle.us",
-      "path": "https://[REDACTED]/api/ad/union/sdk/register_status/",
+      "path": "https://api16-access-ttp.tiktokpangle.us/api/ad/union/sdk/[REDACTED:path-token-or-id]/",
       "status": 200,
       "origin": "session",
-      "count": 1,
+      "count": 2,
       "request": {
         "size": 134,
         "content_type": "application/json; charset=utf-8",
@@ -474,34 +621,19 @@
           "cypher",
           "message"
         ]
-      }
-    },
-    {
-      "method": "POST",
-      "host": "api16-access-ttp.tiktokpangle.us",
-      "path": "https://[REDACTED]/api/ad/union/sdk/compliance_status/",
-      "status": 200,
-      "origin": "session",
-      "count": 1,
-      "request": {
-        "size": 210,
-        "content_type": "application/json; charset=utf-8",
-        "body_keys": null,
-        "headers": []
       },
-      "response": {
-        "size": 197,
-        "content_type": "application/json; charset=utf-8",
-        "body_keys": [
-          "cypher",
-          "message"
-        ]
-      }
+      "redactions": [
+        "[REDACTED:path-token-or-id:secret-or-PII]",
+        "[REDACTED:request-body-values:secret-or-PII]",
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-body-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
     },
     {
       "method": "POST",
       "host": "api16-access-ttp.tiktokpangle.us",
-      "path": "https://[REDACTED]/api/ad/union/sdk/settings/",
+      "path": "https://api16-access-ttp.tiktokpangle.us/api/ad/union/sdk/settings/",
       "status": 200,
       "origin": "session",
       "count": 1,
@@ -518,12 +650,18 @@
           "cypher",
           "message"
         ]
-      }
+      },
+      "redactions": [
+        "[REDACTED:request-body-values:secret-or-PII]",
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-body-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
     },
     {
       "method": "POST",
       "host": "api16-access-ttp.tiktokpangle.us",
-      "path": "https://[REDACTED]/service/2/dual_events/",
+      "path": "https://api16-access-ttp.tiktokpangle.us/service/2/dual_events/",
       "status": 200,
       "origin": "session",
       "count": 1,
@@ -541,12 +679,18 @@
           "is_ttp",
           "message"
         ]
-      }
+      },
+      "redactions": [
+        "[REDACTED:request-body-values:secret-or-PII]",
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-body-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
     },
     {
       "method": "POST",
       "host": "api16-access-ttp.tiktokpangle.us",
-      "path": "https://[REDACTED]/monitor/collect/c/session",
+      "path": "https://api16-access-ttp.tiktokpangle.us/monitor/collect/c/session",
       "status": 200,
       "origin": "session",
       "count": 1,
@@ -563,12 +707,19 @@
           "magic_tag",
           "message"
         ]
-      }
+      },
+      "redactions": [
+        "[REDACTED:query-string:privacy]",
+        "[REDACTED:request-body-values:secret-or-PII]",
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-body-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
     },
     {
       "method": "GET",
       "host": "lf-static.tiktokpangle-cdn-us.com",
-      "path": "https://[REDACTED]/obj/ad-pattern-tx/renderer/package_tx.json",
+      "path": "https://lf-static.tiktokpangle-cdn-us.com/obj/[REDACTED:path-token-or-id]/renderer/[REDACTED:path-token-or-id]",
       "status": 200,
       "origin": "session",
       "count": 1,
@@ -591,15 +742,21 @@
           "resources",
           "version"
         ]
-      }
+      },
+      "redactions": [
+        "[REDACTED:path-token-or-id:secret-or-PII]",
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-body-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
     },
     {
       "method": "GET",
       "host": "lf-static.tiktokpangle-cdn-us.com",
-      "path": "https://[REDACTED]/obj/ad-pattern-tx/renderer/tx/dynamic/v3/[REDACTED]",
+      "path": "https://lf-static.tiktokpangle-cdn-us.com/obj/[REDACTED:path-token-or-id]/renderer/tx/dynamic/v3/[REDACTED:path-token-or-id]",
       "status": 206,
       "origin": "session",
-      "count": 1,
+      "count": 2,
       "request": {
         "size": 0,
         "content_type": null,
@@ -610,12 +767,18 @@
         "size": 418,
         "content_type": "text/html; charset=utf-8",
         "body_keys": null
-      }
+      },
+      "redactions": [
+        "[REDACTED:path-token-or-id:secret-or-PII]",
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-body-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
     },
     {
       "method": "POST",
       "host": "api16-access-ttp.tiktokpangle.us",
-      "path": "https://[REDACTED]/settings/get",
+      "path": "https://api16-access-ttp.tiktokpangle.us/settings/get",
       "status": 200,
       "origin": "session",
       "count": 3,
@@ -634,12 +797,18 @@
           "error_msg",
           "error_no"
         ]
-      }
+      },
+      "redactions": [
+        "[REDACTED:request-body-values:secret-or-PII]",
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-body-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
     },
     {
       "method": "POST",
       "host": "api16-access-ttp.tiktokpangle.us",
-      "path": "https://[REDACTED]/api/ad/union/sdk/strategies/adn",
+      "path": "https://api16-access-ttp.tiktokpangle.us/api/ad/union/sdk/strategies/adn",
       "status": 200,
       "origin": "session",
       "count": 1,
@@ -656,31 +825,18 @@
           "cypher",
           "message"
         ]
-      }
-    },
-    {
-      "method": "GET",
-      "host": "lf-static.tiktokpangle-cdn-us.com",
-      "path": "https://[REDACTED]/obj/ad-pattern-tx/renderer/tx/dynamic/v3/index-tx.261135.js",
-      "status": 206,
-      "origin": "session",
-      "count": 1,
-      "request": {
-        "size": 0,
-        "content_type": null,
-        "body_keys": null,
-        "headers": []
       },
-      "response": {
-        "size": 1829545,
-        "content_type": "application/javascript",
-        "body_keys": null
-      }
+      "redactions": [
+        "[REDACTED:request-body-values:secret-or-PII]",
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-body-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
     },
     {
       "method": "GET",
       "host": "lf-static.tiktokpangle-cdn-us.com",
-      "path": "https://[REDACTED]/obj/ad-pattern-tx/playable/[REDACTED]",
+      "path": "https://lf-static.tiktokpangle-cdn-us.com/obj/[REDACTED:path-token-or-id]/playable/[REDACTED:path-token-or-id]",
       "status": 200,
       "origin": "session",
       "count": 1,
@@ -697,12 +853,18 @@
           "resources",
           "version"
         ]
-      }
+      },
+      "redactions": [
+        "[REDACTED:path-token-or-id:secret-or-PII]",
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-body-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
     },
     {
       "method": "GET",
       "host": "lf-static.tiktokpangle-cdn-us.com",
-      "path": "https://[REDACTED]/obj/ad-pattern-tx/static/third-party/omsdk/1.6.3/omsdk.js",
+      "path": "https://lf-static.tiktokpangle-cdn-us.com/obj/[REDACTED:path-token-or-id]/static/third-party/omsdk/1.6.3/omsdk.js",
       "status": 206,
       "origin": "session",
       "count": 1,
@@ -716,12 +878,18 @@
         "size": 49724,
         "content_type": "application/javascript",
         "body_keys": null
-      }
+      },
+      "redactions": [
+        "[REDACTED:path-token-or-id:secret-or-PII]",
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-body-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
     },
     {
       "method": "GET",
       "host": "lf-static.tiktokpangle-cdn-us.com",
-      "path": "https://[REDACTED]/obj/ad-pattern-tx/static/third-party/omsdk/1.6.3/[REDACTED]",
+      "path": "https://lf-static.tiktokpangle-cdn-us.com/obj/[REDACTED:path-token-or-id]/static/third-party/omsdk/1.6.3/[REDACTED:path-token-or-id]",
       "status": 206,
       "origin": "session",
       "count": 1,
@@ -735,15 +903,21 @@
         "size": 73144,
         "content_type": "application/javascript",
         "body_keys": null
-      }
+      },
+      "redactions": [
+        "[REDACTED:path-token-or-id:secret-or-PII]",
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-body-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
     },
     {
       "method": "GET",
       "host": "lf-static.tiktokpangle-cdn-us.com",
-      "path": "https://[REDACTED]/obj/union-fe-tx/playable/sdk/playable-sdk.js",
+      "path": "https://lf-static.tiktokpangle-cdn-us.com/obj/union-fe-tx/playable/sdk/[REDACTED:path-token-or-id]",
       "status": 206,
       "origin": "session",
-      "count": 1,
+      "count": 5,
       "request": {
         "size": 0,
         "content_type": null,
@@ -754,12 +928,18 @@
         "size": 266579,
         "content_type": "application/javascript",
         "body_keys": null
-      }
+      },
+      "redactions": [
+        "[REDACTED:path-token-or-id:secret-or-PII]",
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-body-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
     },
     {
       "method": "GET",
       "host": "lf-static.tiktokpangle-cdn-us.com",
-      "path": "https://[REDACTED]/obj/ad-pattern-tx/renderer/tx/dynamic/v2/[REDACTED]",
+      "path": "https://lf-static.tiktokpangle-cdn-us.com/obj/[REDACTED:path-token-or-id]/renderer/tx/dynamic/v2/[REDACTED:path-token-or-id]",
       "status": 206,
       "origin": "session",
       "count": 2,
@@ -773,69 +953,18 @@
         "size": 168869,
         "content_type": "text/html; charset=utf-8",
         "body_keys": null
-      }
-    },
-    {
-      "method": "GET",
-      "host": "lf-static.tiktokpangle-cdn-us.com",
-      "path": "https://[REDACTED]/obj/union-fe-tx/playable/sdk/2.playable-sdk.js",
-      "status": 206,
-      "origin": "session",
-      "count": 1,
-      "request": {
-        "size": 0,
-        "content_type": null,
-        "body_keys": null,
-        "headers": []
       },
-      "response": {
-        "size": 64371,
-        "content_type": "application/javascript",
-        "body_keys": null
-      }
+      "redactions": [
+        "[REDACTED:path-token-or-id:secret-or-PII]",
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-body-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
     },
     {
       "method": "GET",
       "host": "lf-static.tiktokpangle-cdn-us.com",
-      "path": "https://[REDACTED]/obj/union-fe-tx/playable/sdk/3.playable-sdk.js",
-      "status": 206,
-      "origin": "session",
-      "count": 1,
-      "request": {
-        "size": 0,
-        "content_type": null,
-        "body_keys": null,
-        "headers": []
-      },
-      "response": {
-        "size": 36187,
-        "content_type": "application/javascript",
-        "body_keys": null
-      }
-    },
-    {
-      "method": "GET",
-      "host": "lf-static.tiktokpangle-cdn-us.com",
-      "path": "https://[REDACTED]/obj/union-fe-tx/playable/sdk/9.playable-sdk.js",
-      "status": 206,
-      "origin": "session",
-      "count": 1,
-      "request": {
-        "size": 0,
-        "content_type": null,
-        "body_keys": null,
-        "headers": []
-      },
-      "response": {
-        "size": 15251,
-        "content_type": "application/javascript",
-        "body_keys": null
-      }
-    },
-    {
-      "method": "GET",
-      "host": "lf-static.tiktokpangle-cdn-us.com",
-      "path": "https://[REDACTED]/obj/ad-pattern-tx/static/lotties/[REDACTED]",
+      "path": "https://lf-static.tiktokpangle-cdn-us.com/obj/[REDACTED:path-token-or-id]/static/lotties/vendors~lottie-web.js",
       "status": 206,
       "origin": "session",
       "count": 1,
@@ -849,12 +978,18 @@
         "size": 146783,
         "content_type": "application/javascript",
         "body_keys": null
-      }
+      },
+      "redactions": [
+        "[REDACTED:path-token-or-id:secret-or-PII]",
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-body-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
     },
     {
       "method": "GET",
       "host": "lf-static.tiktokpangle-cdn-us.com",
-      "path": "https://[REDACTED]/obj/ad-pattern-tx/[REDACTED]/vendors/20231228_164425/index.780a6098.js",
+      "path": "https://lf-static.tiktokpangle-cdn-us.com/obj/[REDACTED:path-token-or-id]/[REDACTED:path-token-or-id]/vendors/[REDACTED:path-token-or-id]/[REDACTED:path-token-or-id]",
       "status": 206,
       "origin": "session",
       "count": 1,
@@ -868,33 +1003,20 @@
         "size": 43123,
         "content_type": "application/javascript",
         "body_keys": null
-      }
-    },
-    {
-      "method": "GET",
-      "host": "lf-static.tiktokpangle-cdn-us.com",
-      "path": "https://[REDACTED]/obj/union-fe-tx/playable/sdk/10.playable-sdk.js",
-      "status": 206,
-      "origin": "session",
-      "count": 1,
-      "request": {
-        "size": 0,
-        "content_type": null,
-        "body_keys": null,
-        "headers": []
       },
-      "response": {
-        "size": 20098,
-        "content_type": "application/javascript",
-        "body_keys": null
-      }
+      "redactions": [
+        "[REDACTED:path-token-or-id:secret-or-PII]",
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-body-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
     },
     {
       "method": "GET",
       "host": "app.adjust.com",
       "path": "https://app.adjust.com/attribution",
       "status": 200,
-      "origin": "device",
+      "origin": "session",
       "count": 1,
       "request": {
         "size": 0,
@@ -912,7 +1034,13 @@
           "app_token",
           "attribution"
         ]
-      }
+      },
+      "redactions": [
+        "[REDACTED:query-string:privacy]",
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-body-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
     },
     {
       "method": "POST",
@@ -933,7 +1061,14 @@
         "body_keys": [
           "[non-object]"
         ]
-      }
+      },
+      "redactions": [
+        "[REDACTED:query-string:privacy]",
+        "[REDACTED:request-body-values:secret-or-PII]",
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-body-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
     }
   ],
   "summary": {
@@ -951,6 +1086,7 @@
       "graph.facebook.com",
       "lf-static.tiktokpangle-cdn-us.com",
       "marketingplatform.google.com",
+      "pubads.g.doubleclick.net",
       "www.facebook.com"
     ]
   }
