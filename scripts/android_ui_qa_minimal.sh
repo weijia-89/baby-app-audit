@@ -113,7 +113,7 @@ PY
       log "Found text: $text"
       return 0
     fi
-    sleep 0.5
+    sleep 1
     elapsed=$((elapsed+1))
   done
   error "Timeout waiting for text: $text"
@@ -189,7 +189,7 @@ main() {
   sleep 3
 
   log "Step: verify next screen - Due date"
-  # Optional: if due date screen appears, fill synthetic markers
+  # Mandatory for green: due date screen must appear
   if wait_for_text "Due date" 5; then
     log "Due date screen detected"
     local due_x=$(scale_coord "$DUE_DATE_FIELD_X_BASE")
@@ -213,7 +213,9 @@ main() {
     adb_safe shell input tap "$save_x" "$save_y"
     sleep 2
   else
-    log "Due date screen not detected, onboarding may be incomplete"
+    error "Due date screen not detected, onboarding incomplete"
+    capture_failure
+    exit 1
   fi
 
   log "Run complete"

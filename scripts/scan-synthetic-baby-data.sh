@@ -287,9 +287,10 @@ def main():
         strong = any(
             f["side"] in ("request", "url")
             and f["marker_confidence"] in ("high", "medium")
+            and f["marker_type"] == "string"
             for f in findings
         )
-        high_transmission = strong or transmission
+        high_transmission = strong
         if high_transmission:
             total_transmissions += 1
         verdict = "transmission_observed" if high_transmission else "no_transmission_detected"
