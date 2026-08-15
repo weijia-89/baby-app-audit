@@ -1,5 +1,18 @@
 # Changelog
 
+## 4.5.2 - 2026-08-14
+
+### Added
+- Full analytics and PII fanout scan: `scripts/scan-analytics-pii.sh` scans every committed network log, keeps unclassified hosts, and records every sent call with its data categories and assessment limit.
+- `results/analytics-pii.schema.json` and `results/analytics-pii-20260803.json`: machine-readable fanout inventory for all 16 apps and 212 captured calls.
+- Redaction slugs in newly built network logs. Each slug states what was removed and why, while method, host, path, status, count, and sizes remain.
+- Synthetic baby-data transmission test: the operator enters fictional baby data and watches whether that data leaves the device.
+
+### Changed
+- Static dark-pattern searching is no longer part of the current plan. Historical scan entries remain historical record only.
+- FINAL-REPORT now bolds screen capture, screen-image upload, browser-log, contact-data, and authentication-token findings.
+- Facebook findings now list possible data categories and state when the request body was not assessable because scrubbing removed its values.
+
 ## 4.5.1 - 2026-08-14
 
 ### Added
@@ -24,10 +37,10 @@
 
 ### Added
 - `FINAL-REPORT.md`: granular test results per app. Every captured call appears in a Service | Data shared | Call/Log table with per-app capture metadata and a confidence explanation for each verdict. Claim quotes are hyperlinked to the source listing where the package is verified.
-- Roadmap entry: operator-integrated consent-flow testing. A fictional baby profile (name, birth date, weight, feeding and sleep logs) is entered by hand while the app runs through the capture proxy; the logs are then checked for the fake values and for consent-screen pressure. See `METHODOLOGY.md` and `ROADMAP.md`.
+- Historical 4.4.0 roadmap entry: operator-integrated consent-flow testing. A fictional baby profile (name, birth date, weight, feeding and sleep logs) was entered by hand while the app ran through the capture proxy. The current plan keeps the fictional data transmission check and removes consent-pressure searching.
 
 ### Removed
-- Static dark pattern detection: `scripts/detect-dark-patterns.sh`, `tests/test-dark-patterns.sh`, `results/dark-patterns.schema.json`, and all `results/dark-patterns-*.json` artifacts are deleted. Static heuristics gave false signals (the word "timer" is also Danish for "hours") and cannot see runtime behavior. The concept moves to the roadmap as operator-integrated testing.
+- Historical 4.4.0 removal: `scripts/detect-dark-patterns.sh`, `tests/test-dark-patterns.sh`, `results/dark-patterns.schema.json`, and all `results/dark-patterns-*.json` artifacts were deleted. Static heuristics gave false signals (the word "timer" is also Danish for "hours") and cannot see runtime behavior. 4.5.2 removes the remaining active roadmap wording.
 - `results/product-metadata.json`: `dark_patterns_*` fields removed.
 - `.github/workflows/test.yml` and `AGENTS.md`: dark-pattern script, schema, and unit-test checks removed from the pipeline.
 

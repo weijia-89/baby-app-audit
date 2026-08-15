@@ -64,7 +64,7 @@ Key constraints from canon:
 - 2025 COPPA amendments add biometric and government identifiers
 - Real-time-bidding ≠ data-broker sale — keep separate
 - Do not claim "first to do X" or "no prior art"
-- Dark-pattern findings ≠ data-transmission findings — separate evidence streams
+- Static UI capability findings and data-transmission findings are separate evidence streams. Static dark-pattern searching is not current scope.
 - Captured reproductive-health data is sensitive — encrypt at rest, minimize retention
 - All external tools must be version-pinned
 

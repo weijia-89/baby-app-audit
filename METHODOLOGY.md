@@ -1,6 +1,6 @@
 # How I Tested Baby Tracking Apps
 
-**Purpose:** This document explains how I tested four baby tracking apps for privacy leaks.
+**Purpose:** This document explains how I tested baby tracking apps for privacy leaks.
 
 ---
 
@@ -58,7 +58,7 @@ I installed the app on the emulator. I pulled the APK file from the emulator. I 
 
 ### Step 3: Run the offline test
 
-I started mitmproxy. I opened the app. I created a baby profile and logged events. I watched the mitmproxy web view for any outbound requests.
+I started mitmproxy. I opened the app. I created a fictional baby profile and logged fictional events. I watched the mitmproxy web view for any outbound requests.
 
 If the app sends any data, the "offline" claim is false.
 
@@ -146,7 +146,7 @@ The test harness does not use real baby data. All traffic captured on the emulat
 * **Data minimization:** I captured only app traffic, not all emulator traffic.
 * **Purpose limitation:** I used the data only for privacy testing.
 * **Retention:** Raw captures, decode files, and network logs are permanent evidence. They stay on disk indefinitely under `results/` (gitignored because they contain live tokens) and are never swept or deleted. The harness deletes only its own work directory under `${HOME}/apk-privacy-test-*`, which it created; `KEEP_WORK_DIR=1` preserves even that. `scripts/evidence-inventory.sh --check` enforces the inventory on every harness run.
-* **Redaction:** Captures that contain tokens or identifiers (Firebase installation IDs, JWTs, anonymous IDs) are kept only under `results/mitm-capture/`, which is excluded from the repository by `.gitignore`. Public documents redact such values. Committed network logs are generated from the raw `.mitm` captures by `scripts/build-network-logs.sh`, which removes query strings, replaces token-like path segments with `[REDACTED]`, keeps JSON body keys (names only) and header-flag names (names only), and never emits body or header values.
+* **Redaction:** Captures that contain tokens or identifiers (Firebase installation IDs, JWTs, anonymous IDs) are kept only under `results/mitm-capture/`, which is excluded from the repository by `.gitignore`. Public documents redact such values. Committed network logs are generated from the raw `.mitm` captures by `scripts/build-network-logs.sh`. The builder replaces removed values with slugs such as `[REDACTED:request-body-values:secret-or-PII]`. It keeps the method, host, path, status, count, sizes, body-key names, and header names, so the sent call remains visible. A scrubbed body is not evidence that PII was absent.
 * **No consent requirement:** Because no real user data was used, no parent consent was needed or obtained. No claims of consent are made.
 
 ---
@@ -163,27 +163,22 @@ I welcome independent verification. If you run the test and get different result
 
 ---
 
-## Dark pattern detection - paused, moving to operator testing
+## Synthetic baby-data transmission test
 
-The static dark pattern scanner (`scripts/detect-dark-patterns.sh`) ran from Sprint 3 through wave 1, then was removed from the pipeline. Reasons:
+Static dark-pattern searching is no longer part of the project. The operator test has one purpose: determine whether fictional baby data leaves the device.
 
-* Static analysis only. It never runs the app to see the actual UI.
-* Heuristic results. A finding does not prove intent.
-* False positives were common - the most frequent false signal was the word "timer", which is also the Danish word for "hours".
-* Runtime dark patterns (dialogs that block the back button) are invisible to static scans.
+1. Create a fictional baby profile with a name, birth date, weight, feeding logs, and sleep logs.
+2. Enter the data by hand while the app runs through the capture proxy.
+3. Watch every captured call for the fictional values and related identifiers.
+4. Record the recipient, the data category, the call status, and the assessment limit.
 
-The removal reverted the artifacts too: `results/dark-patterns-*.json` files and the schema were dropped from the repository.
+Do not use real baby data. Do not infer consent pressure or user intent from this test.
 
-### Replacement: operator-integrated testing (roadmap)
+## Analytics and PII fanout scan
 
-Dark pattern findings return in the next phase, tied to real data entry:
+Run `scripts/scan-analytics-pii.sh` against every committed `results/network-log-*.json` file. The scan includes known vendors and unclassified hosts. It records analytics, attribution, advertising, diagnostics, messaging, and replay-related calls.
 
-1. Set up a fictional baby profile in the app under test: name, birth date, weight, feeding and sleep logs. Use values that are easy to spot in a packet log (for example, birth date 2015-05-05).
-2. Enter that data by hand while the app runs through the capture proxy.
-3. Watch the capture logs for the fake values and for consent-screen pressure (decline options hidden, defaults pre-checked, repeated prompts).
-4. Report both: what data left the device, and how the consent screens behaved.
-
-This answers the question static scans could not: does the data we type in leave the phone, and do the screens push toward sharing?
+For every call, the scan records whether the call was sent. It also records PII categories and whether the body or header values were scrubbed. A call with scrubbed content is not a no-PII result.
 
 ---
 

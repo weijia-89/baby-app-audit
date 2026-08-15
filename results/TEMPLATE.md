@@ -146,7 +146,7 @@ TBD
 * [ ] DPIA completed (if required)
 * [ ] Consent obtained from data subject
 * [ ] Purpose documented
-* [ ] Data retention policy: 90 days maximum
+* [ ] Data retention policy: permanent evidence under `results/`; raw values stay local and are never committed
 * [ ] Artifacts securely stored
 
 ---

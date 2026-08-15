@@ -3,7 +3,7 @@
 **Strategy:** Test apps in bursts of 3-5 apps. Re-audit previously tested apps with Sprint 3 criteria before testing new apps.
 
 **Sprint 3 New Criteria:**
-1. Dark pattern detection (static APK resource scan) - archived in 4.4.0; paused, moving to operator-integrated testing per ROADMAP.md
+1. Synthetic baby-data transmission test - static dark-pattern searching is archived and no longer runs
 2. Cross-app comparison (shared trackers, endpoints, data volume)
 3. Product metadata (retention, EOL, CVE, regulatory regime)
 4. Per-product governance (Part 8.5)
@@ -15,20 +15,20 @@
 **Goal:** Validate Sprint 3 criteria on known targets before applying to new apps.
 
 **Apps:**
-1. Nurture Lock - re-test dark patterns, update metadata
-2. Nubo - complete static analysis (jadx), dark patterns, metadata
-3. Pebbi - re-test dark patterns, update metadata
+1. Nurture Lock - enter fictional baby data and update metadata
+2. Nubo - complete static analysis (jadx), run the synthetic data test, and update metadata
+3. Pebbi - enter fictional baby data and update metadata
 4. Baby Buddy - source re-audit, metadata
 
 **Tests to run:**
 - [ ] Static analysis (jadx decompile + string search)
-- [x] Dark pattern scan (archived in 4.4.0 - see ROADMAP.md)
+- [ ] Synthetic baby-data transmission test
 - [ ] Dynamic capture (mitmproxy - if available)
 - [ ] Product metadata update (`results/product-metadata.json`)
 - [ ] Cross-app comparison prep (decode traffic)
 
 **Expected outputs:**
-- Dark pattern scans (archived in 4.4.0 - files removed)
+- Analytics and PII fanout scan for every captured call
 - Updated `results/product-metadata.json`
 - New or updated decoded traffic JSONs
 - `results/comparison-*.json` with all 4 apps
@@ -50,14 +50,14 @@
 **Tests to run:**
 - [ ] APK acquisition (apkeep or adb)
 - [ ] Static analysis (jadx + string search)
-- [ ] Dark pattern scan
+- [ ] Synthetic baby-data transmission test
 - [ ] Dynamic capture
 - [ ] Product metadata entry
 - [ ] Decode traffic
 
 **Expected outputs:**
 - 6 new app entries in results
-- 6 dark-pattern scans (archived in 4.4.0 - files removed)
+- 6 analytics and PII fanout entries
 - 6 decoded traffic JSONs
 - Updated comparison JSON
 
@@ -91,7 +91,7 @@
 **Tests:**
 - [ ] Source code audit (clone + search)
 - [ ] If APK exists: static + dynamic
-- [ ] Dark pattern scan (if Android APK)
+- [ ] Synthetic baby-data transmission test (if Android APK)
 - [ ] Product metadata
 
 ---

@@ -14,7 +14,7 @@ Thank you for your interest. This project audits baby tracking apps for privacy 
 
 - New app candidates to test (see `localonly/candidates.md`)
 - Bug fixes in the test harness
-- The operator-integrated dark pattern tests on the roadmap (fictional baby profile, capture log review)
+- The synthetic baby-data transmission tests on the roadmap (fictional baby profile, capture log review)
 - Documentation corrections
 
 ## What I am not looking for
