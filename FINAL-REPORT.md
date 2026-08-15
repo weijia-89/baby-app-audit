@@ -25,11 +25,11 @@ Nine apps make a privacy promise. Seven of them sent data off the device. Only B
 | Nubo | "Local-first" | FAIL | 🚫 | 95% | Sends session analytics, screen views, and onboarding events to Firebase on first launch |
 | Nurture Lock | "100% offline" | FAIL | 🚫 | 95% | Calls `api.revenuecat.com` on launch; 8 tracking libraries in the APK |
 | Pebbi | No claim (control) | No claim | 🚫 | 100% | Extensive data collection via Firebase, Google AdServices, and FCM registration |
-| Pixy | "Bank-level encryption" | FAIL | 🚫 | 90% | Three Facebook Graph API calls and one Firebase Installations registration |
+| Pixy | "Bank-level encryption" | FAIL | 🚫 | 90% | Three Facebook Graph API calls on launch |
 | BabyCenter | No claim | No claim | 🚫 | 95% | AppsFlyer, DoubleClick, Microsoft Clarity, Scorecard Research, and Firebase calls on launch |
 | BellyBloom | No claim | No claim | 🚫 | 90% | Adjust, DoubleClick, Facebook, and Firebase calls on launch |
-| Nanit | No claim | No claim | ❕ | 90% | Firebase Installations and Remote Config plus the Nanit API on launch; no ad SDK traffic |
-| Pregnancy+ | No claim | No claim | ❕ | 90% | Firebase Installations and Remote Config on launch; no ad SDK traffic |
+| Nanit | No claim | No claim | 🚫 | 95% | Firebase, Microsoft Clarity, Localytics, Cordial, and Coralogix flows plus the Nanit API on launch; no ad-network SDK |
+| Pregnancy+ | No claim | No claim | 🚫 | 95% | Firebase, Facebook, Microsoft Clarity, Adapty, and OneSignal flows on launch, including install attribution |
 | What to Expect | No claim | No claim | 🚫 | 90% | AppsFlyer, Microsoft Clarity, Scorecard Research, and Firebase calls on launch |
 
 Result key:
@@ -58,7 +58,7 @@ Each app block below answers who, what, when, why, and how for every distinct ca
 
 ### Nurture Lock
 - **Claim:** "100% offline" - see [angry-shark-studio.com](https://www.angry-shark-studio.com/)
-- **Result:** FAIL (95% confidence)
+- **Result:** FAIL
 - **Confidence:** 95%. Two outbound calls to RevenueCat recorded at launch, and 8 tracking libraries confirmed in the decompiled code (RevenueCat, Mixpanel, Firebase, AppsFlyer, Adjust, OneSignal, CleverTap, Tenjin). An app that sends no data needs no payment-entitlement or attribution SDK. The early burst traced destinations only, so paths and payloads were not recorded; the SDK list and two confirmed calls make the offline claim false with high confidence.
 - **Capture:** 2026-08-03, launch window, burst 1 trace mode (destination-only), 2 flows.
 
@@ -70,7 +70,7 @@ Each app block below answers who, what, when, why, and how for every distinct ca
 
 ### Nubo
 - **Claim:** "Local-first" - see [Google Play listing](https://play.google.com/store/apps/details?id=com.clicksie.nuboapp)
-- **Result:** FAIL (95% confidence)
+- **Result:** FAIL
 - **Confidence:** 95%. Four outbound destinations on launch: Firebase Installations, Crashlytics settings, Google FCM push registration, and Google app-measurement (analytics transport). A local-first app should not register a push channel or an analytics pipeline. Destination-only trace mode limits payload detail, but the set of destinations already contradicts the claim.
 - **Capture:** 2026-08-03, launch window, burst 1 trace mode (destination-only), 4 flows.
 
@@ -85,7 +85,7 @@ Each app block below answers who, what, when, why, and how for every distinct ca
 
 ### Pebbi
 - **Claim:** No privacy claim (positive control) - see [Google Play listing](https://play.google.com/store/apps/details?id=com.pebbi.android)
-- **Result:** No claim (100% confidence)
+- **Result:** No claim
 - **Confidence:** 100%. We chose Pebbi as the control because we expected heavy data collection. Four destinations appeared on launch: Firebase logging, Crashlytics settings, Google FCM registration, and the app's own API host. The capture matched the expectation, which also validates the harness.
 - **Capture:** 2026-08-03, launch window, burst 1 trace mode (destination-only), 4 flows.
 
@@ -99,7 +99,7 @@ Each app block below answers who, what, when, why, and how for every distinct ca
 
 ### Amila
 - **Claim:** No claim - see [Google Play listing](https://play.google.com/store/apps/details?id=com.amila.parenting)
-- **Result:** No claim (90% confidence)
+- **Result:** No claim
 - **Confidence:** 90%. Six flows to four destinations, all on launch: Firebase Installations, two Firebase Remote Config fetches, and two Google Fonts downloads. No advertising SDK traffic appeared in the window. A single launch window cannot prove what later sessions do, which caps confidence below 95%.
 - **Capture:** 2026-08-08, launch window, burst capture, 6 flows.
 
@@ -113,7 +113,7 @@ Each app block below answers who, what, when, why, and how for every distinct ca
 
 ### Baby Daybook
 - **Claim:** "AdID not auto-enabled" (Google Play listing)
-- **Result:** FAIL (90% confidence)
+- **Result:** FAIL
 - **Confidence:** 90%. Eight flows on launch: Firebase Installations, FCM push registration, three RevenueCat entitlement calls keyed to an anonymous install ID, and two Firebase config calls. RevenueCat pairs device identifiers with entitlements, so launch traffic carries identity-linked data; the Facebook SDK also sits in the code (no Graph calls captured in this window). We withheld payloads, so we could not confirm exactly which identifiers crossed the wire - 90%, not 95%.
 - **Capture:** 2026-08-08, launch window, burst capture, 8 flows.
 
@@ -128,7 +128,7 @@ Each app block below answers who, what, when, why, and how for every distinct ca
 
 ### Baby+
 - **Claim:** "AdID not auto-enabled" (Google Play listing)
-- **Result:** FAIL (90% confidence)
+- **Result:** FAIL
 - **Confidence:** 90%. Three flows on launch: a Philips server install registration, a Firebase config fetch, and an FCM push registration. The Philips registration is an app install record on a third-party server; FCM ties the device to the app for push. The AdID claim does not cover this traffic, and the claim is therefore not false on its own terms - the failure is that the app still phones home with identity-linked channels.
 - **Capture:** 2026-08-08, launch window, burst capture, 3 flows.
 
@@ -142,7 +142,7 @@ Each app block below answers who, what, when, why, and how for every distinct ca
 
 ### MimiLog
 - **Claim:** "Fully offline" (Google Play listing)
-- **Result:** PASS (100% confidence)
+- **Result:** PASS
 - **Confidence:** 100%. Zero outbound flows in the capture. The single Firebase configuration attempt never completed because the device held no valid Firebase project for this app, so the app exchanged no data. With no outbound bytes at all, the offline claim holds.
 - **Capture:** 2026-08-03, launch window, burst 1 capture, 0 flows.
 
@@ -154,7 +154,7 @@ Each app block below answers who, what, when, why, and how for every distinct ca
 
 ### Nara
 - **Claim:** "Complete privacy" (Google Play listing)
-- **Result:** FAIL (90% confidence)
+- **Result:** FAIL
 - **Confidence:** 90%. Ten flows on launch: nine to the Facebook Graph API (app config, SDK gatekeepers, model asset) and one Crashlytics report batch. The Facebook SDK phones home repeatedly on every launch; "complete privacy" is false. We withheld payloads, so we could not verify which identifiers the Graph calls carried - 90%, not 95%.
 - **Capture:** 2026-08-12, launch window, burst capture, 10 flows.
 
@@ -167,7 +167,7 @@ Each app block below answers who, what, when, why, and how for every distinct ca
 
 ### Heartful Baby
 - **Claim:** "HIPAA-compliant" (Google Play listing)
-- **Result:** FAIL (90% confidence)
+- **Result:** FAIL
 - **Confidence:** 90%. Five flows on launch: four connectivity probes (no data) and one Firebase analytics batch. One analytics batch is enough to break a HIPAA framing, but a single batch limits certainty about the extent of collection.
 - **Capture:** 2026-08-12, launch window, burst capture, 5 flows.
 
@@ -180,14 +180,13 @@ Each app block below answers who, what, when, why, and how for every distinct ca
 
 ### Pixy
 - **Claim:** "Bank-level encryption" (Google Play listing)
-- **Result:** FAIL (90% confidence)
-- **Confidence:** 90%. Four flows on launch: three Facebook Graph SDK bootstrap calls and one Firebase Installations registration. Encryption in transit does not cover data collection and sharing; the claim is false on scope. We withheld payloads - 90%, not 95%.
-- **Capture:** 2026-08-12, launch window, burst capture, 4 flows.
+- **Result:** FAIL
+- **Confidence:** 90%. Three flows on launch: three Facebook Graph SDK bootstrap calls. Encryption in transit does not cover data collection and sharing; the claim is false on scope. The preserved raw capture holds these three flows only; the earlier artifact list also logged one Firebase Installations call that the preserved .mitm does not reproduce, so we report what the raw capture shows. We withheld payloads - 90%, not 95%.
+- **Capture:** 2026-08-12, launch window, burst capture, 3 flows.
 
 | Service | Data shared | Call/Log |
 | --- | --- | --- |
 | Facebook | SDK bootstrap: app configuration and gatekeeper flags; device, OS, and app info (inferred) | GET graph.facebook.com/v16.0/app -> 200; GET graph.facebook.com/v16.0/app/mobile_sdk_gk -> 200 (2 calls) |
-| Google Firebase | Device installation registration; installation ID and refresh token issued by Google (inferred) | POST firebaseinstallations.googleapis.com/v1/projects/pixybaby/installations -> 200 |
 
 - **Network log:** [network-log-pixy.json](results/network-log-pixy.json)
 
@@ -195,7 +194,7 @@ Each app block below answers who, what, when, why, and how for every distinct ca
 
 ### Baby Buddy
 - **Claim:** Open source - see [github.com/babybuddy/babybuddy](https://github.com/babybuddy/babybuddy)
-- **Result:** PASS (100% confidence)
+- **Result:** PASS
 - **Confidence:** 100%. Zero flows off the device across the full session; all traffic stayed on localhost between the app and its own bundled server. The codebase is public and auditable.
 - **Capture:** 2026-08-03, full session (web app), 0 outbound flows.
 
@@ -221,16 +220,21 @@ The Play Store pages make no no-data-sharing or offline promise. We acquired the
 
 ### BabyCenter
 - **Claim:** No claim - see [Google Play listing](https://play.google.com/store/apps/details?id=com.babycenter.pregnancytracker) (data-safety: "Shares Personal info and Health and fitness, plus five other data types")
-- **Result:** No claim (95% confidence)
-- **Confidence:** 95%. Twenty-one flows on launch, 18 to advertising or tracking endpoints across five SDK families (AppsFlyer, Microsoft Clarity, Scorecard Research, Google Ads, Snowplow). The manifest declares ACCESS_ADSERVICES_AD_ID plus an install-referrer receiver. The combination of volume, SDK variety, and Ad-ID permissions makes this the strongest no-claim evidence in wave 1.
-- **Capture:** 2026-08-14, launch window, burst 7, 21 flows (7 unique endpoints).
+- **Result:** No claim
+- **Confidence:** 95%. Thirty-five flows on launch across nine SDK families: AppsFlyer, Amazon Ads, Localytics, Vungle, Microsoft Clarity, Scorecard Research, Google Ads, OneTrust, and Google Play Services geolocation analytics, plus the BabyCenter Snowplow tracker and own API. The manifest declares ACCESS_ADSERVICES_AD_ID plus an install-referrer receiver. The combination of volume, SDK variety, and Ad-ID permissions makes this the strongest no-claim evidence in wave 1.
+- **Capture:** 2026-08-14, launch window, burst 7, 35 flows (19 unique rows, 17 destinations).
 
 | Service | Data shared | Call/Log |
 | --- | --- | --- |
-| AppsFlyer | Launch and install events; app-instance and advertising identifiers (inferred from the SDK event endpoint) | POST 2snoab.launches.appsflyersdk.com/api/v6.18/androidevent -> 200 |
-| Microsoft Clarity | Session telemetry beacon; session identifiers and interaction events (inferred) | POST r.clarity.ms/collect -> 204 |
-| Scorecard Research | Census-style measurement beacon; device and app identifiers (inferred) | GET census-app.scorecardresearch.com/p2 -> 200 |
+| AppsFlyer | Launch and install events plus SDK settings bootstrap; app-instance and advertising identifiers (inferred from the SDK event endpoint) | POST 2snoab.launches.appsflyersdk.com/api/v6.18/androidevent -> 200; GET 2snoab.cdn-settings.appsflyersdk.com/android/v2/.../settings -> 200 (x3) |
+| Amazon Ads | Install and device-info beacon with ad-state reporting; the response echoes the ad ID (observed: response body keys adId, idChanged, opt-out, rcode) | POST s.amazon-adsystem.com/api3/update_dev_info -> 200 (1047 B request, 86 B response) |
+| Localytics | Analytics upload and profile endpoint; app-instance identifiers (inferred) | POST analytics.localytics.com/api/v4/applications/.../upload -> 202; POST profile.localytics.com/v1/apps/.../profiles/... -> 202 |
+| Vungle | SDK metrics endpoint; device and app info (inferred) | POST logs.ads.vungle.com/sdk/metrics -> 200 |
+| Microsoft Clarity | Session telemetry beacons and asset checks; session identifiers and interaction events (inferred) | POST r.clarity.ms/collect -> 204 (x4); POST r.clarity.ms/vnmy25t03u/check-asset -> 200; GET www.clarity.ms/tag/mobile/vnmy25t03u -> 200 |
+| Scorecard Research | Census-style measurement beacon; device and app identifiers (inferred) | GET census-app.scorecardresearch.com/p2 -> 200 (x12) |
 | Google Ads | Ad configuration fetch; Ad-ID capability (manifest declares ACCESS_ADSERVICES_AD_ID) | GET googleads.g.doubleclick.net/getconfig/pubsetting -> 200 |
+| Google Play Services | Geolocation analytics via Play services (device-origin row, not the app process) | POST semanticlocation-pa.googleapis.com (application/grpc) |
+| OneTrust | Consent banner configuration; consent state (inferred) | GET mobile-data.onetrust.io/cfw/cmp/v1/banner -> 200 |
 | BabyCenter (Snowplow) | In-app event tracker via Snowplow collector; app events (inferred) | POST bcsp.babycenter.com/com.snowplowanalytics.snowplow/tp2 -> 200 |
 | BabyCenter (own) | Geo/region detection and in-app config fetch; region and device data (inferred) | GET geo.babycenter.com/v1 -> 200; GET www.babycenter.com/app_config/android/en-US/welcomeScreenABTest.json -> 200 |
 
@@ -238,61 +242,77 @@ The Play Store pages make no no-data-sharing or offline promise. We acquired the
 
 ### BellyBloom
 - **Claim:** No claim - see [Google Play listing](https://play.google.com/store/apps/details?id=com.bellyBloom.pregnancy.tracker) (data-safety: "Shares Health and fitness, Photos and videos, and Calendar. Data is not encrypted and cannot be deleted")
-- **Result:** No claim (90% confidence)
-- **Confidence:** 90%. Eight flows on launch, every one to an advertising or tracking endpoint: Adjust attribution, Facebook Audience Network sync, Google Ads SDK loader and config, and Firebase Installations and Remote Config. We used version 1.0.8 because 1.0.9 requires Android 12L (API 32). A single launch window caps confidence below 95%.
-- **Capture:** 2026-08-14, launch window, burst 7, 8 flows.
+- **Result:** No claim
+- **Confidence:** 90%. Fifty-three flows on launch, overwhelmingly to advertising or tracking endpoints: TikTok Pangle (ad config plus a 1.8 MB playable ad bundle), Adjust session and attribution, Facebook bootstrap and activities beacon, InMobi, Mixpanel, Google Ads, Funding Choices consent, and Firebase. We used version 1.0.8 because 1.0.9 requires Android 12L (API 32). A single launch window caps confidence below 95%.
+- **Capture:** 2026-08-14, launch window, burst 7, 53 flows (42 unique rows, 13 destinations).
 
 | Service | Data shared | Call/Log |
 | --- | --- | --- |
+| TikTok (Pangle) | Ad SDK: settings, compliance, strategies, dual-event reporting, and monitor beacons plus playable ad assets (up to 1.8 MB); device and ad identifiers (inferred) | POST api16-access-ttp.tiktokpangle.us/api/ad/union/sdk/settings/ -> 200 (x3); POST api16-access-ttp.tiktokpangle.us/service/2/dual_events/ -> 200; GET lf-static.tiktokpangle-cdn-us.com/obj/union-fe-tx/playable/sdk/... -> 206 |
+| Adjust | Install-attribution and session reporting; device and install identifiers (inferred) | POST app.adjust.com/session -> 200; GET app.adjust.com/attribution -> 200 (response keys adid, app_token, attribution) |
+| Facebook | App configuration bootstrap and activities beacon; device and app identifiers (inferred) | GET graph.facebook.com/v16.0/app -> 200 (x3); POST graph.facebook.com/v16.0/26540417615628323/activities -> 200 (x3); POST www.facebook.com/adnw_sync2 -> 200 |
+| InMobi | Ad config fetch; device and app info (inferred) | POST config.inmobi.com/config-server/v1/config/secure.cfg -> 200 (x2) |
+| Mixpanel | Event tracking; app events (inferred) | POST api.mixpanel.com/track/ -> 200 |
+| Google Ads | Ad SDK loader, cache manifest, config and publisher settings fetch | GET googleads.g.doubleclick.net/mads/static/sdk/native/sdk-core-android.html -> 200; GET googleads.g.doubleclick.net/mads/static/mad/sdk/native/sdk-core-v40-loader.appcache -> 200; GET googleads.g.doubleclick.net/getconfig/pubsetting -> 200 (61 kB) |
+| Funding Choices (Google) | Consent management messages | POST fundingchoicesmessages.google.com/a/consent -> 200; POST fundingchoicesmessages.google.com/um/... -> 204 |
 | Google Firebase | Device installation registration; installation ID and refresh token issued by Google (observed in response body) | POST firebaseinstallations.googleapis.com/v1/projects/[REDACTED]/installations -> 200 |
-| Google Firebase | Feature-config fetch; no user data | POST firebaseremoteconfig.googleapis.com/v1/projects/254761198014/namespaces/firebase:fetch -> 200 |
-| Google Ads | Ad SDK loader, cache manifest, and config fetch; Ad-ID capability | GET googleads.g.doubleclick.net/mads/static/sdk/native/sdk-core-android.html -> 200; GET googleads.g.doubleclick.net/mads/static/mad/sdk/native/sdk-core-v40-loader.appcache -> 200; GET googleads.g.doubleclick.net/favicon.ico -> 200; GET googleads.g.doubleclick.net/getconfig/pubsetting -> 200 |
-| Facebook | Audience Network sync beacon; advertising identifiers (inferred) | POST www.facebook.com/adnw_sync2 -> 200 |
-| Adjust | Install-attribution check; device and install identifiers (inferred) | GET app.adjust.com/attribution -> 200 |
+| Google Firebase | Feature-config fetch and Crashlytics settings; no user data | POST firebaseremoteconfig.googleapis.com/v1/projects/254761198014/namespaces/firebase:fetch -> 200; GET firebase-settings.crashlytics.com/spi/v2/platforms/android/gmp/... -> 200 |
 
 - **Network log:** [network-log-bellybloom.json](results/network-log-bellybloom.json)
 
 ### Nanit
 - **Claim:** No claim - see [Google Play listing](https://play.google.com/store/apps/details?id=com.nanit.baby) (data-safety: "Shares Personal info, App activity, and App info and performance")
-- **Result:** No claim (90% confidence)
-- **Confidence:** 90%. Five flows on launch: three to Google Firebase (Installations, Remote Config, invalidation stream) and two to the Nanit API (a 200 plans fetch, a 401 cards fetch showing the endpoint requires auth). No advertising SDK traffic appeared in the window. Full features need the camera and an account; the capture covers onboarding only, which caps confidence below 95%.
-- **Capture:** 2026-08-14, launch window, burst 7, 5 flows.
+- **Result:** No claim
+- **Confidence:** 95%. Twelve flows on launch. The capture now shows Microsoft Clarity session telemetry (r.clarity.ms/collect), Localytics analytics, Cordial email-messaging events, Coralogix RUM, and Crashlytics settings alongside Firebase Installations and Remote Config, plus the Nanit API (plans, cards, mobile auth and contacts, browser logs). The mobile auth and contacts calls carry an authorization header; the browser logs upload is 15.6 kB. No dedicated ad-network SDK appeared in the window. Account login was not exercised, which caps confidence below 100%.
+- **Capture:** 2026-08-14, launch window, burst 7, 12 flows.
 
 | Service | Data shared | Call/Log |
 | --- | --- | --- |
 | Google Firebase | Device installation registration; installation ID and refresh token issued by Google (observed in response body) | POST firebaseinstallations.googleapis.com/v1/projects/nanit-144706/installations -> 200 |
-| Google Firebase | Feature-config fetch and invalidation stream; no user data | POST firebaseremoteconfig.googleapis.com/v1/projects/25705829844/namespaces/firebase:fetch -> 200; POST firebaseremoteconfigrealtime.googleapis.com/v1/projects/25705829844/namespaces/firebase:streamFetchInvalidations -> 200 |
-| Nanit | Product/plan API; account and session data once logged in (cards fetch requires auth) | GET api.nanit.com/plans -> 200; GET api.nanit.com/cards -> 401 |
+| Google Firebase | Feature-config fetch and invalidation stream; no user data | POST firebaseremoteconfig.googleapis.com/v1/projects/25705829844/namespaces/firebase:fetch -> 200; POST firebaseremoteconfigrealtime.googleapis.com/v1/projects/25705829844/namespaces/firebase:streamFetchInvalidations -> 200; GET firebase-settings.crashlytics.com/spi/v2/platforms/android/gmp/... -> 200 |
+| Microsoft Clarity | Session telemetry beacon; session identifiers and interaction events (inferred) | POST r.clarity.ms/collect -> 204 (x4) |
+| Localytics | Analytics upload and profile creation; app-instance identifiers (inferred) | POST analytics.localytics.com/api/v4/applications/.../upload -> 202; POST profile.localytics.com/v1/apps/.../profiles/... -> 202 |
+| Cordial | Email-messaging event stream; app events (inferred) | POST events-stream-svc.usw2.cordial.com/mobile/events -> 200 |
+| Coralogix | Front-end error and performance telemetry (RUM) | POST ingress.eu1.rum-ingress-coralogix.com (RUM ingest) |
+| Nanit | Product/plan API, account, contacts, and client logs once logged in; auth and contacts calls carry authorization headers (observed); posts a 15.6 kB browser-log batch | GET api.nanit.com/plans -> 200; GET api.nanit.com/cards -> 401; /mobile/auth/...; /mobile/contacts; /browser/v1beta/logs -> 200 |
 
 - **Network log:** [network-log-nanit.json](results/network-log-nanit.json)
 
 ### Pregnancy+
 - **Claim:** No claim - see [Google Play listing](https://play.google.com/store/apps/details?id=com.hp.pregnancy.lite) (data-safety: "Shares Location and Device or other IDs")
-- **Result:** No claim (90% confidence)
-- **Confidence:** 90%. Three flows on launch, all to Google Firebase: Installations and Remote Config. No advertising SDK traffic appeared in the window. Automation accepted the consent screens; the capture disabled sensitivity. A real user session could differ, which caps confidence below 95%.
-- **Capture:** 2026-08-14, launch window, burst 7, 3 flows.
+- **Result:** No claim
+- **Confidence:** 95%. Forty-two flows on launch. The capture now shows Firebase (Installations, Remote Config, logging, Crashlytics settings), Microsoft Clarity session telemetry (b.clarity.ms/collect), Facebook app configuration plus activities beacon (app id 546319842074484), Adapty paywall analytics with an install-attribution POST, OneSignal push configuration, and first-party Philips APIs, with Amazon Cognito and S3 in the Adapty flow. Automation accepted the consent screens and disabled sensitivity, so the count is a floor; a real user session could add more. This caps confidence below 99%.
+- **Capture:** 2026-08-14, launch window, burst 7, 42 flows.
 
 | Service | Data shared | Call/Log |
 | --- | --- | --- |
 | Google Firebase | Device installation registration; installation ID and refresh token issued by Google (observed in response body) | POST firebaseinstallations.googleapis.com/v1/projects/[REDACTED]/installations -> 200 |
-| Google Firebase | Feature-config fetch; no user data | POST firebaseremoteconfig.googleapis.com/v1/projects/1073993904376/namespaces/firebase:fetch -> 200 |
+| Google Firebase | Feature-config fetch, logging batch, and Crashlytics settings; no user data | POST firebaseremoteconfig.googleapis.com/v1/projects/1073993904376/namespaces/firebase:fetch -> 200; POST firebaselogging.googleapis.com/v0cc/log/batch -> 200; GET firebase-settings.crashlytics.com/... -> 200 |
+| Microsoft Clarity | Session telemetry beacon; session identifiers and interaction events (inferred) | POST b.clarity.ms/collect -> 204 |
+| Facebook | App configuration bootstrap and activities beacon; device and app identifiers (inferred) | GET graph.facebook.com/v16.0/app -> 200; POST graph.facebook.com/v16.0/546319842074484/activities -> 200 |
+| Adapty | Paywall products, analytics profiles, install attribution, and event analytics; subscription and install identifiers (observed) | POST api-ua.adapty.io (install attribution); api-eu.adapty.io (paywall products, analytics events); Amazon Cognito identity and S3 buckets in the flow |
+| OneSignal | Push configuration fetch; device token material sent if push is used (inferred) | GET api.onesignal.com (android_params.js) |
+| Philips (first-party) | Identity and account APIs for the Philips Baby analytics platform; account data (inferred) | iam-api.philips-digital.com; www.global.api.philips.com |
 
 - **Network log:** [network-log-pregnancyplus.json](results/network-log-pregnancyplus.json)
 
 ### What to Expect
 - **Claim:** No claim - see [Google Play listing](https://play.google.com/store/apps/details?id=com.wte.view) (data-safety: "Shares Personal info and Health and fitness, plus five other data types")
-- **Result:** No claim (90% confidence)
-- **Confidence:** 90%. Fourteen flows on launch, 13 to advertising or tracking endpoints: AppsFlyer across six subdomains (register, conversions, DLSdk, GCDSdk, PIA, in-apps), Microsoft Clarity, Scorecard Research, Snowplow, and Firebase Installations and Remote Config. The manifest declares ACCESS_ADSERVICES_AD_ID and AD_SERVICES_CONFIG. A single launch window caps confidence below 95%.
-- **Capture:** 2026-08-14, launch window, burst 7, 14 flows.
+- **Result:** No claim
+- **Confidence:** 90%. Twenty-five flows on launch, most to advertising or tracking endpoints: AppsFlyer across four event subdomains plus SDK bootstrap and install-data checks, Microsoft Clarity (tag config, collect beacons, asset uploads), Mixpanel, Cordial, Scorecard Research, Snowplow, OneTrust consent, and Firebase Installations and Remote Config. The manifest declares ACCESS_ADSERVICES_AD_ID and AD_SERVICES_CONFIG. A single launch window caps confidence below 95%.
+- **Capture:** 2026-08-14, launch window, burst 7, 25 flows.
 
 | Service | Data shared | Call/Log |
 | --- | --- | --- |
-| AppsFlyer | Launch, install, conversion, and in-app events plus SDK deployment checks; app-instance and advertising identifiers (inferred from the SDK endpoints) | POST a2lve5.register.appsflyersdk.com/api/v6.18/androidevent -> 200; POST a2lve5.conversions.appsflyersdk.com/api/v6.18/androidevent -> 200; POST a2lve5.inapps.appsflyersdk.com/api/v6.18/androidevent -> 200; POST a2lve5.pia.appsflyersdk.com/api/v1.0/pia-android-event -> 200; POST a2lve5.dlsdk.appsflyersdk.com/v1.0/android/com.wte.view -> 200; GET a2lve5.gcdsdk.appsflyersdk.com/install_data/v5.0/com.wte.view -> 200 |
-| Microsoft Clarity | Session telemetry beacon; session identifiers and interaction events (inferred) | POST b.clarity.ms/collect -> 204 |
+| AppsFlyer | Launch, install, and in-app events plus SDK bootstrap and install-data checks; app-instance and advertising identifiers (inferred from the SDK endpoints) | POST a2lve5.register.appsflyersdk.com/api/v6.18/androidevent -> 200; POST a2lve5.pia.appsflyersdk.com/api/v1.0/pia-android-event -> 200; POST a2lve5.dlsdk.appsflyersdk.com/v1.0/android/com.wte.view -> 200; GET a2lve5.gcdsdk.appsflyersdk.com/install_data/v5.0/com.wte.view -> 200; GET a2lve5.cdn-settings.appsflyersdk.com/android/v2/.../settings -> 200 (x3) |
+| Microsoft Clarity | Session telemetry beacons and asset uploads; session identifiers and interaction events (inferred) | POST b.clarity.ms/collect -> 204 (x3); POST b.clarity.ms/tgi1pxdmic/upload-asset/... -> 200 |
+| Mixpanel | Event tracking; app events (inferred) | POST api.mixpanel.com/track/ -> 200 |
+| Cordial | Email-messaging event stream; app events (inferred) | POST events-stream-svc.usw2.cordial.com/mobile/events -> 200 |
 | Scorecard Research | Census-style measurement beacon; device and app identifiers (inferred) | GET census-app.scorecardresearch.com/p2 -> 200 |
 | What to Expect (Snowplow) | In-app event tracker via Snowplow collector; app events (inferred) | POST sp.whattoexpect.com/com.snowplowanalytics.snowplow/tp2 -> 200 |
 | Google Firebase | Device installation registration; installation ID and refresh token issued by Google (observed in response body) | POST firebaseinstallations.googleapis.com/v1/projects/[REDACTED]/installations -> 200 |
-| Google Firebase | Feature-config fetch; no user data | POST firebaseremoteconfig.googleapis.com/v1/projects/179542082127/namespaces/firebase:fetch -> 200 |
+| Google Firebase | Feature-config fetch and Crashlytics settings; no user data | POST firebaseremoteconfig.googleapis.com/v1/projects/179542082127/namespaces/firebase:fetch -> 200; GET firebase-settings.crashlytics.com/spi/v2/platforms/android/gmp/... -> 200 |
+| OneTrust | Consent banner configuration; consent state (inferred) | GET mobile-data.onetrust.io/cfw/cmp/v1/banner -> 200 |
 
 - **Network log:** [network-log-whattoexpect.json](results/network-log-whattoexpect.json)
 
@@ -300,7 +320,7 @@ The Play Store pages make no no-data-sharing or offline promise. We acquired the
 
 Every app that failed shares one piece of code: Firebase. Nara and Pixy also embed Facebook. The words "complete privacy" and "HIPAA-compliant" sit next to code that sends data to third parties.
 
-All five wave-1 apps ship at least one install-attribution or ad SDK (AppsFlyer, Adjust, Facebook Audience Network, or Google Ads) alongside Firebase. The Play Store data-safety pages for all five share data; none promise to keep data on the device.
+Four of the five wave-1 apps ship at least one install-attribution or ad SDK (AppsFlyer, Adjust, Facebook, TikTok Pangle, or Google/Amazon ads) alongside Firebase; Nanit ships session analytics, RUM, and email-messaging SDKs instead. The Play Store data-safety pages for all five share data; none promise to keep data on the device.
 
 ## Roadmap
 
@@ -312,6 +332,7 @@ All five wave-1 apps ship at least one install-attribution or ad SDK (AppsFlyer,
 - We did not tap the apps by hand. Some data paths stayed hidden. The operator-integrated roadmap item closes this gap.
 - The captures cover the launch and early-use window of each app. Behavior later in a session could differ.
 - We withheld response bodies and headers from this report and the network logs because they carried authentication tokens. "Data shared" is therefore "observed" only where the capture itself showed the exchange (for example, a Firebase installation ID and refresh token in the response), and "inferred" elsewhere from the endpoint and the SDK that made the call.
+- Evidence depth is not equal across the 16 apps. Eight apps (BabyCenter, BellyBloom, Nanit, Pregnancy+, What to Expect, Heartful Baby, Nara, Pixy) have `evidence_source: raw-replay` - we replayed and mined every flow in the preserved `.mitm` capture. The other eight (Nurture Lock, Nubo, Pebbi, Amila, Baby Buddy, Baby Daybook, Baby+, MimiLog) have `evidence_source: session-summary` - their raw captures disappeared before the retention rule existed, so their results rest on the original session summaries, which are thinner (for example, Nanit and Pregnancy+ looked clean at that depth and flipped to major once we replayed the raw captures). Treat session-summary rows as lower-bound evidence; see ROADMAP.md for the planned legacy re-capture.
 
 ## Advice
 

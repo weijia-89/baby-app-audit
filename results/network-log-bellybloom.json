@@ -1,78 +1,957 @@
 {
   "$schema": "network-log/1.0",
   "schema_version": "1.0",
-  "app": "BellyBloom",
+  "app": "bellybloom",
   "package_name": "com.bellyBloom.pregnancy.tracker",
   "capture_date": "2026-08-14",
-  "capture": "results/decode-traffic-bellybloom.json (local only)",
-  "redaction": "Query strings, headers, and bodies stripped. Project numbers and subscriber IDs replaced with [REDACTED].",
+  "capture": "results/bellybloom-test-20260814/artifacts/captures/Bellybloom.mitm",
+  "redaction": "Query strings removed; token-like path segments replaced by [REDACTED]; body values, headers, and cookies never included; body JSON keys only.",
   "flows": [
+    {
+      "method": "GET",
+      "host": "firebase-settings.crashlytics.com",
+      "path": "https://[REDACTED]/spi/v2/platforms/android/gmp/1:254761198014:android:[REDACTED]/settings",
+      "status": 200,
+      "origin": "session",
+      "count": 1,
+      "request": {
+        "size": 0,
+        "content_type": null,
+        "body_keys": null,
+        "headers": []
+      },
+      "response": {
+        "size": 758,
+        "content_type": "application/json; charset=utf-8",
+        "body_keys": [
+          "app",
+          "app_quality",
+          "cache_duration",
+          "fabric",
+          "features",
+          "on_demand_backoff_base",
+          "on_demand_backoff_step_duration_seconds",
+          "on_demand_thread_recording_suspension_enabled",
+          "on_demand_upload_rate_per_minute",
+          "settings_version"
+        ]
+      }
+    },
+    {
+      "method": "GET",
+      "host": "graph.facebook.com",
+      "path": "https://graph.facebook.com/v16.0/app",
+      "status": 200,
+      "origin": "session",
+      "count": 3,
+      "request": {
+        "size": 0,
+        "content_type": "application/x-www-form-urlencoded",
+        "body_keys": null,
+        "headers": []
+      },
+      "response": {
+        "size": 7832,
+        "content_type": "text/javascript; charset=UTF-8",
+        "body_keys": [
+          "aam_rules",
+          "android_sdk_error_categories",
+          "app_events_config",
+          "app_events_feature_bitmask",
+          "app_events_session_timeout",
+          "auto_log_app_events_default",
+          "gdpv4_nux_enabled",
+          "id",
+          "protected_mode_rules",
+          "seamless_login",
+          "smart_login_bookmark_icon_url",
+          "smart_login_menu_icon_url",
+          "suggested_events_setting",
+          "supports_implicit_sdk_logging"
+        ]
+      }
+    },
+    {
+      "method": "GET",
+      "host": "graph.facebook.com",
+      "path": "https://graph.facebook.com/v16.0/app/mobile_sdk_gk",
+      "status": 200,
+      "origin": "session",
+      "count": 2,
+      "request": {
+        "size": 0,
+        "content_type": "application/x-www-form-urlencoded",
+        "body_keys": null,
+        "headers": []
+      },
+      "response": {
+        "size": 3699,
+        "content_type": "application/json; charset=utf-8",
+        "body_keys": [
+          "data"
+        ]
+      }
+    },
     {
       "method": "POST",
       "host": "firebaseinstallations.googleapis.com",
-      "path": "https://firebaseinstallations.googleapis.com/v1/projects/[REDACTED]/installations",
+      "path": "https://[REDACTED]/v1/projects/[REDACTED]/installations",
       "status": 200,
-      "origin": "app"
+      "origin": "app",
+      "count": 1,
+      "request": {
+        "size": 135,
+        "content_type": "application/json",
+        "body_keys": null,
+        "headers": [
+          "x-android-cert",
+          "x-android-package",
+          "x-firebase-client",
+          "x-goog-api-key"
+        ]
+      },
+      "response": {
+        "size": 630,
+        "content_type": "application/json; charset=UTF-8",
+        "body_keys": [
+          "authToken",
+          "fid",
+          "name",
+          "refreshToken"
+        ]
+      }
+    },
+    {
+      "method": "GET",
+      "host": "firebase-settings.crashlytics.com",
+      "path": "https://[REDACTED]/spi/v2/platforms/android/gmp/1%3A254761198014%3Aandroid%[REDACTED]/settings",
+      "status": 200,
+      "origin": "session",
+      "count": 1,
+      "request": {
+        "size": 0,
+        "content_type": null,
+        "body_keys": null,
+        "headers": []
+      },
+      "response": {
+        "size": 758,
+        "content_type": "application/json; charset=utf-8",
+        "body_keys": [
+          "app",
+          "app_quality",
+          "cache_duration",
+          "fabric",
+          "features",
+          "on_demand_backoff_base",
+          "on_demand_backoff_step_duration_seconds",
+          "on_demand_thread_recording_suspension_enabled",
+          "on_demand_upload_rate_per_minute",
+          "settings_version"
+        ]
+      }
+    },
+    {
+      "method": "POST",
+      "host": "graph.facebook.com",
+      "path": "https://graph.facebook.com/v16.0/26540417615628323/activities",
+      "status": 200,
+      "origin": "session",
+      "count": 3,
+      "request": {
+        "size": 1408,
+        "content_type": "application/x-www-form-urlencoded",
+        "body_keys": null,
+        "headers": []
+      },
+      "response": {
+        "size": 16,
+        "content_type": "text/javascript; charset=UTF-8",
+        "body_keys": [
+          "success"
+        ]
+      }
+    },
+    {
+      "method": "GET",
+      "host": "graph.facebook.com",
+      "path": "https://graph.facebook.com/v16.0/app/model_asset",
+      "status": 200,
+      "origin": "session",
+      "count": 1,
+      "request": {
+        "size": 0,
+        "content_type": "application/x-www-form-urlencoded",
+        "body_keys": null,
+        "headers": []
+      },
+      "response": {
+        "size": 11,
+        "content_type": "text/javascript; charset=UTF-8",
+        "body_keys": [
+          "data"
+        ]
+      }
     },
     {
       "method": "POST",
       "host": "firebaseremoteconfig.googleapis.com",
-      "path": "https://firebaseremoteconfig.googleapis.com/v1/projects/254761198014/namespaces/firebase:fetch",
+      "path": "https://[REDACTED]/v1/projects/254761198014/namespaces/firebase:fetch",
       "status": 200,
-      "origin": "app"
+      "origin": "app",
+      "count": 1,
+      "request": {
+        "size": 717,
+        "content_type": "application/json",
+        "body_keys": null,
+        "headers": [
+          "x-android-cert",
+          "x-android-package",
+          "x-goog-api-key"
+        ]
+      },
+      "response": {
+        "size": 7198,
+        "content_type": "application/json; charset=UTF-8",
+        "body_keys": [
+          "appName",
+          "entries",
+          "state",
+          "templateVersion"
+        ]
+      }
+    },
+    {
+      "method": "POST",
+      "host": "fundingchoicesmessages.google.com",
+      "path": "https://[REDACTED]/a/consent",
+      "status": 200,
+      "origin": "session",
+      "count": 1,
+      "request": {
+        "size": 423,
+        "content_type": "application/json",
+        "body_keys": null,
+        "headers": []
+      },
+      "response": {
+        "size": 895,
+        "content_type": "application/json; charset=utf-8",
+        "body_keys": null
+      }
+    },
+    {
+      "method": "POST",
+      "host": "fundingchoicesmessages.google.com",
+      "path": "https://[REDACTED]/um/[REDACTED]=",
+      "status": 204,
+      "origin": "session",
+      "count": 1,
+      "request": {
+        "size": 146,
+        "content_type": "application/protobuf",
+        "body_keys": null,
+        "headers": []
+      },
+      "response": {
+        "size": 0,
+        "content_type": "text/html; charset=utf-8",
+        "body_keys": null
+      }
+    },
+    {
+      "method": "HEAD",
+      "host": "googleads.g.doubleclick.net",
+      "path": "https://[REDACTED]/",
+      "status": 301,
+      "origin": "session",
+      "count": 2,
+      "request": {
+        "size": 0,
+        "content_type": null,
+        "body_keys": null,
+        "headers": []
+      },
+      "response": {
+        "size": 0,
+        "content_type": "text/html; charset=UTF-8",
+        "body_keys": null
+      }
     },
     {
       "method": "GET",
       "host": "googleads.g.doubleclick.net",
-      "path": "https://googleads.g.doubleclick.net/mads/static/sdk/native/sdk-core-android.html",
+      "path": "https://[REDACTED]/mads/static/sdk/native/[REDACTED]",
       "status": 200,
-      "origin": "app"
+      "origin": "session",
+      "count": 1,
+      "request": {
+        "size": 0,
+        "content_type": null,
+        "body_keys": null,
+        "headers": []
+      },
+      "response": {
+        "size": 719476,
+        "content_type": "text/html; charset=UTF-8",
+        "body_keys": null
+      }
+    },
+    {
+      "method": "HEAD",
+      "host": "marketingplatform.google.com",
+      "path": "https://[REDACTED]/about/enterprise/",
+      "status": 200,
+      "origin": "session",
+      "count": 2,
+      "request": {
+        "size": 0,
+        "content_type": null,
+        "body_keys": null,
+        "headers": []
+      },
+      "response": {
+        "size": 0,
+        "content_type": "text/html",
+        "body_keys": null
+      }
+    },
+    {
+      "method": "POST",
+      "host": "app.adjust.com",
+      "path": "https://app.adjust.com/session",
+      "status": 200,
+      "origin": "device",
+      "count": 1,
+      "request": {
+        "size": 1101,
+        "content_type": "application/x-www-form-urlencoded",
+        "body_keys": null,
+        "headers": [
+          "authorization"
+        ]
+      },
+      "response": {
+        "size": 84,
+        "content_type": "application/json; charset=utf-8",
+        "body_keys": [
+          "adid",
+          "app_token",
+          "ask_in"
+        ]
+      }
     },
     {
       "method": "GET",
       "host": "googleads.g.doubleclick.net",
-      "path": "https://googleads.g.doubleclick.net/mads/static/mad/sdk/native/sdk-core-v40-loader.appcache",
+      "path": "https://[REDACTED]/mads/static/mad/sdk/native/[REDACTED]",
       "status": 200,
-      "origin": "app"
+      "origin": "session",
+      "count": 1,
+      "request": {
+        "size": 0,
+        "content_type": null,
+        "body_keys": null,
+        "headers": []
+      },
+      "response": {
+        "size": 192,
+        "content_type": "text/cache-manifest; charset=UTF-8",
+        "body_keys": null
+      }
     },
     {
       "method": "GET",
       "host": "googleads.g.doubleclick.net",
-      "path": "https://googleads.g.doubleclick.net/favicon.ico",
+      "path": "https://[REDACTED]/favicon.ico",
       "status": 200,
-      "origin": "app"
+      "origin": "session",
+      "count": 1,
+      "request": {
+        "size": 0,
+        "content_type": null,
+        "body_keys": null,
+        "headers": []
+      },
+      "response": {
+        "size": 1150,
+        "content_type": "image/x-icon",
+        "body_keys": null
+      }
     },
     {
       "method": "GET",
       "host": "googleads.g.doubleclick.net",
-      "path": "https://googleads.g.doubleclick.net/getconfig/pubsetting",
+      "path": "https://[REDACTED]/getconfig/pubsetting",
       "status": 200,
-      "origin": "app"
+      "origin": "session",
+      "count": 1,
+      "request": {
+        "size": 0,
+        "content_type": null,
+        "body_keys": null,
+        "headers": []
+      },
+      "response": {
+        "size": 61362,
+        "content_type": "application/json; charset=UTF-8",
+        "body_keys": [
+          "ad_unit_settings",
+          "adapter_settings",
+          "admob_esp_processor_term_accepted",
+          "app_id",
+          "auto_collect_location",
+          "exp_param",
+          "initializer_settings",
+          "odf_settings",
+          "platform_settings",
+          "publisher_permissions",
+          "status"
+        ]
+      }
+    },
+    {
+      "method": "POST",
+      "host": "config.inmobi.com",
+      "path": "https://config.inmobi.com/config-server/v1/config/secure.cfg",
+      "status": 200,
+      "origin": "session",
+      "count": 2,
+      "request": {
+        "size": 603,
+        "content_type": "application/x-www-form-urlencoded",
+        "body_keys": null,
+        "headers": []
+      },
+      "response": {
+        "size": 2059,
+        "content_type": "application/json",
+        "body_keys": [
+          "root"
+        ]
+      }
     },
     {
       "method": "POST",
       "host": "www.facebook.com",
       "path": "https://www.facebook.com/adnw_sync2",
       "status": 200,
-      "origin": "app"
+      "origin": "session",
+      "count": 1,
+      "request": {
+        "size": 3033,
+        "content_type": "application/x-www-form-urlencoded;charset=UTF-8",
+        "body_keys": null,
+        "headers": []
+      },
+      "response": {
+        "size": 3192,
+        "content_type": "text/javascript; charset=utf-8",
+        "body_keys": [
+          "bundles",
+          "refresh",
+          "response"
+        ]
+      }
+    },
+    {
+      "method": "POST",
+      "host": "api16-access-ttp.tiktokpangle.us",
+      "path": "https://[REDACTED]/api/ad/union/sdk/register_status/",
+      "status": 200,
+      "origin": "session",
+      "count": 1,
+      "request": {
+        "size": 134,
+        "content_type": "application/json; charset=utf-8",
+        "body_keys": null,
+        "headers": []
+      },
+      "response": {
+        "size": 133,
+        "content_type": "application/json; charset=utf-8",
+        "body_keys": [
+          "cypher",
+          "message"
+        ]
+      }
+    },
+    {
+      "method": "POST",
+      "host": "api16-access-ttp.tiktokpangle.us",
+      "path": "https://[REDACTED]/api/ad/union/sdk/compliance_status/",
+      "status": 200,
+      "origin": "session",
+      "count": 1,
+      "request": {
+        "size": 210,
+        "content_type": "application/json; charset=utf-8",
+        "body_keys": null,
+        "headers": []
+      },
+      "response": {
+        "size": 197,
+        "content_type": "application/json; charset=utf-8",
+        "body_keys": [
+          "cypher",
+          "message"
+        ]
+      }
+    },
+    {
+      "method": "POST",
+      "host": "api16-access-ttp.tiktokpangle.us",
+      "path": "https://[REDACTED]/api/ad/union/sdk/settings/",
+      "status": 200,
+      "origin": "session",
+      "count": 1,
+      "request": {
+        "size": 1370,
+        "content_type": "application/json; charset=utf-8",
+        "body_keys": null,
+        "headers": []
+      },
+      "response": {
+        "size": 3677,
+        "content_type": "application/json; charset=utf-8",
+        "body_keys": [
+          "cypher",
+          "message"
+        ]
+      }
+    },
+    {
+      "method": "POST",
+      "host": "api16-access-ttp.tiktokpangle.us",
+      "path": "https://[REDACTED]/service/2/dual_events/",
+      "status": 200,
+      "origin": "session",
+      "count": 1,
+      "request": {
+        "size": 2099,
+        "content_type": "application/json; charset=utf-8",
+        "body_keys": null,
+        "headers": []
+      },
+      "response": {
+        "size": 446,
+        "content_type": "application/json; charset=utf-8",
+        "body_keys": [
+          "cypher",
+          "is_ttp",
+          "message"
+        ]
+      }
+    },
+    {
+      "method": "POST",
+      "host": "api16-access-ttp.tiktokpangle.us",
+      "path": "https://[REDACTED]/monitor/collect/c/session",
+      "status": 200,
+      "origin": "session",
+      "count": 1,
+      "request": {
+        "size": 334,
+        "content_type": "application/json; charset=utf-8",
+        "body_keys": null,
+        "headers": []
+      },
+      "response": {
+        "size": 46,
+        "content_type": "application/json; charset=utf-8",
+        "body_keys": [
+          "magic_tag",
+          "message"
+        ]
+      }
+    },
+    {
+      "method": "GET",
+      "host": "lf-static.tiktokpangle-cdn-us.com",
+      "path": "https://[REDACTED]/obj/ad-pattern-tx/renderer/package_tx.json",
+      "status": 200,
+      "origin": "session",
+      "count": 1,
+      "request": {
+        "size": 0,
+        "content_type": null,
+        "body_keys": null,
+        "headers": []
+      },
+      "response": {
+        "size": 1931,
+        "content_type": "application/json",
+        "body_keys": [
+          "engines",
+          "fallback",
+          "fallbackOptimize",
+          "fallback_optimize",
+          "main",
+          "name",
+          "resources",
+          "version"
+        ]
+      }
+    },
+    {
+      "method": "GET",
+      "host": "lf-static.tiktokpangle-cdn-us.com",
+      "path": "https://[REDACTED]/obj/ad-pattern-tx/renderer/tx/dynamic/v3/[REDACTED]",
+      "status": 206,
+      "origin": "session",
+      "count": 1,
+      "request": {
+        "size": 0,
+        "content_type": null,
+        "body_keys": null,
+        "headers": []
+      },
+      "response": {
+        "size": 418,
+        "content_type": "text/html; charset=utf-8",
+        "body_keys": null
+      }
+    },
+    {
+      "method": "POST",
+      "host": "api16-access-ttp.tiktokpangle.us",
+      "path": "https://[REDACTED]/settings/get",
+      "status": 200,
+      "origin": "session",
+      "count": 3,
+      "request": {
+        "size": 632,
+        "content_type": "application/json; charset=utf-8",
+        "body_keys": null,
+        "headers": []
+      },
+      "response": {
+        "size": 5702,
+        "content_type": "application/json; charset=utf-8",
+        "body_keys": [
+          "data",
+          "err_detail",
+          "error_msg",
+          "error_no"
+        ]
+      }
+    },
+    {
+      "method": "POST",
+      "host": "api16-access-ttp.tiktokpangle.us",
+      "path": "https://[REDACTED]/api/ad/union/sdk/strategies/adn",
+      "status": 200,
+      "origin": "session",
+      "count": 1,
+      "request": {
+        "size": 1459,
+        "content_type": "application/json",
+        "body_keys": null,
+        "headers": []
+      },
+      "response": {
+        "size": 2077,
+        "content_type": "application/json; charset=utf-8",
+        "body_keys": [
+          "cypher",
+          "message"
+        ]
+      }
+    },
+    {
+      "method": "GET",
+      "host": "lf-static.tiktokpangle-cdn-us.com",
+      "path": "https://[REDACTED]/obj/ad-pattern-tx/renderer/tx/dynamic/v3/index-tx.261135.js",
+      "status": 206,
+      "origin": "session",
+      "count": 1,
+      "request": {
+        "size": 0,
+        "content_type": null,
+        "body_keys": null,
+        "headers": []
+      },
+      "response": {
+        "size": 1829545,
+        "content_type": "application/javascript",
+        "body_keys": null
+      }
+    },
+    {
+      "method": "GET",
+      "host": "lf-static.tiktokpangle-cdn-us.com",
+      "path": "https://[REDACTED]/obj/ad-pattern-tx/playable/[REDACTED]",
+      "status": 200,
+      "origin": "session",
+      "count": 1,
+      "request": {
+        "size": 0,
+        "content_type": null,
+        "body_keys": null,
+        "headers": []
+      },
+      "response": {
+        "size": 960,
+        "content_type": "application/json",
+        "body_keys": [
+          "resources",
+          "version"
+        ]
+      }
+    },
+    {
+      "method": "GET",
+      "host": "lf-static.tiktokpangle-cdn-us.com",
+      "path": "https://[REDACTED]/obj/ad-pattern-tx/static/third-party/omsdk/1.6.3/omsdk.js",
+      "status": 206,
+      "origin": "session",
+      "count": 1,
+      "request": {
+        "size": 0,
+        "content_type": null,
+        "body_keys": null,
+        "headers": []
+      },
+      "response": {
+        "size": 49724,
+        "content_type": "application/javascript",
+        "body_keys": null
+      }
+    },
+    {
+      "method": "GET",
+      "host": "lf-static.tiktokpangle-cdn-us.com",
+      "path": "https://[REDACTED]/obj/ad-pattern-tx/static/third-party/omsdk/1.6.3/[REDACTED]",
+      "status": 206,
+      "origin": "session",
+      "count": 1,
+      "request": {
+        "size": 0,
+        "content_type": null,
+        "body_keys": null,
+        "headers": []
+      },
+      "response": {
+        "size": 73144,
+        "content_type": "application/javascript",
+        "body_keys": null
+      }
+    },
+    {
+      "method": "GET",
+      "host": "lf-static.tiktokpangle-cdn-us.com",
+      "path": "https://[REDACTED]/obj/union-fe-tx/playable/sdk/playable-sdk.js",
+      "status": 206,
+      "origin": "session",
+      "count": 1,
+      "request": {
+        "size": 0,
+        "content_type": null,
+        "body_keys": null,
+        "headers": []
+      },
+      "response": {
+        "size": 266579,
+        "content_type": "application/javascript",
+        "body_keys": null
+      }
+    },
+    {
+      "method": "GET",
+      "host": "lf-static.tiktokpangle-cdn-us.com",
+      "path": "https://[REDACTED]/obj/ad-pattern-tx/renderer/tx/dynamic/v2/[REDACTED]",
+      "status": 206,
+      "origin": "session",
+      "count": 2,
+      "request": {
+        "size": 0,
+        "content_type": null,
+        "body_keys": null,
+        "headers": []
+      },
+      "response": {
+        "size": 168869,
+        "content_type": "text/html; charset=utf-8",
+        "body_keys": null
+      }
+    },
+    {
+      "method": "GET",
+      "host": "lf-static.tiktokpangle-cdn-us.com",
+      "path": "https://[REDACTED]/obj/union-fe-tx/playable/sdk/2.playable-sdk.js",
+      "status": 206,
+      "origin": "session",
+      "count": 1,
+      "request": {
+        "size": 0,
+        "content_type": null,
+        "body_keys": null,
+        "headers": []
+      },
+      "response": {
+        "size": 64371,
+        "content_type": "application/javascript",
+        "body_keys": null
+      }
+    },
+    {
+      "method": "GET",
+      "host": "lf-static.tiktokpangle-cdn-us.com",
+      "path": "https://[REDACTED]/obj/union-fe-tx/playable/sdk/3.playable-sdk.js",
+      "status": 206,
+      "origin": "session",
+      "count": 1,
+      "request": {
+        "size": 0,
+        "content_type": null,
+        "body_keys": null,
+        "headers": []
+      },
+      "response": {
+        "size": 36187,
+        "content_type": "application/javascript",
+        "body_keys": null
+      }
+    },
+    {
+      "method": "GET",
+      "host": "lf-static.tiktokpangle-cdn-us.com",
+      "path": "https://[REDACTED]/obj/union-fe-tx/playable/sdk/9.playable-sdk.js",
+      "status": 206,
+      "origin": "session",
+      "count": 1,
+      "request": {
+        "size": 0,
+        "content_type": null,
+        "body_keys": null,
+        "headers": []
+      },
+      "response": {
+        "size": 15251,
+        "content_type": "application/javascript",
+        "body_keys": null
+      }
+    },
+    {
+      "method": "GET",
+      "host": "lf-static.tiktokpangle-cdn-us.com",
+      "path": "https://[REDACTED]/obj/ad-pattern-tx/static/lotties/[REDACTED]",
+      "status": 206,
+      "origin": "session",
+      "count": 1,
+      "request": {
+        "size": 0,
+        "content_type": null,
+        "body_keys": null,
+        "headers": []
+      },
+      "response": {
+        "size": 146783,
+        "content_type": "application/javascript",
+        "body_keys": null
+      }
+    },
+    {
+      "method": "GET",
+      "host": "lf-static.tiktokpangle-cdn-us.com",
+      "path": "https://[REDACTED]/obj/ad-pattern-tx/[REDACTED]/vendors/20231228_164425/index.780a6098.js",
+      "status": 206,
+      "origin": "session",
+      "count": 1,
+      "request": {
+        "size": 0,
+        "content_type": null,
+        "body_keys": null,
+        "headers": []
+      },
+      "response": {
+        "size": 43123,
+        "content_type": "application/javascript",
+        "body_keys": null
+      }
+    },
+    {
+      "method": "GET",
+      "host": "lf-static.tiktokpangle-cdn-us.com",
+      "path": "https://[REDACTED]/obj/union-fe-tx/playable/sdk/10.playable-sdk.js",
+      "status": 206,
+      "origin": "session",
+      "count": 1,
+      "request": {
+        "size": 0,
+        "content_type": null,
+        "body_keys": null,
+        "headers": []
+      },
+      "response": {
+        "size": 20098,
+        "content_type": "application/javascript",
+        "body_keys": null
+      }
     },
     {
       "method": "GET",
       "host": "app.adjust.com",
       "path": "https://app.adjust.com/attribution",
       "status": 200,
-      "origin": "app"
+      "origin": "device",
+      "count": 1,
+      "request": {
+        "size": 0,
+        "content_type": null,
+        "body_keys": null,
+        "headers": [
+          "authorization"
+        ]
+      },
+      "response": {
+        "size": 335,
+        "content_type": "application/json; charset=utf-8",
+        "body_keys": [
+          "adid",
+          "app_token",
+          "attribution"
+        ]
+      }
+    },
+    {
+      "method": "POST",
+      "host": "api.mixpanel.com",
+      "path": "https://api.mixpanel.com/track/",
+      "status": 200,
+      "origin": "session",
+      "count": 1,
+      "request": {
+        "size": 1913,
+        "content_type": "application/x-www-form-urlencoded; charset=utf-8",
+        "body_keys": null,
+        "headers": []
+      },
+      "response": {
+        "size": 1,
+        "content_type": "application/json",
+        "body_keys": [
+          "[non-object]"
+        ]
+      }
     }
   ],
   "summary": {
-    "total_flows": 8,
+    "total_flows": 53,
     "unique_destinations": [
+      "api.mixpanel.com",
+      "api16-access-ttp.tiktokpangle.us",
       "app.adjust.com",
+      "config.inmobi.com",
+      "firebase-settings.crashlytics.com",
       "firebaseinstallations.googleapis.com",
       "firebaseremoteconfig.googleapis.com",
+      "fundingchoicesmessages.google.com",
       "googleads.g.doubleclick.net",
+      "graph.facebook.com",
+      "lf-static.tiktokpangle-cdn-us.com",
+      "marketingplatform.google.com",
       "www.facebook.com"
-    ],
-    "tracked": "Hosts listed are carriers of advertising or analytics SDKs (Adjust, DoubleClick, Facebook) plus Google Firebase."
+    ]
   }
 }

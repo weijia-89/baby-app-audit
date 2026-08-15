@@ -1,5 +1,25 @@
 # Changelog
 
+## 4.5.1 - 2026-08-14
+
+### Added
+- Evidence retention hard rule: raw captures, decode files, and network logs are permanent evidence and must never be swept. `scripts/evidence-inventory.sh --check` fails the harness pre-flight when a committed network log is missing or a preserved capture is zero-byte, and warns on rotted decode files. AGENTS.md and METHODOLOGY.md document the rule; the old 90-day retention policy no longer applies.
+- `evidence_source` field on every app row in `results/RESULTS-20260803.json`: `raw-replay` (8 apps with preserved captures replayed and mined) vs `session-summary` (8 legacy apps whose raw captures no longer exist). Tests assert the exact split; FINAL-REPORT Limits and README explain the depth difference.
+- ROADMAP.md Sprint 5: legacy re-capture milestone for the eight session-summary apps (nurture-lock, nubo, pebbi, amila, baby-buddy, baby-daybook, baby-plus, mimilog), including the version-drift caveat and the success criterion of full raw-replay parity.
+
+### Fixed
+- Restored `results/network-log-nurture-lock.json` after a zero-flow replay of an empty recovered capture had overwritten the committed artifact on disk. The committed two-flow revenuecat entry is intact.
+
+## 4.5.0 - 2026-08-14
+
+### Added
+- `scripts/build-network-logs.sh`: builds each committed `results/network-log-*.json` directly from the raw `.mitm` capture. Flow rows gain `count`, `origin` (`app` / `device` / `session`), request and response sizes, content types, JSON body keys (names only), and header-flag names (names only). The script removes query strings, replaces token-like path segments with `[REDACTED]`, and never emits body values.
+- `results/network-log.schema.json`: documents the new optional flow properties (`count`, `request`, `response`) and the three-way `origin` field.
+
+### Changed
+- `results/RESULTS-20260803.json`: Nanit and Pregnancy+ reclassified from `minor` to `major` after the full launch captures exposed additional SDK families (Nanit: Microsoft Clarity, Localytics, Cordial, Coralogix; Pregnancy+: Microsoft Clarity, Facebook, Adapty with install attribution, OneSignal, first-party Philips APIs). Pixy's offline test now reflects only what the raw capture holds (three Facebook Graph bootstrap flows; the earlier Firebase Installations entry is not reproduced by the preserved `.mitm`). What to Expect and wave-1 offline counts align with the raw captures.
+- `FINAL-REPORT.md` and `README.md`: wave-1 blocks and summary rows updated to the enriched capture evidence (BabyCenter 35 flows across nine SDK families; BellyBloom 53 flows including TikTok Pangle; Nanit and Pregnancy+ `🚫` at 95%).
+
 ## 4.4.0 - 2026-08-14
 
 ### Added

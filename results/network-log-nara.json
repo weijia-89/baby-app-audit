@@ -1,81 +1,112 @@
 {
   "$schema": "network-log/1.0",
   "schema_version": "1.0",
-  "app": "Nara",
+  "app": "nara",
   "package_name": "com.naraorganics.nara",
   "capture_date": "2026-08-12",
-  "capture": "results/nara-test-20260812/artifacts/captures/Nara.mitm",
-  "redaction": "Query strings, headers, and bodies stripped. Project numbers and subscriber IDs replaced with [REDACTED].",
+  "capture": "results/nara-test-20260812/artifacts/captures/nara.mitm",
+  "redaction": "Query strings removed; token-like path segments replaced by [REDACTED]; body values, headers, and cookies never included; body JSON keys only.",
   "flows": [
     {
       "method": "GET",
       "host": "graph.facebook.com",
-      "path": "/v16.0/app",
+      "path": "https://graph.facebook.com/v16.0/app",
       "status": 200,
-      "origin": "app"
+      "origin": "session",
+      "count": 4,
+      "request": {
+        "size": 0,
+        "content_type": "application/x-www-form-urlencoded",
+        "body_keys": null,
+        "headers": []
+      },
+      "response": {
+        "size": 7678,
+        "content_type": "text/javascript; charset=UTF-8",
+        "body_keys": [
+          "aam_rules",
+          "android_sdk_error_categories",
+          "app_events_config",
+          "app_events_feature_bitmask",
+          "app_events_session_timeout",
+          "auto_log_app_events_default",
+          "auto_log_app_events_enabled",
+          "gdpv4_nux_enabled",
+          "id",
+          "protected_mode_rules",
+          "seamless_login",
+          "smart_login_bookmark_icon_url",
+          "smart_login_menu_icon_url",
+          "suggested_events_setting",
+          "supports_implicit_sdk_logging"
+        ]
+      }
     },
     {
       "method": "GET",
       "host": "graph.facebook.com",
-      "path": "/v16.0/app/mobile_sdk_gk",
+      "path": "https://graph.facebook.com/v16.0/app/mobile_sdk_gk",
       "status": 200,
-      "origin": "app"
-    },
-    {
-      "method": "GET",
-      "host": "graph.facebook.com",
-      "path": "/v16.0/app",
-      "status": 200,
-      "origin": "app"
-    },
-    {
-      "method": "GET",
-      "host": "graph.facebook.com",
-      "path": "/v16.0/app/mobile_sdk_gk",
-      "status": 200,
-      "origin": "app"
+      "origin": "session",
+      "count": 4,
+      "request": {
+        "size": 0,
+        "content_type": "application/x-www-form-urlencoded",
+        "body_keys": null,
+        "headers": []
+      },
+      "response": {
+        "size": 3698,
+        "content_type": "application/json; charset=utf-8",
+        "body_keys": [
+          "data"
+        ]
+      }
     },
     {
       "method": "POST",
       "host": "crashlyticsreports-pa.googleapis.com",
-      "path": "/v1/firelog/legacy/batchlog",
+      "path": "https://[REDACTED]/v1/firelog/legacy/batchlog",
       "status": 200,
-      "origin": "app"
+      "origin": "device",
+      "count": 1,
+      "request": {
+        "size": 60387,
+        "content_type": "application/json",
+        "body_keys": null,
+        "headers": [
+          "x-goog-api-key"
+        ]
+      },
+      "response": {
+        "size": 233,
+        "content_type": "application/json; charset=UTF-8",
+        "body_keys": [
+          "logResponseDetails",
+          "nextRequestWaitMillis"
+        ]
+      }
     },
     {
       "method": "GET",
       "host": "graph.facebook.com",
-      "path": "/v16.0/app/mobile_sdk_gk",
+      "path": "https://graph.facebook.com/v16.0/app/model_asset",
       "status": 200,
-      "origin": "app"
-    },
-    {
-      "method": "GET",
-      "host": "graph.facebook.com",
-      "path": "/v16.0/app",
-      "status": 200,
-      "origin": "app"
-    },
-    {
-      "method": "GET",
-      "host": "graph.facebook.com",
-      "path": "/v16.0/app/model_asset",
-      "status": 200,
-      "origin": "app"
-    },
-    {
-      "method": "GET",
-      "host": "graph.facebook.com",
-      "path": "/v16.0/app/mobile_sdk_gk",
-      "status": 200,
-      "origin": "app"
-    },
-    {
-      "method": "GET",
-      "host": "graph.facebook.com",
-      "path": "/v16.0/app",
-      "status": 200,
-      "origin": "app"
+      "origin": "session",
+      "count": 1,
+      "request": {
+        "size": 0,
+        "content_type": "application/x-www-form-urlencoded",
+        "body_keys": null,
+        "headers": []
+      },
+      "response": {
+        "size": 11,
+        "content_type": "text/javascript; charset=UTF-8",
+        "body_keys": [
+          "data"
+        ]
+      }
     }
   ],
   "summary": {
@@ -83,7 +114,6 @@
     "unique_destinations": [
       "crashlyticsreports-pa.googleapis.com",
       "graph.facebook.com"
-    ],
-    "tracked": "Hosts listed are carriers of tracking or analytics SDKs (Facebook, Firebase, RevenueCat, Crashlytics, FCM). Font and system checks are marked by origin."
+    ]
   }
 }

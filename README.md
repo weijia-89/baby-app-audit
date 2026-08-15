@@ -120,9 +120,9 @@ The privacy marks say what the app actually did:
 
 An app with no privacy claim cannot fail, because there is no promise to break. Its result says "no claim"; the privacy mark still shows what we observed.
 
-Every failed app links to its own sanitized network log (`results/network-log-<app>.json`). The logs list hosts, paths, and response status codes of captured traffic. They contain no query strings, headers, or bodies, because those carried authentication tokens. The raw captures stay local only.
+Every failed app links to its own sanitized network log (`results/network-log-<app>.json`). The logs list hosts, redacted paths, status codes, flow counts, request and response sizes, JSON body keys, and header-flag names for each captured flow. They contain no query strings, header values, or body values, because those carried authentication tokens. The logs are generated from the raw `.mitm` captures by `scripts/build-network-logs.sh`; the raw captures stay local only.
 
-The machine-readable summary is [results/RESULTS-20260803.json](results/RESULTS-20260803.json). See [CHANGELOG.md](CHANGELOG.md) for history.
+The machine-readable summary is [results/RESULTS-20260803.json](results/RESULTS-20260803.json). Each app row carries an `evidence_source`: `raw-replay` (every flow in the preserved capture was replayed and mined) or `session-summary` (raw capture no longer exists; results rest on the original session summaries). The eight session-summary apps are lower-bound evidence until the planned legacy re-capture. See [CHANGELOG.md](CHANGELOG.md) for history.
 
 | App | Privacy claim | Result | Privacy | Confidence | Key findings |
 | --- | --- | --- | --- | --- | --- |
@@ -136,11 +136,11 @@ The machine-readable summary is [results/RESULTS-20260803.json](results/RESULTS-
 | Nubo | "Local-first" | FAIL | 🚫 | 95% | Sends session analytics, screen views, and onboarding events to Google Firebase on first launch |
 | Nurture Lock | "100% offline" | FAIL | 🚫 | 95% | Phones home to RevenueCat with device identifiers on launch. 8 tracking libraries found in the APK |
 | Pebbi | No claim (positive control) | No claim | 🚫 | 100% | Extensive data collection via Firebase, Google AdServices, and FCM registration |
-| Pixy | "Bank-level encryption" | FAIL | 🚫 | 90% | Three Facebook Graph API calls and one Firebase Installations registration on launch |
+| Pixy | "Bank-level encryption" | FAIL | 🚫 | 90% | Three Facebook Graph API calls on launch |
 | BabyCenter | No claim | No claim | 🚫 | 95% | AppsFlyer, DoubleClick, Microsoft Clarity, Scorecard Research, and Firebase calls on launch |
 | BellyBloom | No claim | No claim | 🚫 | 90% | Adjust, DoubleClick, Facebook, and Firebase calls on launch |
-| Nanit | No claim | No claim | ❕ | 90% | Firebase Installations and Remote Config plus the Nanit API on launch; no ad SDK traffic |
-| Pregnancy+ | No claim | No claim | ❕ | 90% | Firebase Installations and Remote Config on launch; no ad SDK traffic |
+| Nanit | No claim | No claim | 🚫 | 95% | Firebase, Microsoft Clarity, Localytics, Cordial, and Coralogix flows plus the Nanit API on launch; no ad-network SDK |
+| Pregnancy+ | No claim | No claim | 🚫 | 95% | Firebase, Facebook, Microsoft Clarity, Adapty, and OneSignal flows on launch, including install attribution |
 | What to Expect | No claim | No claim | 🚫 | 90% | AppsFlyer, Microsoft Clarity, Scorecard Research, and Firebase calls on launch |
 
 The full procedure is in [APK_PRIVACY_TEST_HARNESS.md](APK_PRIVACY_TEST_HARNESS.md). Method, consent, and known limits (no radio checks, no static scan for Nubo) are in [METHODOLOGY.md](METHODOLOGY.md).
@@ -172,7 +172,7 @@ Network capture logs:
 - `results/nubo-test-20260803/capture.mitm` - Nubo capture
 
 Sanitized network logs:
-- `results/network-log-<app>.json` - host, path, and status data for each tested app
+- `results/network-log-<app>.json` - per-flow host, redacted path, status, count, sizes, JSON body keys, and header-flag names for each tested app; built from the raw `.mitm` captures by `scripts/build-network-logs.sh`
 - Raw decoded captures stay local because they contain authentication tokens and installation IDs.
 
 ## Sources

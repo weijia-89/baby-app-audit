@@ -65,3 +65,14 @@ Apps that make privacy/offline claims but cannot be acquired via APKPure or F-Dr
 ### Final Report and Publication  -  Planned
 - Synthesize all burst findings into final report
 - Publish methodology and open-source the tool
+
+## Sprint 5  -  Planned  -  Legacy re-capture and evidence parity
+
+**Goal:** Bring the 8 legacy apps (nurture-lock, nubo, pebbi, amila, baby-buddy, baby-daybook, baby-plus, mimilog) up to the same evidence depth as the wave-1/wave-2 apps. Their raw `.mitm` captures disappeared before the retention rule existed (AGENTS.md "Evidence retention"); their results are decode-level only, and two of them (Amila, Baby+) are the same shape of thin evidence that flipped Nanit and Pregnancy+ to major.
+
+### Legacy re-capture  -  Planned
+- Re-run the harness on all 8 legacy apps with the new retention rule in force; preserve `results/<app>-test-<date>/artifacts/captures/*.mitm` permanently (evidence-inventory guard now enforces this).
+- Expected caveat: current APK versions differ from the tested builds (e.g. we tested Baby+ at v2.0.10 and BellyBloom at v1.0.8). Record the tested APK hash in RESULTS and note version drift in the report; if archived APKs exist locally, prefer them for continuity.
+- After each capture: run `scripts/build-network-logs.sh` to produce enriched network logs, then re-audit `privacy_class` and evidence at full depth (expect: Amila and Baby+ may flip minor -> major like Nanit/Pregnancy+ did).
+- Update `RESULTS-20260803.json` `evidence_source` for the 8 apps from `session-summary` to `raw-replay`, refresh the FINAL-REPORT blocks, and re-run all gates (unit tests, evidence inventory, schema validation).
+- Success criterion: all 16 apps have `evidence_source: raw-replay` and a preserved, non-zero-byte capture tree; zero apps classified on decode-level evidence alone.

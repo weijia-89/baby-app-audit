@@ -58,7 +58,8 @@
           "com.android.vending.CHECK_LICENSE"
         ],
         "source_hits": "decompiled/nurture-lock (9,817 Java files, jadx 1.5.6)"
-      }
+      },
+      "evidence_source": "session-summary"
     },
     {
       "name": "Nubo",
@@ -122,7 +123,8 @@
         ],
         "pinning_bypass_required": false,
         "flow_file": "results/nubo-test-20260803/capture.mitm"
-      }
+      },
+      "evidence_source": "session-summary"
     },
     {
       "name": "Pebbi",
@@ -165,7 +167,8 @@
           "BIND_GET_INSTALL_REFERRER_SERVICE"
         ],
         "source_hits": "decompiled/pebbi (17,231 Java files, jadx 1.5.6)"
-      }
+      },
+      "evidence_source": "session-summary"
     },
     {
       "name": "Baby Buddy",
@@ -186,7 +189,8 @@
         "outbound_requests_count": 0,
         "outbound_destinations": [],
         "flow_file": "results/baby-buddy-test-20260803/baby-buddy-flows.mitm"
-      }
+      },
+      "evidence_source": "session-summary"
     },
     {
       "name": "Amila",
@@ -205,7 +209,8 @@
           "fonts.gstatic.com"
         ],
         "flow_file": "results/decode-traffic-amila.json"
-      }
+      },
+      "evidence_source": "session-summary"
     },
     {
       "name": "Baby Daybook",
@@ -225,7 +230,8 @@
           "firebaseremoteconfigrealtime.googleapis.com"
         ],
         "flow_file": "results/decode-traffic-baby-daybook.json"
-      }
+      },
+      "evidence_source": "session-summary"
     },
     {
       "name": "Baby+",
@@ -243,7 +249,8 @@
           "firebaseremoteconfig.googleapis.com"
         ],
         "flow_file": "results/decode-traffic-baby-plus.json"
-      }
+      },
+      "evidence_source": "session-summary"
     },
     {
       "name": "MimiLog",
@@ -257,7 +264,8 @@
         "outbound_requests_count": 0,
         "outbound_destinations": [],
         "flow_file": "results/network-log-mimilog.json"
-      }
+      },
+      "evidence_source": "session-summary"
     },
     {
       "name": "Nara",
@@ -274,7 +282,8 @@
           "graph.facebook.com"
         ],
         "flow_file": "results/nara-test-20260812/artifacts/captures/Nara.mitm"
-      }
+      },
+      "evidence_source": "raw-replay"
     },
     {
       "name": "Heartful Baby",
@@ -290,7 +299,8 @@
           "firebaselogging.googleapis.com"
         ],
         "flow_file": "results/heartful-baby-test-20260812/artifacts/captures/Heartful-baby.mitm"
-      }
+      },
+      "evidence_source": "raw-replay"
     },
     {
       "name": "Pixy",
@@ -299,15 +309,15 @@
       "verdict": "fail",
       "privacy_class": "major",
       "verdict_confidence": 90,
-      "evidence": "The launch capture shows three Facebook Graph API calls and one Firebase Installations registration. The bank-level encryption claim does not cover this traffic.",
+      "evidence": "The launch capture shows three Facebook Graph API calls. The bank-level encryption claim does not cover this traffic.",
       "offline_test": {
-        "outbound_requests_count": 4,
+        "outbound_requests_count": 3,
         "outbound_destinations": [
-          "firebaseinstallations.googleapis.com",
           "graph.facebook.com"
         ],
         "flow_file": "results/pixy-test-20260812/artifacts/captures/Pixy.mitm"
-      }
+      },
+      "evidence_source": "raw-replay"
     },
     {
       "name": "BabyCenter",
@@ -354,7 +364,8 @@
           "com.android.vending.INSTALL_REFERRER"
         ],
         "source_hits": "decompiled/babycenter (jadx 1.5.6)"
-      }
+      },
+      "evidence_source": "raw-replay"
     },
     {
       "name": "BellyBloom",
@@ -399,35 +410,46 @@
           "com.android.vending.BILLING"
         ],
         "source_hits": "decompiled/bellybloom (jadx 1.5.6)"
-      }
+      },
+      "evidence_source": "raw-replay"
     },
     {
       "name": "Nanit",
       "package_name": "com.nanit.baby",
       "app_type": "native",
       "verdict": "fail",
-      "privacy_class": "minor",
-      "verdict_confidence": 90,
-      "evidence": "No claim. Launch capture shows Google Firebase Installations and Remote Config plus the Nanit API endpoint on first open. No advertising SDK traffic observed in the launch window. Camera and account are required for full features; the capture covers onboarding only.",
+      "privacy_class": "major",
+      "verdict_confidence": 95,
+      "evidence": "No claim. Launch capture shows Firebase (Installations, Remote Config, Crashlytics settings), Microsoft Clarity session tracking (r.clarity.ms/collect), Localytics analytics, Cordial email-messaging events, and Coralogix RUM, plus the Nanit first-party API (plans, cards, mobile auth and contacts with authorization header, browser logs 15.6 kB). Multiple tracking and first-party data-sharing flows observed on first open; no dedicated ad-network SDK observed in the launch window.",
       "apk_hash": {
         "sha256": "18b284fd0fb83949d9660eca34ac89fe52de699fe47e9f81a0a853c7b7a66902",
         "timestamp": "2026-08-14T12:55:00Z",
         "source": "mirror"
       },
       "offline_test": {
-        "outbound_requests_count": 5,
+        "outbound_requests_count": 12,
         "outbound_destinations": [
+          "r.clarity.ms",
           "api.nanit.com",
           "firebaseinstallations.googleapis.com",
           "firebaseremoteconfig.googleapis.com",
-          "firebaseremoteconfigrealtime.googleapis.com"
+          "firebaseremoteconfigrealtime.googleapis.com",
+          "firebase-settings.crashlytics.com",
+          "analytics.localytics.com",
+          "events-stream-svc.usw2.cordial.com",
+          "ingress.eu1.rum-ingress-coralogix.com"
         ],
         "flow_file": "results/decode-traffic-nanit.json"
       },
       "static_scan": {
-        "trackers_found": 1,
+        "trackers_found": 6,
         "tracker_names": [
-          "Firebase"
+          "Firebase",
+          "Microsoft Clarity",
+          "Localytics",
+          "Coralogix",
+          "Cordial",
+          "Nanit (first-party)"
         ],
         "permissions": [
           "INTERNET",
@@ -442,33 +464,54 @@
           "com.android.vending.BILLING"
         ],
         "source_hits": "decompiled/nanit (jadx 1.5.6)"
-      }
+      },
+      "evidence_source": "raw-replay"
     },
     {
       "name": "Pregnancy+",
       "package_name": "com.hp.pregnancy.lite",
       "app_type": "native",
       "verdict": "fail",
-      "privacy_class": "minor",
-      "verdict_confidence": 90,
-      "evidence": "No claim. Launch capture shows only Google Firebase Installations and Remote Config on first open. No advertising SDK traffic observed in the launch window. Sensitivity was disabled during capture and consent screens were accepted via automation.",
+      "privacy_class": "major",
+      "verdict_confidence": 95,
+      "evidence": "No claim. Launch capture shows Firebase (Installations, Remote Config, logging, Crashlytics settings), Microsoft Clarity session tracking (b.clarity.ms/collect), Facebook app configuration plus activities beacon (app id 546319842074484), Adapty paywall analytics with install attribution (install attribution POST, analytics events), OneSignal push configuration, and first-party Philips APIs (iam-api.philips-digital.com) with Amazon Cognito/S3 in the Adapty flow. Sensitivity was disabled and consent screens accepted via automation. Multiple analytics and attribution SDK flows observed on first open.",
       "apk_hash": {
         "sha256": "6ebcbecea0dcaf2be725976810fc0929765fe9bc261de1338e46f079b09fe73e",
         "timestamp": "2026-08-14T12:55:00Z",
         "source": "mirror"
       },
       "offline_test": {
-        "outbound_requests_count": 3,
+        "outbound_requests_count": 42,
         "outbound_destinations": [
+          "b.clarity.ms",
+          "graph.facebook.com",
+          "api-eu.adapty.io",
+          "api-ua.adapty.io",
+          "fallback.adapty.io",
+          "public-media.adapty.io",
+          "api.onesignal.com",
           "firebaseinstallations.googleapis.com",
-          "firebaseremoteconfig.googleapis.com"
+          "firebaseremoteconfig.googleapis.com",
+          "firebaselogging.googleapis.com",
+          "firebaselogging-pa.googleapis.com",
+          "firebase-settings.crashlytics.com",
+          "cognito-identity.us-east-1.amazonaws.com",
+          "s3.amazonaws.com",
+          "s3-us-west-1.amazonaws.com",
+          "iam-api.philips-digital.com",
+          "www.global.api.philips.com"
         ],
         "flow_file": "results/decode-traffic-pregnancyplus.json"
       },
       "static_scan": {
-        "trackers_found": 1,
+        "trackers_found": 6,
         "tracker_names": [
-          "Firebase"
+          "Firebase",
+          "Facebook",
+          "Microsoft Clarity",
+          "Adapty",
+          "OneSignal",
+          "Philips (first-party)"
         ],
         "permissions": [
           "INTERNET",
@@ -483,7 +526,8 @@
           "com.android.vending.CHECK_LICENSE"
         ],
         "source_hits": "decompiled/pregnancyplus (jadx 1.5.6)"
-      }
+      },
+      "evidence_source": "raw-replay"
     },
     {
       "name": "What to Expect",
@@ -499,19 +543,23 @@
         "source": "mirror"
       },
       "offline_test": {
-        "outbound_requests_count": 14,
+        "outbound_requests_count": 25,
         "outbound_destinations": [
-          "a2lve5.conversions.appsflyersdk.com",
+          "a2lve5.cdn-settings.appsflyersdk.com",
           "a2lve5.dlsdk.appsflyersdk.com",
           "a2lve5.gcdsdk.appsflyersdk.com",
-          "a2lve5.inapps.appsflyersdk.com",
           "a2lve5.pia.appsflyersdk.com",
           "a2lve5.register.appsflyersdk.com",
+          "api.mixpanel.com",
           "b.clarity.ms",
           "census-app.scorecardresearch.com",
+          "events-stream-svc.usw2.cordial.com",
+          "firebase-settings.crashlytics.com",
           "firebaseinstallations.googleapis.com",
           "firebaseremoteconfig.googleapis.com",
-          "sp.whattoexpect.com"
+          "mobile-data.onetrust.io",
+          "sp.whattoexpect.com",
+          "www.clarity.ms"
         ],
         "flow_file": "results/decode-traffic-whattoexpect.json"
       },
@@ -534,7 +582,8 @@
           "WRITE_EXTERNAL_STORAGE"
         ],
         "source_hits": "decompiled/whattoexpect (jadx 1.5.6)"
-      }
+      },
+      "evidence_source": "raw-replay"
     }
   ],
   "audit_log": {
