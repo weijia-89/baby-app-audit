@@ -1,5 +1,15 @@
 # Changelog
 
+## 4.5.1 - 2026-08-14
+
+### Added
+- Evidence retention hard rule: raw captures, decode files, and network logs are permanent evidence and must never be swept. `scripts/evidence-inventory.sh --check` fails the harness pre-flight when a committed network log is missing or a preserved capture is zero-byte, and warns on rotted decode files. AGENTS.md and METHODOLOGY.md document the rule; the old 90-day retention policy no longer applies.
+- `evidence_source` field on every app row in `results/RESULTS-20260803.json`: `raw-replay` (8 apps with preserved captures replayed and mined) vs `session-summary` (8 legacy apps whose raw captures no longer exist). Tests assert the exact split; FINAL-REPORT Limits and README explain the depth difference.
+- ROADMAP.md Sprint 5: legacy re-capture milestone for the eight session-summary apps (nurture-lock, nubo, pebbi, amila, baby-buddy, baby-daybook, baby-plus, mimilog), including the version-drift caveat and the success criterion of full raw-replay parity.
+
+### Fixed
+- Restored `results/network-log-nurture-lock.json` after a zero-flow replay of an empty recovered capture had overwritten the committed artifact on disk. The committed two-flow revenuecat entry is intact.
+
 ## 4.5.0 - 2026-08-14
 
 ### Added

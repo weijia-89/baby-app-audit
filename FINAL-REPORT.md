@@ -332,6 +332,7 @@ Four of the five wave-1 apps ship at least one install-attribution or ad SDK (Ap
 - We did not tap the apps by hand. Some data paths stayed hidden. The operator-integrated roadmap item closes this gap.
 - The captures cover the launch and early-use window of each app. Behavior later in a session could differ.
 - We withheld response bodies and headers from this report and the network logs because they carried authentication tokens. "Data shared" is therefore "observed" only where the capture itself showed the exchange (for example, a Firebase installation ID and refresh token in the response), and "inferred" elsewhere from the endpoint and the SDK that made the call.
+- Evidence depth is not equal across the 16 apps. Eight apps (BabyCenter, BellyBloom, Nanit, Pregnancy+, What to Expect, Heartful Baby, Nara, Pixy) have `evidence_source: raw-replay` - we replayed and mined every flow in the preserved `.mitm` capture. The other eight (Nurture Lock, Nubo, Pebbi, Amila, Baby Buddy, Baby Daybook, Baby+, MimiLog) have `evidence_source: session-summary` - their raw captures disappeared before the retention rule existed, so their results rest on the original session summaries, which are thinner (for example, Nanit and Pregnancy+ looked clean at that depth and flipped to major once we replayed the raw captures). Treat session-summary rows as lower-bound evidence; see ROADMAP.md for the planned legacy re-capture.
 
 ## Advice
 

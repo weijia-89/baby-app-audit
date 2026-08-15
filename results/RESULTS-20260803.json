@@ -58,7 +58,8 @@
           "com.android.vending.CHECK_LICENSE"
         ],
         "source_hits": "decompiled/nurture-lock (9,817 Java files, jadx 1.5.6)"
-      }
+      },
+      "evidence_source": "session-summary"
     },
     {
       "name": "Nubo",
@@ -122,7 +123,8 @@
         ],
         "pinning_bypass_required": false,
         "flow_file": "results/nubo-test-20260803/capture.mitm"
-      }
+      },
+      "evidence_source": "session-summary"
     },
     {
       "name": "Pebbi",
@@ -165,7 +167,8 @@
           "BIND_GET_INSTALL_REFERRER_SERVICE"
         ],
         "source_hits": "decompiled/pebbi (17,231 Java files, jadx 1.5.6)"
-      }
+      },
+      "evidence_source": "session-summary"
     },
     {
       "name": "Baby Buddy",
@@ -186,7 +189,8 @@
         "outbound_requests_count": 0,
         "outbound_destinations": [],
         "flow_file": "results/baby-buddy-test-20260803/baby-buddy-flows.mitm"
-      }
+      },
+      "evidence_source": "session-summary"
     },
     {
       "name": "Amila",
@@ -205,7 +209,8 @@
           "fonts.gstatic.com"
         ],
         "flow_file": "results/decode-traffic-amila.json"
-      }
+      },
+      "evidence_source": "session-summary"
     },
     {
       "name": "Baby Daybook",
@@ -225,7 +230,8 @@
           "firebaseremoteconfigrealtime.googleapis.com"
         ],
         "flow_file": "results/decode-traffic-baby-daybook.json"
-      }
+      },
+      "evidence_source": "session-summary"
     },
     {
       "name": "Baby+",
@@ -243,7 +249,8 @@
           "firebaseremoteconfig.googleapis.com"
         ],
         "flow_file": "results/decode-traffic-baby-plus.json"
-      }
+      },
+      "evidence_source": "session-summary"
     },
     {
       "name": "MimiLog",
@@ -257,7 +264,8 @@
         "outbound_requests_count": 0,
         "outbound_destinations": [],
         "flow_file": "results/network-log-mimilog.json"
-      }
+      },
+      "evidence_source": "session-summary"
     },
     {
       "name": "Nara",
@@ -274,7 +282,8 @@
           "graph.facebook.com"
         ],
         "flow_file": "results/nara-test-20260812/artifacts/captures/Nara.mitm"
-      }
+      },
+      "evidence_source": "raw-replay"
     },
     {
       "name": "Heartful Baby",
@@ -290,7 +299,8 @@
           "firebaselogging.googleapis.com"
         ],
         "flow_file": "results/heartful-baby-test-20260812/artifacts/captures/Heartful-baby.mitm"
-      }
+      },
+      "evidence_source": "raw-replay"
     },
     {
       "name": "Pixy",
@@ -306,7 +316,8 @@
           "graph.facebook.com"
         ],
         "flow_file": "results/pixy-test-20260812/artifacts/captures/Pixy.mitm"
-      }
+      },
+      "evidence_source": "raw-replay"
     },
     {
       "name": "BabyCenter",
@@ -353,7 +364,8 @@
           "com.android.vending.INSTALL_REFERRER"
         ],
         "source_hits": "decompiled/babycenter (jadx 1.5.6)"
-      }
+      },
+      "evidence_source": "raw-replay"
     },
     {
       "name": "BellyBloom",
@@ -398,7 +410,8 @@
           "com.android.vending.BILLING"
         ],
         "source_hits": "decompiled/bellybloom (jadx 1.5.6)"
-      }
+      },
+      "evidence_source": "raw-replay"
     },
     {
       "name": "Nanit",
@@ -451,7 +464,8 @@
           "com.android.vending.BILLING"
         ],
         "source_hits": "decompiled/nanit (jadx 1.5.6)"
-      }
+      },
+      "evidence_source": "raw-replay"
     },
     {
       "name": "Pregnancy+",
@@ -512,7 +526,8 @@
           "com.android.vending.CHECK_LICENSE"
         ],
         "source_hits": "decompiled/pregnancyplus (jadx 1.5.6)"
-      }
+      },
+      "evidence_source": "raw-replay"
     },
     {
       "name": "What to Expect",
@@ -567,7 +582,8 @@
           "WRITE_EXTERNAL_STORAGE"
         ],
         "source_hits": "decompiled/whattoexpect (jadx 1.5.6)"
-      }
+      },
+      "evidence_source": "raw-replay"
     }
   ],
   "audit_log": {

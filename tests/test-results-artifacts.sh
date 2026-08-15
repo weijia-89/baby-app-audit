@@ -35,6 +35,15 @@ assert set(apps) == set(expected), f"unexpected app set: {sorted(apps)}"
 assert {name: app["privacy_class"] for name, app in apps.items()} == expected
 assert all((app["verdict"] == "pass") == (app["privacy_class"] == "pass") for app in apps.values())
 
+assert {name: app["evidence_source"] for name, app in apps.items()} == {
+    "BabyCenter": "raw-replay", "BellyBloom": "raw-replay", "Nanit": "raw-replay",
+    "Pregnancy+": "raw-replay", "What to Expect": "raw-replay", "Heartful Baby": "raw-replay",
+    "Nara": "raw-replay", "Pixy": "raw-replay",
+    "Nurture Lock": "session-summary", "Nubo": "session-summary", "Pebbi": "session-summary",
+    "Amila": "session-summary", "Baby Buddy": "session-summary",
+    "Baby Daybook": "session-summary", "Baby+": "session-summary", "MimiLog": "session-summary",
+}
+
 network_schema = json.loads((root / "results/network-log.schema.json").read_text())
 assert network_schema["properties"]["flows"]["items"]["properties"]["status"] == {
     "oneOf": [{"type": "integer"}, {"const": "unknown"}]

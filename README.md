@@ -122,7 +122,7 @@ An app with no privacy claim cannot fail, because there is no promise to break. 
 
 Every failed app links to its own sanitized network log (`results/network-log-<app>.json`). The logs list hosts, redacted paths, status codes, flow counts, request and response sizes, JSON body keys, and header-flag names for each captured flow. They contain no query strings, header values, or body values, because those carried authentication tokens. The logs are generated from the raw `.mitm` captures by `scripts/build-network-logs.sh`; the raw captures stay local only.
 
-The machine-readable summary is [results/RESULTS-20260803.json](results/RESULTS-20260803.json). See [CHANGELOG.md](CHANGELOG.md) for history.
+The machine-readable summary is [results/RESULTS-20260803.json](results/RESULTS-20260803.json). Each app row carries an `evidence_source`: `raw-replay` (every flow in the preserved capture was replayed and mined) or `session-summary` (raw capture no longer exists; results rest on the original session summaries). The eight session-summary apps are lower-bound evidence until the planned legacy re-capture. See [CHANGELOG.md](CHANGELOG.md) for history.
 
 | App | Privacy claim | Result | Privacy | Confidence | Key findings |
 | --- | --- | --- | --- | --- | --- |
