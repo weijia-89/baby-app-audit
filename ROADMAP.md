@@ -60,11 +60,25 @@ Apps that make privacy/offline claims but cannot be acquired via APKPure or F-Dr
 - **Cradle** (com.creatorlane.cradle): claims privacy-first, encrypted at rest, no data sold. 130 total downloads (8/month). Brand-new app (Aug 2026).
 - **Dymn Baby** (com.dymnstudio.dymn-baby): MIT license, fully offline. APK not on APKPure or F-Droid. Pending GitHub release download.
 
-**General rule:** Any future app that can only be acquired from the Play Store (not on APKPure, F-Droid, or other mirrors) goes to backburner. The operator must either (a) add a Google account to the emulator, or (b) manually download the APK from a browser and place it in `apks/`. Neither option blocks the rest of the testing pipeline — only APK acquisition.
+**General rule:** Any future app that can only be acquired from the Play Store (not on APKPure, F-Droid, or other mirrors) goes to backburner. The operator must either (a) add a Google account to the emulator, or (b) manually download the APK from a browser and place it in `apks/`. Neither option blocks the rest of the testing pipeline - only APK acquisition.
 
 ### Final Report and Publication  -  Planned
 - Synthesize all burst findings into final report
 - Publish methodology and open-source the tool
+
+## Network capture sufficiency audit - 2026-08-15
+
+**Goal:** Verify raw network capture exists for every app in the testing plan.
+
+**Findings:**
+- Apps with raw .mitm captures present: Pregnancyplus, Nanit, Heartful Baby, Bellybloom, Nara, Pixy, WhatToExpect, Babycenter.
+- Apps with only decode-level evidence, no raw capture: Nurture Lock, Nubo, Pebbi, Baby Buddy, Amila, Baby Daybook, Baby+, MimiLog.
+- Evidence inventory warns: decode-traffic files for nurture-lock, nubo, pebbi, baby-daybook, mimilog are rotted with empty flow list; raw captures are gone.
+- Synthetic baby-data transmission test cannot be completed for apps without raw captures. The scan tool requires raw local capture.
+
+**Action:**
+- Backfill raw captures for all legacy apps listed in Sprint 5 Legacy re-capture.
+- Do not rerun capture for apps with existing non-zero .mitm files and evidence_source raw-replay.
 
 ## Current next step - Synthetic baby data and analytics fanout
 
