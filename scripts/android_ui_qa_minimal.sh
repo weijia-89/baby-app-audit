@@ -5,8 +5,8 @@ set -uo pipefail
 # Target: com.hp.pregnancy.lite onboarding "About you"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-ARTIFACT_DIR="/tmp/android_qa_artifacts"
-mkdir -p "$ARTIFACT_DIR"
+ARTIFACT_DIR="${HOME}/.local/state/baby-app-audit/android_qa"
+mkdir -p -m 700 "$ARTIFACT_DIR"
 
 LOG_FILE="$ARTIFACT_DIR/run_$(date +%Y%m%d_%H%M%S).log"
 exec 3>&1 4>&2

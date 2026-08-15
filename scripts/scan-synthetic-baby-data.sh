@@ -211,7 +211,12 @@ def load_flows(path):
 
 
 def main():
-    profile = json.loads(Path(profile_path).read_text())
+    # Validate profile path is within repo_root to avoid path traversal via SYNTHETIC_PROFILE
+    profile_path_resolved = Path(profile_path).resolve()
+    if not str(profile_path_resolved).startswith(str(repo_root_path.resolve())):
+        print("ERROR: profile path outside repo root", file=sys.stderr)
+        sys.exit(1)
+    profile = json.loads(profile_path_resolved.read_text())
     # Minimal schema validation
     if profile.get("$schema") != "synthetic-baby-profile/1.0":
         print("ERROR: profile schema mismatch", file=sys.stderr)
@@ -318,7 +323,11 @@ def main():
     }
     text = json.dumps(output, indent=2) + "\n"
     if output_file:
-        Path(output_file).write_text(text)
+        out_path = Path(output_file).resolve()
+        if not str(out_path).startswith(str(repo_root_path.resolve())):
+            print("ERROR: output path outside repo root", file=sys.stderr)
+            sys.exit(1)
+        Path(out_path).write_text(text)
     else:
         print(text, end="")
 
