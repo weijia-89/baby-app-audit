@@ -1,5 +1,13 @@
 # Changelog
 
+## 4.6.1 - 2026-08-15
+
+### Fixed
+- `scripts/scan-synthetic-baby-data.sh` now treats name and note markers as strong transmission types in addition to string, so positive synthetic baby-data fixtures trigger transmission_observed.
+- `tests/test-synthetic-baby-data.sh` writes temporary capture and output files inside the repo root so the output path guard accepts them.
+- Remove stale `results/network-log-heartful_baby.json` with null package_name that failed schema validation and duplicated the correct `network-log-heartful-baby.json`.
+- `scripts/scan-synthetic-baby-data.sh` output path validation now uses Path.resolve so non-existent output files are allowed by the repo-root guard.
+
 ## 4.6.0 - 2026-08-14
 
 ### Added
