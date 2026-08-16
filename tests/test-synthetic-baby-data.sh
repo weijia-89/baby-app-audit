@@ -2,8 +2,9 @@
 set -euo pipefail
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+mkdir -p "$repo_root/.tmp"
 scanner="$repo_root/scripts/scan-synthetic-baby-data.sh"
-tmp_dir="$(mktemp -d "${TMPDIR:-/tmp}/synth-baby-test.XXXXXX")"
+tmp_dir="$(mktemp -d "$repo_root/.tmp/synth-baby-test.XXXXXX")"
 trap 'rm -rf "$tmp_dir"' EXIT
 
 # Fixture A: positive control. The fictional baby data appears in request bodies
