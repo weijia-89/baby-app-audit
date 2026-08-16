@@ -292,7 +292,7 @@ def main():
         strong = any(
             f["side"] in ("request", "url")
             and f["marker_confidence"] in ("high", "medium")
-            and f["marker_type"] == "string"
+            and f["marker_type"] in ("string", "name", "note")
             for f in findings
         )
         high_transmission = strong
