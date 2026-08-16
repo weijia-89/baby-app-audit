@@ -5,12 +5,23 @@
   "package_name": "com.hp.pregnancy.lite",
   "capture_date": "2026-08-14",
   "capture": "results/pregnancyplus-test-20260814/artifacts/captures/Pregnancyplus.mitm",
-  "redaction": "Query strings removed; token-like path segments replaced by [REDACTED]; body values, headers, and cookies never included; body JSON keys only.",
+  "redaction": {
+    "policy": "Sensitive values never appear. Call metadata remains so the sent call can be assessed.",
+    "slugs": {
+      "query": "[REDACTED:query-string:privacy]",
+      "path": "[REDACTED:path-token-or-id:secret-or-PII]",
+      "request_body": "[REDACTED:request-body-values:secret-or-PII]",
+      "request_headers": "[REDACTED:request-header-values:secret-or-PII]",
+      "response_body": "[REDACTED:response-body-values:secret-or-PII]",
+      "response_headers": "[REDACTED:response-header-values:secret-or-PII]"
+    },
+    "body_keys": "Names only. Values are scrubbed."
+  },
   "flows": [
     {
       "method": "POST",
       "host": "firebaselogging.googleapis.com",
-      "path": "https://[REDACTED]/v0cc/log/batch",
+      "path": "https://firebaselogging.googleapis.com/v0cc/log/batch",
       "status": 200,
       "origin": "session",
       "count": 1,
@@ -28,7 +39,14 @@
           "nextRequestWaitMillis",
           "qosTier"
         ]
-      }
+      },
+      "redactions": [
+        "[REDACTED:query-string:privacy]",
+        "[REDACTED:request-body-values:secret-or-PII]",
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-body-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
     },
     {
       "method": "POST",
@@ -47,12 +65,17 @@
         "size": 0,
         "content_type": "",
         "body_keys": null
-      }
+      },
+      "redactions": [
+        "[REDACTED:request-body-values:secret-or-PII]",
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
     },
     {
       "method": "GET",
       "host": "firebase-settings.crashlytics.com",
-      "path": "https://[REDACTED]/spi/v2/platforms/android/gmp/1:1073993904376:android:f4c2e1baecc62ade/settings",
+      "path": "https://firebase-settings.crashlytics.com/spi/v2/platforms/android/gmp/1:1073993904376:android:f4c2e1baecc62ade/settings",
       "status": 200,
       "origin": "session",
       "count": 1,
@@ -77,12 +100,18 @@
           "on_demand_upload_rate_per_minute",
           "settings_version"
         ]
-      }
+      },
+      "redactions": [
+        "[REDACTED:query-string:privacy]",
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-body-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
     },
     {
       "method": "POST",
       "host": "firebaseinstallations.googleapis.com",
-      "path": "https://[REDACTED]/v1/projects/[REDACTED]/installations",
+      "path": "https://firebaseinstallations.googleapis.com/v1/projects/[REDACTED:path-token-or-id]/installations",
       "status": 200,
       "origin": "app",
       "count": 2,
@@ -106,12 +135,19 @@
           "name",
           "refreshToken"
         ]
-      }
+      },
+      "redactions": [
+        "[REDACTED:path-token-or-id:secret-or-PII]",
+        "[REDACTED:request-body-values:secret-or-PII]",
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-body-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
     },
     {
       "method": "GET",
       "host": "graph.facebook.com",
-      "path": "https://graph.facebook.com/v16.0/app/mobile_sdk_gk",
+      "path": "https://graph.facebook.com/v16.0/app/[REDACTED:path-token-or-id]",
       "status": 200,
       "origin": "session",
       "count": 2,
@@ -127,12 +163,19 @@
         "body_keys": [
           "data"
         ]
-      }
+      },
+      "redactions": [
+        "[REDACTED:path-token-or-id:secret-or-PII]",
+        "[REDACTED:query-string:privacy]",
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-body-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
     },
     {
       "method": "POST",
       "host": "cognito-identity.us-east-1.amazonaws.com",
-      "path": "https://[REDACTED]/",
+      "path": "https://cognito-identity.us-east-1.amazonaws.com/",
       "status": 200,
       "origin": "session",
       "count": 2,
@@ -148,7 +191,13 @@
         "body_keys": [
           "IdentityId"
         ]
-      }
+      },
+      "redactions": [
+        "[REDACTED:request-body-values:secret-or-PII]",
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-body-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
     },
     {
       "method": "GET",
@@ -181,12 +230,18 @@
           "suggested_events_setting",
           "supports_implicit_sdk_logging"
         ]
-      }
+      },
+      "redactions": [
+        "[REDACTED:query-string:privacy]",
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-body-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
     },
     {
       "method": "GET",
       "host": "fallback.adapty.io",
-      "path": "https://fallback.adapty.io/api/v1/sdk/company/[REDACTED]/app/net-config.json",
+      "path": "https://fallback.adapty.io/api/v1/sdk/company/[REDACTED:path-token-or-id]/app/[REDACTED:path-token-or-id]",
       "status": 404,
       "origin": "session",
       "count": 1,
@@ -200,14 +255,20 @@
         "size": 27503,
         "content_type": "text/html",
         "body_keys": null
-      }
+      },
+      "redactions": [
+        "[REDACTED:path-token-or-id:secret-or-PII]",
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-body-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
     },
     {
       "method": "GET",
       "host": "api-eu.adapty.io",
-      "path": "https://api-eu.adapty.io/api/v1/sdk/in-apps/[REDACTED]/products/play_store/",
+      "path": "https://api-eu.adapty.io/api/v1/sdk/in-apps/[REDACTED:path-token-or-id]/products/play_store/",
       "status": 200,
-      "origin": "device",
+      "origin": "session",
       "count": 1,
       "request": {
         "size": 0,
@@ -223,12 +284,18 @@
         "body_keys": [
           "data"
         ]
-      }
+      },
+      "redactions": [
+        "[REDACTED:path-token-or-id:secret-or-PII]",
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-body-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
     },
     {
       "method": "GET",
       "host": "www.global.api.philips.com",
-      "path": "https://[REDACTED]/configService/appConfigurations",
+      "path": "https://www.global.api.philips.com/configService/appConfigurations",
       "status": 200,
       "origin": "session",
       "count": 1,
@@ -245,14 +312,20 @@
           "data",
           "meta"
         ]
-      }
+      },
+      "redactions": [
+        "[REDACTED:query-string:privacy]",
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-body-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
     },
     {
       "method": "HEAD",
       "host": "s3-us-west-1.amazonaws.com",
-      "path": "https://[REDACTED]/[REDACTED]/",
+      "path": "https://s3-us-west-1.amazonaws.com/[REDACTED:path-token-or-id]/",
       "status": 301,
-      "origin": "device",
+      "origin": "session",
       "count": 1,
       "request": {
         "size": 0,
@@ -266,14 +339,19 @@
         "size": 0,
         "content_type": "application/xml",
         "body_keys": null
-      }
+      },
+      "redactions": [
+        "[REDACTED:path-token-or-id:secret-or-PII]",
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
     },
     {
       "method": "POST",
       "host": "api-eu.adapty.io",
-      "path": "https://api-eu.adapty.io/api/v1/sdk/analytics/profiles/[REDACTED]/",
+      "path": "https://api-eu.adapty.io/api/v1/sdk/analytics/profiles/[REDACTED:path-token-or-id]/",
       "status": 201,
-      "origin": "device",
+      "origin": "session",
       "count": 1,
       "request": {
         "size": 713,
@@ -289,14 +367,21 @@
         "body_keys": [
           "data"
         ]
-      }
+      },
+      "redactions": [
+        "[REDACTED:path-token-or-id:secret-or-PII]",
+        "[REDACTED:request-body-values:secret-or-PII]",
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-body-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
     },
     {
       "method": "PUT",
       "host": "s3.amazonaws.com",
-      "path": "https://s3.amazonaws.com/[REDACTED]/85B/[REDACTED]/[REDACTED]",
+      "path": "https://s3.amazonaws.com/[REDACTED:path-token-or-id]/85B/[REDACTED:path-token-or-id]/[REDACTED:path-token-or-id]",
       "status": 200,
-      "origin": "device",
+      "origin": "session",
       "count": 2,
       "request": {
         "size": 3514,
@@ -310,7 +395,13 @@
         "size": 0,
         "content_type": "",
         "body_keys": null
-      }
+      },
+      "redactions": [
+        "[REDACTED:path-token-or-id:secret-or-PII]",
+        "[REDACTED:request-body-values:secret-or-PII]",
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
     },
     {
       "method": "GET",
@@ -331,14 +422,20 @@
         "body_keys": [
           "data"
         ]
-      }
+      },
+      "redactions": [
+        "[REDACTED:query-string:privacy]",
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-body-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
     },
     {
       "method": "GET",
       "host": "api-eu.adapty.io",
-      "path": "https://api-eu.adapty.io/api/v1/sdk/analytics/profiles/[REDACTED]/",
+      "path": "https://api-eu.adapty.io/api/v1/sdk/analytics/profiles/[REDACTED:path-token-or-id]/",
       "status": 200,
-      "origin": "device",
+      "origin": "session",
       "count": 2,
       "request": {
         "size": 0,
@@ -354,14 +451,20 @@
         "body_keys": [
           "data"
         ]
-      }
+      },
+      "redactions": [
+        "[REDACTED:path-token-or-id:secret-or-PII]",
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-body-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
     },
     {
       "method": "GET",
       "host": "api-eu.adapty.io",
-      "path": "https://api-eu.adapty.io/api/v1/sdk/in-apps/[REDACTED]/paywall/variations/old_tools_iap/[REDACTED]/",
+      "path": "https://api-eu.adapty.io/api/v1/sdk/in-apps/[REDACTED:path-token-or-id]/paywall/variations/[REDACTED:path-token-or-id]/[REDACTED:path-token-or-id]/",
       "status": 200,
-      "origin": "device",
+      "origin": "session",
       "count": 1,
       "request": {
         "size": 0,
@@ -378,14 +481,20 @@
           "data",
           "meta"
         ]
-      }
+      },
+      "redactions": [
+        "[REDACTED:path-token-or-id:secret-or-PII]",
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-body-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
     },
     {
       "method": "POST",
       "host": "api-ua.adapty.io",
       "path": "https://api-ua.adapty.io/api/v1/attribution/install",
       "status": 202,
-      "origin": "device",
+      "origin": "session",
       "count": 1,
       "request": {
         "size": 447,
@@ -403,14 +512,20 @@
           "meta",
           "success"
         ]
-      }
+      },
+      "redactions": [
+        "[REDACTED:request-body-values:secret-or-PII]",
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-body-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
     },
     {
       "method": "GET",
       "host": "api-eu.adapty.io",
-      "path": "https://api-eu.adapty.io/api/v1/sdk/in-apps/profile/[REDACTED]/",
+      "path": "https://api-eu.adapty.io/api/v1/sdk/in-apps/profile/[REDACTED:path-token-or-id]/",
       "status": 200,
-      "origin": "device",
+      "origin": "session",
       "count": 1,
       "request": {
         "size": 0,
@@ -426,14 +541,20 @@
         "body_keys": [
           "data"
         ]
-      }
+      },
+      "redactions": [
+        "[REDACTED:path-token-or-id:secret-or-PII]",
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-body-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
     },
     {
       "method": "POST",
       "host": "api-eu.adapty.io",
       "path": "https://api-eu.adapty.io/api/v1/sdk/events/",
       "status": 200,
-      "origin": "device",
+      "origin": "session",
       "count": 4,
       "request": {
         "size": 372,
@@ -449,12 +570,18 @@
         "body_keys": [
           "data"
         ]
-      }
+      },
+      "redactions": [
+        "[REDACTED:request-body-values:secret-or-PII]",
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-body-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
     },
     {
       "method": "POST",
       "host": "firebaseremoteconfig.googleapis.com",
-      "path": "https://[REDACTED]/v1/projects/1073993904376/namespaces/firebase:fetch",
+      "path": "https://firebaseremoteconfig.googleapis.com/v1/projects/[REDACTED:path-token-or-id]/namespaces/firebase:fetch",
       "status": 200,
       "origin": "app",
       "count": 1,
@@ -477,12 +604,19 @@
           "state",
           "templateVersion"
         ]
-      }
+      },
+      "redactions": [
+        "[REDACTED:path-token-or-id:secret-or-PII]",
+        "[REDACTED:request-body-values:secret-or-PII]",
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-body-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
     },
     {
       "method": "GET",
       "host": "api.onesignal.com",
-      "path": "https://api.onesignal.com/apps/[REDACTED]/android_params.js",
+      "path": "https://api.onesignal.com/apps/[REDACTED:path-token-or-id]/[REDACTED:path-token-or-id]",
       "status": 200,
       "origin": "session",
       "count": 1,
@@ -505,14 +639,20 @@
           "outcomes",
           "receive_receipts_enable"
         ]
-      }
+      },
+      "redactions": [
+        "[REDACTED:path-token-or-id:secret-or-PII]",
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-body-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
     },
     {
       "method": "GET",
       "host": "api-eu.adapty.io",
-      "path": "https://api-eu.adapty.io/api/v1/sdk/in-apps/[REDACTED]/paywall/variations/wallet_card/[REDACTED]/",
+      "path": "https://api-eu.adapty.io/api/v1/sdk/in-apps/[REDACTED:path-token-or-id]/paywall/variations/wallet_card/[REDACTED:path-token-or-id]/",
       "status": 200,
-      "origin": "device",
+      "origin": "session",
       "count": 1,
       "request": {
         "size": 0,
@@ -529,14 +669,20 @@
           "data",
           "meta"
         ]
-      }
+      },
+      "redactions": [
+        "[REDACTED:path-token-or-id:secret-or-PII]",
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-body-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
     },
     {
       "method": "GET",
       "host": "api-eu.adapty.io",
-      "path": "https://api-eu.adapty.io/api/v1/sdk/in-apps/[REDACTED]/paywall/variations/defaultPlacementId/[REDACTED]/",
+      "path": "https://api-eu.adapty.io/api/v1/sdk/in-apps/[REDACTED:path-token-or-id]/paywall/variations/defaultPlacementId/[REDACTED:path-token-or-id]/",
       "status": 200,
-      "origin": "device",
+      "origin": "session",
       "count": 1,
       "request": {
         "size": 0,
@@ -553,12 +699,18 @@
           "data",
           "meta"
         ]
-      }
+      },
+      "redactions": [
+        "[REDACTED:path-token-or-id:secret-or-PII]",
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-body-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
     },
     {
       "method": "POST",
       "host": "graph.facebook.com",
-      "path": "https://graph.facebook.com/v16.0/546319842074484/activities",
+      "path": "https://graph.facebook.com/v16.0/[REDACTED:path-token-or-id]/activities",
       "status": 200,
       "origin": "session",
       "count": 1,
@@ -574,14 +726,21 @@
         "body_keys": [
           "success"
         ]
-      }
+      },
+      "redactions": [
+        "[REDACTED:path-token-or-id:secret-or-PII]",
+        "[REDACTED:request-body-values:secret-or-PII]",
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-body-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
     },
     {
       "method": "POST",
       "host": "firebaselogging-pa.googleapis.com",
-      "path": "https://[REDACTED]/v1/firelog/legacy/batchlog",
+      "path": "https://firebaselogging-pa.googleapis.com/v1/firelog/legacy/batchlog",
       "status": 200,
-      "origin": "device",
+      "origin": "session",
       "count": 2,
       "request": {
         "size": 2878,
@@ -598,12 +757,18 @@
           "logResponseDetails",
           "nextRequestWaitMillis"
         ]
-      }
+      },
+      "redactions": [
+        "[REDACTED:request-body-values:secret-or-PII]",
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-body-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
     },
     {
       "method": "GET",
       "host": "public-media.adapty.io",
-      "path": "https://[REDACTED]/public/0c/a1/[REDACTED]/3c7f1d00.png",
+      "path": "https://public-media.adapty.io/public/0c/a1/[REDACTED:path-token-or-id]/[REDACTED:path-token-or-id]",
       "status": 200,
       "origin": "session",
       "count": 1,
@@ -617,12 +782,18 @@
         "size": 23556,
         "content_type": "image/png",
         "body_keys": null
-      }
+      },
+      "redactions": [
+        "[REDACTED:path-token-or-id:secret-or-PII]",
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-body-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
     },
     {
       "method": "GET",
       "host": "public-media.adapty.io",
-      "path": "https://[REDACTED]/public/f0/0f/[REDACTED]/561d1546.png",
+      "path": "https://public-media.adapty.io/public/f0/0f/[REDACTED:path-token-or-id]/[REDACTED:path-token-or-id]",
       "status": 200,
       "origin": "session",
       "count": 1,
@@ -636,12 +807,18 @@
         "size": 8525,
         "content_type": "image/png",
         "body_keys": null
-      }
+      },
+      "redactions": [
+        "[REDACTED:path-token-or-id:secret-or-PII]",
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-body-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
     },
     {
       "method": "POST",
       "host": "iam-api.philips-digital.com",
-      "path": "https://[REDACTED]/live",
+      "path": "https://iam-api.philips-digital.com/live",
       "status": 200,
       "origin": "session",
       "count": 1,
@@ -659,12 +836,18 @@
           "JourneyResponse",
           "Metadata"
         ]
-      }
+      },
+      "redactions": [
+        "[REDACTED:request-body-values:secret-or-PII]",
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-body-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
     },
     {
       "method": "GET",
       "host": "public-media.adapty.io",
-      "path": "https://[REDACTED]/public/ac/06/[REDACTED]/0d359c42.png",
+      "path": "https://public-media.adapty.io/public/ac/06/[REDACTED:path-token-or-id]/[REDACTED:path-token-or-id]",
       "status": 200,
       "origin": "session",
       "count": 1,
@@ -678,12 +861,18 @@
         "size": 27296,
         "content_type": "image/png",
         "body_keys": null
-      }
+      },
+      "redactions": [
+        "[REDACTED:path-token-or-id:secret-or-PII]",
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-body-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
     },
     {
       "method": "GET",
       "host": "public-media.adapty.io",
-      "path": "https://[REDACTED]/public/13/54/[REDACTED]/f5eaf9de.png",
+      "path": "https://public-media.adapty.io/public/13/54/[REDACTED:path-token-or-id]/[REDACTED:path-token-or-id]",
       "status": 200,
       "origin": "session",
       "count": 1,
@@ -697,12 +886,18 @@
         "size": 9475,
         "content_type": "image/png",
         "body_keys": null
-      }
+      },
+      "redactions": [
+        "[REDACTED:path-token-or-id:secret-or-PII]",
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-body-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
     },
     {
       "method": "GET",
       "host": "public-media.adapty.io",
-      "path": "https://[REDACTED]/public/f9/69/[REDACTED]/96f93d54.png",
+      "path": "https://public-media.adapty.io/public/f9/69/[REDACTED:path-token-or-id]/[REDACTED:path-token-or-id]",
       "status": 200,
       "origin": "session",
       "count": 1,
@@ -716,12 +911,18 @@
         "size": 1693,
         "content_type": "image/png",
         "body_keys": null
-      }
+      },
+      "redactions": [
+        "[REDACTED:path-token-or-id:secret-or-PII]",
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-body-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
     },
     {
       "method": "GET",
       "host": "public-media.adapty.io",
-      "path": "https://[REDACTED]/public/46/46/[REDACTED]/47c1980c.png",
+      "path": "https://public-media.adapty.io/public/46/46/[REDACTED:path-token-or-id]/[REDACTED:path-token-or-id]",
       "status": 200,
       "origin": "session",
       "count": 1,
@@ -735,12 +936,18 @@
         "size": 10070,
         "content_type": "image/png",
         "body_keys": null
-      }
+      },
+      "redactions": [
+        "[REDACTED:path-token-or-id:secret-or-PII]",
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-body-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
     },
     {
       "method": "GET",
       "host": "public-media.adapty.io",
-      "path": "https://[REDACTED]/public/73/09/[REDACTED]/5baa0587.png",
+      "path": "https://public-media.adapty.io/public/73/09/[REDACTED:path-token-or-id]/[REDACTED:path-token-or-id]",
       "status": 200,
       "origin": "session",
       "count": 1,
@@ -754,7 +961,13 @@
         "size": 110833,
         "content_type": "image/png",
         "body_keys": null
-      }
+      },
+      "redactions": [
+        "[REDACTED:path-token-or-id:secret-or-PII]",
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-body-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
     }
   ],
   "summary": {

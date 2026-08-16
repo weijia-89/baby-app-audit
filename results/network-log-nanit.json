@@ -4,8 +4,19 @@
   "app": "nanit",
   "package_name": "com.nanit.baby",
   "capture_date": "2026-08-14",
-  "capture": "results/nanit-test-20260814/artifacts/captures/nanit.mitm",
-  "redaction": "Query strings removed; token-like path segments replaced by [REDACTED]; body values, headers, and cookies never included; body JSON keys only.",
+  "capture": "results/nanit-test-20260814/artifacts/captures/Nanit.mitm",
+  "redaction": {
+    "policy": "Sensitive values never appear. Call metadata remains so the sent call can be assessed.",
+    "slugs": {
+      "query": "[REDACTED:query-string:privacy]",
+      "path": "[REDACTED:path-token-or-id:secret-or-PII]",
+      "request_body": "[REDACTED:request-body-values:secret-or-PII]",
+      "request_headers": "[REDACTED:request-header-values:secret-or-PII]",
+      "response_body": "[REDACTED:response-body-values:secret-or-PII]",
+      "response_headers": "[REDACTED:response-header-values:secret-or-PII]"
+    },
+    "body_keys": "Names only. Values are scrubbed."
+  },
   "flows": [
     {
       "method": "POST",
@@ -24,12 +35,17 @@
         "size": 0,
         "content_type": "",
         "body_keys": null
-      }
+      },
+      "redactions": [
+        "[REDACTED:request-body-values:secret-or-PII]",
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
     },
     {
       "method": "GET",
       "host": "firebase-settings.crashlytics.com",
-      "path": "https://[REDACTED]/spi/v2/platforms/android/gmp/1:25705829844:android:83a90cd56c7431e0/settings",
+      "path": "https://firebase-settings.crashlytics.com/spi/v2/platforms/android/gmp/1:25705829844:android:83a90cd56c7431e0/settings",
       "status": 200,
       "origin": "session",
       "count": 1,
@@ -54,12 +70,18 @@
           "on_demand_upload_rate_per_minute",
           "settings_version"
         ]
-      }
+      },
+      "redactions": [
+        "[REDACTED:query-string:privacy]",
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-body-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
     },
     {
       "method": "POST",
       "host": "firebaseinstallations.googleapis.com",
-      "path": "https://[REDACTED]/v1/projects/nanit-144706/installations",
+      "path": "https://firebaseinstallations.googleapis.com/v1/projects/[REDACTED:path-token-or-id]/installations",
       "status": 200,
       "origin": "app",
       "count": 1,
@@ -83,12 +105,19 @@
           "name",
           "refreshToken"
         ]
-      }
+      },
+      "redactions": [
+        "[REDACTED:path-token-or-id:secret-or-PII]",
+        "[REDACTED:request-body-values:secret-or-PII]",
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-body-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
     },
     {
       "method": "GET",
       "host": "firebase-settings.crashlytics.com",
-      "path": "https://[REDACTED]/spi/v2/platforms/android/gmp/1%3A25705829844%3Aandroid%3A83a90cd56c7431e0/settings",
+      "path": "https://firebase-settings.crashlytics.com/spi/v2/platforms/android/gmp/1%3A25705829844%3Aandroid%3A83a90cd56c7431e0/settings",
       "status": 200,
       "origin": "session",
       "count": 1,
@@ -113,7 +142,13 @@
           "on_demand_upload_rate_per_minute",
           "settings_version"
         ]
-      }
+      },
+      "redactions": [
+        "[REDACTED:query-string:privacy]",
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-body-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
     },
     {
       "method": "GET",
@@ -134,14 +169,19 @@
         "body_keys": [
           "plans"
         ]
-      }
+      },
+      "redactions": [
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-body-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
     },
     {
       "method": "GET",
       "host": "api.nanit.com",
       "path": "https://api.nanit.com/cards",
       "status": 401,
-      "origin": "device",
+      "origin": "session",
       "count": 1,
       "request": {
         "size": 0,
@@ -157,12 +197,17 @@
         "body_keys": [
           "message"
         ]
-      }
+      },
+      "redactions": [
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-body-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
     },
     {
       "method": "POST",
       "host": "analytics.localytics.com",
-      "path": "https://[REDACTED]/api/v4/applications/[REDACTED]/uploads",
+      "path": "https://analytics.localytics.com/api/v4/applications/[REDACTED:path-token-or-id]/uploads",
       "status": 202,
       "origin": "session",
       "count": 1,
@@ -176,12 +221,18 @@
         "size": 0,
         "content_type": "text/plain;charset=utf-8",
         "body_keys": null
-      }
+      },
+      "redactions": [
+        "[REDACTED:path-token-or-id:secret-or-PII]",
+        "[REDACTED:request-body-values:secret-or-PII]",
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
     },
     {
       "method": "POST",
       "host": "firebaseremoteconfig.googleapis.com",
-      "path": "https://[REDACTED]/v1/projects/25705829844/namespaces/firebase:fetch",
+      "path": "https://firebaseremoteconfig.googleapis.com/v1/projects/25705829844/namespaces/firebase:fetch",
       "status": 200,
       "origin": "app",
       "count": 1,
@@ -206,12 +257,18 @@
           "state",
           "templateVersion"
         ]
-      }
+      },
+      "redactions": [
+        "[REDACTED:request-body-values:secret-or-PII]",
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-body-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
     },
     {
       "method": "POST",
       "host": "events-stream-svc.usw2.cordial.com",
-      "path": "https://[REDACTED]/mobile/auth/[REDACTED]",
+      "path": "https://events-stream-svc.usw2.cordial.com/mobile/auth/[REDACTED:path-token-or-id]",
       "status": 200,
       "origin": "session",
       "count": 1,
@@ -228,14 +285,20 @@
           "success",
           "token"
         ]
-      }
+      },
+      "redactions": [
+        "[REDACTED:path-token-or-id:secret-or-PII]",
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-body-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
     },
     {
       "method": "POST",
       "host": "events-stream-svc.usw2.cordial.com",
-      "path": "https://[REDACTED]/mobile/contacts",
+      "path": "https://events-stream-svc.usw2.cordial.com/mobile/contacts",
       "status": 200,
-      "origin": "device",
+      "origin": "session",
       "count": 1,
       "request": {
         "size": 496,
@@ -251,14 +314,20 @@
         "body_keys": [
           "success"
         ]
-      }
+      },
+      "redactions": [
+        "[REDACTED:request-body-values:secret-or-PII]",
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-body-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
     },
     {
       "method": "POST",
       "host": "ingress.eu1.rum-ingress-coralogix.com",
-      "path": "https://[REDACTED]/browser/v1beta/logs",
+      "path": "https://ingress.eu1.rum-ingress-coralogix.com/browser/v1beta/logs",
       "status": 202,
-      "origin": "device",
+      "origin": "session",
       "count": 1,
       "request": {
         "size": 15634,
@@ -274,12 +343,18 @@
         "body_keys": [
           "error"
         ]
-      }
+      },
+      "redactions": [
+        "[REDACTED:request-body-values:secret-or-PII]",
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-body-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
     },
     {
       "method": "POST",
       "host": "firebaseremoteconfigrealtime.googleapis.com",
-      "path": "https://[REDACTED]/v1/projects/25705829844/namespaces/firebase:[REDACTED]",
+      "path": "https://firebaseremoteconfigrealtime.googleapis.com/v1/projects/25705829844/namespaces/firebase:streamFetchInvalidations",
       "status": 200,
       "origin": "app",
       "count": 1,
@@ -297,7 +372,12 @@
         "size": 0,
         "content_type": "application/json; charset=UTF-8",
         "body_keys": null
-      }
+      },
+      "redactions": [
+        "[REDACTED:request-body-values:secret-or-PII]",
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
     }
   ],
   "summary": {

@@ -5,12 +5,23 @@
   "package_name": "com.wte.view",
   "capture_date": "2026-08-14",
   "capture": "results/whattoexpect-test-20260814/artifacts/captures/Whattoexpect.mitm",
-  "redaction": "Query strings removed; token-like path segments replaced by [REDACTED]; body values, headers, and cookies never included; body JSON keys only.",
+  "redaction": {
+    "policy": "Sensitive values never appear. Call metadata remains so the sent call can be assessed.",
+    "slugs": {
+      "query": "[REDACTED:query-string:privacy]",
+      "path": "[REDACTED:path-token-or-id:secret-or-PII]",
+      "request_body": "[REDACTED:request-body-values:secret-or-PII]",
+      "request_headers": "[REDACTED:request-header-values:secret-or-PII]",
+      "response_body": "[REDACTED:response-body-values:secret-or-PII]",
+      "response_headers": "[REDACTED:response-header-values:secret-or-PII]"
+    },
+    "body_keys": "Names only. Values are scrubbed."
+  },
   "flows": [
     {
       "method": "POST",
       "host": "firebaseinstallations.googleapis.com",
-      "path": "https://[REDACTED]/v1/projects/[REDACTED]/installations",
+      "path": "https://firebaseinstallations.googleapis.com/v1/projects/[REDACTED:path-token-or-id]/installations",
       "status": 200,
       "origin": "app",
       "count": 1,
@@ -34,12 +45,19 @@
           "name",
           "refreshToken"
         ]
-      }
+      },
+      "redactions": [
+        "[REDACTED:path-token-or-id:secret-or-PII]",
+        "[REDACTED:request-body-values:secret-or-PII]",
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-body-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
     },
     {
       "method": "GET",
       "host": "mobile-data.onetrust.io",
-      "path": "https://[REDACTED]/cfw/cmp/v1/banner",
+      "path": "https://mobile-data.onetrust.io/cfw/cmp/v1/banner",
       "status": 200,
       "origin": "session",
       "count": 1,
@@ -60,12 +78,17 @@
           "otConsentString",
           "storageKeys"
         ]
-      }
+      },
+      "redactions": [
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-body-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
     },
     {
       "method": "GET",
       "host": "a2lve5.cdn-settings.appsflyersdk.com",
-      "path": "https://[REDACTED]/android/v2/[REDACTED]/settings",
+      "path": "https://a2lve5.cdn-settings.appsflyersdk.com/android/v2/[REDACTED:path-token-or-id]/settings",
       "status": 200,
       "origin": "session",
       "count": 3,
@@ -82,7 +105,13 @@
           "features",
           "ver"
         ]
-      }
+      },
+      "redactions": [
+        "[REDACTED:path-token-or-id:secret-or-PII]",
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-body-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
     },
     {
       "method": "GET",
@@ -119,12 +148,17 @@
           "webUnmask",
           "webViewCapture"
         ]
-      }
+      },
+      "redactions": [
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-body-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
     },
     {
       "method": "GET",
       "host": "firebase-settings.crashlytics.com",
-      "path": "https://[REDACTED]/spi/v2/platforms/android/gmp/1:179542082127:android:06856a46f97260e1/settings",
+      "path": "https://firebase-settings.crashlytics.com/spi/v2/platforms/android/gmp/1:179542082127:android:06856a46f97260e1/settings",
       "status": 200,
       "origin": "session",
       "count": 1,
@@ -149,7 +183,13 @@
           "on_demand_upload_rate_per_minute",
           "settings_version"
         ]
-      }
+      },
+      "redactions": [
+        "[REDACTED:query-string:privacy]",
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-body-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
     },
     {
       "method": "POST",
@@ -170,14 +210,21 @@
         "body_keys": [
           "[non-object]"
         ]
-      }
+      },
+      "redactions": [
+        "[REDACTED:query-string:privacy]",
+        "[REDACTED:request-body-values:secret-or-PII]",
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-body-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
     },
     {
       "method": "POST",
       "host": "events-stream-svc.usw2.cordial.com",
-      "path": "https://[REDACTED]/mobile/events",
+      "path": "https://events-stream-svc.usw2.cordial.com/mobile/events",
       "status": 200,
-      "origin": "device",
+      "origin": "session",
       "count": 1,
       "request": {
         "size": 690,
@@ -193,12 +240,18 @@
         "body_keys": [
           "success"
         ]
-      }
+      },
+      "redactions": [
+        "[REDACTED:request-body-values:secret-or-PII]",
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-body-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
     },
     {
       "method": "POST",
       "host": "firebaseremoteconfig.googleapis.com",
-      "path": "https://[REDACTED]/v1/projects/179542082127/namespaces/firebase:fetch",
+      "path": "https://firebaseremoteconfig.googleapis.com/v1/projects/[REDACTED:path-token-or-id]/namespaces/firebase:fetch",
       "status": 200,
       "origin": "app",
       "count": 1,
@@ -221,15 +274,22 @@
           "state",
           "templateVersion"
         ]
-      }
+      },
+      "redactions": [
+        "[REDACTED:path-token-or-id:secret-or-PII]",
+        "[REDACTED:request-body-values:secret-or-PII]",
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-body-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
     },
     {
       "method": "POST",
       "host": "a2lve5.register.appsflyersdk.com",
-      "path": "https://[REDACTED]/api/v6.18/androidevent",
+      "path": "https://a2lve5.register.appsflyersdk.com/api/v6.18/androidevent",
       "status": 200,
       "origin": "session",
-      "count": 3,
+      "count": 1,
       "request": {
         "size": 673,
         "content_type": "application/json",
@@ -240,7 +300,14 @@
         "size": 2,
         "content_type": "text/plain",
         "body_keys": null
-      }
+      },
+      "redactions": [
+        "[REDACTED:query-string:privacy]",
+        "[REDACTED:request-body-values:secret-or-PII]",
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-body-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
     },
     {
       "method": "POST",
@@ -262,7 +329,13 @@
           "0UJsCSDgLh0c8S0QbUEupg==",
           "T2WcE80pVDzDku2JTwjEcg=="
         ]
-      }
+      },
+      "redactions": [
+        "[REDACTED:request-body-values:secret-or-PII]",
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-body-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
     },
     {
       "method": "POST",
@@ -281,12 +354,17 @@
         "size": 0,
         "content_type": "",
         "body_keys": null
-      }
+      },
+      "redactions": [
+        "[REDACTED:request-body-values:secret-or-PII]",
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
     },
     {
       "method": "POST",
       "host": "a2lve5.dlsdk.appsflyersdk.com",
-      "path": "https://[REDACTED]/v1.0/android/com.wte.view",
+      "path": "https://a2lve5.dlsdk.appsflyersdk.com/v1.0/android/[REDACTED:path-token-or-id]",
       "status": 200,
       "origin": "session",
       "count": 1,
@@ -303,12 +381,46 @@
           "click_event",
           "found"
         ]
-      }
+      },
+      "redactions": [
+        "[REDACTED:path-token-or-id:secret-or-PII]",
+        "[REDACTED:query-string:privacy]",
+        "[REDACTED:request-body-values:secret-or-PII]",
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-body-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
+    },
+    {
+      "method": "POST",
+      "host": "a2lve5.conversions.appsflyersdk.com",
+      "path": "https://a2lve5.conversions.appsflyersdk.com/api/v6.18/androidevent",
+      "status": 200,
+      "origin": "session",
+      "count": 1,
+      "request": {
+        "size": 2888,
+        "content_type": "application/octet-stream",
+        "body_keys": null,
+        "headers": []
+      },
+      "response": {
+        "size": 2,
+        "content_type": "text/plain",
+        "body_keys": null
+      },
+      "redactions": [
+        "[REDACTED:query-string:privacy]",
+        "[REDACTED:request-body-values:secret-or-PII]",
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-body-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
     },
     {
       "method": "POST",
       "host": "a2lve5.pia.appsflyersdk.com",
-      "path": "https://[REDACTED]/api/v1.0/pia-android-event",
+      "path": "https://a2lve5.pia.appsflyersdk.com/api/v1.0/[REDACTED:path-token-or-id]",
       "status": 200,
       "origin": "session",
       "count": 1,
@@ -322,12 +434,45 @@
         "size": 0,
         "content_type": "",
         "body_keys": null
-      }
+      },
+      "redactions": [
+        "[REDACTED:path-token-or-id:secret-or-PII]",
+        "[REDACTED:query-string:privacy]",
+        "[REDACTED:request-body-values:secret-or-PII]",
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
+    },
+    {
+      "method": "POST",
+      "host": "a2lve5.inapps.appsflyersdk.com",
+      "path": "https://a2lve5.inapps.appsflyersdk.com/api/v6.18/androidevent",
+      "status": 200,
+      "origin": "session",
+      "count": 1,
+      "request": {
+        "size": 2424,
+        "content_type": "application/octet-stream",
+        "body_keys": null,
+        "headers": []
+      },
+      "response": {
+        "size": 2,
+        "content_type": "text/plain",
+        "body_keys": null
+      },
+      "redactions": [
+        "[REDACTED:query-string:privacy]",
+        "[REDACTED:request-body-values:secret-or-PII]",
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-body-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
     },
     {
       "method": "POST",
       "host": "b.clarity.ms",
-      "path": "https://b.clarity.ms/tgi1pxdmic/upload-asset/[REDACTED]%3D%3D/1",
+      "path": "https://b.clarity.ms/tgi1pxdmic/[REDACTED:path-token-or-id]/nOMrjZlJ9J0VbTfTRYBARA%3D%3D/1",
       "status": 200,
       "origin": "session",
       "count": 1,
@@ -341,12 +486,19 @@
         "size": 0,
         "content_type": "",
         "body_keys": null
-      }
+      },
+      "redactions": [
+        "[REDACTED:path-token-or-id:secret-or-PII]",
+        "[REDACTED:query-string:privacy]",
+        "[REDACTED:request-body-values:secret-or-PII]",
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
     },
     {
       "method": "POST",
       "host": "sp.whattoexpect.com",
-      "path": "https://sp.whattoexpect.com/[REDACTED]/tp2",
+      "path": "https://sp.whattoexpect.com/[REDACTED:path-token-or-id]/tp2",
       "status": 200,
       "origin": "session",
       "count": 1,
@@ -360,12 +512,19 @@
         "size": 2,
         "content_type": "text/plain; charset=UTF-8",
         "body_keys": null
-      }
+      },
+      "redactions": [
+        "[REDACTED:path-token-or-id:secret-or-PII]",
+        "[REDACTED:request-body-values:secret-or-PII]",
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-body-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
     },
     {
       "method": "GET",
       "host": "census-app.scorecardresearch.com",
-      "path": "https://[REDACTED]/p2",
+      "path": "https://census-app.scorecardresearch.com/p2",
       "status": 200,
       "origin": "session",
       "count": 2,
@@ -379,12 +538,18 @@
         "size": 43,
         "content_type": "image/gif",
         "body_keys": null
-      }
+      },
+      "redactions": [
+        "[REDACTED:query-string:privacy]",
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-body-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
     },
     {
       "method": "GET",
       "host": "a2lve5.gcdsdk.appsflyersdk.com",
-      "path": "https://[REDACTED]/install_data/v5.0/com.wte.view",
+      "path": "https://a2lve5.gcdsdk.appsflyersdk.com/[REDACTED:path-token-or-id]/v5.0/[REDACTED:path-token-or-id]",
       "status": 200,
       "origin": "session",
       "count": 1,
@@ -402,15 +567,24 @@
           "af_status",
           "install_time"
         ]
-      }
+      },
+      "redactions": [
+        "[REDACTED:path-token-or-id:secret-or-PII]",
+        "[REDACTED:query-string:privacy]",
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-body-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
     }
   ],
   "summary": {
     "total_flows": 25,
     "unique_destinations": [
       "a2lve5.cdn-settings.appsflyersdk.com",
+      "a2lve5.conversions.appsflyersdk.com",
       "a2lve5.dlsdk.appsflyersdk.com",
       "a2lve5.gcdsdk.appsflyersdk.com",
+      "a2lve5.inapps.appsflyersdk.com",
       "a2lve5.pia.appsflyersdk.com",
       "a2lve5.register.appsflyersdk.com",
       "api.mixpanel.com",

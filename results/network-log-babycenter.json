@@ -5,12 +5,23 @@
   "package_name": "com.babycenter.pregnancytracker",
   "capture_date": "2026-08-14",
   "capture": "results/babycenter-test-20260814/artifacts/captures/Babycenter.mitm",
-  "redaction": "Query strings removed; token-like path segments replaced by [REDACTED]; body values, headers, and cookies never included; body JSON keys only.",
+  "redaction": {
+    "policy": "Sensitive values never appear. Call metadata remains so the sent call can be assessed.",
+    "slugs": {
+      "query": "[REDACTED:query-string:privacy]",
+      "path": "[REDACTED:path-token-or-id:secret-or-PII]",
+      "request_body": "[REDACTED:request-body-values:secret-or-PII]",
+      "request_headers": "[REDACTED:request-header-values:secret-or-PII]",
+      "response_body": "[REDACTED:response-body-values:secret-or-PII]",
+      "response_headers": "[REDACTED:response-header-values:secret-or-PII]"
+    },
+    "body_keys": "Names only. Values are scrubbed."
+  },
   "flows": [
     {
       "method": "POST",
       "host": "semanticlocation-pa.googleapis.com",
-      "path": "https://[REDACTED]/[REDACTED]/[REDACTED]",
+      "path": "https://semanticlocation-pa.googleapis.com/[REDACTED:path-token-or-id]/GetDevicePlaceInferenceModel",
       "status": 200,
       "origin": "device",
       "count": 1,
@@ -28,12 +39,18 @@
         "size": 0,
         "content_type": "application/grpc",
         "body_keys": null
-      }
+      },
+      "redactions": [
+        "[REDACTED:path-token-or-id:secret-or-PII]",
+        "[REDACTED:request-body-values:secret-or-PII]",
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
     },
     {
       "method": "GET",
       "host": "2snoab.cdn-settings.appsflyersdk.com",
-      "path": "https://[REDACTED]/android/v2/[REDACTED]/settings",
+      "path": "https://2snoab.cdn-settings.appsflyersdk.com/android/v2/[REDACTED:path-token-or-id]/settings",
       "status": 200,
       "origin": "session",
       "count": 3,
@@ -50,12 +67,18 @@
           "features",
           "ver"
         ]
-      }
+      },
+      "redactions": [
+        "[REDACTED:path-token-or-id:secret-or-PII]",
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-body-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
     },
     {
       "method": "GET",
       "host": "mobile-data.onetrust.io",
-      "path": "https://[REDACTED]/cfw/cmp/v1/banner",
+      "path": "https://mobile-data.onetrust.io/cfw/cmp/v1/banner",
       "status": 200,
       "origin": "session",
       "count": 1,
@@ -76,12 +99,17 @@
           "otConsentString",
           "storageKeys"
         ]
-      }
+      },
+      "redactions": [
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-body-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
     },
     {
       "method": "GET",
       "host": "c.amazon-adsystem.com",
-      "path": "https://[REDACTED]/[REDACTED]",
+      "path": "https://c.amazon-adsystem.com/[REDACTED:path-token-or-id]",
       "status": 200,
       "origin": "session",
       "count": 1,
@@ -100,12 +128,18 @@
           "om_sdk_feature",
           "sample_rates"
         ]
-      }
+      },
+      "redactions": [
+        "[REDACTED:path-token-or-id:secret-or-PII]",
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-body-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
     },
     {
       "method": "POST",
       "host": "s.amazon-adsystem.com",
-      "path": "https://[REDACTED]/api3/update_dev_info",
+      "path": "https://s.amazon-adsystem.com/api3/[REDACTED:path-token-or-id]",
       "status": 200,
       "origin": "session",
       "count": 1,
@@ -125,7 +159,14 @@
           "opt-out",
           "rcode"
         ]
-      }
+      },
+      "redactions": [
+        "[REDACTED:path-token-or-id:secret-or-PII]",
+        "[REDACTED:request-body-values:secret-or-PII]",
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-body-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
     },
     {
       "method": "GET",
@@ -162,12 +203,17 @@
           "webUnmask",
           "webViewCapture"
         ]
-      }
+      },
+      "redactions": [
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-body-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
     },
     {
       "method": "POST",
       "host": "analytics.localytics.com",
-      "path": "https://[REDACTED]/api/v4/applications/[REDACTED]/uploads",
+      "path": "https://analytics.localytics.com/api/v4/applications/[REDACTED:path-token-or-id]/uploads",
       "status": 202,
       "origin": "session",
       "count": 1,
@@ -181,12 +227,18 @@
         "size": 0,
         "content_type": "text/plain;charset=utf-8",
         "body_keys": null
-      }
+      },
+      "redactions": [
+        "[REDACTED:path-token-or-id:secret-or-PII]",
+        "[REDACTED:request-body-values:secret-or-PII]",
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
     },
     {
       "method": "GET",
       "host": "manifest.localytics.com",
-      "path": "https://[REDACTED]/api/v5/applications/[REDACTED]",
+      "path": "https://manifest.localytics.com/api/v5/applications/[REDACTED:path-token-or-id]",
       "status": 200,
       "origin": "session",
       "count": 1,
@@ -204,12 +256,18 @@
           "inboxes",
           "places"
         ]
-      }
+      },
+      "redactions": [
+        "[REDACTED:path-token-or-id:secret-or-PII]",
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-body-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
     },
     {
       "method": "POST",
       "host": "profile.localytics.com",
-      "path": "https://[REDACTED]/v1/apps/[REDACTED]/profiles/[REDACTED]",
+      "path": "https://profile.localytics.com/v1/apps/[REDACTED:path-token-or-id]/profiles/[REDACTED:path-token-or-id]",
       "status": 202,
       "origin": "session",
       "count": 1,
@@ -226,12 +284,19 @@
           "message",
           "success"
         ]
-      }
+      },
+      "redactions": [
+        "[REDACTED:path-token-or-id:secret-or-PII]",
+        "[REDACTED:request-body-values:secret-or-PII]",
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-body-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
     },
     {
       "method": "GET",
       "host": "analytics.localytics.com",
-      "path": "https://[REDACTED]/api/v4/applications/[REDACTED]/amp",
+      "path": "https://analytics.localytics.com/api/v4/applications/[REDACTED:path-token-or-id]/amp",
       "status": 200,
       "origin": "session",
       "count": 1,
@@ -245,7 +310,12 @@
         "size": 0,
         "content_type": "text/plain;charset=utf-8",
         "body_keys": null
-      }
+      },
+      "redactions": [
+        "[REDACTED:path-token-or-id:secret-or-PII]",
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
     },
     {
       "method": "POST",
@@ -264,12 +334,17 @@
         "size": 0,
         "content_type": "",
         "body_keys": null
-      }
+      },
+      "redactions": [
+        "[REDACTED:request-body-values:secret-or-PII]",
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
     },
     {
       "method": "GET",
       "host": "googleads.g.doubleclick.net",
-      "path": "https://[REDACTED]/getconfig/pubsetting",
+      "path": "https://googleads.g.doubleclick.net/getconfig/pubsetting",
       "status": 200,
       "origin": "session",
       "count": 1,
@@ -289,7 +364,13 @@
           "publisher_permissions",
           "status"
         ]
-      }
+      },
+      "redactions": [
+        "[REDACTED:query-string:privacy]",
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-body-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
     },
     {
       "method": "GET",
@@ -308,12 +389,17 @@
         "size": 5,
         "content_type": "text/html",
         "body_keys": null
-      }
+      },
+      "redactions": [
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-body-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
     },
     {
       "method": "GET",
       "host": "www.babycenter.com",
-      "path": "https://www.babycenter.com/app_config/android/en-US/[REDACTED]",
+      "path": "https://www.babycenter.com/app_config/android/en-US/[REDACTED:path-token-or-id]",
       "status": 200,
       "origin": "session",
       "count": 1,
@@ -331,12 +417,18 @@
           "variationsCustomStorePage",
           "welcomeScreenTestEnabled"
         ]
-      }
+      },
+      "redactions": [
+        "[REDACTED:path-token-or-id:secret-or-PII]",
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-body-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
     },
     {
       "method": "POST",
       "host": "2snoab.launches.appsflyersdk.com",
-      "path": "https://[REDACTED]/api/v6.18/androidevent",
+      "path": "https://2snoab.launches.appsflyersdk.com/api/v6.18/androidevent",
       "status": 200,
       "origin": "session",
       "count": 1,
@@ -354,7 +446,14 @@
           "ol_id",
           "ol_ver"
         ]
-      }
+      },
+      "redactions": [
+        "[REDACTED:query-string:privacy]",
+        "[REDACTED:request-body-values:secret-or-PII]",
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-body-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
     },
     {
       "method": "POST",
@@ -377,12 +476,18 @@
           "VrdOUQ1kl_3kv_TIlSO33w==",
           "zm3OmRMGPHMf86b0PNsq5w=="
         ]
-      }
+      },
+      "redactions": [
+        "[REDACTED:request-body-values:secret-or-PII]",
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-body-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
     },
     {
       "method": "POST",
       "host": "bcsp.babycenter.com",
-      "path": "https://bcsp.babycenter.com/[REDACTED]/tp2",
+      "path": "https://bcsp.babycenter.com/[REDACTED:path-token-or-id]/tp2",
       "status": 200,
       "origin": "session",
       "count": 1,
@@ -396,7 +501,14 @@
         "size": 2,
         "content_type": "text/plain; charset=UTF-8",
         "body_keys": null
-      }
+      },
+      "redactions": [
+        "[REDACTED:path-token-or-id:secret-or-PII]",
+        "[REDACTED:request-body-values:secret-or-PII]",
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-body-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
     },
     {
       "method": "POST",
@@ -418,12 +530,18 @@
           "code",
           "msg"
         ]
-      }
+      },
+      "redactions": [
+        "[REDACTED:request-body-values:secret-or-PII]",
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-body-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
     },
     {
       "method": "GET",
       "host": "census-app.scorecardresearch.com",
-      "path": "https://[REDACTED]/p2",
+      "path": "https://census-app.scorecardresearch.com/p2",
       "status": 200,
       "origin": "session",
       "count": 12,
@@ -437,7 +555,13 @@
         "size": 43,
         "content_type": "image/gif",
         "body_keys": null
-      }
+      },
+      "redactions": [
+        "[REDACTED:query-string:privacy]",
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-body-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
     }
   ],
   "summary": {

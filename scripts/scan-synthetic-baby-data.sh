@@ -117,8 +117,10 @@ def recipient_class(host, package):
     if v != "Unclassified host":
         return "known_third_party"
     if package and package in KNOWN_FIRST_PARTY:
+        host_lower = host.lower()
         for token in KNOWN_FIRST_PARTY[package]:
-            if token in host.lower():
+            token_lower = token.lower()
+            if host_lower == token_lower or host_lower.endswith("." + token_lower):
                 return "first_party_suspected"
     return "unknown_host"
 
@@ -129,23 +131,32 @@ def load_flows(path):
     flows = []
     ext = path.suffix.lower()
     if ext == ".mitm":
-        import subprocess
+        import shutil
         from urllib.parse import urlparse
+        har_dump = repo_root_path / "scripts" / "har_dump.py"
+        if not har_dump.is_file():
+            print(f"ERROR: mitm conversion script missing: {har_dump}", file=sys.stderr)
+            raise SystemExit(1)
+        if shutil.which("mitmdump") is None:
+            print(f"ERROR: mitmdump not found in PATH; cannot convert {path}", file=sys.stderr)
+            raise SystemExit(1)
         har = Path(path.parent) / f".{path.stem}-har.tmp"
+        import subprocess
         try:
             subprocess.run(
                 ["mitmdump", "-q", "-s",
-                 str(repo_root_path / "scripts" / "har_dump.py"),
+                 str(har_dump),
                  "--set", f"har_output={har}", "-nr", str(path)],
-                check=True, capture_output=True,
+                check=True, capture_output=True, timeout=60,
             )
         except (subprocess.CalledProcessError, FileNotFoundError) as exc:
-            print(f"WARN: could not convert {path} with mitmdump: {exc}", file=sys.stderr)
-            return []
+            print(f"ERROR: could not convert {path} with mitmdump: {exc}", file=sys.stderr)
+            raise SystemExit(1)
         try:
             data = json.loads(har.read_text())
-        except (json.JSONDecodeError, OSError):
-            return []
+        except (json.JSONDecodeError, OSError) as exc:
+            print(f"ERROR: failed to read HAR for {path}: {exc}", file=sys.stderr)
+            raise SystemExit(1)
         finally:
             har.unlink(missing_ok=True)
         for entry in data.get("log", {}).get("entries", []):
@@ -200,11 +211,27 @@ def load_flows(path):
 
 
 def main():
-    profile = json.loads(Path(profile_path).read_text())
+    # Validate profile path is within repo_root to avoid path traversal via SYNTHETIC_PROFILE
+    profile_path_resolved = Path(profile_path).resolve()
+    if not str(profile_path_resolved).startswith(str(repo_root_path.resolve())):
+        print("ERROR: profile path outside repo root", file=sys.stderr)
+        sys.exit(1)
+    profile = json.loads(profile_path_resolved.read_text())
+    # Minimal schema validation
+    if profile.get("$schema") != "synthetic-baby-profile/1.0":
+        print("ERROR: profile schema mismatch", file=sys.stderr)
+        sys.exit(1)
+    if "profile_name" not in profile or "description" not in profile:
+        print("ERROR: profile missing required fields", file=sys.stderr)
+        sys.exit(1)
     markers = profile.get("markers", [])
     if not markers:
         print("ERROR: profile has no markers", file=sys.stderr)
         sys.exit(1)
+    for m in markers:
+        if not all(k in m for k in ("id", "value", "type", "confidence")):
+            print(f"ERROR: marker missing fields: {m}", file=sys.stderr)
+            sys.exit(1)
 
     apps = []
     total_transmissions = 0
@@ -218,7 +245,20 @@ def main():
             package = ""
             app_name = cap_path.stem
         flows = load_flows(cap_path)
+        import re
         findings = []
+        def marker_present(haystack, val):
+            # Avoid substring false positives: require word boundaries for alphanumeric markers
+            if not val:
+                return False
+            # If marker is purely numeric, require it to be bounded by non-digit or string edges
+            if val.isdigit():
+                pattern = r'(^|[^0-9])' + re.escape(val) + r'([^0-9]|$)'
+                return re.search(pattern, haystack) is not None
+            # For alphanumeric, use word boundaries
+            pattern = r'(^|\W)' + re.escape(val) + r'(\W|$)'
+            return re.search(pattern, haystack) is not None
+
         for flow in flows:
             haystack_req = (flow["req_text"] + " " + flow["req_headers"]).lower()
             haystack_resp = flow["resp_text"].lower()
@@ -227,9 +267,9 @@ def main():
                 val = str(marker["value"]).lower()
                 if not val:
                     continue
-                in_req = val in haystack_req
-                in_resp = val in haystack_resp
-                in_url = val in haystack_url
+                in_req = marker_present(haystack_req, val)
+                in_resp = marker_present(haystack_resp, val)
+                in_url = marker_present(haystack_url, val)
                 if not (in_req or in_resp or in_url):
                     continue
                 side = "request" if in_req else ("response" if in_resp else "url")
@@ -252,9 +292,10 @@ def main():
         strong = any(
             f["side"] in ("request", "url")
             and f["marker_confidence"] in ("high", "medium")
+            and f["marker_type"] in ("string", "name", "note")
             for f in findings
         )
-        high_transmission = strong or transmission
+        high_transmission = strong
         if high_transmission:
             total_transmissions += 1
         verdict = "transmission_observed" if high_transmission else "no_transmission_detected"
@@ -282,7 +323,11 @@ def main():
     }
     text = json.dumps(output, indent=2) + "\n"
     if output_file:
-        Path(output_file).write_text(text)
+        out_path = Path(output_file).resolve()
+        if not str(out_path).startswith(str(repo_root_path.resolve())):
+            print("ERROR: output path outside repo root", file=sys.stderr)
+            sys.exit(1)
+        Path(out_path).write_text(text)
     else:
         print(text, end="")
 

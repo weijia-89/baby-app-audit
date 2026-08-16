@@ -5,8 +5,8 @@ set -uo pipefail
 # Target: com.hp.pregnancy.lite onboarding "About you"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-ARTIFACT_DIR="/tmp/android_qa_artifacts"
-mkdir -p "$ARTIFACT_DIR"
+ARTIFACT_DIR="${HOME}/.local/state/baby-app-audit/android_qa"
+mkdir -p -m 700 "$ARTIFACT_DIR"
 
 LOG_FILE="$ARTIFACT_DIR/run_$(date +%Y%m%d_%H%M%S).log"
 exec 3>&1 4>&2
@@ -60,8 +60,9 @@ SAVE_Y_BASE=1800
 
 scale_coord() {
   local base=$1
-  local density=$(get_density)
-  awk "BEGIN {printf \"%.0f\", $base * $density / $BASE_DENSITY}"
+  local density
+  density=$(get_density)
+  awk -v base="$base" -v density="$density" -v base_density="$BASE_DENSITY" 'BEGIN {printf "%.0f", base * density / base_density}'
 }
 
 WAIT_SHORT=0.5
@@ -73,29 +74,31 @@ setup() {
   adb wait-for-device || { error "ADB device not found"; exit 1; }
   local devices=$(adb devices | grep -v "List of devices" | grep "device" || true)
   if [ -z "$devices" ]; then error "No ADB device online"; exit 1; fi
-  adb shell am start -n "$PACKAGE$LAUNCH_ACTIVITY" || true
+  adb_safe shell am start -n "$PACKAGE$LAUNCH_ACTIVITY"
   sleep 2
 }
 
 teardown() {
   log "Teardown start"
   # Capture final dump
-  adb shell uiautomator dump /sdcard/uidump_final.xml || true
-  adb pull /sdcard/uidump_final.xml "$ARTIFACT_DIR/uidump_final.xml" || true
+  adb_safe shell uiautomator dump /sdcard/uidump_final.xml
+  adb_safe pull /sdcard/uidump_final.xml "$ARTIFACT_DIR/uidump_final.xml"
   log "Artifacts at $ARTIFACT_DIR"
 }
 
 wait_for_text() {
   local text="$1"
-  local timeout=10
+  local timeout="${2:-10}"
   local elapsed=0
-  while [ $elapsed -lt $timeout ]; do
-    adb shell uiautomator dump /sdcard/uidump_check.xml >/dev/null 2>&1 || true
-    adb pull /sdcard/uidump_check.xml "$ARTIFACT_DIR/uidump_check.xml" >/dev/null 2>&1 || true
-    if python3 - <<PY >/dev/null 2>&1
-import xml.etree.ElementTree as ET, sys
-path = "$ARTIFACT_DIR/uidump_check.xml"
-text = "$text"
+  export WAIT_TEXT="$text"
+  export WAIT_PATH="$ARTIFACT_DIR/uidump_check.xml"
+  while [ $elapsed -lt "$timeout" ]; do
+    adb_safe shell uiautomator dump /sdcard/uidump_check.xml >/dev/null 2>&1
+    adb_safe pull /sdcard/uidump_check.xml "$ARTIFACT_DIR/uidump_check.xml" >/dev/null 2>&1
+    if python3 - <<'PY' >/dev/null 2>&1
+import xml.etree.ElementTree as ET, sys, os
+path = os.environ.get('WAIT_PATH')
+text = os.environ.get('WAIT_TEXT', '')
 try:
     tree = ET.parse(path)
     for n in tree.iter():
@@ -110,7 +113,7 @@ PY
       log "Found text: $text"
       return 0
     fi
-    sleep 0.5
+    sleep 1
     elapsed=$((elapsed+1))
   done
   error "Timeout waiting for text: $text"
@@ -122,7 +125,7 @@ tap_and_assert() {
   local x=$(scale_coord "$x_base")
   local y=$(scale_coord "$y_base")
   log "Tap $x,$y expecting $expect_text"
-  adb shell input tap "$x" "$y" || true
+  adb_safe shell input tap "$x" "$y"
   sleep "$WAIT_SHORT"
   if [ -n "$expect_text" ]; then
     wait_for_text "$expect_text" || return 1
@@ -132,10 +135,10 @@ tap_and_assert() {
 
 capture_failure() {
   log "Capturing failure artifacts"
-  adb shell screencap /sdcard/qa_fail.png || true
-  adb pull /sdcard/qa_fail.png "$ARTIFACT_DIR/fail_$(date +%s).png" || true
-  adb shell uiautomator dump /sdcard/uidump_fail.xml || true
-  adb pull /sdcard/uidump_fail.xml "$ARTIFACT_DIR/uidump_fail.xml" || true
+  adb_safe shell screencap /sdcard/qa_fail.png
+  adb_safe pull /sdcard/qa_fail.png "$ARTIFACT_DIR/fail_$(date +%s).png"
+  adb_safe shell uiautomator dump /sdcard/uidump_fail.xml
+  adb_safe pull /sdcard/uidump_fail.xml "$ARTIFACT_DIR/uidump_fail.xml"
 }
 
 main() {
@@ -148,10 +151,10 @@ main() {
   log "Step: set name"
   local name_x=$(scale_coord "$NAME_FIELD_X_BASE")
   local name_y=$(scale_coord "$NAME_FIELD_Y_BASE")
-  adb shell input tap "$name_x" "$name_y" || true
+  adb_safe shell input tap "$name_x" "$name_y"
   sleep "$WAIT_SHORT"
-  adb shell input text "Privatia Rigatoni" || true
-  adb shell input keyevent 23 || true
+  adb_safe shell input text "Privatia Rigatoni"
+  adb_safe shell input keyevent 23
   sleep "$WAIT_SHORT"
 
   log "Step: set age to 30 via tap heuristic"
@@ -161,7 +164,7 @@ main() {
   log "Step: open children spinner"
   local child_x=$(scale_coord "$CHILDREN_FIELD_X_BASE")
   local child_y=$(scale_coord "$CHILDREN_FIELD_Y_BASE")
-  adb shell input tap "$child_x" "$child_y" || true
+  adb_safe shell input tap "$child_x" "$child_y"
   sleep "$WAIT_MED"
 
   log "Step: select No option with retry"
@@ -169,7 +172,7 @@ main() {
   local opt_x=$(scale_coord "$CHILDREN_OPTION_NO_X_BASE")
   local opt_y=$(scale_coord "$CHILDREN_OPTION_NO_Y_BASE")
   while [ $attempt -le $MAX_RETRIES ]; do
-    adb shell input tap "$opt_x" "$opt_y" || true
+    adb_safe shell input tap "$opt_x" "$opt_y"
     sleep "$WAIT_MED"
     if wait_for_text "Continue"; then
       log "Children selection appears accepted"
@@ -182,35 +185,37 @@ main() {
   log "Step: tap Continue"
   local cont_x=$(scale_coord "$CONTINUE_X_BASE")
   local cont_y=$(scale_coord "$CONTINUE_Y_BASE")
-  adb shell input tap "$cont_x" "$cont_y" || true
+  adb_safe shell input tap "$cont_x" "$cont_y"
   sleep 3
 
   log "Step: verify next screen - Due date"
-  # Optional: if due date screen appears, fill synthetic markers
+  # Mandatory for green: due date screen must appear
   if wait_for_text "Due date" 5; then
     log "Due date screen detected"
     local due_x=$(scale_coord "$DUE_DATE_FIELD_X_BASE")
     local due_y=$(scale_coord "$DUE_DATE_FIELD_Y_BASE")
-    adb shell input tap "$due_x" "$due_y" || true
+    adb_safe shell input tap "$due_x" "$due_y"
     sleep "$WAIT_SHORT"
-    adb shell input text "2026-12-15" || true
-    adb shell input keyevent 23 || true
+    adb_safe shell input text "2026-12-15"
+    adb_safe shell input keyevent 23
 
     log "Step: baby name entry"
     local baby_x=$(scale_coord "$BABY_NAME_FIELD_X_BASE")
     local baby_y=$(scale_coord "$BABY_NAME_FIELD_Y_BASE")
-    adb shell input tap "$baby_x" "$baby_y" || true
+    adb_safe shell input tap "$baby_x" "$baby_y"
     sleep "$WAIT_SHORT"
-    adb shell input text "Privatia Rigatoni" || true
-    adb shell input keyevent 23 || true
+    adb_safe shell input text "Privatia Rigatoni"
+    adb_safe shell input keyevent 23
 
     log "Step: save baby data"
     local save_x=$(scale_coord "$SAVE_X_BASE")
     local save_y=$(scale_coord "$SAVE_Y_BASE")
-    adb shell input tap "$save_x" "$save_y" || true
+    adb_safe shell input tap "$save_x" "$save_y"
     sleep 2
   else
-    log "Due date screen not detected, onboarding may be incomplete"
+    error "Due date screen not detected, onboarding incomplete"
+    capture_failure
+    exit 1
   fi
 
   log "Run complete"

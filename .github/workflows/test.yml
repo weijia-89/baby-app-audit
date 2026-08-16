@@ -86,7 +86,7 @@ jobs:
           grep -q 'HARNESS_VERSION="3.2.0"' scripts/run-tests.sh || exit 1
           grep -q 'HARNESS_VERSION: "3.2.0"' .github/workflows/test.yml || exit 1
           grep -q '## 3.2.0' CHANGELOG.md || exit 1
-          grep -q '3.1.0' results/RESULTS-20260803.md || exit 1
+          grep -q '3.2.0' results/RESULTS-20260803.md || exit 1
           echo "Versions agree across artifacts"
 
       - name: Harness script syntax check and dry run
