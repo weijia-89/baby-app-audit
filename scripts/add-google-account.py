@@ -21,6 +21,9 @@ import subprocess
 import sys
 import time
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from adb_text import encode_adb_text
+
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRETS = os.path.join(ROOT, ".secrets", "google.json")
 DEFAULT_UI = os.path.join(ROOT, ".secrets", "google-ui.json")
@@ -48,8 +51,7 @@ def tap(device, x, y):
 
 
 def type_text(device, text):
-    # input text escapes are limited; use the unicode-aware path via `input text`
-    adb(device, "shell", "input", "text", text.replace(" ", "%s"))
+    adb(device, "shell", "input", "text", encode_adb_text(text))
 
 
 def swipe_up(device, dy=80):
@@ -84,7 +86,11 @@ def load_ui(device, ui_path, size):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--device", default=os.environ.get("DEVICE", "emulator-5554"))
+    ap.add_argument(
+        "--device",
+        default=os.environ.get("ANDROID_SERIAL")
+        or os.environ.get("DEVICE", "emulator-5554"),
+    )
     ap.add_argument("--ui", default=DEFAULT_UI)
     args = ap.parse_args()
 

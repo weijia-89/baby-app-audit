@@ -246,6 +246,9 @@ def main():
                     entries.append({"action": "tap_bounds", "value": step["tap_bounds"], "ok": True})
             elif "swipe" in step:
                 coords = step["swipe"]
+                if not isinstance(coords, (list, tuple)) or len(coords) < 4:
+                    entries.append({"action": "swipe", "value": coords, "ok": False})
+                    continue
                 x1, y1, x2, y2 = coords[0], coords[1], coords[2], coords[3]
                 dur = coords[4] if len(coords) > 4 else 400
                 adb(["shell", "input", "swipe", str(x1), str(y1), str(x2), str(y2), str(dur)])

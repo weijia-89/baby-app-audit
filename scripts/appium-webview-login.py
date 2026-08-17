@@ -5,8 +5,7 @@ Requires a running Appium 3 server with the uiautomator2 driver:
   appium '--allow-insecure=*:chromedriver_autodownload'
   .test-venv/bin/python scripts/appium-webview-login.py --package com.hp.babyapp
 
-Does not print secrets. Does not read .secrets unless --type-google-password is set
-(default off: the device Google account picker is preferred).
+Does not print secrets. Does not read .secrets. Device Google account picker is preferred.
 """
 import argparse
 import os
@@ -14,6 +13,7 @@ import sys
 import time
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from adb_text import escape_uiautomator_text
 from webview_context import pick_webview_context
 
 DEFAULT_APPIUM = os.environ.get("APPIUM_URL", "http://127.0.0.1:4723")
@@ -41,7 +41,8 @@ def build_driver(device, package, server):
 def tap_text(driver, text):
     from appium.webdriver.common.appiumby import AppiumBy
 
-    el = driver.find_element(AppiumBy.ANDROID_UIAUTOMATOR, f'new UiSelector().text("{text}")')
+    safe = escape_uiautomator_text(text)
+    el = driver.find_element(AppiumBy.ANDROID_UIAUTOMATOR, f'new UiSelector().text("{safe}")')
     el.click()
     return True
 
@@ -53,7 +54,8 @@ def wait_for_text(driver, text, timeout=30):
     last = None
     while time.time() < deadline:
         try:
-            driver.find_element(AppiumBy.ANDROID_UIAUTOMATOR, f'new UiSelector().text("{text}")')
+            safe = escape_uiautomator_text(text)
+            driver.find_element(AppiumBy.ANDROID_UIAUTOMATOR, f'new UiSelector().text("{safe}")')
             return True
         except Exception as exc:
             last = type(exc).__name__
@@ -70,7 +72,7 @@ def wait_text_gone(driver, text, timeout=90):
         try:
             driver.find_element(
                 AppiumBy.ANDROID_UIAUTOMATOR,
-                f'new UiSelector().textContains("{text}")',
+                f'new UiSelector().textContains("{escape_uiautomator_text(text)}")',
             )
         except Exception:
             return True
@@ -170,7 +172,7 @@ def main():
             print("please_wait_gone=true")
         else:
             print("please_wait_gone=false")
-        ctx, all_ctx = wait_webview(driver, args.package, min(args.wait_webview, 15))
+        ctx, all_ctx = wait_webview(driver, args.package, args.wait_webview)
         print(f"contexts={all_ctx}")
         print(f"picked={ctx}")
         if ctx:

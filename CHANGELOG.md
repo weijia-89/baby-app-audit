@@ -4,9 +4,13 @@
 
 ### Added
 - `scripts/adb_text.py` encodes spaces for `adb shell input text`. Unit tests: `tests/test-adb-text.sh`.
-- Per-app injector configs under `scripts/inject-config/` and Appium login helper docs in that README.
+- Per-app injector configs under `scripts/inject-config/` (`tests/test-inject-config.sh` checks each JSON).
 
 ### Fixed
+- Appium login helper honors `--wait-webview` instead of capping the wait at 15 seconds.
+- Synthetic inject skips `swipe` steps that do not have four coordinates.
+- Google account helper encodes `adb` text the same way as the injector, and prefers `ANDROID_SERIAL`.
+- Appium native taps escape quotes in UiSelector strings.
 - Live inject no longer reads an unset device serial or profile path. `run-tests.sh` pins `adb -s` to `ANDROID_SERIAL` (default emulator-5554), including proxy cleanup.
 - App names that contain `+` (Baby+) pass input checks.
 - Google account helper launches `ADD_ACCOUNT_SETTINGS` and checks `dumpsys account` for `type=com.google`. It does not print account lists. API 29 has no `cmd account list`.

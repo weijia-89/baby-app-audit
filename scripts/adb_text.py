@@ -9,6 +9,11 @@ def encode_adb_text(val):
     return safe.replace(" ", "%s")
 
 
+def escape_uiautomator_text(val):
+    """Escape a string for a UiSelector text(\"...\" ) argument."""
+    return (val or "").replace("\\", "\\\\").replace('"', '\\"')
+
+
 def bounds_center(bounds):
     m = re.search(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]", bounds or "")
     if not m:
