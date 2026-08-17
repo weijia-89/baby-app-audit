@@ -98,6 +98,13 @@ Validate the tooling without an emulator (used by CI):
 bash scripts/run-tests.sh --check
 ```
 
+Google sign-in needs the audit proxy off. Optional Appium login:
+
+```bash
+appium '--allow-insecure=*:chromedriver_autodownload'
+.test-venv/bin/python scripts/appium-webview-login.py --package com.hp.babyapp
+```
+
 Read the full harness for manual steps:
 
 ```bash

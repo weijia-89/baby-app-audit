@@ -1,0 +1,9 @@
+{
+  "steps": [
+    { "fill": { "baby_1_name": "Privatia Rigatoni" } },
+    { "tap_bounds": "[63,820][350,987]" },
+    { "wait": 1 },
+    { "tap_text": "DONE" },
+    { "wait": 8 }
+  ]
+}

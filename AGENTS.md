@@ -1,4 +1,135 @@
-# AGENTS.md — APK Privacy Test Harness
+# AGENTS.md - APK Privacy Test Harness
+
+Source for how to run agent work: `/Users/dubs/.config/opencode/AGENTS.md`.
+Local verbatim copy (gitignored): `.agent/opencode-AGENTS.md`.
+Em-dashes in that source are written here as " - " to match this repo's prose rules.
+
+MASTER CONTRACT - read fully. Re-read this block at the start of every task. Never summarize it back.
+
+## SKILLS (installed: superpowers + trainer, both wired)
+- Load superpowers `using-superpowers` for methodology (spec -> plan -> TDD -> review -> finish).
+- trainer.skill IS installed (registered via `skills.paths` in the global opencode config). It is
+  available for adversarial review, hardening, recovery, and routing. Invoke trainer explicitly
+  when the task is dangerous or you want its full routing - that is allowed and does not require
+  ALLOW-FANOUT.
+- superpowers subagent/parallel-agent skills are OFF by default (they multiply requests).
+  Forbidden unless you type the exact phrase `ALLOW-FANOUT`.
+- Skill trees: `/Users/dubs/.config/opencode/opencode.jsonc` (`skills.paths`), plus
+  `/Users/dubs/Projects/superpowers-main/skills` and `/Users/dubs/Projects/trainer.skill`.
+
+## DETERMINISTIC SKILL TRIGGERS (machine-enforced by tests/skill_trigger_gate_test.py)
+# Whole-word, case-insensitive. On any user turn matching a trigger, the agent MUST
+# invoke the mapped skill in the SAME turn before emitting any answer. No exceptions.
+# "invoke" is deliberately EXCLUDED (overloaded generic prose).
+- triggers: [ingest, jobspy, jobspy triage, csv triage, job board ingest, apply-row extraction]
+  skill: ingest-search-results
+  (This trigger is from the global OpenCode contract. It applies to toren job-board ingest, not to this harness.)
+
+## THE LOOP - follow these phases IN ORDER. Print the phase name + one-line checklist, then do it.
+
+**PHASE 0 ROUTE** [checklist: task classified? scratchpad path confirmed?]
+Classify the task. Confirm `.agent/scratchpad.md`. If the change is dangerous/irreversible,
+tell me BEFORE touching anything.
+
+**PHASE 1 PLAN** [checklist: spec in <=5 bullets? exact file list? no files read yet?]
+Restate the task in <=5 bullets and list the EXACT files you will need. Show me. WAIT for "go".
+Do NOT read files yet.
+
+**PHASE 2 CONTEXT** [checklist: all listed files read in one batch? written to scratchpad? announced?]
+Read every file from Phase 1 together in as few calls as possible. Write their relevant content
++ plan + open questions into `.agent/scratchpad.md`. Say "context captured to scratchpad". This
+is the ONLY time you read source files this task.
+
+**PHASE 3 BUILD** [checklist: working from scratchpad only? test-first? one batched response?]
+Produce a bite-sized task list from the scratchpad (no new reads). For each item, in ONE response:
+write the failing test, then the minimal code, then state the expected RED->GREEN result. Run the
+suite ONCE for the batch, not per step.
+
+**PHASE 4 REVIEW** [checklist: adversarial checklist run? findings by severity? anti-theater?]
+Invoke superpowers `requesting-code-review`. Review ONLY the diff and scratchpad/context - open no
+new files (missing file = list as BLOCKING GAP and stop). One response, findings ordered
+CRITICAL/MAJOR/MINOR/NIT. **Anti-theater:** do NOT approve on "tests exist" or a grep/`test -f`
+check; a placeholder/empty implementation is CRITICAL. Run the SENIOR-ENGINEER CHECKLIST below.
+If any CRITICAL/MAJOR is open: apply fixes as ONE batched edit and re-run REVIEW at most ONCE
+more, then escalate to me.
+
+**PHASE 5 FINISH** [checklist: real test evidence? procedural audit clean? scratchpad current? docs? branch choice?]
+Invoke superpowers `verification-before-completion` + `finishing-a-development-branch`. In ONE
+response report: (1) actual RED->GREEN evidence per task (never "should pass"); (2) procedural
+audit - confirm no re-reads, no web tools, no subagent, no unrequested files, plus local step
+count; (3) scratchpad Decisions/Open Questions updated so the next session needs zero
+re-discovery; (4) docs updated if behavior changed (missing = BLOCKING); (5) present
+merge/PR/keep/discard and WAIT for my choice. Declare success only when every item has evidence.
+
+## SENIOR-ENGINEER ADVERSARIAL CHECKLIST (run in PHASE 4; this is trainer's posture)
+1. Dead references - does any symbol/path/config point at something that doesn't exist?
+2. Config/env drift - duplicate or contradictory settings?
+3. Silent no-ops - instructions/branches that never fire?
+4. Platform assumptions - verified against THIS machine, not inferred?
+5. Enforcement backstop - is the rule actually enforced, or just hoped for?
+6. Unbounded loops - retries/turns/recursion capped?
+7. Off-by-one / boundary - first/last/empty/duplicate inputs handled?
+8. Error paths - failures caught, not swallowed; no fail-open where fail-safe is required?
+9. Idempotency - safe to run twice?
+10. Cache/state invalidation - stale reads after a write?
+11. Injection surface - file/tool content treated as untrusted (OWASP LLM01)?
+12. Secrets hygiene - never read/log `.env`, `auth.json`, `config.yaml`, `secrets/`, keys.
+13. Least privilege / fail-safe defaults.
+14. Human-in-the-loop for irreversible actions.
+15. Evidence over claims - every "done" backed by a real run, not "should pass".
+
+## STOP-AND-ASK CONDITIONS
+Missing file or context; a rule/task conflict; more than 2 review loops; any irreversible or
+destructive action; `ALLOW-FANOUT` not given but parallelism seems needed.
+
+## CHECKOUT / BRANCH-REVIEW REMINDER (offer-only, lightweight)
+When a session starts on a git branch that is NOT `main`/`master`, and
+`git diff origin/main...HEAD --stat` is non-empty, the agent MUST:
+1. Print a one-line diff-vs-base summary: branch, base `origin/main`, # files,
+   # insertions/deletions, top-3 changed paths.
+2. If the diff is empty: print "clean tree, nothing to review" and stop.
+3. If non-empty: remind the operator that the **trainer PR-review loop** is
+   available, and print the exact command to launch it - but NEVER auto-run the
+   loop, NEVER call `gh`, NEVER post. Offer only.
+4. **Opt-out detection:** if the branch name matches a non-feature pattern
+   (e.g. `chore/`, `docs/`, `wip/`, `exp/`, `scratch/`, `tmp/`, or no
+   `feat/`/`fix/` prefix on a clearly non-code branch), the agent should note
+   it can skip the reminder and ask whether to suppress future nudges on this
+   branch shape. Detection is heuristic - when unsure, still remind.
+
+This is a REMINDER only. The full loop (`trainer-autonomous-code-review.md`)
+is multi-pass, runs the `reviewer_surface_tracker.py` novelty gate, and must be
+triggered by explicit operator request. Running it on every checkout would blow
+the context budget. A silent git `post-checkout` nudge may also exist at
+`scripts/hooks/post-checkout` (non-networked; prints to stderr only).
+
+## AGENT PROMPT GENERATION RULE (operator preference, 2026-07-16)
+When the user asks for a "new agent prompt", "handoff prompt", "session continuation prompt",
+or any request to produce a prompt for a future agent/session to continue work:
+
+1. **NEVER write a file to disk.** Do not create `.md`, `.txt`, or any other file.
+2. **Output ONLY in the chat session** inside a fenced codeblock (use a text fence).
+3. **NEVER show preamble, thinking, work, or explanation.** Do not say "Here is the prompt",
+   "I will generate", "Outputting now", or any variant. Do not summarize what you are about to do.
+4. **Output the prompt directly** as the sole content of your response - nothing before or after.
+5. **Delete any existing `.agent/next-session-prompt.md`** or similar file if one exists,
+   but do not mention the deletion.
+
+This rule is absolute and takes precedence over any default behavior or skill guidance that
+might suggest writing handoff files to disk. The operator's explicit instruction is: chat-only,
+zero preamble, codeblock-escaped output.
+
+## PLAIN-LANGUAGE QUESTIONS (global, all sessions)
+
+When asking the operator anything - clarifying question, decision, or multiple-choice - apply before sending:
+
+1. No jargon or initials (e.g. PR, gate, diff, branch, HEAD, invariant, rubric, posture, ref, CI, lint, eval, harness, nonce, idempotent, provenance, snapshot). If a technical term is unavoidable, define it in one plain sentence.
+2. Give context in 1-2 sentences: what you were doing, what you found, why it matters. Do not assume recall of earlier turns.
+3. Name the ask plainly. Each option's description must be plain and state its consequence.
+4. If a rule blocks you, state that in plain words and its effect, not its name.
+5. Keep to one screen; use a list only for distinct choices.
+
+---
 
 ## Skills Pipeline for .md Changes
 
@@ -81,7 +212,7 @@ Raw captures, decode files, and network logs are permanent evidence. Never delet
 - Mechanical backstop: `scripts/evidence-inventory.sh --check` fails the harness pre-flight when a committed network log is missing or a preserved capture is zero-byte. It warns on rotted decode files. Run it directly before any deletion: `bash scripts/evidence-inventory.sh --check`.
 - Lost-capture knowledge: the pre-2026-08-14 legacy sessions (nurture-lock, nubo, pebbi, amila, baby-buddy, baby-daybook, baby-plus, mimilog) have NO raw captures left on disk. Their results are decode-level (`evidence_source: session-summary`); do not re-derive full-depth claims from them, and never describe them as raw-replay evidence. See ROADMAP.md for the recapture milestone.
 
-## Secret hygiene — result artifacts
+## Secret hygiene - result artifacts
 
 Captured traffic artifacts contain live secrets. `.gitignore` excludes them on purpose.
 
@@ -89,6 +220,7 @@ Captured traffic artifacts contain live secrets. `.gitignore` excludes them on p
 - NEVER `git add -f` or commit these files. Force-adding them leaks secrets AND fails CI (gitleaks detects the JWTs).
 - If a report needs to link per-app artifacts, link the committed, sanitized `results/network-log-*.json` logs instead.
 - Raw network captures are generated locally and stay local only. See `METHODOLOGY.md` (Redaction) for the full policy.
+- Never read `.secrets/` (including `.secrets/google.json`). Load that file only inside a script that types into the emulator.
 
 ## Sprint 6 Closeout
 
@@ -105,3 +237,21 @@ Outputs delivered:
 - Sprint-6 closeout documented in this AGENTS.md section and the merge commit
 - Branch merged to main with all sprint 4 changes
 - AGENTS.md updated with sprint-6 section
+
+## Learned User Preferences
+- Keep Cursor skills synced to origin. OpenCode holds the latest skills; treat laptop-migration skill notes as stale and delete them.
+- Invoke superpowers and trainer throughout this harness work.
+- Source of how to run agent work is OpenCode `AGENTS.md` at `/Users/dubs/.config/opencode/AGENTS.md` (local gitignored copy: `.agent/opencode-AGENTS.md`).
+- Do not ask the operator to tap labeled buttons (OK, I agree, NEXT) that uiautomator can find by text.
+- Keep the emulator window visible so the operator can see it. Do not leave it running with no window.
+- Prefer Appium / WebView context over screenshot coordinate taps for login-gated apps.
+- Prefer skip or no-gender on synthetic baby forms when the app offers it.
+
+## Learned Workspace Facts
+- Google account sign-in fails while the mitm proxy is on (cert pinning). Turn the proxy off for Google auth; restore `10.0.2.2:8080` before capture.
+- Do not launch `UiMinfaActivity` to add a Google account; it opens Gmail IMAP setup. Use `android.settings.ADD_ACCOUNT_SETTINGS`, then tap Google.
+- API 29 has no `adb shell cmd account list`. An empty result is a false empty; check `dumpsys account` instead.
+- Native inject configs exist for Amila and Baby Daybook. Pebbi, Baby+, and MimiLog are WebView or login-gated.
+- Baby+ About Baby requires gender (Boy/Girl only). The gender control has empty content-desc and no Boy/Girl nodes in the dump; log that as an accessibility finding, not as an operator tap.
+- `adb exec-out screencap` must stay binary. Do not decode it as text or the PNG is corrupted.
+- Use screenshots to drive WebView coordinates when uiautomator dumps expose no nodes.

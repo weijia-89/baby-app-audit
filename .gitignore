@@ -32,3 +32,11 @@ ROADMAP-PROMPT-v*.md
 
 # Prompts are local-only working material (research/closeout drafts). Never commit.
 prompts/
+
+# Local secrets (Google test-account creds for emulator sign-in). NEVER commit.
+.secrets/
+
+# Agent hook state and Python caches
+.cursor/
+**/__pycache__/
+*.pyc

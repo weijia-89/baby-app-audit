@@ -103,6 +103,30 @@ Apps that make privacy/offline claims but cannot be acquired via APKPure or F-Dr
 
 **Success criterion:** Every app exercised with the fictional profile has a verdict in the Final Report: `transmission_observed` (a marker left the device, with recipient) or `no_transmission_detected` (the capture shows the entered values did not leave).
 
+### Per-app injection flows (automated, in progress)
+
+**Goal:** every app gets a reusable, committed flow (`scripts/inject-config/<package>.json`) that drives its onboarding to enter the synthetic profile and taps save so the markers actually transmit. Built from a **one-time UI/UX capture** so we never re-drive the app by hand.
+
+**Repeatable workflow (wired into `run-tests.sh --live` via `inject-synthetic-profile.py`):**
+1. **Baseline** - capture launch traffic with no data entered; build the sanitized network log. (`results/<slug>-test-<date>/artifacts/captures/<slug>.mitm` -> `network-log-<slug>.json`)
+2. **UI/UX capture** - `scripts/capture-uiux.py <package>` walks the onboarding and records every screen's `uiautomator` dump + screenshot under `results/<slug>-test-<date>/artifacts/uiux/screenN.xml|.png`. One-time, reusable artifact.
+3. **Build flow** - read the captured dumps/screenshots and write `scripts/inject-config/<package>.json` with a `steps` list (tap_text / fill / wait) that reaches the baby-profile form and taps save.
+4. **Inject + capture + scan** - `run-tests.sh --live` runs the flow while mitmdump + proxy are live; `scan-synthetic-baby-data.sh` gives the real verdict.
+
+**Per-app status (Batch 2 = pebbi, amila, baby-daybook, baby-plus, mimilog):**
+
+| App | Package | Baseline | UI/UX | Flow | Verdict |
+|-----|---------|----------|-------|------|---------|
+| Pebbi | com.pebbi.android | done | WebView/splash, 0 native EditText (CLOSE only, 15 screens) | BLOCKED: WebView; native injector cannot drive; needs WebView automation or account | - |
+| Amila | com.amila.parenting | done | 2 native EditText (Baby name, Birthday) + 16+ checkbox + Done | built + validated (`inject-config/com.amila.parenting.json`) | no_transmission_detected (profile stored locally; app syncs only after login) |
+| Baby Daybook | com.drillyapps.babydaybook | done | 2 native EditText (same layout as Amila) + 16+ checkbox + Done | built + validated (`inject-config/com.drillyapps.babydaybook.json`) | no_transmission_detected (same) |
+| Baby+ | com.hp.babyapp | done | Logged in. About You + About Baby captured. Gender control has no TalkBack name (see FINAL-REPORT Baby+) | About You CONTINUE works (`inject-config/com.hp.babyapp.json`). About Baby DONE blocked: required gender is one unlabeled EditText | pending (DONE not reached) |
+| MimiLog | com.mimiapp.mimilog | done | splash (Close only) | BLOCKED: splash/WebView; needs WebView automation or account | - |
+
+**Validation result (2026-08-16):** the injector + per-app `steps` flows are proven end-to-end on Amila and Baby Daybook - they fill the baby name, check the 16+ box, tap Done, and the capture + scan report the correct `no_transmission_detected`. Those two apps keep the profile local and only sync after account login. A Google account is on the emulator. Baby+ Google login succeeded with the proxy off. Baby+ **DONE** is blocked by an unlabeled gender control (accessibility finding in FINAL-REPORT). Pebbi and MimiLog still need a live Appium login run (`scripts/appium-webview-login.py`).
+
+Note: the earlier generic heuristic injector still works for apps whose onboarding form is reachable from launch, but the per-app `steps` flows are what make the verdicts meaningful and repeatable (no re-driving the app by hand).
+
 ## Sprint 5  -  Planned  -  Legacy re-capture and evidence parity
 
 **Goal:** Bring the 8 legacy apps (nurture-lock, nubo, pebbi, amila, baby-buddy, baby-daybook, baby-plus, mimilog) up to the same evidence depth as the wave-1/wave-2 apps. Their raw `.mitm` captures disappeared before the retention rule existed (AGENTS.md "Evidence retention"); their results are decode-level only, and two of them (Amila, Baby+) are the same shape of thin evidence that flipped Nanit and Pregnancy+ to major.

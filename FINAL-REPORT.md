@@ -92,11 +92,11 @@ The launch captures could not see user-entered baby data (feeding, sleep, diaper
 
 Method:
 
-- A fixed fictional baby, "Privatia Rigatoni", born 2026-03-14 at 6 lbs 8 oz, with unusual sentinel values for feeding (482 mL), sleep (777 minutes), and diaper (1234 g). The operator enters these by hand in each app while the capture proxy is live. The full profile is in `results/synthetic-baby-profile.json`.
+- A fixed fictional baby, "Privatia Rigatoni", born 2026-03-14 at 6 lbs 8 oz, with unusual sentinel values for feeding (482 mL), sleep (777 minutes), and diaper (1234 g). The automated injector enters these in each app while the capture proxy is live (see `scripts/inject-synthetic-profile.py`). The full profile is in `results/synthetic-baby-profile.json`.
 - After capture, `scripts/scan-synthetic-baby-data.sh` greps the raw local capture for the profile's marker strings. It reports which fictional values appear in a request body, a response body, or a request URL, and the recipient host for each.
 - The committed, sanitized network logs are not searched. Their bodies are redacted, so the fictional values would be invisible there. Only the raw local capture can show exfiltration.
 
-Status: the profile, the scan tool, and a unit test are in place. Live captures across the 16 apps are pending operator execution. Per-app verdicts (transmission observed or not) will be added here when the captures exist.
+Status: the profile, the scan tool, and a unit test are in place. Live inject+scan is in progress. Baby+ (2026-08-16): Google sign-in reached **About You** / **About Baby**. Parent-name **CONTINUE** sent a `PUT` to `appserver.health-and-parenting.com` with no plaintext marker match. Baby name was entered; **DONE** did not complete because gender is not exposed to automation (see Baby+ accessibility note). Verdict remains pending.
 
 ## Proprietary apps - long report
 
@@ -253,12 +253,12 @@ The Play Store pages make no no-data-sharing or offline promise. We acquired the
 ### Baby Buddy
 - **Claim:** Open source - see [github.com/babybuddy/babybuddy](https://github.com/babybuddy/babybuddy)
 - **Result:** PASS
-- **Confidence:** 100%. Zero calls leave the phone across the whole session. The app talks only to its own server, which runs on the same device. The code is public and anyone can read it.
-- **Capture:** 2026-08-03, full session (web app), 0 outgoing calls.
+- **Confidence:** 100%. The replayed raw capture contains one flow: a GET to httpbin.org/get with no request body, HTTP 200. Its User-Agent is `curl/8.7.1` and it carries a `Proxy-Connection` header, so it was a `curl` connectivity probe run during the capture session - an artifact of the capture environment, not a call made by the Baby Buddy app. The app itself made zero outbound calls, consistent with PASS. We found no synthetic baby-data transmission. The code is public and anyone can read it.
+- **Capture:** 2026-08-03, full session (web app), 0 app-originated outbound calls (1 capture-environment curl probe). Evidence source changed from session-summary to raw-replay (capture relocated and replayed).
 
 | Service | Data shared | Call/Log |
 | --- | --- | --- |
-| None | Nothing leaves the phone | No outgoing calls in the capture |
+| httpbin.org (curl probe) | Capture-environment connectivity check (User-Agent: curl/8.7.1). No app data. | httpbin.org/get (artifact, not app-originated) |
 
 ### MimiLog
 - **Claim:** "Fully offline" (Google Play listing)
@@ -298,6 +298,7 @@ The Play Store pages make no no-data-sharing or offline promise. We acquired the
 | Firebase | Registers this install with an ID and a security token | (Firebase) |
 
 - **Network log:** [network-log-baby-plus.json](results/network-log-baby-plus.json)
+- **Accessibility (2026-08-16, API 29 emulator, logged-in onboarding):** On **About Baby**, gender is required (`Please select baby’s gender`) but the control is one `EditText` (`com.hp.babyapp:id/baby_1_gender_options`) whose text is only `Baby's Gender`. `content-desc` is empty. The dump has no named Boy/Girl/Unknown nodes, no `RadioButton`/`ImageButton` children, and no checkable state. TalkBack and UiAutomator cannot name or select an option. A labeled **OK** dialog dismisses; **DONE** then fails the same check. Local dump: `results/baby-plus-test-20260816/artifacts/uiux/about-baby-gender.xml`. This blocked the synthetic-profile save, so the baby-name transmission scan is incomplete.
 
 ### Baby Daybook
 - **Claim:** "AdID not auto-enabled" (Google Play listing)
@@ -316,8 +317,8 @@ The Play Store pages make no no-data-sharing or offline promise. We acquired the
 ### Nubo
 - **Claim:** "Local-first" (Google Play listing)
 - **Result:** FAIL
-- **Confidence:** 95%. Four flows at first launch. The app sends what you do in it (screens you open, steps you take at setup) to Firebase, not just "local first".
-- **Capture:** 2026-08-03, first launch, 4 flows.
+- **Confidence:** 95%. Eleven flows at first launch. The app sends what you do in it (screens you open, steps you take at setup) to Firebase, not just "local first".
+- **Capture:** 2026-08-03, first launch, 11 flows. Evidence source changed from session-summary to raw-replay (capture relocated and replayed).
 
 | Service | Data shared | Call/Log |
 | --- | --- | --- |
@@ -330,8 +331,8 @@ The Play Store pages make no no-data-sharing or offline promise. We acquired the
 ### Nurture Lock
 - **Claim:** "100% offline" (Google Play listing)
 - **Result:** FAIL
-- **Confidence:** 95%. The app calls a subscription service at launch, so "100% offline" is false. Its package contains code from eight tracking companies. The raw capture no longer exists, so this result rests on the session summary.
-- **Capture:** 2026-08-03, launch window, destinations only.
+- **Confidence:** 95%. The app calls a subscription service at launch, so "100% offline" is false. Its package contains code from eight tracking companies. The raw capture was relocated from the sibling harness and replayed: 17 flows, 6 destinations.
+- **Capture:** 2026-08-03, launch window, 17 flows (raw replay).
 
 | Service | Data shared | Call/Log |
 | --- | --- | --- |
@@ -364,14 +365,15 @@ Four of the five wave-1 apps ship at least one program that records installs and
 - **Synthetic baby-data transmission testing (in progress).** Static dark-pattern searching is no longer part of this project. The operator test uses a fixed fictional baby, "Privatia Rigatoni", enters fictional feeding, sleep, and diaper data, and watches the raw capture for those values. The test records whether the baby data leaves the phone and which recipient receives it. The profile, scan tool, and unit test are committed; live captures across the 16 apps are pending. See the report's "Synthetic baby-data transmission test" section, `METHODOLOGY.md` for the capture procedure, and `ROADMAP.md` for the plan.
 - **Full analytics and PII fanout (now).** `scripts/scan-analytics-pii.sh` scans every committed network log. It records all analytics, attribution, advertising, diagnostics, messaging, and replay-related calls, including unclassified hosts.
 - **Wave 2 testing.** Tier 1 candidates in `localonly/candidates.md` (gitignored) are the next wave.
-- **Legacy re-capture.** Eight apps (Nurture Lock, Nubo, Pebbi, Amila, Baby Buddy, Baby Daybook, Baby+, MimiLog) lost their raw captures before the retention rule existed. Their results rest on session summaries, which are thinner: Nanit and Pregnancy+ looked clean at that depth and flipped to major once the raw captures were replayed. A planned sprint will re-test these eight and preserve the captures permanently. See `ROADMAP.md` for details.
+- **Legacy re-capture.** Eight apps (Nurture Lock, Nubo, Pebbi, Amila, Baby Buddy, Baby Daybook, Baby+, MimiLog) lost their raw captures before the retention rule existed. Three (Nurture Lock, Nubo, Baby Buddy) have been backfilled by relocating the original raw captures from the sibling `apk-privacy-harness` project and replaying them; their results are now `evidence_source: raw-replay`. The remaining five (Pebbi, Amila, Baby Daybook, Baby+, MimiLog) still rest on session summaries and are scheduled for live re-capture. See `ROADMAP.md` for details.
 
 ## Limits
 
-- We did not enter a fictional baby profile during the launch captures used for the findings above. Some data paths stayed hidden. The synthetic baby-data transmission test (see its section) now has a fixed profile, a scan tool, and a unit test; live captures across the 16 apps are pending operator execution. Once run, that test will state per app whether entered baby data left the device and to which recipient.
+- The launch captures used for the findings above predate the automated injector, so a fictional baby profile was not yet entered during them. That step is now automated (`scripts/inject-synthetic-profile.py`) and wired into `run-tests.sh --live`, so re-captures enter the profile and the synthetic baby-data transmission test states per app whether entered baby data left the device and to which recipient.
 - The captures cover the launch and early-use window of each app. Behavior later in a session could differ.
 - We removed response bodies and header values from this report and the network logs because they can carry tokens or PII. New sanitized logs replace removed values with slugs such as `[REDACTED:request-body-values:secret-or-PII]`. The method, host, path, status, count, and sizes remain, so the record still proves that the call was sent. A scrubbed body is not evidence that PII was absent.
-- Evidence depth is not equal across the 16 apps. Eight apps (BabyCenter, BellyBloom, Nanit, Pregnancy+, What to Expect, Heartful Baby, Nara, Pixy) have `evidence_source: raw-replay` - we replayed and mined every call in the preserved capture. The other eight (Nurture Lock, Nubo, Pebbi, Amila, Baby Buddy, Baby Daybook, Baby+, MimiLog) have `evidence_source: session-summary` - their raw captures disappeared before the retention rule existed. Treat session-summary rows as lower-bound evidence; see ROADMAP.md for the planned legacy re-capture.
+- Evidence depth is not equal across the 16 apps. Eleven apps (BabyCenter, BellyBloom, Nanit, Pregnancy+, What to Expect, Heartful Baby, Nara, Pixy, Nurture Lock, Nubo, Baby Buddy) have `evidence_source: raw-replay` - we replayed and mined every call in the preserved capture. The remaining five (Pebbi, Amila, Baby Daybook, Baby+, MimiLog) have `evidence_source: session-summary` - their raw captures disappeared before the retention rule existed. Treat session-summary rows as lower-bound evidence; see ROADMAP.md for the planned legacy re-capture.
+- baby-track, cradle, and dymn-baby were excluded from the legacy backfill. No accessible APK could be obtained and their package identifiers did not resolve to real apps, so no captures or scans were performed for them.
 
 ## Advice
 
