@@ -17,6 +17,10 @@ export TEST_RUN_ID="${TEST_RUN_ID:-apk-harness-$(date -u +%Y%m%d-%H%M%S)}"
 export PROXY_PORT="${PROXY_PORT:-8080}"
 export MITM_WEB_PORT="${MITM_WEB_PORT:-8081}"
 export KEEP_WORK_DIR="${KEEP_WORK_DIR:-0}"
+export DEVICE="${ANDROID_SERIAL:-emulator-5554}"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+PROFILE_FILE="${SYNTHETIC_PROFILE:-$REPO_ROOT/results/synthetic-baby-profile.json}"
 
 # Validate PROXY_PORT is numeric and within valid range
 if ! [[ "$PROXY_PORT" =~ ^[0-9]+$ ]] || [ "$PROXY_PORT" -lt 1 ] || [ "$PROXY_PORT" -gt 65535 ]; then
@@ -136,11 +140,11 @@ cleanup() {
     if command -v adb >/dev/null 2>&1; then
         # Use timeout wrapper to prevent hung adb from blocking cleanup
         if command -v gtimeout >/dev/null 2>&1; then
-            gtimeout 10 adb shell settings put global http_proxy :0 2>/dev/null || true
+            gtimeout 10 adb -s "$DEVICE" shell settings put global http_proxy :0 2>/dev/null || true
         elif command -v timeout >/dev/null 2>&1; then
-            timeout 10 adb shell settings put global http_proxy :0 2>/dev/null || true
+            timeout 10 adb -s "$DEVICE" shell settings put global http_proxy :0 2>/dev/null || true
         else
-            adb shell settings put global http_proxy :0 2>/dev/null || true
+            adb -s "$DEVICE" shell settings put global http_proxy :0 2>/dev/null || true
         fi
         echo "[CLEANUP] Reset emulator proxy"
     fi
@@ -172,7 +176,7 @@ validate_input() {
     if [ "$strict" = "true" ]; then
         pattern='^[a-zA-Z0-9._-]+$'
     else
-        pattern='^[a-zA-Z0-9._ -]+$'
+        pattern='^[a-zA-Z0-9._+ -]+$'
     fi
 
     # Reject backticks, $, ;, |, &, <, >, and quotes regardless of mode
@@ -190,11 +194,11 @@ validate_input() {
 # Run adb with a timeout so a hung device cannot hang the whole run
 run_adb() {
     if command -v gtimeout >/dev/null 2>&1; then
-        gtimeout 30 adb "$@"
+        gtimeout 30 adb -s "$DEVICE" "$@"
     elif command -v timeout >/dev/null 2>&1; then
-        timeout 30 adb "$@"
+        timeout 30 adb -s "$DEVICE" "$@"
     else
-        adb "$@"
+        adb -s "$DEVICE" "$@"
     fi
 }
 
@@ -268,7 +272,7 @@ preflight() {
     local repo_root
     repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
     local fanout_output
-    fanout_output="$(mktemp "${TMPDIR:-/tmp}/analytics-pii-check.XXXXXX.json")"
+    fanout_output="$(mktemp "${TMPDIR:-/tmp}/apk-harness-pii-XXXXXX")"
     if ! bash "$repo_root/scripts/scan-analytics-pii.sh" "$repo_root/results" "$fanout_output"; then
         error "Analytics and PII fanout scan failed"
         return 1
@@ -446,10 +450,29 @@ test_native_app() {
         warn "[$app_name] App process not found after launch - capture may be empty"
     fi
     
-    # Step 6: Observe traffic (honest observation window; interactive UI
-    # automation is not implemented - manual interaction is the documented path)
-    log "[$app_name] Observing traffic for 10s (observation window)..."
-    sleep 10
+    # Step 6: Inject the synthetic baby profile into the app's own UI while the
+    # capture proxy + mitmdump are live, so entered data lands in the raw .mitm
+    # the synthetic-data scan searches. Replaces the old manual-entry step.
+    if [ "$LIVE_MODE" -eq 1 ]; then
+        log "[$app_name] Injecting synthetic baby profile (automated)..."
+        if [ -f "$SCRIPT_DIR/inject-synthetic-profile.py" ]; then
+            INJECT_OUT="$ARTIFACTS_DIR/${app_name}-injection.json"
+            if [ ! -f "$PROFILE_FILE" ]; then
+                warn "[$app_name] PROFILE_FILE missing: $PROFILE_FILE"
+            fi
+            if PYTHONPATH="$SCRIPT_DIR" python3 "$SCRIPT_DIR/inject-synthetic-profile.py" \
+                "$package_name" "$PROFILE_FILE" "$DEVICE" >"$INJECT_OUT" 2>>"$log_file"; then
+                log "[$app_name] Injection recorded to $INJECT_OUT"
+            else
+                warn "[$app_name] synthetic injection reported issues (continuing capture)"
+            fi
+        else
+            warn "[$app_name] inject-synthetic-profile.py missing - skipping injection"
+        fi
+    fi
+    # Brief observation window so post-entry sync traffic is captured.
+    log "[$app_name] Observing traffic for 15s (observation window)..."
+    sleep 15
     
     # Step 7: Export flows
     log "[$app_name] Exporting captured flows..."

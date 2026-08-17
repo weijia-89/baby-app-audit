@@ -50,6 +50,7 @@ app_packages = {
     "nara": "com.naraorganics.nara",
     "heartful-baby": "com.heartfulsprout.baby",
     "pixy": "com.pixykid.app",
+    "baby-buddy": "org.babybuddy.babybuddy",
 }
 package = app_packages.get(slug)
 if package is None:

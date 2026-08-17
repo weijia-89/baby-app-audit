@@ -173,7 +173,7 @@ The fictional profile is fixed and reusable. It is "Privatia Rigatoni", born 202
 
 1. Start the emulator and route its traffic through mitmproxy (same setup as Step 1 of How I Tested).
 2. Install the app under test and pull its APK for the hash record (Step 2).
-3. Open `results/synthetic-baby-profile.json`. Enter the values by hand in the app's own data-entry screens while the capture proxy is live: baby name, birth date and weight, one feeding of 482 mL with the formula note, one sleep session of 777 minutes, one diaper weight of 1234 g, and the free-text note `PRIVATIA-RIGATONI-SYNTH` in any note field.
+3. The automated injector (`scripts/inject-synthetic-profile.py`, wired into `run-tests.sh --live`) enters the values into the app's own data-entry screens while the capture proxy is live: baby name, birth date and weight, one feeding of 482 mL with the formula note, one sleep session of 777 minutes, one diaper weight of 1234 g, and the free-text note `PRIVATIA-RIGATONI-SYNTH` in any note field. No manual entry is required.
 4. Where an app forces account creation, create a fictional account with the same profile values. Note in the report that the transmission may be to the app's own server.
 5. Save the raw capture as `results/<app>-test-<date>/artifacts/captures/<app>.mitm`. Keep it local. It holds live tokens and must never be committed.
 6. Build the sanitized network log with `scripts/build-network-logs.sh` and commit only that.

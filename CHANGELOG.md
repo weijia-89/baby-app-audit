@@ -1,5 +1,21 @@
 # Changelog
 
+## 4.6.3 - 2026-08-16
+
+### Added
+- `scripts/adb_text.py` encodes spaces for `adb shell input text`. Unit tests: `tests/test-adb-text.sh`.
+- Per-app injector configs under `scripts/inject-config/` and Appium login helper docs in that README.
+
+### Fixed
+- Live inject no longer reads an unset device serial or profile path. `run-tests.sh` pins `adb -s` to `ANDROID_SERIAL` (default emulator-5554), including proxy cleanup.
+- App names that contain `+` (Baby+) pass input checks.
+- Google account helper launches `ADD_ACCOUNT_SETTINGS` and checks `dumpsys account` for `type=com.google`. It does not print account lists. API 29 has no `cmd account list`.
+
+## 4.6.2 - 2026-08-16
+
+### Added
+- Appium UiAutomator2 login helper: `scripts/appium-webview-login.py` taps native Baby+ LOGIN, then LOGIN WITH GOOGLE, then the device Google account in the GMS picker. Context picking lives in `scripts/webview_context.py` (`tests/test-webview-context.sh`). Live Appium is optional and not required for CI. In-app Google login still needs the audit proxy off, same as system account add.
+
 ## 4.6.1 - 2026-08-15
 
 ### Fixed
@@ -22,7 +38,7 @@
 - Full analytics and PII fanout scan: `scripts/scan-analytics-pii.sh` scans every committed network log, keeps unclassified hosts, and records every sent call with its data categories and assessment limit.
 - `results/analytics-pii.schema.json` and `results/analytics-pii-20260803.json`: machine-readable fanout inventory for all 16 apps and 212 captured calls.
 - Redaction slugs in newly built network logs. Each slug states what was removed and why, while method, host, path, status, count, and sizes remain.
-- Synthetic baby-data transmission test: the operator enters fictional baby data and watches whether that data leaves the device.
+- Synthetic baby-data transmission test: the automated injector (scripts/inject-synthetic-profile.py) enters fictional baby data while the capture proxy is live; the scan watches whether that data leaves the device. Manual entry is no longer required.
 
 ### Changed
 - Static dark-pattern searching is no longer part of the current plan. Historical scan entries remain historical record only.

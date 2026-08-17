@@ -241,7 +241,9 @@ def main():
             data = json.loads(cap_path.read_text())
             package = data.get("package_name", "")
             app_name = data.get("app", cap_path.stem)
-        except (json.JSONDecodeError, OSError):
+        except (json.JSONDecodeError, OSError, UnicodeDecodeError):
+            # Raw .mitm captures are binary; package/app metadata is recovered
+            # inside load_flows() where possible. Leave blank here.
             package = ""
             app_name = cap_path.stem
         flows = load_flows(cap_path)
