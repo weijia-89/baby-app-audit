@@ -151,3 +151,48 @@ One session. Keep the windowed API 29 emulator (`emulator-5554`). Do not restart
 | Baby Daybook Pairip native crash | `VMRunner` UnsatisfiedLinkError on this AVD. Not a privacy verdict. | Try a device or AVD that loads Pairip, then inject. |
 | Baby+ About Baby gender | Required control with no TalkBack name. | If two unlabeled icons, tap female, then DONE, then capture+scan. |
 | Nubo capture+scan of finished use | 2026-08-18 finished milk/sleep/pump/bottle/pee/poop/note on device. Starting mitmdump + setting the emulator HTTP proxy was blocked in the agent session. Keep the 0-byte `Nubo.mitm` from 2026-08-17. | Start mitmdump to a new file (do not overwrite the 0-byte file). Set proxy `10.0.2.2:8080`. Run `python3 scripts/inject-synthetic-profile.py com.clicksie.nuboapp`. Stop mitmdump. `settings put global http_proxy :0`. Run `scripts/scan-synthetic-baby-data.sh` on the new file. Optional: set formula-per-click to 90 in Nubo settings (home still logs 15 mL). |
+
+## Screenshots for every prior test
+
+The later public article needs a picture of each step we actually ran, not only Nubo. Keep PNGs under `results/<app>-test-<date>/artifacts/uiux/` (binary `adb exec-out screencap`). Do not commit those files.
+
+**Already on disk (Nubo 2026-08-18, this operator machine only):** `article-01-logs.png`, `article-02-chart.png`, `article-03-device.png`, `article-04-logs-again.png`, plus `after-inject.png` and `after-inject3.png`. These files are gitignored. Other clones will not have them until the backfill runs.
+
+**Still needed (re-open or re-run; do not invent screenshots):** home, form, save, and at least one log or chart screen for every app we already tested. Include Pairip CLOSE screens (Pebbi, Nurture Lock, Baby Daybook crash) so the article can show a blocked path. Include Baby+ About You and About Baby. Include Amila Done/home. Include MimiLog bottle save. Include launch-only apps (BabyCenter, BellyBloom, Nanit, Pregnancy+, What to Expect, Heartful Baby, Nara, Pixy, Baby Buddy) even if the only screen is first launch.
+
+**Success:** each app in FINAL-REPORT has at least one labeled PNG in its evidence tree, or a written reason that the emulator cannot show that screen.
+
+## App surface and sync-condition coverage (snapshot 2026-08-18)
+
+This is a planning report, not a new privacy verdict. Percents are rough from screens we reached, not from line coverage.
+
+**What most captures actually are:** a first-launch window of about one to five minutes through the system HTTP proxy. That window can show install, ads, and Firebase setup. It does not prove we waited as long as a delayed sync, and it does not prove we hit every button that starts a backup.
+
+**Sync conditions we usually did not trigger on purpose:**
+
+- Wait 15 to 60 minutes idle (many SDKs batch then).
+- Background the app, lock the phone, or reconnect Wi-Fi.
+- Tap Backup, Restore, Share, Collaborate, or Sign in (except Baby+ Google login for About You).
+- Pair hardware (Nubo device, Nanit camera, and similar).
+- A packet capture the app cannot skip (needed before we say Firebase sent nothing). See METHODOLOGY.md.
+
+**Per-app snapshot**
+
+| App | About how much of the app we used | Finished profile + activity? | Waited for a delayed sync? | Hit the usual sync buttons? |
+| --- | --- | --- | --- | --- |
+| Nubo | Home timers, Logs, a saved note, Chart and Device tabs as pictures. Not Settings extras (90 mL / 45 min / 5 h), not Backup/Restore, not Google login, not BLE pair, not reminders or collab. About 5 of 39 activities in the APK manifest (`apks/nubo.apk`). | Yes on device (2026-08-18). Capture of that run is still missing. | No soak. | No Backup/Share/Sign-in. |
+| MimiLog | Create profile (earlier), Dashboard Bottle 482 mL, nap 777, note. | Yes, local save. | No. Package has no `INTERNET`. | None. Play license is not a baby-data upload. |
+| Amila | Name, birthday, 16+ box, Done. Home showed the name. | Profile save, yes. Feeding/sleep/diaper, no. | No. | Login/sync after account, no. |
+| Baby+ | Google login (proxy off). About You CONTINUE (PUT to maker server). About Baby name typed. Gender not selected. DONE not reached. | No complete baby profile. | No. | Cloud PUT on CONTINUE, yes. Rest of logged-in app, no. |
+| Pebbi | Welcome, units, Add New Baby. Complete Setup not saved. Pairip on cold start. | No. | No. | No. |
+| Nurture Lock | Pairip CLOSE only. | No. | No. | No. |
+| Baby Daybook | Pairip native crash. No inject. | No. | No. | No. |
+| Baby Buddy | Launch / local web. Zero app-originated outbound in replay. | Synthetic inject not in the live batch. | No designed soak. | Self-hosted; no vendor sync by design. |
+| BabyCenter, BellyBloom, Nanit, Pregnancy+, What to Expect, Heartful Baby, Nara, Pixy | First-launch capture only. | No synthetic profile in those windows. | Launch window only, not a 15-60 min idle. | No account, camera, or backup flows in the live inject batch. |
+
+**Final-sprint work from this report**
+
+1. For each app above, write a one-line list of screens still unvisited that could start a sync (Backup, Sign in, Share, device pair, settings).
+2. For at least Nubo, Amila, MimiLog, and Baby+: keep capture open for 20 minutes after a finished save (minimum soak; some SDKs wait longer), then scan again.
+3. For Nubo: open Settings and set formula-per-click 90, then tap Backup if the screen exists, with a capture the app cannot skip.
+4. Do not treat a 0-byte or 0-flow system-proxy file as "sync never happens."
