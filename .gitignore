@@ -12,6 +12,8 @@ results/*-test-*/
 # Decoded traffic JSONs and HAR conversions contain the same live tokens (Firebase JWTs, refresh tokens) as .mitm captures. NEVER force-add or commit these — gitleaks fails the build on the leaked JWTs.
 results/har-inputs/
 results/decode-traffic-*.json
+# Live marker-scan outputs can include local capture paths. Keep them off git.
+results/synthetic-scan-*.json
 
 # Runtime logs (noise, may contain device identifiers)
 results/execution-logs/

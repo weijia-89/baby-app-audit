@@ -23,7 +23,7 @@ specific app. All keys are optional. Example:
 The injector is heuristic-first and works with no override file; add one only when a
 specific app's onboarding needs tuning.
 
-WebView or Chrome Custom Tab login (Baby+, Pebbi, MimiLog) is not driven by this
+WebView or Chrome Custom Tab login (Baby+, Pebbi) is not driven by this
 JSON. Use Appium:
 
 ```
@@ -32,5 +32,9 @@ appium '--allow-insecure=*:chromedriver_autodownload'
 ```
 
 The emulator must already have a Google account. The script does not print passwords.
+
+MimiLog is native Flutter after Create profile. Labels live in `content-desc`. The onboarded recipe is `com.mimiapp.mimilog.json` (Feeding / Bottle / 482 mL). Set `"dismiss": false` on `fill_nth` so ESCAPE does not close the Bottle sheet.
+
+A `fill_nth` step without `dismiss` still sends DPAD_CENTER and ESCAPE after typing (Amila, Baby Daybook). That hides the keyboard so later `tap_bounds` can hit Done.
 
 Baby+ **About Baby** gender is a required control with no TalkBack name (empty `content-desc`, no Boy/Girl nodes). See FINAL-REPORT.md Baby+. Do not expect `tap_text` to select gender.

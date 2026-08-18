@@ -246,12 +246,15 @@ Outputs delivered:
 - Keep the emulator window visible so the operator can see it. Do not leave it running with no window.
 - Prefer Appium / WebView context over screenshot coordinate taps for login-gated apps.
 - Prefer skip or no-gender on synthetic baby forms when the app offers it.
+- When offering a choice, explain it in very simple language (ELI12) and say which option is more thorough.
 
 ## Learned Workspace Facts
 - Google account sign-in fails while the mitm proxy is on (cert pinning). Turn the proxy off for Google auth; restore `10.0.2.2:8080` before capture.
 - Do not launch `UiMinfaActivity` to add a Google account; it opens Gmail IMAP setup. Use `android.settings.ADD_ACCOUNT_SETTINGS`, then tap Google.
 - API 29 has no `adb shell cmd account list`. An empty result is a false empty; check `dumpsys account` instead.
-- Native inject configs exist for Amila and Baby Daybook. Pebbi, Baby+, and MimiLog are WebView or login-gated.
+- Native inject configs exist for Amila, Baby Daybook, and onboarded MimiLog. Pebbi and Baby+ are WebView or login-gated. MimiLog is not FOSS. After a profile exists, Feeding / Bottle uses `content-desc`. ESCAPE closes the Bottle sheet; the recipe sets `dismiss: false` on `fill_nth`.
 - Baby+ About Baby requires gender (Boy/Girl only). The gender control has empty content-desc and no Boy/Girl nodes in the dump; log that as an accessibility finding, not as an operator tap.
+- Baby+ About You CONTINUE sends a first-party PUT to `appserver.health-and-parenting.com`; a plaintext marker scan can miss an encoded name in that body.
+- A 0-flow mitm capture through the system HTTP proxy is not proof data stayed on-device. Flutter apps often ignore that proxy.
 - `adb exec-out screencap` must stay binary. Do not decode it as text or the PNG is corrupted.
 - Use screenshots to drive WebView coordinates when uiautomator dumps expose no nodes.

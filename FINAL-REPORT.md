@@ -1,7 +1,7 @@
 # Final Report - Which Baby Apps Keep Their Privacy Promises
 
 **Test run:** baby-app-audit-20260803
-**Dates:** 2026-08-03 to 2026-08-14
+**Dates:** 2026-08-03 to 2026-08-17
 **Harness version:** 3.3.0
 **Author:** Wei Jia
 **License:** GPL-3.0
@@ -14,7 +14,7 @@ Nine apps make a privacy promise. Seven of them sent data off the device. Only B
 | App | Privacy claim | Result | Privacy | Confidence | Key findings |
 | --- | --- | --- | --- | --- | --- |
 | Baby Buddy | Open source | PASS | 💖 | 100% | No data leaves your phone. The app talks only to itself on the same device |
-| MimiLog | "Fully offline" | PASS | 💖 | 100% | One call to Google's setup service at launch. The app holds no valid project, so it sends nothing |
+| MimiLog | "Fully offline" | PASS | 💖 | 100% | One call to Google's setup service at launch. The app holds no valid project, so it sends nothing. A later live save also showed no baby-profile traffic through the system proxy |
 | Amila | No claim | No claim | ❕ | 90% | The app registers this install with Google and downloads app settings and font files at launch |
 | Baby+ | "AdID not auto-enabled" | FAIL | ❕ | 90% | The app contacts a Philips server, Google, and Firebase at launch |
 | Heartful Baby | "HIPAA-compliant" | FAIL | ❕ | 90% | The app sends one usage log to Google Firebase at launch. A HIPAA claim does not match this |
@@ -96,7 +96,7 @@ Method:
 - After capture, `scripts/scan-synthetic-baby-data.sh` greps the raw local capture for the profile's marker strings. It reports which fictional values appear in a request body, a response body, or a request URL, and the recipient host for each.
 - The committed, sanitized network logs are not searched. Their bodies are redacted, so the fictional values would be invisible there. Only the raw local capture can show exfiltration.
 
-Status: the profile, the scan tool, and a unit test are in place. Live inject+scan is in progress. Baby+ (2026-08-16): Google sign-in reached **About You** / **About Baby**. Parent-name **CONTINUE** sent a `PUT` to `appserver.health-and-parenting.com` with no plaintext marker match. Baby name was entered; **DONE** did not complete because gender is not exposed to automation (see Baby+ accessibility note). Verdict remains pending.
+Status: the profile, the scan tool, and a unit test are in place. Live inject+scan is in progress. Baby+ (2026-08-16): Google sign-in reached **About You** / **About Baby**. Parent-name **CONTINUE** sent a `PUT` to `appserver.health-and-parenting.com` with no plaintext marker match. Baby name was entered; **DONE** did not complete because gender is not exposed to automation (see Baby+ accessibility note). MimiLog (2026-08-17): local save; 0 system-proxy flows; scan `no_transmission_detected`.[^mimilog-play] Amila (2026-08-17): name saved on the home screen. Capture had 9 flows. Scan: `no_transmission_detected` (0 marker hits). Baby Daybook (2026-08-17): crashed at Pairip native load on this emulator. No inject.
 
 ## Proprietary apps - long report
 
@@ -250,6 +250,8 @@ The Play Store pages make no no-data-sharing or offline promise. We acquired the
 
 ## FOSS self-hosted
 
+Baby Buddy is the only open-source app in this test.
+
 ### Baby Buddy
 - **Claim:** Open source - see [github.com/babybuddy/babybuddy](https://github.com/babybuddy/babybuddy)
 - **Result:** PASS
@@ -259,16 +261,6 @@ The Play Store pages make no no-data-sharing or offline promise. We acquired the
 | Service | Data shared | Call/Log |
 | --- | --- | --- |
 | httpbin.org (curl probe) | Capture-environment connectivity check (User-Agent: curl/8.7.1). No app data. | httpbin.org/get (artifact, not app-originated) |
-
-### MimiLog
-- **Claim:** "Fully offline" (Google Play listing)
-- **Result:** PASS
-- **Confidence:** 100%. The app tried one setup call to Google Firebase. The app holds no valid project, so no data was exchanged. "Fully offline" holds.
-- **Capture:** 2026-08-03, launch window, 0 completed outgoing calls (1 setup call that never connected).
-
-| Service | Data shared | Call/Log |
-| --- | --- | --- |
-| Google (Firebase) | Setup call only. No data was exchanged because the app holds no valid project | (setup call to firebase; never completed) |
 
 ## Proprietary apps - short report
 
@@ -313,6 +305,19 @@ The Play Store pages make no no-data-sharing or offline promise. We acquired the
 | Google (messages) | Registers the phone to receive push and message services | android.apis.google.com |
 
 - **Network log:** [network-log-baby-daybook.json](results/network-log-baby-daybook.json)
+
+### MimiLog
+- **Claim:** "Fully offline" - see [Google Play listing](https://play.google.com/store/apps/details?id=com.mimiapp.mimilog)
+- **Result:** PASS
+- **Confidence:** 100%. The app tried one setup call to Google Firebase. The app holds no valid project, so no data was exchanged. "Fully offline" holds.
+- **Capture:** 2026-08-03, launch window, 0 completed outgoing calls (1 setup call that never connected).
+- **Live check (2026-08-17):** No sign-in. No Internet permission. Profile and tracker values stayed on the device. The system HTTP proxy saw 0 flows. Scan: `no_transmission_detected`.[^mimilog-play]
+
+| Service | Data shared | Call/Log |
+| --- | --- | --- |
+| Google (Firebase) | Setup call only. No data was exchanged because the app holds no valid project | (setup call to firebase; never completed) |
+
+- **Network log:** [network-log-mimilog.json](results/network-log-mimilog.json)
 
 ### Nubo
 - **Claim:** "Local-first" (Google Play listing)
@@ -377,11 +382,25 @@ Four of the five wave-1 apps ship at least one program that records installs and
 
 ## Advice
 
-**For parents:** Do not trust "offline" or "local-first" claims. Baby Buddy is the only app we tested that sent nothing off the device.
+**For parents:** Do not trust "offline" or "local-first" claims. Baby Buddy made no app-originated calls. MimiLog's launch Firebase setup never completed, and a later live save showed 0 flows on the system HTTP proxy.
 
 **For developers:** If you say "offline", remove the analytics and attribution code. One outbound call breaks the claim.
 
 **For regulators:** "100% offline" and "local-first" are testable claims. Someone should test them.
+
+## Footnotes
+
+[^mimilog-play]: MimiLog live save and Play license (2026-08-17). Settings lists units, theme, language, and notifications only. There is no sign-in or cloud sync. The package requests `com.android.vending.CHECK_LICENSE` and does not declare `INTERNET`. It ships Pairip `LicenseActivity` / `LicenseContentProvider`.
+
+    Entered while the emulator HTTP proxy was on: name Privatia Rigatoni, birth date 14 Mar 2026, sex Prefer not to say, bottle 482 mL, nap 777 minutes, note `PRIVATIA-RIGATONI-SYNTH`. Diaper has no weight field, so 1234 g was not entered. The feeding capture file stayed at 0 bytes (0 flows). Scan verdict: `no_transmission_detected`. That result covers only traffic that used the system HTTP proxy.
+
+    The app does not call Google itself for the license check. It binds to the Play Store service. Play talks to Google's license server. Play sends the package name, the Play account user id, and other license fields. It does not read the in-app name, birth date, or sex fields. See [Setting up licensing](https://developer.android.com/google/play/licensing/setting-up).
+
+    Pairip is Play Automatic Integrity Protection with a license check at launch; some builds add extra device checks. See [APKiD issue 495](https://github.com/rednaga/apkid/issues/495).
+
+    Play Integrity (a related API, not the same as LVL) collects package, version, signing cert, license status, and device attestation. Optional `nonce` and `requestHash` are visible to Google. Do not put user content in those fields. See [Play Integrity overview](https://developer.android.com/google/play/integrity/overview) and [Play Integrity data safety](https://developer.android.com/google/play/integrity/terms).
+
+    A 0-flow system-proxy capture does not prove a Play Store call was absent. Play often skips the system HTTP proxy and pins TLS. A later capture can watch `com.android.vending` at cold start. Scan that capture for the fictional name (expect a miss) and for Play license hosts. A Play/GMS call without the fictional markers is not a baby-data transmission.
 
 ## Artifacts
 

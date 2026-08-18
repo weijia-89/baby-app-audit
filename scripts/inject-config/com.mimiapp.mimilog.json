@@ -1,0 +1,13 @@
+{
+  "steps": [
+    { "tap_text": "Dashboard" },
+    { "wait": 1 },
+    { "tap_text": "Feeding" },
+    { "wait": 1 },
+    { "tap_text": "Bottle" },
+    { "wait": 1 },
+    { "fill_nth": ["482"], "dismiss": false },
+    { "tap_text": "Save" },
+    { "wait": 2 }
+  ]
+}
