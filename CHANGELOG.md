@@ -1,5 +1,25 @@
 # Changelog
 
+## 4.6.6 - 2026-08-18
+
+### Added
+- Injector steps: `tap_id`, `am_start` (same package only), `keyevent`, and `force_stop`. A tall text field is tapped near the top so the keyboard does not cover the tap. `am_start` rejects shell characters and classes outside the target package. Key codes are an allowlist. Wait steps cap at 30 seconds. Disabled buttons are not treated as taps.
+- Nubo recipe `scripts/inject-config/com.clicksie.nuboapp.json`. Milk, sleep, and pump each start and stop. Bottle, pee, and poop each log one event. A note is saved.
+- Profile extras Nubo asks for that were not already stored under another name: `formula_click_increment` (90, not 482 mL), `nursing_timeout_minutes` (45, not 777), `sleep_idle_timeout_hours` (5), `fluid_unit` (ml), `birth_date_us` (`03/14/26`, same birth as `2026-03-14`).
+
+### Changed
+- `METHODOLOGY.md`: alias-first profile fields; what it takes to claim Firebase sent nothing (packet capture the app cannot skip, reachable-host control, finished-activity window).
+
+### Fixed
+- Nubo live run (2026-08-18): finished sessions on the saved Privatia Rigatoni profile. Logs showed bottle 15 mL (app default per click) and pump 30 mL. Note save returned to MainActivity. Proxy capture for that run was not started in this session.
+
+## 4.6.5 - 2026-08-17
+
+### Fixed
+- `FINAL-REPORT.md` and `ROADMAP.md`: Pebbi live run on 2026-08-17. Appium reached Add New Baby. Complete Setup did not save. Cold start hit Pairip. Pulled 3.2.1, 3.4.0, 3.5.0. Capture had 8 flows. Scan: `no_transmission_detected`.
+- Nurture Lock on this API 29 emulator opens Pairip `LicenseActivity` with CLOSE only. No inject.
+- Nubo installed from `apks/nubo.apk`. Profile saved (name + DOB). No gender field. System-proxy capture 0 bytes. Scan: `no_transmission_detected`.
+
 ## 4.6.4 - 2026-08-17
 
 ### Added

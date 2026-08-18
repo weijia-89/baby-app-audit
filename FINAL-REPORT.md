@@ -96,7 +96,7 @@ Method:
 - After capture, `scripts/scan-synthetic-baby-data.sh` greps the raw local capture for the profile's marker strings. It reports which fictional values appear in a request body, a response body, or a request URL, and the recipient host for each.
 - The committed, sanitized network logs are not searched. Their bodies are redacted, so the fictional values would be invisible there. Only the raw local capture can show exfiltration.
 
-Status: the profile, the scan tool, and a unit test are in place. Live inject+scan is in progress. Baby+ (2026-08-16): Google sign-in reached **About You** / **About Baby**. Parent-name **CONTINUE** sent a `PUT` to `appserver.health-and-parenting.com` with no plaintext marker match. Baby name was entered; **DONE** did not complete because gender is not exposed to automation (see Baby+ accessibility note). MimiLog (2026-08-17): local save; 0 system-proxy flows; scan `no_transmission_detected`.[^mimilog-play] Amila (2026-08-17): name saved on the home screen. Capture had 9 flows. Scan: `no_transmission_detected` (0 marker hits). Baby Daybook (2026-08-17): crashed at Pairip native load on this emulator. No inject.
+Status: the profile, the scan tool, and a unit test are in place. Live inject+scan is in progress. Baby+ (2026-08-16): Google sign-in reached **About You** / **About Baby**. Parent-name **CONTINUE** sent a `PUT` to `appserver.health-and-parenting.com` with no plaintext marker match. Baby name was entered; **DONE** did not complete because gender is not exposed to automation (see Baby+ accessibility note). MimiLog (2026-08-17): local save; 0 system-proxy flows; scan `no_transmission_detected`.[^mimilog-play] Amila (2026-08-17): name saved on the home screen. Capture had 9 flows. Scan: `no_transmission_detected` (0 marker hits). Baby Daybook (2026-08-17): crashed at Pairip native load on this emulator. No inject. Pebbi (2026-08-17): 4.0.1 reached **Add New Baby** then Pairip on cold start. Pulled 3.2.1 (forced update), 3.4.0 and 3.5.0 (Pairip). No saved Pebbi profile. Nurture Lock: Pairip **CLOSE** only. Nubo (2026-08-18): profile already saved. Full start/stop milk, sleep, and pump sessions, plus bottle/pee/poop taps and a saved note. Proxy capture for that run was not started here. Scan still `no_transmission_detected` on the 0-byte file from 2026-08-17.
 
 ## Proprietary apps - long report
 
@@ -332,6 +332,7 @@ Baby Buddy is the only open-source app in this test.
 | Google (messages) | Registers the phone to receive push and message services | android.apis.google.com |
 
 - **Network log:** [network-log-nubo.json](results/network-log-nubo.json)
+- **Live check (2026-08-18):** Full use on the already-saved Privatia Rigatoni profile. Left and right milk timers started and stopped. Sleep timer started and stopped. Pump timer started and stopped. One bottle tap (logged 15 mL, the app default per click, not 482 and not the profile extra 90). Pee and poop taps. Note title and body saved (`PRIVATIA-RIGATONI-SYNTH` / `Rigatoni-8823-synthfeed`); the app returned to MainActivity Logs. Name still on the home/log header. System HTTP proxy capture was not started in this session (host tool block). Scan of the earlier 0-byte `Nubo.mitm` remains `no_transmission_detected`. A 0-flow proxy is not proof Firebase or GMS was silent. Operator capture+scan is on the final sprint list in ROADMAP.md.
 
 ### Nurture Lock
 - **Claim:** "100% offline" (Google Play listing)
@@ -344,6 +345,7 @@ Baby Buddy is the only open-source app in this test.
 | RevenueCat | Receives your subscription state: whether you pay and what you have unlocked | api.revenuecat.com |
 
 - **Network log:** [network-log-nurture-lock.json](results/network-log-nurture-lock.json)
+- **Live check (2026-08-17):** Launch opened Pairip `LicenseActivity`. The dialog says to enable Google Play and use an up-to-date version. The only button is **CLOSE**. Appium then failed because `MainActivity` never started. No profile was entered. The emulator Play Store package is stub `com.android.vending` 1.8.
 
 ### Pebbi
 - **Claim:** No claim (control app)
@@ -358,6 +360,7 @@ Baby Buddy is the only open-source app in this test.
 | Google (messages) | Registers the phone to receive push and message services | android.apis.google.com |
 
 - **Network log:** [network-log-pebbi.json](results/network-log-pebbi.json)
+- **Live check (2026-08-17):** A monkey launch hit the same Pairip **CLOSE** dialog. An Appium session with no app reset reached native **Welcome to Pebbi**, then **Customise Settings** (units), then **Add New Baby**. Contexts stayed `NATIVE_APP` (no WebView). The name field took typing. Date of birth is a picker (`Select date and time of birth`). Gender is two icon buttons with no TalkBack name. **Complete Setup** stayed disabled. Pulled APKPure 3.2.1 (opens, then **Update required** with no Later), 3.4.0 and 3.5.0 (Pairip). 4.0.1 cold start returns to Pairip on this Play stub. Proxy capture of the 4.0.1 walk: 8 flows. Scan: `no_transmission_detected`. This is not a saved profile.
 
 ## Cross-app view
 

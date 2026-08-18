@@ -117,13 +117,14 @@ Apps that make privacy/offline claims but cannot be acquired via APKPure or F-Dr
 
 | App | Package | Baseline | UI/UX | Flow | Verdict |
 |-----|---------|----------|-------|------|---------|
-| Pebbi | com.pebbi.android | done | WebView/splash, 0 native EditText (CLOSE only, 15 screens) | BLOCKED: WebView; native injector cannot drive; needs WebView automation or account | - |
+| Pebbi | com.pebbi.android | done | 2026-08-17: Pairip CLOSE on cold start. Appium warm path: Welcome, units, Add New Baby (name EditText + date picker + icon gender). No WebView. | BLOCKED: Play license on cold start (vending 1.8 stub). Form reached once; Complete Setup not saved | no_transmission_detected on 8-flow proxy capture; profile not saved |
 | Amila | com.amila.parenting | done | 2 native EditText (Baby name, Birthday) + 16+ checkbox + Done | built + validated (`inject-config/com.amila.parenting.json`) | no_transmission_detected (profile stored locally; app syncs only after login) |
 | Baby Daybook | com.drillyapps.babydaybook | done | 2 native EditText (same layout as Amila) + 16+ checkbox + Done | built + validated (`inject-config/com.drillyapps.babydaybook.json`) | no_transmission_detected (same) |
 | Baby+ | com.hp.babyapp | done | Logged in. About You + About Baby captured. Gender control has no TalkBack name (see FINAL-REPORT Baby+) | About You CONTINUE works (`inject-config/com.hp.babyapp.json`). About Baby DONE blocked: required gender is one unlabeled EditText | pending (DONE not reached) |
 | MimiLog | com.mimiapp.mimilog | done | Native Flutter. Create profile then Dashboard. Labels in `content-desc`. No Google. Package has no `INTERNET`. | onboarded recipe `inject-config/com.mimiapp.mimilog.json` (Bottle 482 mL, `dismiss: false`) | no_transmission_detected on system HTTP proxy (0 flows). Play license is not a baby-profile upload. |
+| Nubo | com.clicksie.nuboapp | done | 2026-08-17 create profile; 2026-08-18 home timers + Logs | built (`inject-config/com.clicksie.nuboapp.json`): start/stop milk L/R, sleep, pump; bottle/pee/poop taps; NoteActivity save | no_transmission_detected on 0-byte 2026-08-17 proxy file. Full-use UI completed 2026-08-18. Capture+scan for that run is final-sprint operator work |
 
-**Validation result (2026-08-16):** the injector + per-app `steps` flows are proven end-to-end on Amila and Baby Daybook - they fill the baby name, check the 16+ box, tap Done, and the capture + scan report the correct `no_transmission_detected`. Those two apps keep the profile local and only sync after account login. A Google account is on the emulator. Baby+ Google login succeeded with the proxy off. Baby+ **DONE** is blocked by an unlabeled gender control (accessibility finding in FINAL-REPORT). Pebbi still needs a live Appium login run (`scripts/appium-webview-login.py`). MimiLog (2026-08-17) does not need Appium.
+**Validation result (2026-08-16):** the injector + per-app `steps` flows are proven end-to-end on Amila and Baby Daybook - they fill the baby name, check the 16+ box, tap Done, and the capture + scan report the correct `no_transmission_detected`. Those two apps keep the profile local and only sync after account login. A Google account is on the emulator. Baby+ Google login succeeded with the proxy off. Baby+ **DONE** is blocked by an unlabeled gender control (accessibility finding in FINAL-REPORT). Pebbi (2026-08-17) is native after Pairip, not WebView login. Cold start needs a real Play Store license, not the API 29 stub. Nurture Lock on this AVD is Pairip CLOSE only. Nubo 1.4 is installed from `apks/nubo.apk`. Profile saved 2026-08-17. Full activity inject 2026-08-18 (see table). MimiLog (2026-08-17) does not need Appium.
 
 Note: the earlier generic heuristic injector still works for apps whose onboarding form is reachable from launch, but the per-app `steps` flows are what make the verdicts meaningful and repeatable (no re-driving the app by hand).
 
@@ -138,3 +139,15 @@ Note: the earlier generic heuristic injector still works for apps whose onboardi
 - After each capture: run `scripts/scan-analytics-pii.sh` to inventory all analytics and PII-bearing calls, including unknown hosts.
 - Update `RESULTS-20260803.json` `evidence_source` for the 8 apps from `session-summary` to `raw-replay`, refresh the FINAL-REPORT blocks, and re-run all gates (unit tests, evidence inventory, schema validation).
 - Success criterion: all 16 apps have `evidence_source: raw-replay` and a preserved, non-zero-byte capture tree; zero apps classified on decode-level evidence alone.
+
+## Final sprint - operator sit-down
+
+One session. Keep the windowed API 29 emulator (`emulator-5554`). Do not restart it headless. Google sign-in: proxy off, then restore `10.0.2.2:8080` before capture.
+
+| Blocker | Why an operator is required | What to do |
+| --- | --- | --- |
+| Pebbi Play license / Pairip | Cold start opens Pairip `LicenseActivity`. Play Store on this AVD is stub 1.8. Complete Setup stayed disabled when female was not tapped. | Install a real Play Store, open 4.0.1, tap female, save the profile, then capture+scan. |
+| Nurture Lock Pairip | Local 1.0.13 only. CLOSE only. No inject. | Same Play license path, or skip if the licensed build still cannot leave Pairip. |
+| Baby Daybook Pairip native crash | `VMRunner` UnsatisfiedLinkError on this AVD. Not a privacy verdict. | Try a device or AVD that loads Pairip, then inject. |
+| Baby+ About Baby gender | Required control with no TalkBack name. | If two unlabeled icons, tap female, then DONE, then capture+scan. |
+| Nubo capture+scan of finished use | 2026-08-18 finished milk/sleep/pump/bottle/pee/poop/note on device. Starting mitmdump + setting the emulator HTTP proxy was blocked in the agent session. Keep the 0-byte `Nubo.mitm` from 2026-08-17. | Start mitmdump to a new file (do not overwrite the 0-byte file). Set proxy `10.0.2.2:8080`. Run `python3 scripts/inject-synthetic-profile.py com.clicksie.nuboapp`. Stop mitmdump. `settings put global http_proxy :0`. Run `scripts/scan-synthetic-baby-data.sh` on the new file. Optional: set formula-per-click to 90 in Nubo settings (home still logs 15 mL). |

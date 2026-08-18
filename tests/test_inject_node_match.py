@@ -84,6 +84,88 @@ def test_fill_nth_string_false_is_false():
     assert dismiss is False
 
 
+NUBO_DUMP = """<?xml version="1.0" encoding="UTF-8"?>
+<hierarchy>
+  <node class="android.widget.ImageView" resource-id="com.clicksie.nuboapp:id/btnMilkL"
+      clickable="true" bounds="[170,724][489,1043]" />
+  <node class="android.widget.ImageView" resource-id="com.clicksie.nuboapp:id/btnSleep"
+      clickable="true" bounds="[498,355][928,671]" />
+  <node class="android.widget.TextView" text="Skip" clickable="true"
+      bounds="[800,1800][1000,1900]" />
+</hierarchy>
+"""
+
+
+def test_matches_resource_id_suffix():
+    ns = list(ET.fromstring(NUBO_DUMP).iter())
+    n = mod.find_node_by_id(ns, "btnMilkL")
+    assert n is not None
+    assert n.get("resource-id").endswith("btnMilkL")
+
+
+def test_resource_id_miss_returns_none():
+    ns = list(ET.fromstring(NUBO_DUMP).iter())
+    assert mod.find_node_by_id(ns, "btnBottle") is None
+
+
+def test_am_start_requires_same_package():
+    ok = mod.parse_am_start(
+        {"am_start": "com.clicksie.nuboapp/com.clicksie.nuboapp.ui.activity.NoteActivity"},
+        "com.clicksie.nuboapp",
+    )
+    assert ok.endswith("NoteActivity")
+    assert (
+        mod.parse_am_start(
+            {"am_start": "com.evil/com.evil.Leak"},
+            "com.clicksie.nuboapp",
+        )
+        is None
+    )
+
+
+def test_am_start_rejects_shell_metacharacters():
+    assert (
+        mod.parse_am_start(
+            {"am_start": "com.clicksie.nuboapp/com.clicksie.nuboapp.Note;reboot"},
+            "com.clicksie.nuboapp",
+        )
+        is None
+    )
+
+
+def test_am_start_rejects_class_outside_package():
+    assert (
+        mod.parse_am_start(
+            {"am_start": "com.clicksie.nuboapp/com.android.settings.Settings"},
+            "com.clicksie.nuboapp",
+        )
+        is None
+    )
+
+
+def test_keyevent_allowlist():
+    assert mod.parse_keyevent({"keyevent": 111}) == 111
+    assert mod.parse_keyevent({"keyevent": "111"}) == 111
+    assert mod.parse_keyevent({"keyevent": 26}) is None
+    assert mod.parse_keyevent({"keyevent": "home"}) is None
+
+
+def test_wait_is_capped():
+    assert mod.parse_wait({"wait": 1}) == 1.0
+    assert mod.parse_wait({"wait": 9999}) == 30.0
+    assert mod.parse_wait({"wait": -1}) == 0.0
+    assert mod.parse_wait({"wait": "nope"}) is None
+
+
+def test_node_enabled_false():
+    n = ET.fromstring(
+        '<node resource-id="com.clicksie.nuboapp:id/btnSave" enabled="false" />'
+    )
+    assert mod.node_enabled(n) is False
+    n2 = ET.fromstring('<node resource-id="com.clicksie.nuboapp:id/btnSave" />')
+    assert mod.node_enabled(n2) is True
+
+
 if __name__ == "__main__":
     test_matches_content_desc_when_text_empty()
     test_still_matches_visible_text()
@@ -94,4 +176,12 @@ if __name__ == "__main__":
     test_fill_nth_dismiss_false_for_flutter_sheet()
     test_fill_nth_rejects_non_list()
     test_fill_nth_string_false_is_false()
+    test_matches_resource_id_suffix()
+    test_resource_id_miss_returns_none()
+    test_am_start_requires_same_package()
+    test_am_start_rejects_shell_metacharacters()
+    test_am_start_rejects_class_outside_package()
+    test_keyevent_allowlist()
+    test_wait_is_capped()
+    test_node_enabled_false()
     print("ok")
