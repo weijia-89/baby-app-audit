@@ -1,5 +1,14 @@
 # Changelog
 
+## 4.6.7 - 2026-08-18
+
+### Added
+- `ROADMAP.md`: screenshot set for every prior test (article evidence, gitignored PNGs). Snapshot of how much of each app we used, whether we waited for a delayed sync, and which sync buttons we did not tap.
+- `.github/workflows/test.yml`: banned-word check now includes `ROADMAP.md` and `FINAL-REPORT.md`.
+
+### Changed
+- `FINAL-REPORT.md` and `AGENTS.md`: point at the coverage snapshot and the screenshot backfill.
+
 ## 4.6.6 - 2026-08-18
 
 ### Added
