@@ -242,19 +242,24 @@ Outputs delivered:
 - Keep Cursor skills synced to origin. OpenCode holds the latest skills; treat laptop-migration skill notes as stale and delete them.
 - Invoke superpowers and trainer throughout this harness work.
 - Source of how to run agent work is OpenCode `AGENTS.md` at `/Users/dubs/.config/opencode/AGENTS.md` (local gitignored copy: `.agent/opencode-AGENTS.md`).
-- Do not ask the operator to tap labeled buttons (OK, I agree, NEXT) that uiautomator can find by text.
-- Keep the emulator window visible so the operator can see it. Do not leave it running with no window.
+- Do not ask the operator to tap labeled buttons (OK, I agree, NEXT) that uiautomator can find by text. Drive adb, uiautomator, or Appium yourself.
+- Keep the emulator window visible so the operator can see it. Use emulator-5554 only; ignore emulator-5556. Do not restart a live windowed session into headless.
 - Prefer Appium / WebView context over screenshot coordinate taps for login-gated apps.
-- Prefer skip or no-gender on synthetic baby forms when the app offers it.
+- Prefer skip or no-gender on synthetic baby forms when the app offers it. If gender is required and skip is not offered, select female (including unlabeled icon gender) rather than stopping.
 - When offering a choice, explain it in very simple language (ELI12) and say which option is more thorough.
+- Keep FINAL-REPORT as the existing table plus per-app block. Put deep-dive license or provenance material in footnotes. Do not add special per-app dive sections.
+- When Play license, a missing package, or Pairip blocks inject, pull or sideload an APK or emulate the needed calls. Do not treat a CLOSE-only dump as a completed profile.
+- Keep screenshots of each inject step (home, form, saved log, charts). We will later turn this project into a public site and article that explains, piece by piece, how we collected the data, including for readers who are not engineers. Store those PNGs under `results/<app>-test-<date>/artifacts/uiux/` (binary `adb exec-out screencap`; gitignored evidence tree; never commit secrets).
 
 ## Learned Workspace Facts
-- Google account sign-in fails while the mitm proxy is on (cert pinning). Turn the proxy off for Google auth; restore `10.0.2.2:8080` before capture.
+- Google account sign-in fails while the mitm proxy is on (cert pinning). Turn the proxy off for Google auth; restore `10.0.2.2:8080` before capture. After capture set proxy `:0`. SIGINT mitmdump; confirm `lsof` shows port 8080 free before a new dump (the child may outlive the wrapper).
 - Do not launch `UiMinfaActivity` to add a Google account; it opens Gmail IMAP setup. Use `android.settings.ADD_ACCOUNT_SETTINGS`, then tap Google.
 - API 29 has no `adb shell cmd account list`. An empty result is a false empty; check `dumpsys account` instead.
-- Native inject configs exist for Amila, Baby Daybook, and onboarded MimiLog. Pebbi and Baby+ are WebView or login-gated. MimiLog is not FOSS. After a profile exists, Feeding / Bottle uses `content-desc`. ESCAPE closes the Bottle sheet; the recipe sets `dismiss: false` on `fill_nth`.
-- Baby+ About Baby requires gender (Boy/Girl only). The gender control has empty content-desc and no Boy/Girl nodes in the dump; log that as an accessibility finding, not as an operator tap.
+- Native inject configs exist for Amila, Baby Daybook, and onboarded MimiLog. Pebbi after Pairip is native (Welcome / Add New Baby), not WebView. Baby+ remains login-gated. MimiLog is not FOSS. After a profile exists, Feeding / Bottle uses `content-desc`. ESCAPE closes the Bottle sheet; the recipe sets `dismiss: false` on `fill_nth`.
+- Baby+ About Baby requires gender (Boy/Girl only). The gender control has empty content-desc and no Boy/Girl nodes in the dump; log that as an accessibility finding. Still complete the form when a female control is tappable.
 - Baby+ About You CONTINUE sends a first-party PUT to `appserver.health-and-parenting.com`; a plaintext marker scan can miss an encoded name in that body.
-- A 0-flow mitm capture through the system HTTP proxy is not proof data stayed on-device. Flutter apps often ignore that proxy.
+- A 0-flow mitm capture through the system HTTP proxy is not proof data stayed on-device. Flutter apps often ignore that proxy. Proof that Firebase was silent needs a reachable-host control, a packet capture the app cannot skip, a finished-profile time window, and two records that agree. See METHODOLOGY.md "What proves Firebase is silent".
+- Nubo article screenshots (2026-08-18): `/Users/dubs/Projects/baby-app-audit-sprint4/results/nubo-test-20260818/artifacts/uiux/article-01-logs.png`, `article-02-chart.png`, `article-03-device.png`, `article-04-logs-again.png`. Also `after-inject.png` (note typed), `after-inject3.png` (logs after save).
 - `adb exec-out screencap` must stay binary. Do not decode it as text or the PNG is corrupted.
 - Use screenshots to drive WebView coordinates when uiautomator dumps expose no nodes.
+- On this API 29 Google APIs AVD, a stub Play Store (`com.android.vending` 1.8) makes Pairip `LicenseActivity` CLOSE-only (Pebbi, Nurture Lock). Baby Daybook crashes `UnsatisfiedLinkError` Pairip `VMRunner`. That is not a privacy verdict.

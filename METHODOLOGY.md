@@ -167,13 +167,13 @@ I welcome independent verification. If you run the test and get different result
 
 Static dark-pattern searching is no longer part of the project. This operator test has one purpose: determine whether fictional baby data leaves the device. It closes the launch-capture gap described in the Final Report Limits section.
 
-The fictional profile is fixed and reusable. It is "Privatia Rigatoni", born 2026-03-14 at 6 lbs 8 oz, with sentinel feeding, sleep, and diaper values chosen to be unusual so they do not appear by chance in normal traffic. The full profile and its marker strings live in `results/synthetic-baby-profile.json`. Do not change the markers between apps; the point is to reuse one identity across all 16 apps.
+The fictional profile is one identity: "Privatia Rigatoni", born 2026-03-14 at 6 lbs 8 oz, with sentinel feeding, sleep, and diaper values. The full profile and marker strings live in `results/synthetic-baby-profile.json`. Keep those markers the same across apps. If an app asks for a field that is not in `baby`, check `field_aliases` first (same value, other name or date format). Only then add a net-new field. Do not invent a second baby.
 
 ### Procedure
 
 1. Start the emulator and route its traffic through mitmproxy (same setup as Step 1 of How I Tested).
 2. Install the app under test and pull its APK for the hash record (Step 2).
-3. The automated injector (`scripts/inject-synthetic-profile.py`, wired into `run-tests.sh --live`) enters the values into the app's own data-entry screens while the capture proxy is live: baby name, birth date and weight, one feeding of 482 mL with the formula note, one sleep session of 777 minutes, one diaper weight of 1234 g, and the free-text note `PRIVATIA-RIGATONI-SYNTH` in any note field. No manual entry is required.
+3. The automated injector (`scripts/inject-synthetic-profile.py`, wired into `run-tests.sh --live`) enters the values into the app's own data-entry screens while the capture proxy is live: baby name, birth date and weight, one feeding of 482 mL with the formula note, one sleep session of 777 minutes, one diaper weight of 1234 g, and the free-text note `PRIVATIA-RIGATONI-SYNTH` in any note field. If the app uses timers instead of amount fields, start the activity and stop it so the session is finished. No manual entry is required.
 4. Where an app forces account creation, create a fictional account with the same profile values. Note in the report that the transmission may be to the app's own server.
 5. Save the raw capture as `results/<app>-test-<date>/artifacts/captures/<app>.mitm`. Keep it local. It holds live tokens and must never be committed.
 6. Build the sanitized network log with `scripts/build-network-logs.sh` and commit only that.
@@ -185,6 +185,20 @@ The fictional profile is fixed and reusable. It is "Privatia Rigatoni", born 202
 8. Record the verdict per app in the Final Report: `transmission_observed` (a marker left the device) or `no_transmission_detected` (the capture shows the entered values did not leave).
 
 The committed, sanitized network logs are NOT searched by this test. Their bodies are replaced by redaction slugs, so the fictional values would be invisible there. Only the raw local capture can prove exfiltration.
+
+### What proves Firebase is silent
+
+A 0-byte capture through the Android system HTTP proxy does not prove Firebase (or Google Mobile Services) stayed quiet. Many apps ignore that proxy. Flutter apps often do. Google Play services can send traffic on a different path.
+
+To claim Firebase sent nothing in a test window, you need all of these:
+
+1. A control that the Firebase hosts are reachable from the same device at the same time. If `firebaseinstallations.googleapis.com` and `app-measurement.com` cannot be reached, an empty capture can mean "no network", not "no SDK call".
+2. A capture the app cannot skip. Record packets on the emulator interface (`tcpdump` on `eth0`) or use a VPN that takes all TCP and UDP. Do not rely on the system HTTP proxy alone.
+3. A host list check on that packet file: no TLS ClientHello or DNS lookup for Firebase and Crashlytics hosts during the window. Repeat the check for the app UID in `dumpsys netstats`.
+4. The window must cover a finished profile and at least one finished activity (start then stop or save). An empty launch-only window is too short.
+5. Two independent records that agree (packet file plus logcat Firebase lines, or packet file plus a second VPN capture).
+
+If the APK has no Firebase SDK (no `FirebaseInitProvider`, no `google-services.json`, no Firebase classes), that is stronger than an empty proxy file. Still run the packet check, because Play services on the device can send on the app's behalf.
 
 Do not use real baby data. Do not infer consent pressure or user intent from this test.
 

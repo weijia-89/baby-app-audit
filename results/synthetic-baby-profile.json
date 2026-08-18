@@ -5,7 +5,7 @@
   "mother_age": 30,
   "parity": "yes",
   "description": "Fictional baby profile used by the synthetic baby-data transmission test. Every value is invented. The operator enters these exact values in each app's own data-entry screens while the app runs through the capture proxy. The scan then searches the raw local capture for the marker strings below. No real baby data is used and no consent is implied.",
-  "usage": "Enter the values verbatim where the app has a matching field. Where a field has no natural home, paste the synth_token into any free-text or note field. Numbers are chosen to be unusual (not physiologically typical) so they are unlikely to appear by chance in normal app traffic; they are supporting markers only. A real transmission finding requires at least one high- or medium-confidence string marker, or a numeric marker found in a request body.",
+  "usage": "Enter the values verbatim where the app has a matching field. Check field_aliases before adding a new baby field. Where a field has no natural home, paste the synth_token into any free-text or note field. Finish onboarding and at least one complete activity (start then save or stop) so a finished-profile event could exist. Numbers are chosen to be unusual (not physiologically typical) so they are unlikely to appear by chance in normal app traffic; they are supporting markers only. A real transmission finding requires at least one high- or medium-confidence string marker, or a numeric marker found in a request body.",
   "baby": {
     "name": "Privatia Rigatoni",
     "birth_date": "2026-03-14",
@@ -15,8 +15,26 @@
     "sleep_example_minutes": 777,
     "diaper_example_weight_g": 1234,
     "free_text_note": "PRIVATIA-RIGATONI-SYNTH",
-    "formula_brand_note": "Rigatoni-8823-synthfeed"
+    "formula_brand_note": "Rigatoni-8823-synthfeed",
+    "fluid_unit": "ml",
+    "formula_click_increment": 90,
+    "nursing_timeout_minutes": 45,
+    "sleep_idle_timeout_hours": 5,
+    "birth_date_us": "03/14/26"
   },
+  "field_aliases": {
+    "birth_date": ["2026-03-14", "03/14/26", "03/14/2026", "14 Mar 2026"],
+    "feeding_example_volume_ml": ["482"],
+    "sleep_example_minutes": ["777"],
+    "formula_click_increment": ["90"],
+    "nursing_timeout_minutes": ["45"],
+    "sleep_idle_timeout_hours": ["5"]
+  },
+  "app_field_notes": [
+    "If an app asks for a value that is not in baby, check field_aliases first. Only then add a net-new field. Do not invent a second baby.",
+    "Nubo formula-per-click is formula_click_increment (90), not feeding_example_volume_ml (482). Nursing timeout is nursing_timeout_minutes (45), not sleep_example_minutes (777). Sleep idle timeout is sleep_idle_timeout_hours (5).",
+    "Nubo has no gender field. Complete left and right milk, sleep, pump (start then stop), plus one bottle click, pee, poop, and a saved note so finished-activity events exist."
+  ],
   "markers": [
     {
       "id": "name",
@@ -68,6 +86,13 @@
       "entry_instruction": "Birth date field. App may reformat the date; if so the reformatted value is the one to look for."
     },
     {
+      "id": "birth_date_us",
+      "value": "03/14/26",
+      "type": "date",
+      "confidence": "medium",
+      "entry_instruction": "Same birth as birth_date, US short form. Not a second baby."
+    },
+    {
       "id": "feed_volume",
       "value": "482",
       "type": "numeric",
@@ -87,6 +112,20 @@
       "type": "numeric",
       "confidence": "low",
       "entry_instruction": "Enter 1234 in a diaper weight field (grams). Supporting only."
+    },
+    {
+      "id": "formula_click_increment",
+      "value": "90",
+      "type": "numeric",
+      "confidence": "low",
+      "entry_instruction": "Nubo formula-per-click. Not the 482 mL bottle volume."
+    },
+    {
+      "id": "nursing_timeout_min",
+      "value": "45",
+      "type": "numeric",
+      "confidence": "low",
+      "entry_instruction": "Nubo nursing timeout in minutes. Not the 777 minute nap."
     }
   ]
 }

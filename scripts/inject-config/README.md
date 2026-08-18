@@ -37,4 +37,8 @@ MimiLog is native Flutter after Create profile. Labels live in `content-desc`. T
 
 A `fill_nth` step without `dismiss` still sends DPAD_CENTER and ESCAPE after typing (Amila, Baby Daybook). That hides the keyboard so later `tap_bounds` can hit Done.
 
-Baby+ **About Baby** gender is a required control with no TalkBack name (empty `content-desc`, no Boy/Girl nodes). See FINAL-REPORT.md Baby+. Do not expect `tap_text` to select gender.
+`am_start` launches an activity in the same package only (`package/class`). The class name must start with that package. Shell characters are rejected. `keyevent` only sends BACK, DPAD_CENTER, TAB, ENTER, DEL, or ESCAPE (111 hides the keyboard on the Nubo Notes screen so Save is tappable). Wait steps stop at 30 seconds. `force_stop` (config root, bool) kills the app before launch so a leftover screen does not hide home buttons. `tap_id` skips a node with `enabled=false`.
+
+Baby+ **About Baby** gender is a required control with no TalkBack name (empty `content-desc`, no Boy/Girl nodes). See FINAL-REPORT.md Baby+. If the control is two icons and skip is not offered, tap female.
+
+Nubo (`com.clicksie.nuboapp.json`) is native after onboarding. `tap_id` hits resource-id suffixes (`btnMilkL`, `btnMilkR`, `btnSleep`, `btnBottle`, `btnPee`, `btnPoop`, `btnPump`). Milk, sleep, and pump: tap start then tap stop. Bottle, pee, and poop: one tap logs the event. `am_start` may open `NoteActivity` in the same package only. Skip device pairing. Formula-per-click 90 is not the 482 mL bottle volume.
