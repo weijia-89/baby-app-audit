@@ -50,6 +50,20 @@ def main():
             if data.get("force_stop") is not True:
                 print("nubo must force_stop so Notes does not block home", file=sys.stderr)
                 return 1
+            for s in data["steps"]:
+                if "wait" in s:
+                    try:
+                        if float(s["wait"]) > 30:
+                            print("nubo wait exceeds 30 seconds", file=sys.stderr)
+                            return 1
+                    except (TypeError, ValueError):
+                        print("nubo wait is not a number", file=sys.stderr)
+                        return 1
+                if "am_start" in s:
+                    comp = s["am_start"]
+                    if not str(comp).startswith("com.clicksie.nuboapp/com.clicksie.nuboapp."):
+                        print("nubo am_start must stay inside the nubo package", file=sys.stderr)
+                        return 1
         stem = path.stem
         if stem.count(".") < 1:
             print(f"filename is not a package name: {path}", file=sys.stderr)

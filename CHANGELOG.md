@@ -9,6 +9,7 @@
 
 ### Changed
 - `METHODOLOGY.md`: alias-first profile fields; what it takes to claim Firebase sent nothing (packet capture the app cannot skip, reachable-host control, finished-activity window).
+- Injector re-dumps the view between `fill_nth` fields. Swipe steps must be on-screen numbers. Tiny `[0,0][0,0]` nodes are not tapped.
 
 ### Fixed
 - Nubo live run (2026-08-18): finished sessions on the saved Privatia Rigatoni profile. Logs showed bottle 15 mL (app default per click) and pump 30 mL. Note save returned to MainActivity. Proxy capture for that run was not started in this session.

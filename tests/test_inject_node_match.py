@@ -143,6 +143,23 @@ def test_am_start_rejects_class_outside_package():
     )
 
 
+def test_am_start_rejects_whitespace_and_flags():
+    assert (
+        mod.parse_am_start(
+            {"am_start": "com.clicksie.nuboapp/com.clicksie.nuboapp.Note --user 0"},
+            "com.clicksie.nuboapp",
+        )
+        is None
+    )
+
+
+def test_swipe_requires_numeric_on_screen_coords():
+    assert mod.parse_swipe({"swipe": [540, 1500, 540, 700, 400]}) == [540, 1500, 540, 700, 400]
+    assert mod.parse_swipe({"swipe": ["left"]}) is None
+    assert mod.parse_swipe({"swipe": [540, 1500, 540, 700, 99999]})[4] == 5000
+    assert mod.parse_swipe({"swipe": [-1, 0, 1, 1]}) is None
+
+
 def test_keyevent_allowlist():
     assert mod.parse_keyevent({"keyevent": 111}) == 111
     assert mod.parse_keyevent({"keyevent": "111"}) == 111
@@ -181,6 +198,8 @@ if __name__ == "__main__":
     test_am_start_requires_same_package()
     test_am_start_rejects_shell_metacharacters()
     test_am_start_rejects_class_outside_package()
+    test_am_start_rejects_whitespace_and_flags()
+    test_swipe_requires_numeric_on_screen_coords()
     test_keyevent_allowlist()
     test_wait_is_capped()
     test_node_enabled_false()

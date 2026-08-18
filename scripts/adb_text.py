@@ -43,3 +43,12 @@ def bounds_tap_for_edit(bounds):
     if (y2 - y1) > 400:
         return bounds_tap(bounds, "top")
     return bounds_tap(bounds, "center")
+
+
+def bounds_usable(bounds):
+    """False for missing or tiny hit boxes ([0,0][0,0])."""
+    m = re.search(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]", bounds or "")
+    if not m:
+        return False
+    x1, y1, x2, y2 = map(int, m.groups())
+    return (x2 - x1) >= 8 and (y2 - y1) >= 8

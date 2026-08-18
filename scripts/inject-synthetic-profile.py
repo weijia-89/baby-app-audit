@@ -33,7 +33,7 @@ import time
 import xml.etree.ElementTree as ET
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from adb_text import bounds_center, bounds_tap_for_edit, encode_adb_text
+from adb_text import bounds_center, bounds_tap_for_edit, bounds_usable, encode_adb_text
 
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PROFILE_DEFAULT = os.path.join(REPO_ROOT, "results", "synthetic-baby-profile.json")
@@ -75,7 +75,8 @@ def adb(args, timeout=30):
 
 
 def load_profile(path):
-    prof = json.load(open(path))
+    with open(path, encoding="utf-8") as fh:
+        prof = json.load(fh)
     b = prof.get("baby", {})
     return {
         "name": b.get("name", "Privatia Rigatoni"),
@@ -180,6 +181,8 @@ def tap_id(rid):
     n = find_node_by_id(nodes(tree), rid)
     if n is None or not node_enabled(n):
         return False
+    if not bounds_usable(n.get("bounds") or ""):
+        return False
     c = center(n.get("bounds"))
     if not c:
         return False
@@ -223,6 +226,23 @@ def parse_wait(step):
     if sec < 0:
         return 0.0
     return min(sec, WAIT_MAX_SEC)
+
+
+def parse_swipe(step):
+    """Return [x1,y1,x2,y2,duration_ms] or None if the recipe is not numeric."""
+    coords = step.get("swipe")
+    if not isinstance(coords, (list, tuple)) or len(coords) < 4:
+        return None
+    try:
+        x1, y1, x2, y2 = (int(coords[0]), int(coords[1]), int(coords[2]), int(coords[3]))
+        dur = int(coords[4]) if len(coords) > 4 else 400
+    except (TypeError, ValueError):
+        return None
+    for v in (x1, y1, x2, y2):
+        if v < 0 or v > 10000:
+            return None
+    dur = max(1, min(dur, 5000))
+    return [x1, y1, x2, y2, dur]
 
 
 def node_enabled(n):
@@ -309,7 +329,8 @@ def main():
     overrides = {}
     cfg = os.path.join(REPO_ROOT, "scripts", "inject-config", f"{package}.json")
     if os.path.exists(cfg):
-        overrides = json.load(open(cfg))
+        with open(cfg, encoding="utf-8") as fh:
+            overrides = json.load(fh)
 
     entries = []
     if overrides.get("force_stop"):
@@ -360,10 +381,15 @@ def main():
                 adb(["shell", "screencap", "-p", "/sdcard/step.png"])
             elif "fill_nth" in step:
                 # Fill the Nth native EditText with value N (fields have no hints).
+                # Re-dump after each field: the IME changes bounds for later fields.
                 field_vals, dismiss = parse_fill_nth(step)
-                tree = dump_view()
-                edits = [e for e in nodes(tree) if "EditText" in (e.get("class") or "")]
                 for i, v in enumerate(field_vals):
+                    tree = dump_view()
+                    edits = [
+                        e
+                        for e in nodes(tree)
+                        if "EditText" in (e.get("class") or "") and node_enabled(e)
+                    ]
                     if i >= len(edits):
                         entries.append({"action": "fill_nth", "index": i, "value": v, "ok": False})
                         continue
@@ -382,15 +408,14 @@ def main():
                     time.sleep(FIELD_PAUSE)
                     entries.append({"action": "tap_bounds", "value": step["tap_bounds"], "ok": True})
             elif "swipe" in step:
-                coords = step["swipe"]
-                if not isinstance(coords, (list, tuple)) or len(coords) < 4:
-                    entries.append({"action": "swipe", "value": coords, "ok": False})
+                nums = parse_swipe(step)
+                if not nums:
+                    entries.append({"action": "swipe", "value": step.get("swipe"), "ok": False})
                     continue
-                x1, y1, x2, y2 = coords[0], coords[1], coords[2], coords[3]
-                dur = coords[4] if len(coords) > 4 else 400
+                x1, y1, x2, y2, dur = nums
                 adb(["shell", "input", "swipe", str(x1), str(y1), str(x2), str(y2), str(dur)])
                 time.sleep(SCREEN_PAUSE)
-                entries.append({"action": "swipe", "value": coords, "ok": True})
+                entries.append({"action": "swipe", "value": nums, "ok": True})
         summary = {"package": package, "mode": "steps", "entries": entries, "screens": len(steps)}
         print(json.dumps(summary, indent=2))
         return 0
