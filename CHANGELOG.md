@@ -1,5 +1,20 @@
 # Changelog
 
+## 4.6.4 - 2026-08-17
+
+### Added
+- Injector `tap_text` matches `content-desc` as well as `text`, so Flutter TalkBack labels work. Unit tests: `tests/test_inject_node_match.py`.
+- MimiLog inject config (`scripts/inject-config/com.mimiapp.mimilog.json`) for the live onboarded Dashboard: Feeding, Bottle, volume 482 mL, Save. Create-profile is gone once a baby exists.
+- `.gitignore` entry for `results/synthetic-scan-*.json` so local scan files with machine paths are not committed.
+
+### Changed
+- `FINAL-REPORT.md`: MimiLog live save sits in the existing table and the proprietary short write-up. Extra live and Play-license detail stays in Footnotes (`[^mimilog-play]`). MimiLog is not FOSS; it is no longer under FOSS self-hosted.
+- Injector `fill_nth` sends DPAD_CENTER and ESCAPE after typing unless the step sets `"dismiss": false`. MimiLog Bottle needs `dismiss: false`. Amila and Baby Daybook keep the default so Done is not under the keyboard.
+
+### Fixed
+- MimiLog live run (2026-08-17): bottle 482 mL saved. Nap 777 minutes saved. Synth note saved. System-proxy capture stayed at 0 flows.
+- `FINAL-REPORT.md` grouped MimiLog under FOSS self-hosted. MimiLog is a closed Play Store app. The public GitHub page has no source license and no app source. The write-up now sits in the proprietary short report.
+
 ## 4.6.3 - 2026-08-16
 
 ### Added

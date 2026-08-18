@@ -17,6 +17,11 @@ def main():
         if "steps" not in data or not isinstance(data["steps"], list):
             print(f"missing steps list: {path}", file=sys.stderr)
             return 1
+        if path.name == "com.mimiapp.mimilog.json":
+            nth = [s for s in data["steps"] if "fill_nth" in s]
+            if not nth or nth[0].get("dismiss") is not False:
+                print("mimilog fill_nth must set dismiss false", file=sys.stderr)
+                return 1
         stem = path.stem
         if stem.count(".") < 1:
             print(f"filename is not a package name: {path}", file=sys.stderr)

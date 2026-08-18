@@ -124,17 +124,25 @@ def dump_view():
 
 
 def find_node_by_text(ns, text):
+    """Match node text first, then content-desc (Flutter TalkBack labels)."""
+    needle = text.lower()
     for n in ns:
         if (n.get("text") or "") == text:
             return n
     for n in ns:
-        if text.lower() in (n.get("text") or "").lower():
+        if (n.get("content-desc") or "") == text:
+            return n
+    for n in ns:
+        if needle in (n.get("text") or "").lower():
+            return n
+    for n in ns:
+        if needle in (n.get("content-desc") or "").lower():
             return n
     return None
 
 
 def tap_text(text):
-    """Tap the first visible node whose text equals or contains `text`."""
+    """Tap the first node whose text or content-desc equals or contains `text`."""
     tree = dump_view()
     n = find_node_by_text(nodes(tree), text)
     if n is None:
@@ -147,13 +155,41 @@ def tap_text(text):
     return True
 
 
-def type_into_focused(val):
-    """Replace the focused field. Spaces must be %s for adb input text."""
+def _step_dismiss(step, default=True):
+    if "dismiss" not in step:
+        return default
+    v = step["dismiss"]
+    if isinstance(v, bool):
+        return v
+    if isinstance(v, str) and v.strip().lower() in ("false", "0", "no"):
+        return False
+    return bool(v)
+
+
+def parse_fill_nth(step):
+    """Return (values, dismiss). dismiss defaults True so native IME hide still runs.
+
+    Flutter sheets (MimiLog Bottle) close on ESCAPE. Set dismiss false on that step.
+    """
+    vals = step.get("fill_nth")
+    if not isinstance(vals, (list, tuple)):
+        return [], True
+    return list(vals), _step_dismiss(step, True)
+
+
+def type_into_focused(val, dismiss=True):
+    """Replace the focused field. Spaces must be %s for adb input text.
+
+    dismiss=False skips DPAD_CENTER and ESCAPE. ESCAPE closes Flutter sheets
+    (MimiLog Bottle Save never ran because ESCAPE dismissed the form).
+    """
     adb(["shell", "input", "keyevent", "123"])
     dels = ["67"] * 40
     adb(["shell", "input", "keyevent", *dels])
     adb(["shell", "input", "text", encode_adb_text(val)])
     time.sleep(FIELD_PAUSE)
+    if not dismiss:
+        return
     adb(["shell", "input", "keyevent", "23"])
     time.sleep(FIELD_PAUSE)
     adb(["shell", "input", "keyevent", "111"])
@@ -223,7 +259,7 @@ def main():
                 adb(["shell", "screencap", "-p", "/sdcard/step.png"])
             elif "fill_nth" in step:
                 # Fill the Nth native EditText with value N (fields have no hints).
-                vals = step["fill_nth"]
+                vals, dismiss = parse_fill_nth(step)
                 tree = dump_view()
                 edits = [e for e in nodes(tree) if "EditText" in (e.get("class") or "")]
                 for i, v in enumerate(vals):
@@ -236,7 +272,7 @@ def main():
                         continue
                     adb(["shell", "input", "tap", str(c[0]), str(c[1])])
                     time.sleep(FIELD_PAUSE)
-                    type_into_focused(v)
+                    type_into_focused(v, dismiss=dismiss)
                     entries.append({"action": "fill_nth", "index": i, "value": v, "ok": True})
             elif "tap_bounds" in step:
                 c = center(step["tap_bounds"])
