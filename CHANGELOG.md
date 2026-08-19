@@ -1,5 +1,15 @@
 # Changelog
 
+## 4.6.8 - 2026-08-18
+
+### Added
+- Nubo finished-use soak: new local capture `results/nubo-test-20260818-soak/` (gitignored). About 21 minutes after the inject save. Scan JSON is local only.
+- Article screenshots for prior tests (gitignored PNGs). Inventory is in ROADMAP.md.
+
+### Changed
+- `FINAL-REPORT.md` Nubo live line: 15-flow system-proxy scan, not a Firebase-silence claim.
+- `ROADMAP.md`: screenshot table, Nubo soak row, remaining blockers.
+
 ## 4.6.7 - 2026-08-18
 
 ### Added
