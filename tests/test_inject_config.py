@@ -17,6 +17,21 @@ def main():
         if "steps" not in data or not isinstance(data["steps"], list):
             print(f"missing steps list: {path}", file=sys.stderr)
             return 1
+        if path.name == "com.hp.babyapp.json":
+            texts = [s.get("tap_text") for s in data["steps"] if "tap_text" in s]
+            if "DONE" not in texts:
+                print("babyplus must tap DONE", file=sys.stderr)
+                return 1
+            bounds = [s.get("tap_bounds") for s in data["steps"] if "tap_bounds" in s]
+            # Gender TalkBack dump has no Girl node. Open CustomMaterialSpinner
+            # (right-edge tap) then tap the lower half of the Boy/Girl popup
+            # (frame [63,971][1025,1219] on the API 29 AVD).
+            if len(bounds) < 2:
+                print("babyplus must tap spinner then Girl", file=sys.stderr)
+                return 1
+            if "[63,1095][1025,1219]" not in bounds:
+                print("babyplus must tap Girl in the spinner popup", file=sys.stderr)
+                return 1
         if path.name == "com.mimiapp.mimilog.json":
             nth = [s for s in data["steps"] if "fill_nth" in s]
             if not nth or nth[0].get("dismiss") is not False:
