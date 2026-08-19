@@ -3,7 +3,7 @@
 ## 4.6.8 - 2026-08-18
 
 ### Added
-- Nubo finished-use soak: new local capture `results/nubo-test-20260818-soak/` (gitignored). About 21 minutes after the inject save. Scan JSON is local only.
+- Nubo finished-use soak: new local capture `results/nubo-test-20260818-soak/` (gitignored). The HTTP proxy stayed up about 21 minutes after the inject save. The flow file did not grow after 18:58 (15 flows). Scan JSON is local only. Those flows are all traffic through the emulator HTTP proxy, including Play, GMS, YouTube, and a host control GET, not Nubo-only.
 - Article screenshots for prior tests (gitignored PNGs). Inventory is in ROADMAP.md.
 
 ### Changed

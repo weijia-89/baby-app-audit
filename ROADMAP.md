@@ -150,7 +150,7 @@ One session. Keep the windowed API 29 emulator (`emulator-5554`). Do not restart
 | Nurture Lock Pairip | Local 1.0.13 only. CLOSE only. No inject. | Same Play license path, or skip if the licensed build still cannot leave Pairip. |
 | Baby Daybook Pairip native crash | `VMRunner` UnsatisfiedLinkError on this AVD. Not a privacy verdict. | Try a device or AVD that loads Pairip, then inject. |
 | Baby+ About Baby gender | Required control with no TalkBack name. | If two unlabeled icons, tap female, then DONE, then capture+scan. |
-| Nubo capture+scan of finished use | Done 2026-08-18 (evening soak). New file only. 0-byte `results/nubo-test-20260817/artifacts/captures/Nubo.mitm` kept. | Ran inject on `com.clicksie.nuboapp`, then kept the system HTTP proxy capture open about 21 minutes. Scan: 15 flows, verdict `no_transmission_detected` (no high/medium name or note marker in a request or URL). Backup & Restore opened Google sign-in. We did not sign in while the proxy was on. Formula-per-click stayed on 15 (taps on 90 did not stick). This is still not the Firebase-silence bar in METHODOLOGY.md (no tcpdump/VPN on this AVD; host DNS for `app-measurement.com` failed once during the window). |
+| Nubo capture+scan of finished use | Done 2026-08-18 (evening soak). New file only. 0-byte `results/nubo-test-20260817/artifacts/captures/Nubo.mitm` kept. | Ran inject on `com.clicksie.nuboapp`. The system HTTP proxy stayed up about 21 minutes. The new file has 15 flows and did not grow after 18:58. Those flows are the whole emulator proxy (Play, GMS, YouTube, host control), not Nubo-only. Scan: `no_transmission_detected` (no high/medium name or note marker in a request or URL). Backup & Restore opened Google sign-in. We did not sign in while the proxy was on. Formula-per-click stayed on 15 (taps on 90 did not stick). This is still not the Firebase-silence bar in METHODOLOGY.md (no tcpdump/VPN on this AVD; host DNS for `app-measurement.com` failed once during the window). |
 
 ## Screenshots for every prior test
 
@@ -162,7 +162,7 @@ The later public article needs a picture of each step we actually ran, not only 
 
 | App | Labeled PNG (under that app's `artifacts/uiux/`) | Notes |
 | --- | --- | --- |
-| Nubo | soak dir `nubo-test-20260818-soak`: `article-home.png`, `article-form.png`, `article-logs-after-save.png`, `article-settings.png`, `article-backup-google-login.png`, plus soak extras | Finished inject + Backup screen (Google login). Old article-01..04 kept. |
+| Nubo | soak dir `nubo-test-20260818-soak`: `article-home.png`, `article-form.png`, `article-logs-after-save.png`, `article-settings.png`, `article-backup-google-login.png`, plus soak extras | Finished inject and Backup screen (Google login). Kept `article-01-logs.png`, `article-02-chart.png`, `article-03-device.png`, and `article-04-logs-again.png`. |
 | Amila | `article-home-done.png`, `article-form.png` | Copies of the 2026-08-17 Done/home and name screens. |
 | MimiLog | `article-bottle-save.png` | Copy of the 482 mL bottle log. |
 | Baby+ | `article-about-baby.png`, `article-launch.png`, `article-relaunch.png` | About Baby shown. About You was not on screen after BACK from About Baby. |
@@ -179,7 +179,7 @@ The later public article needs a picture of each step we actually ran, not only 
 | Pixy | `article-launch.png` | Sideload of `apks/pixy.apk` then "keeps stopping". |
 | Baby Buddy | none | Not installed. No `baby-buddy` APK under `apks/`. Emulator cannot show a screen until an APK is present. |
 
-**Success for this slice:** every FINAL-REPORT app has a labeled PNG except Baby Buddy (reason above) and Baby+ About You (About Baby opened instead).
+**Success for this slice:** every FINAL-REPORT app has a labeled PNG except Baby Buddy (no APK on the emulator). Baby+ has About Baby pictures. It still lacks an About You picture.
 
 ## App surface and sync-condition coverage (snapshot 2026-08-18)
 
@@ -199,7 +199,7 @@ This is a planning report, not a new privacy verdict. Percents are rough from sc
 
 | App | About how much of the app we used | Finished profile + activity? | Waited for a delayed sync? | Hit the usual sync buttons? |
 | --- | --- | --- | --- | --- |
-| Nubo | Home timers, Logs, saved note, Settings, Edit profile, Backup & Restore (opens Google login). Chart/Device still from earlier pictures. Not BLE pair, not actual Google backup, not Share send, not formula 90. | Yes. Inject + ~21 min soak with system HTTP proxy. | Soak yes (proxy only). | Opened Backup (login screen). Did not complete Google sign-in. |
+| Nubo | Home timers, Logs, saved note, Settings, Edit profile, Backup & Restore (opens Google login). Chart/Device still from earlier pictures. Not BLE pair, not actual Google backup, not Share send, not formula 90. | Yes. Inject plus about 21 minutes with the system HTTP proxy still on. The flow file did not grow after 18:58. | Proxy stayed up. No new proxy bytes in the idle window. | Opened Backup (login screen). Did not complete Google sign-in. |
 | MimiLog | Create profile (earlier), Dashboard Bottle 482 mL, nap 777, note. | Yes, local save. | No. Package has no `INTERNET`. | None. Play license is not a baby-data upload. |
 | Amila | Name, birthday, 16+ box, Done. Home showed the name. | Profile save, yes. Feeding/sleep/diaper, no. | No. | Login/sync after account, no. |
 | Baby+ | Google login (proxy off). About You CONTINUE (PUT to maker server). About Baby name typed. Gender not selected. DONE not reached. | No complete baby profile. | No. | Cloud PUT on CONTINUE, yes. Rest of logged-in app, no. |
@@ -214,4 +214,4 @@ This is a planning report, not a new privacy verdict. Percents are rough from sc
 1. Baby Buddy still needs an APK on this emulator before we can take a first-launch picture.
 2. Baby+ About You still needs a screenshot (this session stayed on About Baby).
 3. For Nubo: packet capture the app cannot skip, then repeat Backup after proxy-off Google sign-in if you want cloud backup traffic. Formula-per-click 90 still not set.
-4. Do not treat a 0-byte file, a 0-flow file, or this 15-flow system-proxy soak as "Firebase sent nothing." See METHODOLOGY.md.
+4. Do not treat a 0-byte file, a 0-flow file, or this 15-flow emulator-wide HTTP-proxy file as "Firebase sent nothing." See METHODOLOGY.md.
