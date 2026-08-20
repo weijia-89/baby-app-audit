@@ -7,7 +7,7 @@
     { "wait": 1 },
     { "tap_bounds": "[63,1095][1025,1219]" },
     { "wait": 1 },
-    { "tap_text": "DONE" },
+    { "tap_id": "done_button" },
     { "wait": 8 }
   ]
 }

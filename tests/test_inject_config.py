@@ -1,10 +1,78 @@
 #!/usr/bin/env python3
 """Check inject-config JSON files parse and each has a steps list."""
 import json
+import re
 import sys
 from pathlib import Path
 
 CFG = Path(__file__).resolve().parents[1] / "scripts" / "inject-config"
+BOUNDS_RE = re.compile(r"^\[(\d+),(\d+)\]\[(\d+),(\d+)\]$")
+
+
+def _parse_bounds(raw):
+    if not isinstance(raw, str):
+        return None
+    m = BOUNDS_RE.match(raw)
+    if not m:
+        return None
+    return tuple(int(x) for x in m.groups())
+
+
+def _babyplus_recipe_invalid(data, silent=False):
+    """Return True if Baby+ steps cannot open Girl then save on this AVD."""
+
+    def fail(msg):
+        if not silent:
+            print(msg, file=sys.stderr)
+        return True
+    steps = data.get("steps") or []
+    kinds = []
+    for s in steps:
+        if "fill" in s:
+            kinds.append("fill")
+        elif "keyevent" in s:
+            kinds.append("keyevent")
+        elif "tap_bounds" in s:
+            kinds.append("tap_bounds")
+        elif "tap_id" in s:
+            kinds.append("tap_id")
+        elif "wait" in s:
+            try:
+                if float(s["wait"]) > 30:
+                    return fail("babyplus wait exceeds 30 seconds")
+            except (TypeError, ValueError):
+                return fail("babyplus wait is not a number")
+    fills = [s.get("fill") for s in steps if "fill" in s]
+    if not any(isinstance(f, dict) and "baby_1_name" in f for f in fills):
+        return fail("babyplus must fill baby_1_name")
+    keys = [s.get("keyevent") for s in steps if "keyevent" in s]
+    if 111 not in keys and "111" not in keys:
+        return fail("babyplus must hide the keyboard before the spinner")
+    try:
+        fill_i = kinds.index("fill")
+        key_i = kinds.index("keyevent")
+        b1 = kinds.index("tap_bounds")
+        b2 = kinds.index("tap_bounds", b1 + 1)
+        id_i = kinds.index("tap_id")
+    except ValueError:
+        return fail("babyplus must fill, hide keyboard, tap spinner, tap Girl, then DONE")
+    if not (fill_i < key_i < b1 < b2 < id_i):
+        return fail("babyplus step order must be name, keyboard hide, spinner, Girl, DONE")
+    bounds = [s.get("tap_bounds") for s in steps if "tap_bounds" in s]
+    spinner = _parse_bounds(bounds[0])
+    girl = _parse_bounds(bounds[1])
+    if spinner is None or girl is None:
+        return fail("babyplus tap_bounds must be four integers")
+    # Chevron is the right edge of CustomMaterialSpinner [63,820][1025,987].
+    if spinner[0] < 900 or spinner[1] < 800 or spinner[3] > 1000:
+        return fail("babyplus spinner tap must be the right-edge chevron")
+    # Popup content [63,971][1025,1219]; Girl is the lower row (y1 >= 1095).
+    if girl != (63, 1095, 1025, 1219):
+        return fail("babyplus Girl tap must be the lower popup row")
+    ids = [s.get("tap_id") for s in steps if "tap_id" in s]
+    if "done_button" not in ids:
+        return fail("babyplus must tap done_button by id")
+    return False
 
 
 def main():
@@ -18,19 +86,7 @@ def main():
             print(f"missing steps list: {path}", file=sys.stderr)
             return 1
         if path.name == "com.hp.babyapp.json":
-            texts = [s.get("tap_text") for s in data["steps"] if "tap_text" in s]
-            if "DONE" not in texts:
-                print("babyplus must tap DONE", file=sys.stderr)
-                return 1
-            bounds = [s.get("tap_bounds") for s in data["steps"] if "tap_bounds" in s]
-            # Gender TalkBack dump has no Girl node. Open CustomMaterialSpinner
-            # (right-edge tap) then tap the lower half of the Boy/Girl popup
-            # (frame [63,971][1025,1219] on the API 29 AVD).
-            if len(bounds) < 2:
-                print("babyplus must tap spinner then Girl", file=sys.stderr)
-                return 1
-            if "[63,1095][1025,1219]" not in bounds:
-                print("babyplus must tap Girl in the spinner popup", file=sys.stderr)
+            if _babyplus_recipe_invalid(data):
                 return 1
         if path.name == "com.mimiapp.mimilog.json":
             nth = [s for s in data["steps"] if "fill_nth" in s]
@@ -86,6 +142,18 @@ def main():
     nubo = CFG / "com.clicksie.nuboapp.json"
     if not nubo.is_file():
         print("missing nubo inject config", file=sys.stderr)
+        return 1
+    reversed_girl = {
+        "steps": [
+            {"fill": {"baby_1_name": "Privatia Rigatoni"}},
+            {"keyevent": 111},
+            {"tap_bounds": "[63,1095][1025,1219]"},
+            {"tap_bounds": "[940,860][1020,940]"},
+            {"tap_id": "done_button"},
+        ]
+    }
+    if not _babyplus_recipe_invalid(reversed_girl, silent=True):
+        print("reversed spinner/Girl recipe must fail", file=sys.stderr)
         return 1
     print("ok")
     return 0
