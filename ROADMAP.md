@@ -120,11 +120,11 @@ Apps that make privacy/offline claims but cannot be acquired via APKPure or F-Dr
 | Pebbi | com.pebbi.android | done | 2026-08-17: Pairip CLOSE on cold start. Appium warm path: Welcome, units, Add New Baby (name EditText + date picker + icon gender). No WebView. | BLOCKED: Play license on cold start (vending 1.8 stub). Form reached once; Complete Setup not saved | no_transmission_detected on 8-flow proxy capture; profile not saved |
 | Amila | com.amila.parenting | done | 2 native EditText (Baby name, Birthday) + 16+ checkbox + Done | built + validated (`inject-config/com.amila.parenting.json`) | no_transmission_detected (profile stored locally; app syncs only after login) |
 | Baby Daybook | com.drillyapps.babydaybook | done | 2 native EditText (same layout as Amila) + 16+ checkbox + Done | built + validated (`inject-config/com.drillyapps.babydaybook.json`) | no_transmission_detected (same) |
-| Baby+ | com.hp.babyapp | done | Logged in. About You + About Baby captured. Gender control has no TalkBack name (see FINAL-REPORT Baby+) | About You CONTINUE works (`inject-config/com.hp.babyapp.json`). About Baby DONE blocked: required gender is one unlabeled EditText | pending (DONE not reached) |
+| Baby+ | com.hp.babyapp | done | Logged in. About Baby name + Girl + DONE (2026-08-19). Then MainActivity Important Update (GO TO PLAYSTORE). Gender TalkBack dump still has no Boy/Girl nodes; Girl is in a PopupWindow | Recipe taps spinner then Girl then `done_button` (`inject-config/com.hp.babyapp.json`) | no_transmission_detected on 25-flow post-DONE upgrade soak; first 0-byte file kept |
 | MimiLog | com.mimiapp.mimilog | done | Native Flutter. Create profile then Dashboard. Labels in `content-desc`. No Google. Package has no `INTERNET`. | onboarded recipe `inject-config/com.mimiapp.mimilog.json` (Bottle 482 mL, `dismiss: false`) | no_transmission_detected on system HTTP proxy (0 flows). Play license is not a baby-profile upload. |
-| Nubo | com.clicksie.nuboapp | done | 2026-08-17 create profile; 2026-08-18 home timers + Logs | built (`inject-config/com.clicksie.nuboapp.json`): start/stop milk L/R, sleep, pump; bottle/pee/poop taps; NoteActivity save | no_transmission_detected on 0-byte 2026-08-17 proxy file. Full-use UI completed 2026-08-18. Capture+scan for that run is final-sprint operator work |
+| Nubo | com.clicksie.nuboapp | done | 2026-08-17 create profile; 2026-08-18 home timers + Logs | built (`inject-config/com.clicksie.nuboapp.json`): start/stop milk L/R, sleep, pump; bottle/pee/poop taps; NoteActivity save | no_transmission_detected on 15-flow 2026-08-18 soak (emulator-wide proxy). 0-byte 2026-08-17 file kept |
 
-**Validation result (2026-08-16):** the injector + per-app `steps` flows are proven end-to-end on Amila and Baby Daybook - they fill the baby name, check the 16+ box, tap Done, and the capture + scan report the correct `no_transmission_detected`. Those two apps keep the profile local and only sync after account login. A Google account is on the emulator. Baby+ Google login succeeded with the proxy off. Baby+ **DONE** is blocked by an unlabeled gender control (accessibility finding in FINAL-REPORT). Pebbi (2026-08-17) is native after Pairip, not WebView login. Cold start needs a real Play Store license, not the API 29 stub. Nurture Lock on this AVD is Pairip CLOSE only. Nubo 1.4 is installed from `apks/nubo.apk`. Profile saved 2026-08-17. Full activity inject 2026-08-18 (see table). MimiLog (2026-08-17) does not need Appium.
+**Validation result (2026-08-16):** the injector + per-app `steps` flows are proven end-to-end on Amila and Baby Daybook - they fill the baby name, check the 16+ box, tap Done, and the capture + scan report the correct `no_transmission_detected`. Those two apps keep the profile local and only sync after account login. A Google account is on the emulator. Baby+ Google login succeeded with the proxy off. Baby+ **DONE** (2026-08-19): Girl is not in the uiautomator dump. Open the spinner, tap the lower popup row, then DONE. Pebbi (2026-08-17) is native after Pairip, not WebView login. Cold start needs a real Play Store license, not the API 29 stub. Nurture Lock on this AVD is Pairip CLOSE only. Nubo 1.4 is installed from `apks/nubo.apk`. Profile saved 2026-08-17. Full activity inject 2026-08-18 (see table). MimiLog (2026-08-17) does not need Appium.
 
 Note: the earlier generic heuristic injector still works for apps whose onboarding form is reachable from launch, but the per-app `steps` flows are what make the verdicts meaningful and repeatable (no re-driving the app by hand).
 
@@ -149,7 +149,7 @@ One session. Keep the windowed API 29 emulator (`emulator-5554`). Do not restart
 | Pebbi Play license / Pairip | Cold start opens Pairip `LicenseActivity`. Play Store on this AVD is stub 1.8. Complete Setup stayed disabled when female was not tapped. | Install a real Play Store, open 4.0.1, tap female, save the profile, then capture+scan. |
 | Nurture Lock Pairip | Local 1.0.13 only. CLOSE only. No inject. | Same Play license path, or skip if the licensed build still cannot leave Pairip. |
 | Baby Daybook Pairip native crash | `VMRunner` UnsatisfiedLinkError on this AVD. Not a privacy verdict. | Try a device or AVD that loads Pairip, then inject. |
-| Baby+ About Baby gender | Required control with no TalkBack name. | If two unlabeled icons, tap female, then DONE, then capture+scan. |
+| Baby+ About Baby gender | Done 2026-08-19. Dump still has no Boy/Girl nodes. PopupWindow frame `[63,971][1025,1219]`; Girl is the lower row. | Recipe updated. About You picture still missing (account already past that screen). Force-upgrade blocks home after DONE. |
 | Nubo capture+scan of finished use | Done 2026-08-18 (evening soak). New file only. 0-byte `results/nubo-test-20260817/artifacts/captures/Nubo.mitm` kept. | Ran inject on `com.clicksie.nuboapp`. The system HTTP proxy stayed up about 21 minutes. The new file has 15 flows and did not grow after 18:58. Those flows are the whole emulator proxy (Play, GMS, YouTube, host control), not Nubo-only. Scan: `no_transmission_detected` (no high/medium name or note marker in a request or URL). Backup & Restore opened Google sign-in. We did not sign in while the proxy was on. Formula-per-click stayed on 15 (taps on 90 did not stick). This is still not the Firebase-silence bar in METHODOLOGY.md (no tcpdump/VPN on this AVD; host DNS for `app-measurement.com` failed once during the window). |
 
 ## Screenshots for every prior test
@@ -165,7 +165,7 @@ The later public article needs a picture of each step we actually ran, not only 
 | Nubo | soak dir `nubo-test-20260818-soak`: `article-home.png`, `article-form.png`, `article-logs-after-save.png`, `article-settings.png`, `article-backup-google-login.png`, plus soak extras | Finished inject and Backup screen (Google login). Kept `article-01-logs.png`, `article-02-chart.png`, `article-03-device.png`, and `article-04-logs-again.png`. |
 | Amila | `article-home-done.png`, `article-form.png` | Copies of the 2026-08-17 Done/home and name screens. |
 | MimiLog | `article-bottle-save.png` | Copy of the 482 mL bottle log. |
-| Baby+ | `article-about-baby.png`, `article-launch.png`, `article-relaunch.png` | About Baby shown. About You was not on screen after BACK from About Baby. |
+| Baby+ | 20260816: `article-about-baby.png`, `article-launch.png`, `article-relaunch.png`. 20260819: `article-about-baby-girl.png`, `article-gender-required-dialog.png`, `article-gender-icons-unlabeled.png`, `article-gender-popup-boy-girl.png`, `article-upgrade-gate.png` | Girl selected, DONE. About You still not on screen. |
 | Pebbi | `article-pairip-close.png`, `article-form.png`, `article-pairip-close-relaunch.png` | Pairip CLOSE is not a privacy verdict. |
 | Nurture Lock | `article-pairip-close.png`, `article-pairip-close-relaunch.png` | Pairip CLOSE is not a privacy verdict. |
 | Baby Daybook | `article-pairip-crash.png`, `article-pairip-crash-relaunch.png` | "keeps stopping". Not a privacy verdict. |
@@ -179,7 +179,7 @@ The later public article needs a picture of each step we actually ran, not only 
 | Pixy | `article-launch.png` | Sideload of `apks/pixy.apk` then "keeps stopping". |
 | Baby Buddy | none | Not installed. No `baby-buddy` APK under `apks/`. Emulator cannot show a screen until an APK is present. |
 
-**Success for this slice:** every FINAL-REPORT app has a labeled PNG except Baby Buddy (no APK on the emulator). Baby+ has About Baby pictures. It still lacks an About You picture.
+**Success for this slice:** every FINAL-REPORT app has a labeled PNG except Baby Buddy (no APK on the emulator). Baby+ has About Baby + Girl + upgrade-gate pictures. It still lacks an About You picture.
 
 ## App surface and sync-condition coverage (snapshot 2026-08-18)
 
@@ -202,7 +202,7 @@ This is a planning report, not a new privacy verdict. Percents are rough from sc
 | Nubo | Home timers, Logs, saved note, Settings, Edit profile, Backup & Restore (opens Google login). Chart/Device still from earlier pictures. Not BLE pair, not actual Google backup, not Share send, not formula 90. | Yes. Inject plus about 21 minutes with the system HTTP proxy still on. The flow file did not grow after 18:58. | Proxy stayed up. No new proxy bytes in the idle window. | Opened Backup (login screen). Did not complete Google sign-in. |
 | MimiLog | Create profile (earlier), Dashboard Bottle 482 mL, nap 777, note. | Yes, local save. | No. Package has no `INTERNET`. | None. Play license is not a baby-data upload. |
 | Amila | Name, birthday, 16+ box, Done. Home showed the name. | Profile save, yes. Feeding/sleep/diaper, no. | No. | Login/sync after account, no. |
-| Baby+ | Google login (proxy off). About You CONTINUE (PUT to maker server). About Baby name typed. Gender not selected. DONE not reached. | No complete baby profile. | No. | Cloud PUT on CONTINUE, yes. Rest of logged-in app, no. |
+| Baby+ | Google login (proxy off, earlier). About Baby name + Girl + DONE (2026-08-19). Then force-upgrade gate. About You not shown on this account. | Baby form saved; home blocked by upgrade. | Proxy up about 21 minutes after relaunch onto the upgrade screen. File did not grow after 19:12. | Play Store button not tapped. About You not re-opened. |
 | Pebbi | Welcome, units, Add New Baby. Complete Setup not saved. Pairip on cold start. | No. | No. | No. |
 | Nurture Lock | Pairip CLOSE only. | No. | No. | No. |
 | Baby Daybook | Pairip native crash. No inject. | No. | No. | No. |
@@ -212,6 +212,6 @@ This is a planning report, not a new privacy verdict. Percents are rough from sc
 **Final-sprint work from this report**
 
 1. Baby Buddy still needs an APK on this emulator before we can take a first-launch picture.
-2. Baby+ About You still needs a screenshot (this session stayed on About Baby).
+2. Baby+ About You still needs a screenshot (this account skips that form). Clear app data and re-login with the proxy off if you need that picture.
 3. For Nubo: packet capture the app cannot skip, then repeat Backup after proxy-off Google sign-in if you want cloud backup traffic. Formula-per-click 90 still not set.
 4. Do not treat a 0-byte file, a 0-flow file, or this 15-flow emulator-wide HTTP-proxy file as "Firebase sent nothing." See METHODOLOGY.md.

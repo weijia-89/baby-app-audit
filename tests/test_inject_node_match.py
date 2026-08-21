@@ -183,6 +183,31 @@ def test_node_enabled_false():
     assert mod.node_enabled(n2) is True
 
 
+BABYPLUS_DUMP = """<?xml version="1.0" encoding="UTF-8"?>
+<hierarchy>
+  <node text="By tapping 'Done' you agree to our terms" clickable="true"
+      bounds="[55,1655][1025,1713]" />
+  <node text="DONE" resource-id="com.hp.babyapp:id/done_button" clickable="true"
+      bounds="[55,1746][1025,1889]" />
+</hierarchy>
+"""
+
+
+def test_done_exact_text_beats_terms_sentence():
+    ns = list(ET.fromstring(BABYPLUS_DUMP).iter())
+    n = mod.find_node_by_text(ns, "DONE")
+    assert n is not None
+    assert n.get("text") == "DONE"
+    assert n.get("resource-id").endswith("done_button")
+
+
+def test_done_button_id_suffix():
+    ns = list(ET.fromstring(BABYPLUS_DUMP).iter())
+    n = mod.find_node_by_id(ns, "done_button")
+    assert n is not None
+    assert n.get("text") == "DONE"
+
+
 if __name__ == "__main__":
     test_matches_content_desc_when_text_empty()
     test_still_matches_visible_text()
@@ -203,4 +228,6 @@ if __name__ == "__main__":
     test_keyevent_allowlist()
     test_wait_is_capped()
     test_node_enabled_false()
+    test_done_exact_text_beats_terms_sentence()
+    test_done_button_id_suffix()
     print("ok")

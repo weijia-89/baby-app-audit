@@ -1,5 +1,17 @@
 # Changelog
 
+## 4.6.9 - 2026-08-19
+
+### Added
+- Baby+ live pass (2026-08-19): name Privatia Rigatoni, Girl selected, DONE. App opened MainActivity with an Important Update screen (GO TO PLAYSTORE). Local pictures and captures stay under `results/baby-plus-test-20260819/` (gitignored).
+- Inject recipe for Baby+ now hides the keyboard, opens the gender spinner (right-edge tap), taps Girl in the popup, then taps `done_button` by id (`tests/test_inject_config.py` checks order and bounds).
+
+### Fixed
+- Baby+ inject test no longer accepts a reversed spinner/Girl order or a tap on the terms line that contains the word Done. The save step uses `done_button`. ROADMAP Nubo verdict cell now matches the 2026-08-18 soak.
+
+### Changed
+- `FINAL-REPORT.md` and `ROADMAP.md`: Baby+ DONE is no longer blocked. About You was not on screen (account already past that form). First proxy file stayed 0 bytes because mitmdump exited with the start script. A second file `BabyPlus-post-done-upgrade-soak.mitm` (716,753 bytes, 25 flows) ran about 21 minutes on the upgrade screen. The file grew at 19:00 (relaunch plus a host control) and again at 19:12 (`play.googleapis.com`). It did not grow after 19:12. Scan: `no_transmission_detected`. The baby-name marker appeared in a **response** from the maker server, not in a request or URL. Flows are the whole emulator HTTP proxy (maker, Facebook, Firebase, ads, Cognito, S3 backup hosts, Play), not Baby+-only. This is not a Firebase-silence claim.
+
 ## 4.6.8 - 2026-08-18
 
 ### Added
