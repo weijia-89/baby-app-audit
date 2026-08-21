@@ -1,5 +1,17 @@
 # Changelog
 
+## 4.6.10 - 2026-08-21
+
+### Added
+- Baby+ About You live pass (2026-08-21): cleared `com.hp.babyapp`, Google login with proxy off, About You PNG on disk, parent name Privatia Rigatoni, CONTINUE, About Baby Girl + `done_button`, then force-upgrade. Local evidence under `results/baby-plus-test-20260821/` (gitignored).
+- `scripts/har_postdata.py` plus `tests/test_har_dump_postdata.py` / `tests/test-har-dump.sh` so HAR conversion keeps request body text.
+
+### Fixed
+- `scripts/har_dump.py` now writes HAR `postData.text`. Without that field, `scan-synthetic-baby-data.sh` on `.mitm` files could not see request bodies and missed the Baby+ About You PUT.
+
+### Changed
+- `FINAL-REPORT.md` and `ROADMAP.md`: About You picture and capture are present. Capture `BabyPlus-about-you-full.mitm` has 14 flows and 589,030 bytes. Size reached that value during inject (About You CONTINUE plus About Baby DONE). It did not grow across a 21-minute idle on the upgrade screen. Scan after the HAR fix: `transmission_observed`. High-confidence name marker in a **request** PUT to `appserver.health-and-parenting.com` (`firstName`). Name also appears in a later maker-server **response**. Flows are the whole emulator HTTP proxy (maker server, Google ads, S3 backup GETs), not Baby+-only. Two earlier 0-byte mitm starts on this date were kept. Play Store was not tapped. This is not a Firebase-silence claim.
+
 ## 4.6.9 - 2026-08-19
 
 ### Added

@@ -118,6 +118,7 @@ jobs:
           bash -n tests/test-burst-runner.sh || exit 1
           bash -n tests/test-results-artifacts.sh || exit 1
           bash -n tests/test-synthetic-baby-data.sh || exit 1
+          bash -n tests/test-har-dump.sh || exit 1
           bash -n tests/test-webview-context.sh || exit 1
           bash -n tests/test-adb-text.sh || exit 1
           bash -n tests/test-google-account-intent.sh || exit 1
@@ -180,6 +181,7 @@ jobs:
           bash tests/test-analytics-pii.sh
           bash tests/test-network-log-redaction.sh
           bash tests/test-synthetic-baby-data.sh
+          bash tests/test-har-dump.sh
           bash tests/test-webview-context.sh
           bash tests/test-adb-text.sh
           bash tests/test-google-account-intent.sh
