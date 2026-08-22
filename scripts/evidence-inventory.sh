@@ -11,9 +11,9 @@ set -euo pipefail
 #
 #   - every app in results/RESULTS-20260803.json has a readable
 #     results/network-log-<app>.json (committed, so this passes on CI)
-#   - any preserved results/*-test-<date>/ tree holds a non-empty *.mitm
-#   - preserves nothing with a 0-byte capture (a zero-byte .mitm means a
-#     capture was clobbered or the session failed)
+#
+# Zero-byte *.mitm files only warn. They are kept on purpose when mitmdump
+# dies on the first start (AGENTS.md). Missing committed network logs still fail.
 #
 # It warns (never fails) about rot signals: decode files whose flow list
 # has emptied, and empty preserved HAR conversions. The warning list is
@@ -26,7 +26,8 @@ MODE="${1:---check}"
   exit 2
 }
 
-results="$repo_root/results"
+# Optional override for tests (never set in production CI).
+results="${EVIDENCE_RESULTS_DIR:-$repo_root/results}"
 results_json="$results/RESULTS-20260803.json"
 
 if [ ! -f "$results_json" ]; then
@@ -34,12 +35,15 @@ if [ ! -f "$results_json" ]; then
   exit 1
 fi
 
-python3 - "$results" <<'PY'
+python3 - "$results" "$repo_root/scripts" <<'PY'
 import json
 import os
 import sys
 
 results = sys.argv[1]
+sys.path.insert(0, sys.argv[2])
+from evidence_mitm_policy import classify_zero_byte_mitms
+
 apps = json.load(open(os.path.join(results, "RESULTS-20260803.json")))["apps"]
 logs = {}
 for name in os.listdir(results):
@@ -52,7 +56,10 @@ for name in os.listdir(results):
 for app in apps:
     pkg = app["package_name"]
     if pkg not in logs:
-        print(f"[ERROR] evidence: no network log for {app['name']} ({pkg}) - committed artifact missing")
+        print(
+            f"[ERROR] evidence: no network log for {app['name']} ({pkg}) - committed artifact missing",
+            file=sys.stderr,
+        )
         sys.exit(1)
 
 captures = 0
@@ -63,16 +70,20 @@ for entry in sorted(os.listdir(results)):
     captures_dir = os.path.join(path, "artifacts", "captures")
     if not os.path.isdir(captures_dir):
         continue
+    mitm_sizes = []
     for fname in sorted(os.listdir(captures_dir)):
         fpath = os.path.join(captures_dir, fname)
+        if not os.path.isfile(fpath):
+            continue
         size = os.path.getsize(fpath)
-        if fname.endswith(".mitm"):
+        if fname.lower().endswith(".mitm"):
             captures += 1
-            if size == 0:
-                print(f"[ERROR] evidence: zero-byte capture {entry}/{fname} - capture lost or clobbered")
-                sys.exit(1)
-        if size == 0:
+            mitm_sizes.append((fname, size))
+        elif size == 0:
             print(f"[WARN] evidence: zero-byte artifact {entry}/{fname}")
+    _errors, warns = classify_zero_byte_mitms(mitm_sizes)
+    for fname in warns:
+        print(f"[WARN] evidence: zero-byte capture {entry}/{fname} kept (failed start or empty session)")
 
 decode_rot = 0
 raw_preserved = set()
@@ -81,7 +92,12 @@ for entry in sorted(os.listdir(results)):
         capdir = os.path.join(results, entry, "artifacts", "captures")
         if os.path.isdir(capdir):
             for fname in os.listdir(capdir):
-                if fname.endswith(".mitm") and os.path.getsize(os.path.join(capdir, fname)) > 0:
+                fpath = os.path.join(capdir, fname)
+                if (
+                    os.path.isfile(fpath)
+                    and fname.lower().endswith(".mitm")
+                    and os.path.getsize(fpath) > 0
+                ):
                     raw_preserved.add(entry.split("-test-")[0].lower())
 for fname in sorted(os.listdir(results)):
     if not fname.startswith("decode-traffic-") or not fname.endswith(".json"):

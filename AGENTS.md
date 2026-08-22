@@ -209,7 +209,7 @@ Raw captures, decode files, and network logs are permanent evidence. Never delet
 - NEVER run `rm`, `rm -rf`, `find -delete`, or a cleanup pass over `results/`. There is no retention window: METHODOLOGY's old 90-day deletion policy no longer applies; evidence stays on disk indefinitely (gitignored for secrets, never committed).
 - The only legitimate deletion is the harness's own `WORK_DIR` under `${HOME}/apk-privacy-test-*` (it deletes only what it created). `KEEP_WORK_DIR=1` preserves even that.
 - Never sweep or run a "git tree clean of test artifacts" pass unless a verified backup restores the files.
-- Mechanical backstop: `scripts/evidence-inventory.sh --check` fails the harness pre-flight when a committed network log is missing or a preserved capture is zero-byte. It warns on rotted decode files. Run it directly before any deletion: `bash scripts/evidence-inventory.sh --check`.
+- Mechanical backstop: `scripts/evidence-inventory.sh --check` fails the harness pre-flight when a committed network log is missing. Zero-byte `.mitm` files only warn (they are kept when a first mitmdump start dies). It warns on rotted decode files. Run it directly before any deletion: `bash scripts/evidence-inventory.sh --check`.
 - Lost-capture knowledge: the pre-2026-08-14 legacy sessions (nurture-lock, nubo, pebbi, amila, baby-buddy, baby-daybook, baby-plus, mimilog) have NO raw captures left on disk. Their results are decode-level (`evidence_source: session-summary`); do not re-derive full-depth claims from them, and never describe them as raw-replay evidence. See ROADMAP.md for the recapture milestone.
 
 ## Secret hygiene - result artifacts
