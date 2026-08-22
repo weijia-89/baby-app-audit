@@ -57,6 +57,9 @@ repo_root_path = Path(sys.argv[2])
 captures = sys.argv[3:-1]
 output_file = sys.argv[-1] if sys.argv[-1] else None
 
+sys.path.insert(0, str(repo_root_path / "scripts"))
+from har_postdata import decode_har_text  # noqa: E402
+
 # Same boundary-only vendor attribution used by scan-analytics-pii.sh. A host
 # matches a vendor only when it equals the domain or ends with "." + domain, so
 # an attacker-controlled host cannot be misattributed to a real vendor.
@@ -140,36 +143,48 @@ def load_flows(path):
         if shutil.which("mitmdump") is None:
             print(f"ERROR: mitmdump not found in PATH; cannot convert {path}", file=sys.stderr)
             raise SystemExit(1)
-        har = Path(path.parent) / f".{path.stem}-har.tmp"
+        import os
         import subprocess
+        import tempfile
+        # Unique temp name avoids collisions when two scans share a stem/dir.
+        fd, har_name = tempfile.mkstemp(
+            prefix=f".{path.stem}-",
+            suffix="-har.tmp",
+            dir=str(path.parent),
+        )
+        os.close(fd)
+        har = Path(har_name)
         try:
-            subprocess.run(
-                ["mitmdump", "-q", "-s",
-                 str(har_dump),
-                 "--set", f"har_output={har}", "-nr", str(path)],
-                check=True, capture_output=True, timeout=60,
-            )
-        except (subprocess.CalledProcessError, FileNotFoundError) as exc:
-            print(f"ERROR: could not convert {path} with mitmdump: {exc}", file=sys.stderr)
-            raise SystemExit(1)
-        try:
-            data = json.loads(har.read_text())
-        except (json.JSONDecodeError, OSError) as exc:
-            print(f"ERROR: failed to read HAR for {path}: {exc}", file=sys.stderr)
-            raise SystemExit(1)
+            try:
+                subprocess.run(
+                    ["mitmdump", "-q", "-s",
+                     str(har_dump),
+                     "--set", f"har_output={har}", "-nr", str(path)],
+                    check=True, capture_output=True, timeout=60,
+                )
+            except (subprocess.CalledProcessError, FileNotFoundError) as exc:
+                print(f"ERROR: could not convert {path} with mitmdump: {exc}", file=sys.stderr)
+                raise SystemExit(1)
+            try:
+                data = json.loads(har.read_text())
+            except (json.JSONDecodeError, OSError) as exc:
+                print(f"ERROR: failed to read HAR for {path}: {exc}", file=sys.stderr)
+                raise SystemExit(1)
         finally:
             har.unlink(missing_ok=True)
         for entry in data.get("log", {}).get("entries", []):
             req = entry.get("request", {})
             res = entry.get("response", {})
             url = req.get("url", "")
+            post = req.get("postData") or {}
+            content = res.get("content") or {}
             flows.append({
                 "method": req.get("method", "GET"),
                 "url": url,
                 "host": urlparse(url).hostname or "",
                 "status": res.get("status", 0),
-                "req_text": req.get("postData", {}).get("text", "") or "",
-                "resp_text": res.get("content", {}).get("text", "") or "",
+                "req_text": decode_har_text(post.get("text", "") or "", post.get("encoding")),
+                "resp_text": decode_har_text(content.get("text", "") or "", content.get("encoding")),
                 "req_headers": " ".join(h.get("value", "") for h in req.get("headers", [])),
             })
         return flows
