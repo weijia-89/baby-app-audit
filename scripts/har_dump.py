@@ -3,14 +3,13 @@ Minimal HAR dump addon for mitmproxy.
 Usage: mitmdump -s scripts/har_dump.py --set har_output=output.har -nr input.mitm
 """
 import json
-import base64
 from datetime import datetime, timezone
 from pathlib import Path
 import sys
 
 # Allow `mitmdump -s scripts/har_dump.py` to import sibling helpers.
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from har_postdata import request_post_data  # noqa: E402
+from har_postdata import encode_body_text, request_post_data  # noqa: E402
 
 from mitmproxy import ctx
 
@@ -62,11 +61,8 @@ class HARWriter:
         resp_body = ""
         resp_encoding = ""
         if flow.response.content:
-            try:
-                resp_body = flow.response.content.decode('utf-8')
-            except UnicodeDecodeError:
-                resp_body = base64.b64encode(flow.response.content).decode('ascii')
-                resp_encoding = "base64"
+            resp_body, enc = encode_body_text(flow.response.content)
+            resp_encoding = enc or ""
 
         entry = {
             "startedDateTime": started,

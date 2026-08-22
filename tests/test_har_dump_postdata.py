@@ -1,12 +1,17 @@
 #!/usr/bin/env python3
-"""Behavioral tests for HAR postData pack/decode and scan-facing text."""
+"""Behavioral tests for HAR postData pack/decode, path guards, and scan wiring."""
 import base64
 import sys
 from pathlib import Path
 
 repo = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(repo / "scripts"))
-from har_postdata import decode_har_text, request_post_data  # noqa: E402
+from har_postdata import (  # noqa: E402
+    decode_har_text,
+    encode_body_text,
+    is_under_directory,
+    request_post_data,
+)
 
 
 def main() -> int:
@@ -19,6 +24,10 @@ def main() -> int:
     assert request_post_data("application/json", b"") is None
     assert request_post_data("application/json", None) is None
 
+    text_utf8, enc_utf8 = encode_body_text(body)
+    assert enc_utf8 is None
+    assert text_utf8 == body.decode("utf-8")
+
     binary = b"\xff\xfePrivatia Rigatoni\x00"
     post_b64 = request_post_data("application/octet-stream", binary)
     assert post_b64 is not None
@@ -26,14 +35,15 @@ def main() -> int:
     assert "Privatia" not in post_b64["text"]
     decoded = decode_har_text(post_b64["text"], post_b64.get("encoding"))
     assert "Privatia Rigatoni" in decoded, decoded
+    text_b, enc_b = encode_body_text(binary)
+    assert enc_b == "base64"
+    assert text_b == post_b64["text"]
 
     assert decode_har_text("", None) == ""
     assert decode_har_text("plain", None) == "plain"
     assert decode_har_text("plain", "") == "plain"
-    # Invalid base64 must not leak as a searchable hit surface
     assert decode_har_text("@@@", "base64") == ""
 
-    # Simulate what scan-synthetic-baby-data.sh must do with HAR entries
     har_entry = {
         "request": {
             "method": "PUT",
@@ -59,16 +69,22 @@ def main() -> int:
     assert "Privatia Rigatoni" in req_text
     assert "Privatia Rigatoni" in resp_text
 
+    root = Path("/tmp/baby-app-audit-sprint4-pathguard-root")
+    assert is_under_directory(root / "results" / "a.json", root)
+    assert is_under_directory(root, root)
+    assert not is_under_directory(Path(str(root) + "-evil") / "a.json", root)
+
     har_dump = (repo / "scripts" / "har_dump.py").read_text(encoding="utf-8")
     assert "request_post_data" in har_dump
+    assert "encode_body_text" in har_dump
     assert '["postData"]' in har_dump or "['postData']" in har_dump
 
     scan_src = (repo / "scripts" / "scan-synthetic-baby-data.sh").read_text(encoding="utf-8")
-    assert "decode_har_text" in scan_src, (
-        "scan-synthetic-baby-data.sh must decode HAR base64 bodies via decode_har_text"
-    )
+    assert "decode_har_text" in scan_src
+    assert "is_under_directory" in scan_src
+    assert "startswith(str(repo_root" not in scan_src
 
-    print("PASS: HAR postData pack/decode and scan-facing text")
+    print("PASS: HAR postData pack/decode, path guards, and scan wiring")
     return 0
 
 

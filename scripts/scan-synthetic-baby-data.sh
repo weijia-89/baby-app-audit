@@ -58,7 +58,7 @@ captures = sys.argv[3:-1]
 output_file = sys.argv[-1] if sys.argv[-1] else None
 
 sys.path.insert(0, str(repo_root_path / "scripts"))
-from har_postdata import decode_har_text  # noqa: E402
+from har_postdata import decode_har_text, is_under_directory  # noqa: E402
 
 # Same boundary-only vendor attribution used by scan-analytics-pii.sh. A host
 # matches a vendor only when it equals the domain or ends with "." + domain, so
@@ -160,9 +160,13 @@ def load_flows(path):
                     ["mitmdump", "-q", "-s",
                      str(har_dump),
                      "--set", f"har_output={har}", "-nr", str(path)],
-                    check=True, capture_output=True, timeout=60,
+                    check=True, capture_output=True, timeout=60, text=True,
                 )
-            except (subprocess.CalledProcessError, FileNotFoundError) as exc:
+            except subprocess.CalledProcessError as exc:
+                err = (exc.stderr or exc.stdout or str(exc)).strip()
+                print(f"ERROR: could not convert {path} with mitmdump: {err}", file=sys.stderr)
+                raise SystemExit(1)
+            except FileNotFoundError as exc:
                 print(f"ERROR: could not convert {path} with mitmdump: {exc}", file=sys.stderr)
                 raise SystemExit(1)
             try:
@@ -228,7 +232,7 @@ def load_flows(path):
 def main():
     # Validate profile path is within repo_root to avoid path traversal via SYNTHETIC_PROFILE
     profile_path_resolved = Path(profile_path).resolve()
-    if not str(profile_path_resolved).startswith(str(repo_root_path.resolve())):
+    if not is_under_directory(profile_path_resolved, repo_root_path):
         print("ERROR: profile path outside repo root", file=sys.stderr)
         sys.exit(1)
     profile = json.loads(profile_path_resolved.read_text())
@@ -341,7 +345,7 @@ def main():
     text = json.dumps(output, indent=2) + "\n"
     if output_file:
         out_path = Path(output_file).resolve()
-        if not str(out_path).startswith(str(repo_root_path.resolve())):
+        if not is_under_directory(out_path, repo_root_path):
             print("ERROR: output path outside repo root", file=sys.stderr)
             sys.exit(1)
         Path(out_path).write_text(text)

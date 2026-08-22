@@ -9,6 +9,8 @@
 ### Fixed
 - `scripts/har_dump.py` now writes HAR `postData.text`. Without that field, `scan-synthetic-baby-data.sh` on `.mitm` files could not see request bodies and missed the Baby+ About You PUT.
 - `scan-synthetic-baby-data.sh` now decodes HAR `encoding=base64` request and response bodies before marker search, and uses a unique temp HAR file per convert.
+- Repo-root path checks for the scan profile and output now use resolved-path containment (`relative_to`), not `startswith`, so a sibling directory with a matching prefix cannot pass.
+- `har_dump.py` response bodies use the same `encode_body_text` helper as request packing.
 
 ### Changed
 - `FINAL-REPORT.md` and `ROADMAP.md`: About You picture and capture are present. Capture `BabyPlus-about-you-full.mitm` has 14 flows and 589,030 bytes. Size reached that value during inject (About You CONTINUE plus About Baby DONE). It did not grow across a 21-minute idle on the upgrade screen. Scan after the HAR fix: `transmission_observed`. High-confidence name marker in a **request** PUT to `appserver.health-and-parenting.com` (`firstName`). Name also appears in a later maker-server **response**. Flows are the whole emulator HTTP proxy (maker server, Google ads, S3 backup GETs), not Baby+-only. Two earlier 0-byte mitm starts on this date were kept. Play Store was not tapped. This is not a Firebase-silence claim.
