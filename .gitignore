@@ -14,6 +14,7 @@ results/har-inputs/
 results/decode-traffic-*.json
 # Live marker-scan outputs can include local capture paths. Keep them off git.
 results/synthetic-scan-*.json
+results/**/*-scan.json
 
 # Runtime logs (noise, may contain device identifiers)
 results/execution-logs/

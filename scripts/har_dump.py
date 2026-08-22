@@ -3,8 +3,14 @@ Minimal HAR dump addon for mitmproxy.
 Usage: mitmdump -s scripts/har_dump.py --set har_output=output.har -nr input.mitm
 """
 import json
-import base64
 from datetime import datetime, timezone
+from pathlib import Path
+import sys
+
+# Allow `mitmdump -s scripts/har_dump.py` to import sibling helpers.
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from har_postdata import encode_body_text, request_post_data  # noqa: E402
+
 from mitmproxy import ctx
 
 class HARWriter:
@@ -43,25 +49,20 @@ class HARWriter:
         # Response headers
         resp_headers = [{"name": k, "value": v} for k, v in flow.response.headers.items(multi=True)]
 
-        # Request body
+        # Request body (must land in postData.text for scan-synthetic-baby-data.sh)
         req_body_size = len(flow.request.content) if flow.request.content else 0
-        req_body = ""
-        if flow.request.content:
-            try:
-                req_body = flow.request.content.decode('utf-8')
-            except UnicodeDecodeError:
-                req_body = base64.b64encode(flow.request.content).decode('ascii')
+        post_data = request_post_data(
+            flow.request.headers.get("Content-Type", ""),
+            flow.request.content,
+        )
 
         # Response body
         resp_body_size = len(flow.response.content) if flow.response.content else 0
         resp_body = ""
         resp_encoding = ""
         if flow.response.content:
-            try:
-                resp_body = flow.response.content.decode('utf-8')
-            except UnicodeDecodeError:
-                resp_body = base64.b64encode(flow.response.content).decode('ascii')
-                resp_encoding = "base64"
+            resp_body, enc = encode_body_text(flow.response.content)
+            resp_encoding = enc or ""
 
         entry = {
             "startedDateTime": started,
@@ -99,6 +100,8 @@ class HARWriter:
                 "receive": 0,
             },
         }
+        if post_data is not None:
+            entry["request"]["postData"] = post_data
         self.har["log"]["entries"].append(entry)
 
     def done(self):
