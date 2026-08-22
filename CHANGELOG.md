@@ -6,7 +6,8 @@
 - `scripts/evidence_mitm_policy.py` and `tests/test-evidence-inventory.sh` for zero-byte `.mitm` classification.
 
 ### Fixed
-- `scripts/evidence-inventory.sh`: zero-byte `.mitm` files now warn only (kept failed starts). Missing committed network logs still fail the check.
+- `scripts/evidence-inventory.sh`: zero-byte `.mitm` files now warn only (kept failed starts). Missing committed network logs still fail the check. Errors print to stderr. The script skips non-file capture entries.
+- Tests call the real inventory script via `EVIDENCE_RESULTS_DIR`.
 
 ### Changed
 - `ROADMAP.md`: Baby+ inject table and final-sprint notes use `transmission_observed` for the 2026-08-21 About You PUT after the HAR `postData` fix.

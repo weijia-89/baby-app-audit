@@ -26,7 +26,8 @@ MODE="${1:---check}"
   exit 2
 }
 
-results="$repo_root/results"
+# Optional override for tests (never set in production CI).
+results="${EVIDENCE_RESULTS_DIR:-$repo_root/results}"
 results_json="$results/RESULTS-20260803.json"
 
 if [ ! -f "$results_json" ]; then
@@ -55,7 +56,10 @@ for name in os.listdir(results):
 for app in apps:
     pkg = app["package_name"]
     if pkg not in logs:
-        print(f"[ERROR] evidence: no network log for {app['name']} ({pkg}) - committed artifact missing")
+        print(
+            f"[ERROR] evidence: no network log for {app['name']} ({pkg}) - committed artifact missing",
+            file=sys.stderr,
+        )
         sys.exit(1)
 
 captures = 0
@@ -69,6 +73,8 @@ for entry in sorted(os.listdir(results)):
     mitm_sizes = []
     for fname in sorted(os.listdir(captures_dir)):
         fpath = os.path.join(captures_dir, fname)
+        if not os.path.isfile(fpath):
+            continue
         size = os.path.getsize(fpath)
         if fname.lower().endswith(".mitm"):
             captures += 1
@@ -86,7 +92,12 @@ for entry in sorted(os.listdir(results)):
         capdir = os.path.join(results, entry, "artifacts", "captures")
         if os.path.isdir(capdir):
             for fname in os.listdir(capdir):
-                if fname.lower().endswith(".mitm") and os.path.getsize(os.path.join(capdir, fname)) > 0:
+                fpath = os.path.join(capdir, fname)
+                if (
+                    os.path.isfile(fpath)
+                    and fname.lower().endswith(".mitm")
+                    and os.path.getsize(fpath) > 0
+                ):
                     raw_preserved.add(entry.split("-test-")[0].lower())
 for fname in sorted(os.listdir(results)):
     if not fname.startswith("decode-traffic-") or not fname.endswith(".json"):
