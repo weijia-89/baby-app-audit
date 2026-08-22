@@ -18,6 +18,7 @@ def classify_zero_byte_mitms(
 ) -> Tuple[List[str], List[str]]:
     """Return (error_names, warn_names) for zero-byte .mitm entries.
 
+    Filenames are matched case-insensitively for the .mitm suffix by callers.
     error_names is always empty under the keep-zero-byte policy.
     """
     warns: List[str] = [name for name, size in mitm_sizes if size == 0]

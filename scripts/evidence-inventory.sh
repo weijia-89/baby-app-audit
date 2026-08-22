@@ -70,7 +70,7 @@ for entry in sorted(os.listdir(results)):
     for fname in sorted(os.listdir(captures_dir)):
         fpath = os.path.join(captures_dir, fname)
         size = os.path.getsize(fpath)
-        if fname.endswith(".mitm"):
+        if fname.lower().endswith(".mitm"):
             captures += 1
             mitm_sizes.append((fname, size))
         elif size == 0:
@@ -86,7 +86,7 @@ for entry in sorted(os.listdir(results)):
         capdir = os.path.join(results, entry, "artifacts", "captures")
         if os.path.isdir(capdir):
             for fname in os.listdir(capdir):
-                if fname.endswith(".mitm") and os.path.getsize(os.path.join(capdir, fname)) > 0:
+                if fname.lower().endswith(".mitm") and os.path.getsize(os.path.join(capdir, fname)) > 0:
                     raw_preserved.add(entry.split("-test-")[0].lower())
 for fname in sorted(os.listdir(results)):
     if not fname.startswith("decode-traffic-") or not fname.endswith(".json"):
