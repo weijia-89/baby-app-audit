@@ -177,9 +177,9 @@ The later public article needs a picture of each step we actually ran, not only 
 | Heartful Baby | `article-launch.png` | Sideload of `apks/heartful-baby.apk` then "keeps stopping". |
 | Nara | `article-launch.png` | Sideload of `apks/nara.apk` then "keeps stopping". |
 | Pixy | `article-launch.png` | Sideload of `apks/pixy.apk` then "keeps stopping". |
-| Baby Buddy | none | Not installed. No `baby-buddy` APK under `apks/`. Emulator cannot show a screen until an APK is present. |
+| Baby Buddy | 20260823: `article-launch.png`, `article-login-form.png` | Sideload of GitHub release `apks/babybuddy-for-android-v2.6.4.apk` (package `eu.pkgsoftware.babybuddywidgets`, version 2.6.4, MIT). First screen is "Login to Baby Buddy" (server URL, login name, password). We did not type a URL or log in. This companion is not the Django web app we audited. PASS still rests on the 2026-08-03 localhost web session. No new privacy verdict. |
 
-**Success for this slice:** every FINAL-REPORT app has a labeled PNG except Baby Buddy (no APK on the emulator). Baby+ has About You, About Baby, Girl, and upgrade-gate pictures.
+**Success for this slice:** every FINAL-REPORT app has a labeled PNG. Baby+ has About You, About Baby, Girl, and upgrade-gate pictures.
 
 ## App surface and sync-condition coverage (snapshot 2026-08-18)
 
@@ -206,12 +206,12 @@ This is a planning report, not a new privacy verdict. Percents are rough from sc
 | Pebbi | Welcome, units, Add New Baby. Complete Setup not saved. Pairip on cold start. | No. | No. | No. |
 | Nurture Lock | Pairip CLOSE only. | No. | No. | No. |
 | Baby Daybook | Pairip native crash. No inject. | No. | No. | No. |
-| Baby Buddy | Launch / local web. Zero app-originated outbound in replay. | Synthetic inject not in the live batch. | No designed soak. | Self-hosted; no vendor sync by design. |
+| Baby Buddy | Django web audit (2026-08-03) plus Android companion first-launch pictures (2026-08-23). Companion stayed on the login form. Zero app-originated outbound in the web replay. | Synthetic inject not in the live batch. Companion: no server URL, no login. | No designed soak. | Self-hosted web app; no vendor sync by design. Companion would talk to a server you host; we did not connect one. |
 | BabyCenter, BellyBloom, Nanit, Pregnancy+, What to Expect, Heartful Baby, Nara, Pixy | First-launch capture only. | No synthetic profile in those windows. | Launch window only, not a 15-60 min idle. | No account, camera, or backup flows in the live inject batch. |
 
 **Final-sprint work from this report**
 
-1. Baby Buddy still needs an APK on this emulator before we can take a first-launch picture.
+1. Baby Buddy first-launch pictures are on disk (2026-08-23): GitHub `babybuddy-for-android` v2.6.4 sideloaded on emulator-5554. Login screen only. Did not connect a server. PASS is still the Django web capture, not this companion.
 2. Baby+ About You picture and capture are done (2026-08-21). Batch re-scan of preserved `.mitm` after HAR `postData` fix (2026-08-23): only Baby+ About You captures flip to `transmission_observed` (2026-08-16 and 2026-08-21). All other non-zero captures in the tree stayed `no_transmission_detected`. Force-upgrade still blocks home.
 3. For Nubo: packet capture the app cannot skip, then repeat Backup after proxy-off Google sign-in if you want cloud backup traffic. Formula-per-click 90 still not set.
 4. Do not treat a 0-byte file, a 0-flow file, or a short emulator-wide HTTP-proxy file as "Firebase sent nothing." See METHODOLOGY.md.

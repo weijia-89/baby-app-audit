@@ -201,7 +201,7 @@ Sanitized network logs:
 
 ### Referenced projects
 
-- [Baby Buddy](https://github.com/babybuddy/babybuddy) - the FOSS control app. [Documentation](https://docs.baby-buddy.net), [license (BSD-2-Clause)](https://github.com/babybuddy/babybuddy/blob/master/LICENSE).
+- [Baby Buddy](https://github.com/babybuddy/babybuddy) - the FOSS control app (Django, self-hosted). [Documentation](https://docs.baby-buddy.net), [license (BSD-2-Clause)](https://github.com/babybuddy/babybuddy/blob/master/LICENSE). The Android companion used for first-launch pictures is [babybuddy-for-android](https://github.com/babybuddy/babybuddy-for-android) (MIT).
 
 ---
 
