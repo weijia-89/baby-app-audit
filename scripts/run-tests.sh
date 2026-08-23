@@ -259,9 +259,8 @@ preflight() {
     mkdir -p "$ARTIFACTS_DIR"/{apks,reports,logs,captures}
     mkdir -p "$RESULTS_DIR"
 
-    # Evidence inventory guard - committed network logs must exist and no
-    # preserved capture may be zero-byte. Fails the run on breakage (see
-    # AGENTS.md, "Evidence retention").
+    # Evidence inventory guard - committed network logs must exist. Zero-byte
+    # .mitm files warn only (kept failed starts). See AGENTS.md Evidence retention.
     if ! bash "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/scripts/evidence-inventory.sh" --check; then
         failed=1
         error "Evidence inventory broken - fix or restore before running the harness"

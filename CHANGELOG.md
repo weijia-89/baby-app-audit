@@ -1,5 +1,20 @@
 # Changelog
 
+## 4.6.11 - 2026-08-22
+
+### Added
+- `scripts/evidence_mitm_policy.py` and `tests/test-evidence-inventory.sh` for zero-byte `.mitm` classification.
+
+### Fixed
+- `scripts/evidence-inventory.sh`: zero-byte `.mitm` files now warn only (kept failed starts). Missing committed network logs still fail the check. Errors print to stderr. The script skips non-file capture entries.
+- Tests call the real inventory script via `EVIDENCE_RESULTS_DIR` (must resolve under `.tmp/`).
+- Inventory rejects an `EVIDENCE_RESULTS_DIR` outside `.tmp/`, warns on unreadable network logs, and tolerates `OSError` on capture `stat`.
+- End-to-end test: zero-byte `.mitm` with a present network log exits 0 and prints WARN.
+- Warn on duplicate `package_name` across network logs; coerce non-integer sizes in the policy to empty so WARN cannot be skipped.
+
+### Changed
+- `ROADMAP.md`: Baby+ inject table and final-sprint notes use `transmission_observed` for the 2026-08-21 About You PUT after the HAR `postData` fix.
+
 ## 4.6.10 - 2026-08-21
 
 ### Added
