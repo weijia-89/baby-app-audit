@@ -39,6 +39,9 @@ prompts/
 # Local secrets (Google test-account creds for emulator sign-in). NEVER commit.
 .secrets/
 
+# Ephemeral test fixtures (evidence inventory, harness scratch)
+.tmp/
+
 # Agent hook state and Python caches
 .cursor/
 **/__pycache__/

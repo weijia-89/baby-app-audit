@@ -26,8 +26,24 @@ MODE="${1:---check}"
   exit 2
 }
 
-# Optional override for tests (never set in production CI).
-results="${EVIDENCE_RESULTS_DIR:-$repo_root/results}"
+# Optional override for tests. When set, must resolve under $repo_root/.tmp
+# so a stray env var cannot redirect the inventory at an arbitrary tree.
+if [ -n "${EVIDENCE_RESULTS_DIR:-}" ]; then
+  results="$(cd "$EVIDENCE_RESULTS_DIR" && pwd)"
+  tmp_root="$(cd "$repo_root/.tmp" 2>/dev/null && pwd)" || {
+    echo "[ERROR] evidence: EVIDENCE_RESULTS_DIR set but $repo_root/.tmp is missing" >&2
+    exit 1
+  }
+  case "$results" in
+    "$tmp_root"/*) ;;
+    *)
+      echo "[ERROR] evidence: EVIDENCE_RESULTS_DIR must be under $tmp_root" >&2
+      exit 1
+      ;;
+  esac
+else
+  results="$repo_root/results"
+fi
 results_json="$results/RESULTS-20260803.json"
 
 if [ ! -f "$results_json" ]; then
@@ -48,10 +64,18 @@ apps = json.load(open(os.path.join(results, "RESULTS-20260803.json")))["apps"]
 logs = {}
 for name in os.listdir(results):
     if name.startswith("network-log-") and name.endswith(".json"):
+        path = os.path.join(results, name)
         try:
-            logs[json.load(open(os.path.join(results, name)))["package_name"]] = name
-        except Exception:
-            pass
+            pkg = json.load(open(path))["package_name"]
+        except (OSError, ValueError, KeyError, TypeError) as exc:
+            print(f"[WARN] evidence: unreadable network log {name}: {exc}", file=sys.stderr)
+            continue
+        if pkg in logs:
+            print(
+                f"[WARN] evidence: duplicate package_name {pkg} in {logs[pkg]} and {name}",
+                file=sys.stderr,
+            )
+        logs[pkg] = name
 
 for app in apps:
     pkg = app["package_name"]
@@ -75,7 +99,11 @@ for entry in sorted(os.listdir(results)):
         fpath = os.path.join(captures_dir, fname)
         if not os.path.isfile(fpath):
             continue
-        size = os.path.getsize(fpath)
+        try:
+            size = os.path.getsize(fpath)
+        except OSError as exc:
+            print(f"[WARN] evidence: cannot stat {entry}/{fname}: {exc}")
+            continue
         if fname.lower().endswith(".mitm"):
             captures += 1
             mitm_sizes.append((fname, size))
@@ -93,18 +121,21 @@ for entry in sorted(os.listdir(results)):
         if os.path.isdir(capdir):
             for fname in os.listdir(capdir):
                 fpath = os.path.join(capdir, fname)
-                if (
-                    os.path.isfile(fpath)
-                    and fname.lower().endswith(".mitm")
-                    and os.path.getsize(fpath) > 0
-                ):
-                    raw_preserved.add(entry.split("-test-")[0].lower())
+                try:
+                    if (
+                        os.path.isfile(fpath)
+                        and fname.lower().endswith(".mitm")
+                        and os.path.getsize(fpath) > 0
+                    ):
+                        raw_preserved.add(entry.split("-test-")[0].lower())
+                except OSError:
+                    continue
 for fname in sorted(os.listdir(results)):
     if not fname.startswith("decode-traffic-") or not fname.endswith(".json"):
         continue
     try:
         flows = json.load(open(os.path.join(results, fname))).get("flows", [])
-    except Exception:
+    except (OSError, ValueError, TypeError):
         continue
     if len(flows) == 0:
         slug = fname[len("decode-traffic-"):-len(".json")].lower()

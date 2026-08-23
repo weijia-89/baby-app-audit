@@ -95,6 +95,7 @@ jobs:
           bash scripts/run-tests.sh --check || exit 1
           bash -n scripts/decode-traffic.sh || exit 1
           bash -n scripts/compare-apps.sh || exit 1
+          bash -n scripts/evidence-inventory.sh || exit 1
           # Only check localonly scripts if they exist (localonly/ is gitignored)
           if [ -f localonly/bursts/run-burst.sh ]; then
             bash -n localonly/bursts/run-burst.sh || exit 1

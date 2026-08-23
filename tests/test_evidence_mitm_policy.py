@@ -27,9 +27,19 @@ def main() -> int:
     assert errors == [], errors
     assert warns == [], warns
 
+    errors, warns = classify_zero_byte_mitms([("bad.mitm", "0")])  # type: ignore[list-item]
+    assert errors == [], errors
+    assert warns == ["bad.mitm"], warns
+
+    errors, warns = classify_zero_byte_mitms([("weird.mitm", None)])  # type: ignore[list-item]
+    assert errors == [], errors
+    assert warns == ["weird.mitm"], warns
+
     src = (repo / "scripts" / "evidence-inventory.sh").read_text(encoding="utf-8")
     assert "classify_zero_byte_mitms" in src
     assert "kept failed-start" in src or "failed start" in src
+    assert "EVIDENCE_RESULTS_DIR" in src
+    assert "duplicate package_name" in src
 
     print("PASS: zero-byte mitm policy")
     return 0

@@ -20,6 +20,14 @@ def classify_zero_byte_mitms(
 
     Filenames are matched case-insensitively for the .mitm suffix by callers.
     error_names is always empty under the keep-zero-byte policy.
+    Non-integer sizes are treated as zero-byte so a bad caller cannot skip WARN.
     """
-    warns: List[str] = [name for name, size in mitm_sizes if size == 0]
+    warns: List[str] = []
+    for name, size in mitm_sizes:
+        try:
+            is_empty = int(size) == 0
+        except (TypeError, ValueError):
+            is_empty = True
+        if is_empty:
+            warns.append(name)
     return [], warns
