@@ -1,5 +1,11 @@
 # Changelog
 
+## 4.6.12 - 2026-08-23
+
+### Changed
+- Batch re-scan of preserved local `.mitm` files after the HAR `postData` fix (29 non-zero captures; 6 zero-byte starts kept). Only Baby+ About You captures report `transmission_observed`: `Baby+-about-you.mitm` (2026-08-16, 1-flow PUT) and `BabyPlus-about-you-full.mitm` (2026-08-21). All other non-zero captures stay `no_transmission_detected`.
+- `ROADMAP.md` and `FINAL-REPORT.md`: record the 2026-08-16 About You PUT as `transmission_observed`. Correct the 2026-08-19 upgrade-soak note - re-scan still finds no high/medium name marker in a request or URL (name only in a maker response).
+
 ## 4.6.11 - 2026-08-22
 
 ### Added
