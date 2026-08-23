@@ -1,7 +1,7 @@
 # Final Report - Which Baby Apps Keep Their Privacy Promises
 
 **Test run:** baby-app-audit-20260803
-**Dates:** 2026-08-03 to 2026-08-18
+**Dates:** 2026-08-03 to 2026-08-23
 **Harness version:** 3.3.0
 **Author:** Wei Jia
 **License:** GPL-3.0
@@ -13,7 +13,7 @@ Nine apps make a privacy promise. Seven of them sent data off the device. Only B
 
 | App | Privacy claim | Result | Privacy | Confidence | Key findings |
 | --- | --- | --- | --- | --- | --- |
-| Baby Buddy | Open source | PASS | 💖 | 100% | No data leaves your phone. The app talks only to itself on the same device |
+| Baby Buddy | Open source | PASS | 💖 | 100% | Django web default: traffic stays on the same machine. The Android companion we photographed (v2.6.4) logs into a server you host; we did not log in, and that screen is not the PASS |
 | MimiLog | "Fully offline" | PASS | 💖 | 100% | One call to Google's setup service at launch. The app holds no valid project, so it sends nothing. A later live save also showed no baby-profile traffic through the system proxy |
 | Amila | No claim | No claim | ❕ | 90% | The app registers this install with Google and downloads app settings and font files at launch |
 | Baby+ | "AdID not auto-enabled" | FAIL | ❕ | 90% | The app contacts a Philips server, Google, and Firebase at launch |
@@ -257,6 +257,7 @@ Baby Buddy is the only open-source app in this test.
 - **Result:** PASS
 - **Confidence:** 100%. The replayed raw capture contains one flow: a GET to httpbin.org/get with no request body, HTTP 200. Its User-Agent is `curl/8.7.1` and it carries a `Proxy-Connection` header, so it was a `curl` connectivity probe run during the capture session - an artifact of the capture environment, not a call made by the Baby Buddy app. The app itself made zero outbound calls, consistent with PASS. We found no synthetic baby-data transmission. The code is public and anyone can read it.
 - **Capture:** 2026-08-03, full session (web app), 0 app-originated outbound calls (1 capture-environment curl probe). Evidence source changed from session-summary to raw-replay (capture relocated and replayed).
+- **Article pictures (2026-08-23):** first launch of the MIT Android companion `eu.pkgsoftware.babybuddywidgets` v2.6.4 from GitHub. Files (gitignored): `results/baby-buddy-test-20260823/artifacts/uiux/article-launch.png` and `article-login-form.png`. The screen is "Login to Baby Buddy". We did not type a server URL or log in. This is not a new privacy capture and it does not change the PASS above.
 
 | Service | Data shared | Call/Log |
 | --- | --- | --- |

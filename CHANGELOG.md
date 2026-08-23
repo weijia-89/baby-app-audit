@@ -1,5 +1,13 @@
 # Changelog
 
+## 4.6.13 - 2026-08-23
+
+### Added
+- Baby Buddy Android companion first-launch pictures (2026-08-23). Sideloaded GitHub release `babybuddy-for-android` v2.6.4 (`eu.pkgsoftware.babybuddywidgets`, SHA-256 `1357e6f3c564d0e0886556eef142dbeb6bf542c867870b7687ab69e2dc68eb99`) onto emulator-5554. Binary screenshots: `results/baby-buddy-test-20260823/artifacts/uiux/article-launch.png` and `article-login-form.png` (gitignored). Login form only. We did not enter a server URL or log in. This is not a new privacy capture. The Django web PASS stays the same.
+
+### Changed
+- `ROADMAP.md` and `FINAL-REPORT.md`: record the companion PNGs and say the PASS still comes from the 2026-08-03 localhost web session.
+
 ## 4.6.12 - 2026-08-23
 
 ### Changed
