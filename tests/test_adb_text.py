@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Unit tests for adb text encoding and bounds parsing. No device required."""
+"""Tests for adb text encoding and bounds. No device."""
 import sys
 from pathlib import Path
 
@@ -30,7 +30,7 @@ def test_center_bad():
 
 
 def test_tap_top_on_tall_field():
-    # Nubo etMessage: center would sit under the IME.
+    # Nubo note field: center tap hits the keyboard.
     assert bounds_tap("[96,453][984,1504]", "top") == (540, 453 + 48)
     assert bounds_tap("[96,453][984,1504]", "center") == (540, (453 + 1504) // 2)
 

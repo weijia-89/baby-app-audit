@@ -1,20 +1,13 @@
 #!/usr/bin/env bash
-# Scan raw local captures for the synthetic baby-data transmission test.
+# Search a raw capture for synthetic baby markers.
 #
 # Usage:
 #   scripts/scan-synthetic-baby-data.sh <capture.json|.mitm|dir> [output.json]
 #
-# The capture is a raw, local artifact that contains live secrets. It must
-# NEVER be committed. This script only reads it locally and reports:
-#   - which fictional marker strings (from results/synthetic-baby-profile.json)
-#     appear in a request body, a response body, or a request URL
-#   - the recipient host, path, method, and status for each match
-#   - a per-app verdict of whether entered baby data left the device
-#
-# It deliberately emits NO adjacent body content, so the report is safe to
-# commit even though the source capture is not. The committed, sanitized
-# network logs cannot be used for this test: their bodies are replaced by
-# redaction slugs, so the fictional values would be invisible there.
+# Input is a local raw capture with secrets. Do not commit it.
+# Report which profile markers appear in request body, response body, or URL.
+# Include host, path, method, status. Do not print nearby body text.
+# Do not scan committed network logs (bodies are redacted).
 
 set -euo pipefail
 
@@ -32,7 +25,7 @@ if [ ! -e "$input" ]; then
     exit 1
 fi
 
-# Collect the list of capture files to scan.
+# Build the list of capture files to scan.
 declare -a captures=()
 if [ -d "$input" ]; then
     while IFS= read -r f; do
@@ -60,9 +53,7 @@ output_file = sys.argv[-1] if sys.argv[-1] else None
 sys.path.insert(0, str(repo_root_path / "scripts"))
 from har_postdata import decode_har_text, is_under_directory  # noqa: E402
 
-# Same boundary-only vendor attribution used by scan-analytics-pii.sh. A host
-# matches a vendor only when it equals the domain or ends with "." + domain, so
-# an attacker-controlled host cannot be misattributed to a real vendor.
+# Vendor match: host equals domain or ends with "." + domain.
 VENDOR_SUFFIXES = (
     ("Facebook", ("facebook.com", "fbcdn.net")),
     ("Microsoft Clarity", ("clarity.ms",)),
@@ -146,7 +137,7 @@ def load_flows(path):
         import os
         import subprocess
         import tempfile
-        # Unique temp name avoids collisions when two scans share a stem/dir.
+        # Unique temp name so two scans do not clash.
         fd, har_name = tempfile.mkstemp(
             prefix=f".{path.stem}-",
             suffix="-har.tmp",
@@ -193,7 +184,7 @@ def load_flows(path):
             })
         return flows
 
-    # decode-traffic JSON
+    # decode-traffic JSON input.
     try:
         data = json.loads(Path(path).read_text())
     except (json.JSONDecodeError, OSError) as exc:
@@ -236,7 +227,7 @@ def main():
         print("ERROR: profile path outside repo root", file=sys.stderr)
         sys.exit(1)
     profile = json.loads(profile_path_resolved.read_text())
-    # Minimal schema validation
+    # Minimal profile schema check.
     if profile.get("$schema") != "synthetic-baby-profile/1.0":
         print("ERROR: profile schema mismatch", file=sys.stderr)
         sys.exit(1)
@@ -261,22 +252,21 @@ def main():
             package = data.get("package_name", "")
             app_name = data.get("app", cap_path.stem)
         except (json.JSONDecodeError, OSError, UnicodeDecodeError):
-            # Raw .mitm captures are binary; package/app metadata is recovered
-            # inside load_flows() where possible. Leave blank here.
+            # .mitm is binary; recover package/app names inside load_flows().
             package = ""
             app_name = cap_path.stem
         flows = load_flows(cap_path)
         import re
         findings = []
         def marker_present(haystack, val):
-            # Avoid substring false positives: require word boundaries for alphanumeric markers
+            # Require word boundaries for alphanumeric markers.
             if not val:
                 return False
-            # If marker is purely numeric, require it to be bounded by non-digit or string edges
+            # For digits-only markers, require non-digit edges.
             if val.isdigit():
                 pattern = r'(^|[^0-9])' + re.escape(val) + r'([^0-9]|$)'
                 return re.search(pattern, haystack) is not None
-            # For alphanumeric, use word boundaries
+            # For alphanumeric markers, use word boundaries.
             pattern = r'(^|\W)' + re.escape(val) + r'(\W|$)'
             return re.search(pattern, haystack) is not None
 
@@ -308,8 +298,8 @@ def main():
                 })
         transmission = any(f["side"] in ("request", "url") for f in findings)
         recipients = sorted({f["host"] for f in findings})
-        # A high/medium string marker in a request/url is a direct transmission.
-        # A numeric/low marker in a request/url is supporting evidence only.
+        # high/medium string in request or URL = transmission.
+        # numeric/low marker in request or URL = support only.
         strong = any(
             f["side"] in ("request", "url")
             and f["marker_confidence"] in ("high", "medium")

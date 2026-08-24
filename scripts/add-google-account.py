@@ -1,18 +1,16 @@
 #!/usr/bin/env python3
-"""Add a Google account to the audit emulator using credentials from .secrets/google.json.
+"""Add a Google account on the emulator from .secrets/google.json.
 
-The Google sign-in UI is a WebView, so the native uiautomator injector cannot see its
-fields. This script drives it with coordinate taps + `adb shell input text`, reading the
-credentials from a gitignored secrets file. Google will usually challenge 2FA, which the
-operator completes on their device/phone; the script then waits and verifies the account
-landed on the device.
+Sign-in UI is a WebView. Native uiautomator cannot see its fields.
+This script taps by screen point and types with adb.
+The operator finishes 2FA on their phone when Google asks.
+Then the script checks that the account is on the device.
 
 Usage:
   scripts/add-google-account.py [--device emulator-5554] [--ui .secrets/google-ui.json]
 
-The optional --ui JSON holds the tap coordinates for the email and password fields, keyed
-by the device's wm size (e.g. "1080x1920"). If absent, sensible defaults are derived from
-the screen size. Edit that file after a live run if the taps land wrong.
+Optional --ui JSON: tap points for email and password by screen size
+(e.g. "1080x1920"). If missing, points are estimated from screen size.
 """
 import argparse
 import json
@@ -39,7 +37,7 @@ def adb(device, *args):
 
 def wm_size(device):
     out = adb(device, "shell", "wm", "size").stdout.strip()
-    # "Physical size: 1080x1920" or "Override size: ..."
+    # Parse lines like "Physical size: 1080x1920".
     for line in out.splitlines():
         if "size:" in line:
             return line.split(":")[1].strip()
@@ -107,7 +105,7 @@ def main():
     print(f"[add-google-account] device={args.device} screen={size}")
     ui = load_ui(args.device, args.ui, size)
 
-    # Launch Google account add (MinuteMaid). Do not use the IMAP min-fa activity.
+    # Open Google account add. Do not open the IMAP setup activity.
     print("[add-google-account] launching ADD_ACCOUNT_SETTINGS...")
     adb(
         args.device,

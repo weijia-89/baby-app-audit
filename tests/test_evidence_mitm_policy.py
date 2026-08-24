@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Unit tests for zero-byte .mitm evidence policy."""
+"""Tests for zero-byte .mitm keep policy."""
 import sys
 from pathlib import Path
 

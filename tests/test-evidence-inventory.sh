@@ -5,7 +5,7 @@ mkdir -p "$root/.tmp"
 python3 -m py_compile "$root/scripts/evidence_mitm_policy.py"
 python3 "$root/tests/test_evidence_mitm_policy.py"
 
-# Assert CI still wires inventory syntax + unit test.
+# Check that CI still runs the inventory tests.
 wf="$root/.github/workflows/test.yml"
 grep -q 'bash -n scripts/evidence-inventory.sh' "$wf"
 grep -q 'bash tests/test-evidence-inventory.sh' "$wf"
@@ -15,7 +15,7 @@ tmp="$(mktemp -d "$root/.tmp/evidence-missing-log-XXXXXX")"
 tmp2="$(mktemp -d "$root/.tmp/evidence-zero-byte-XXXXXX")"
 trap 'rm -rf "$tmp" "$tmp2"' EXIT
 
-# Missing committed network log must still fail the real inventory script.
+# Missing committed network log must fail.
 mkdir -p "$tmp/results"
 python3 - <<PY
 import json
@@ -34,7 +34,7 @@ test "$rc" -eq 1
 grep -q "no network log" "$tmp/err.txt"
 echo "PASS missing network-log still fails"
 
-# Zero-byte .mitm must warn and still exit 0 when network logs are present.
+# Zero-byte .mitm must warn and exit 0 when network logs exist.
 mkdir -p "$tmp2/results/ghost-test-20260823/artifacts/captures"
 python3 - <<PY
 import json
@@ -58,7 +58,7 @@ grep -q "zero-byte capture" "$tmp2/out.txt"
 grep -q "evidence inventory OK" "$tmp2/out.txt"
 echo "PASS zero-byte mitm warns and exits 0"
 
-# EVIDENCE_RESULTS_DIR outside .tmp must be rejected.
+# Reject EVIDENCE_RESULTS_DIR outside .tmp.
 set +e
 EVIDENCE_RESULTS_DIR="/tmp" bash "$root/scripts/evidence-inventory.sh" --check \
   >"$tmp2/out-outside.txt" 2>"$tmp2/err-outside.txt"
@@ -68,7 +68,7 @@ test "$rc" -eq 1
 grep -q "must be under" "$tmp2/err-outside.txt"
 echo "PASS EVIDENCE_RESULTS_DIR outside .tmp rejected"
 
-# Duplicate package_name across network logs must warn (still exit 0 if apps covered).
+# Duplicate package_name must warn; exit 0 if all apps still covered.
 mkdir -p "$tmp2/results-dup"
 python3 - <<PY
 import json

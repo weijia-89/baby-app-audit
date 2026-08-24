@@ -1,10 +1,8 @@
 #!/usr/bin/env python3
-"""Capture per-screen UI/UX for an app's onboarding flow.
+"""Save each onboarding screen dump and screenshot.
 
-Records every screen's uiautomator dump + screenshot under
-results/<slug>-test-<date>/artifacts/uiux/screenN.xml|.png so the per-app
-injection flow (scripts/inject-config/<package>.json) can be built from the
-recorded UI without re-driving the app by hand.
+Writes results/<slug>-test-<date>/artifacts/uiux/screenN.xml and .png.
+Use those files to build scripts/inject-config/<package>.json.
 
 Usage: capture-uiux.py <package> [slug] [device_serial]
 Env: ANDROID_SERIAL, CAP_DATE (default 20260816), UIUX_SCREENS (default 15)
@@ -102,7 +100,7 @@ def main():
         sig = xml  # crude; rely on screen count
         print(f"screen{i:02d}: edittext={edit}")
 
-        # advance: prefer forward CTA, then nav CTA, then any non-excluded button
+        # Prefer forward button, then nav button, then any allowed button.
         btn = find_button(ns, FORWARD_RE) or find_button(ns, NAV_RE)
         if btn is None:
             for n in ns:

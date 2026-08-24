@@ -17,15 +17,11 @@ from collections import defaultdict
 from pathlib import Path
 
 input_dir = Path(sys.argv[1])
-# output_file is optional; when omitted the scan prints to stdout.
+# output_file is optional. Without it, print to stdout.
 output_file = sys.argv[2] if len(sys.argv) > 2 else None
 
-# Vendor attribution uses FULL-DOMAIN boundary matching only. A host is
-# attributed to a vendor when it equals a known domain or ends with "." + that
-# domain. Substring matching is intentionally avoided: an attacker-controlled
-# host such as "evilgoogle.com.attacker.net" must never be attributed to a
-# real vendor. Every suffix below is a full registrable domain (or a known
-# exact host) so boundary matching is both safe and complete for observed traffic.
+# Vendor match: host equals domain or ends with "." + domain.
+# Do not use substring match (blocks evilgoogle.com.attacker.net tricks).
 VENDOR_SUFFIXES = (
     ("Facebook", ("facebook.com", "fbcdn.net")),
     ("Microsoft Clarity", ("clarity.ms",)),
@@ -158,11 +154,7 @@ SENSITIVE_HEADERS = {
 
 
 def vendor_for_host(host):
-    # Boundary-only matching: a host matches a vendor suffix only when it
-    # equals the domain or ends with "." + domain. This prevents an
-    # attacker-controlled host (e.g. "evilgoogle.com.attacker.net") from being
-    # misattributed to a real vendor, which would corrupt the audit's data-flow
-    # findings. Every suffix in VENDOR_SUFFIXES is a full domain for this reason.
+    # Host matches vendor only as exact domain or "*." + domain.
     host_lower = host.lower()
     for vendor, suffixes in VENDOR_SUFFIXES:
         if any(host_lower == suffix or host_lower.endswith("." + suffix) for suffix in suffixes):
@@ -286,9 +278,7 @@ if not logs:
 apps = []
 vendor_map = defaultdict(lambda: {"hosts": set(), "apps": set(), "call_count": 0, "roles": set(), "pii_categories": set(), "assessments": set()})
 total_calls = 0
-# Resolve the results summary by glob so the scan does not break if the
-# capture date in the filename changes. The package names from any
-# RESULTS-*.json in the input dir scope which network logs are in scope.
+# Find RESULTS-*.json by glob. Use its packages to pick network logs.
 results_files = sorted(input_dir.glob("RESULTS-*.json"))
 result_path = results_files[0] if results_files else None
 result_data = json.loads(result_path.read_text()) if result_path is not None else None

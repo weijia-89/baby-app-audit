@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# decode-traffic.sh v2  -  Decode HAR captures into structured JSON
+# Decode a HAR file into structured JSON.
 # Usage: ./decode-traffic.sh <capture.har> <package_name> [output.json]
 # Version: 2.0
 
@@ -7,7 +7,6 @@ set -euo pipefail
 
 readonly SCRIPT_VERSION="2.0"
 
-# Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
@@ -38,7 +37,6 @@ Returns:
 EOF
 }
 
-# Handle flags before positional args
 case "${1:-}" in
     --version)
         echo "$SCRIPT_VERSION"
@@ -59,7 +57,6 @@ case "${1:-}" in
         ;;
 esac
 
-# Validate inputs
 if [ $# -lt 2 ]; then
     usage
     exit 1
@@ -69,7 +66,7 @@ HAR_FILE="$1"
 PACKAGE_NAME="$2"
 OUTPUT_FILE="${3:-}"
 
-# HAR file must exist and be readable
+# The HAR file must exist and be readable.
 if [ ! -f "$HAR_FILE" ]; then
     error "HAR file not found: $HAR_FILE"
     exit 1
@@ -80,7 +77,7 @@ if [ ! -r "$HAR_FILE" ]; then
     exit 1
 fi
 
-# If output file specified, ensure parent directory exists and is writable
+# If an output path is set, its parent dir must be writable.
 if [ -n "$OUTPUT_FILE" ]; then
     OUTPUT_DIR="$(dirname "$OUTPUT_FILE")"
     if [ ! -d "$OUTPUT_DIR" ]; then
@@ -92,20 +89,19 @@ if [ -n "$OUTPUT_FILE" ]; then
         exit 1
     fi
 fi
-# Validate package name: no shell metacharacters or path separators (prevents traversal)
+# Reject package names with shell metacharacters or path separators.
 if [[ "$PACKAGE_NAME" =~ [\"\`\'\$\;\|\&\<\>\/] ]] || [[ "$PACKAGE_NAME" == *$'\n'* ]]; then
     error "Invalid characters in package_name"
     exit 1
 fi
 
-# Validate HAR is valid JSON and contains entries array
+# Check HAR is JSON and has an entries array.
 if ! python3 -c 'import json,sys; d=json.load(open(sys.argv[1])); sys.exit(0 if "log" in d and "entries" in d.get("log",{}) else 1)' "$HAR_FILE" 2>/dev/null; then
     error "Invalid HAR file: missing log.entries"
     exit 1
 fi
 
-# Extract host from package name for filtering
-# For package names like com.example.app, we filter by the last two segments or full name
+# Build host filter labels from the package name.
 FILTER_HOST=""
 case "$PACKAGE_NAME" in
     com.angry.shark.studio.nurturelock)
@@ -154,14 +150,14 @@ case "$PACKAGE_NAME" in
         FILTER_HOST="bellybloom"
         ;;
     *)
-        # Fallback: use the last segment of the package name
+        # Fallback: use the last segment of the package name.
         FILTER_HOST="${PACKAGE_NAME##*.}"
         ;;
 esac
 
 CAPTURE_TIMESTAMP=$(date -u +%Y-%m-%dT%H:%M:%SZ)
 
-# Build tool versions object
+# Build the tool-versions object.
 TOOL_VERSIONS="{}"
 if [ -n "${MITMPROXY_VERSION:-}" ]; then
     TOOL_VERSIONS=$(echo "$TOOL_VERSIONS" | jq --arg v "$MITMPROXY_VERSION" '.mitmproxy = $v')
@@ -173,7 +169,7 @@ if [ -n "${EXODUS_VERSION:-}" ]; then
     TOOL_VERSIONS=$(echo "$TOOL_VERSIONS" | jq --arg v "$EXODUS_VERSION" '.exodus_cli = $v')
 fi
 
-# Process HAR entries with Python for reliability
+# Decode HAR entries with Python.
 PYTHON_SCRIPT=$(cat <<'PYEOF'
 import json
 import sys
@@ -198,7 +194,7 @@ tracker_flows = 0
 unique_dests = set()
 unique_trackers = set()
 
-# Known tracker domains for classification
+# Known tracker domains.
 TRACKER_DOMAINS = {
     'google-analytics.com': 'Google Analytics',
     'firebase.google.com': 'Firebase',
@@ -250,7 +246,7 @@ TRACKER_DOMAINS = {
     'instabug.com': 'Instabug',
 }
 
-# Mechanism classification patterns
+# Patterns that label the transfer mechanism.
 RTB_PATTERNS = ['bid', 'auction', 'rtb', 'exchange', 'ssp', 'dsp']
 BROKER_PATTERNS = ['sale', 'broker', 'marketplace', 'dataexchange', 'audience']
 
@@ -262,7 +258,7 @@ def classify_mechanism(url, headers):
     for p in BROKER_PATTERNS:
         if p in url_lower:
             return 'data_broker_sale'
-    # Check for analytics-like paths
+    # Detect analytics-like URL paths.
     if any(x in url_lower for x in ['/analytics', '/event', '/track', '/collect']):
         return 'analytics'
     if any(x in url_lower for x in ['/crash', '/error']):
@@ -288,12 +284,12 @@ def safe_body(body_data):
         text = body_data.strip()
         if not text:
             return None
-        # Try JSON
+        # Try JSON body parse.
         try:
             return json.loads(text)
         except json.JSONDecodeError:
             pass
-        # Form-encoded: at least one key=value pair
+        # Form body: need at least one key=value pair.
         if '=' in text:
             result = {}
             for pair in text.split('&'):
@@ -301,7 +297,7 @@ def safe_body(body_data):
                     k, v = pair.split('=', 1)
                     result[k] = v
             return result
-        # Binary/chunked: skip
+        # Skip binary or chunked bodies.
         if any(c in text[:20] for c in ['\x00', '\x01', '\x02']):
             return None
         return text
@@ -383,7 +379,7 @@ for entry in entries:
         unique_trackers.add(tracker_name)
     unique_dests.add(host)
 
-# Per-product metadata loaded from external config
+# Load per-product metadata from config.
 config_file = os.environ.get('PRODUCT_CONFIG', sys.argv[4] if len(sys.argv) > 4 else 'results/product-metadata.json')
 product_metadata = {}
 if os.path.isfile(config_file):
@@ -428,14 +424,14 @@ export TOOL_VERSIONS
 
 log "Decoding HAR: $HAR_FILE for package: $PACKAGE_NAME"
 
-# Run Python decoder
+# Run the Python decoder.
 CONFIG_FILE="$(dirname "$0")/../results/product-metadata.json"
 DECODED=$(python3 -c "$PYTHON_SCRIPT" "$HAR_FILE" "$PACKAGE_NAME" "$FILTER_HOST" "$CONFIG_FILE" 2>&1) || {
     error "Failed to decode HAR: $DECODED"
     exit 1
 }
 
-# Validate output against schema if available
+# Validate output against the schema when present.
 SCHEMA_FILE="${SCHEMA_FILE:-$(dirname "$0")/../results/decode-traffic.schema.json}"
 export SCHEMA_FILE
 STRICT_MODE="${DECODE_TRAFFIC_STRICT:-0}"
@@ -476,7 +472,6 @@ except jsonschema.ValidationError as e:
     fi
 fi
 
-# Output
 if [ -n "$OUTPUT_FILE" ]; then
     printf '%s' "$DECODED" > "$OUTPUT_FILE"
     log "Output written to: $OUTPUT_FILE"

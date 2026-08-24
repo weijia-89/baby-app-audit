@@ -1,5 +1,5 @@
-"""
-Minimal HAR dump addon for mitmproxy.
+"""Write a HAR file from mitmproxy flows.
+
 Usage: mitmdump -s scripts/har_dump.py --set har_output=output.har -nr input.mitm
 """
 import json
@@ -7,7 +7,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 import sys
 
-# Allow `mitmdump -s scripts/har_dump.py` to import sibling helpers.
+# Let mitmdump import helpers next to this file.
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from har_postdata import encode_body_text, request_post_data  # noqa: E402
 
@@ -32,7 +32,7 @@ class HARWriter:
         }
 
     def response(self, flow):
-        # Only handle HTTP flows
+        # Handle HTTP flows only.
         if not getattr(flow, 'response', None):
             return
 
@@ -43,20 +43,20 @@ class HARWriter:
         started = datetime.fromtimestamp(req_start, tz=timezone.utc).isoformat()
         total_time = max(0, int((resp_end - req_start) * 1000))
 
-        # Request headers
+        # Request headers.
         req_headers = [{"name": k, "value": v} for k, v in flow.request.headers.items(multi=True)]
 
-        # Response headers
+        # Response headers.
         resp_headers = [{"name": k, "value": v} for k, v in flow.response.headers.items(multi=True)]
 
-        # Request body (must land in postData.text for scan-synthetic-baby-data.sh)
+        # Put request body in postData.text for the synthetic scan.
         req_body_size = len(flow.request.content) if flow.request.content else 0
         post_data = request_post_data(
             flow.request.headers.get("Content-Type", ""),
             flow.request.content,
         )
 
-        # Response body
+        # Response body.
         resp_body_size = len(flow.response.content) if flow.response.content else 0
         resp_body = ""
         resp_encoding = ""

@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
-"""Helpers for adb input text and uiautomator bounds. No device I/O."""
+"""Encode text for adb and parse UI bounds. No device calls."""
 import re
 
 
 def encode_adb_text(val):
-    """Escape a string for `adb shell input text`. Spaces must be %s."""
+    """Escape text for `adb shell input text`. Use %s for spaces."""
     safe = (val or "").replace("\n", " ").replace('"', "")
     return safe.replace(" ", "%s")
 
 
 def escape_uiautomator_text(val):
-    """Escape a string for a UiSelector text(\"...\" ) argument."""
+    """Escape text for a UiSelector text(\"...\") argument."""
     return (val or "").replace("\\", "\\\\").replace('"', '\\"')
 
 
@@ -19,9 +19,9 @@ def bounds_center(bounds):
 
 
 def bounds_tap(bounds, align="center"):
-    """Return a tap point inside uiautomator bounds.
+    """Return a tap point inside UI bounds.
 
-    Tall fields (Nubo note body) have a center under the keyboard. Use align=top.
+    For tall fields, use align=top so the keyboard does not cover the tap.
     """
     m = re.search(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]", bounds or "")
     if not m:
@@ -35,7 +35,7 @@ def bounds_tap(bounds, align="center"):
 
 
 def bounds_tap_for_edit(bounds):
-    """Tap near the top of a tall EditText so the IME does not cover the point."""
+    """Tap near the top of a tall field so the keyboard does not cover it."""
     m = re.search(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]", bounds or "")
     if not m:
         return None
@@ -46,7 +46,7 @@ def bounds_tap_for_edit(bounds):
 
 
 def bounds_usable(bounds):
-    """False for missing or tiny hit boxes ([0,0][0,0])."""
+    """False if bounds are missing or zero size."""
     m = re.search(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]", bounds or "")
     if not m:
         return False

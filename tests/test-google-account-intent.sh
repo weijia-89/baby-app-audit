@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
-# The MinuteMaid / IMAP dump activity is the wrong Google add-account path.
+# Do not use the IMAP dump activity to add a Google account.
 script="$(cd "$(dirname "$0")/.." && pwd)/scripts/add-google-account.py"
 grep -q 'android.settings.ADD_ACCOUNT_SETTINGS' "$script"
 if grep -qE 'am start.*UiMinfaActivity' "$script"; then

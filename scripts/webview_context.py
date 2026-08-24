@@ -1,19 +1,11 @@
 #!/usr/bin/env python3
-"""Pick an Appium WebView/Chrome context from a context list.
-
-Live Appium sessions call this after driver.contexts is available. Unit tests
-cover the picker without starting Appium.
-"""
+"""Pick a WebView or Chrome context from an Appium context list."""
 
 
 def pick_webview_context(contexts, package):
     """Return the best non-native context, or None.
 
-    Preference:
-      1. WEBVIEW_<package>
-      2. WEBVIEW_chrome / WEBVIEW_com.android.chrome (Chrome Custom Tab)
-      3. any other WEBVIEW_*
-      4. CHROMIUM
+    Order: WEBVIEW_<package>, Chrome WebView, other WEBVIEW_*, CHROMIUM.
     """
     names = [str(c) for c in contexts]
     want = f"WEBVIEW_{package}"

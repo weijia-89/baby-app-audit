@@ -95,9 +95,7 @@ assert "[REDACTED:response-body-values:secret-or-PII]" in flow["redactions"]
 assert "[REDACTED:response-header-values:secret-or-PII]" in flow["redactions"]
 PY
 
-# Origin classification: a request carrying the app's own package header is
-# "app"; a different package is "device"; no package header is "session". The
-# previous logic mislabeled an app request that also carried Authorization.
+# Origin: same package => "app"; other => "device"; none => "session".
 har2="$tmp_dir/input2.har"
 capture2="$tmp_dir/input2.mitm"
 output2="$tmp_dir/network-log-amila.json"

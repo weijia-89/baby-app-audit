@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Unit tests for decode-traffic.sh
+# Tests for decode-traffic.sh.
 # Usage: bash tests/test-decode-traffic.sh
 
 set -euo pipefail
@@ -13,7 +13,7 @@ FAILED=0
 pass() { echo "  PASS: $1"; }
 fail() { echo "  FAIL: $1"; FAILED=1; }
 
-# Setup: create test HAR with one matching flow
+# Build a test HAR with one matching flow.
 cleanup() {
     rm -f "$REPO_DIR/tests/fixtures/bad.json" "$REPO_DIR/tests/fixtures/output.json" "$REPO_DIR/tests/fixtures/output2.json" "$REPO_DIR/tests/fixtures/output3.json" "$REPO_DIR/tests/fixtures/output4.json" "$REPO_DIR/tests/fixtures/stderr3.txt" "$REPO_DIR/tests/fixtures/stderr4.txt" "$REPO_DIR/tests/fixtures/missing-config.json" "$REPO_DIR/tests/fixtures/bad-schema.json" "$REPO_DIR/tests/fixtures/empty.har" "$REPO_DIR/tests/fixtures/output-empty.json" "$REPO_DIR/tests/fixtures/corrupted-schema.json" "$REPO_DIR/tests/fixtures/output-badschema.json" "$REPO_DIR/tests/fixtures/output-rw-pebbi.json" "$REPO_DIR/tests/fixtures/output-rw-pebbi-trk.json" "$REPO_DIR/tests/fixtures/output-rw-nl.json" "$REPO_DIR/tests/fixtures/output-rw-nubo.json" "$REPO_DIR/tests/fixtures/output-rw-pregnancyplus.json" "$REPO_DIR/tests/fixtures/output-rw-wte.json" "$REPO_DIR/tests/fixtures/output-rw-amila.json" "$REPO_DIR/tests/fixtures/output-rw-trackers.json"
 }
@@ -201,7 +201,7 @@ fi
 # Test 14: Strict mode fails on schema violation (requires jsonschema)
 echo "Test 14: Strict mode fails on schema violation"
 if python3 -c "import jsonschema" 2>/dev/null; then
-    # Create a schema that rejects valid output by requiring an impossible field
+    # Schema that always fails: requires an impossible field.
     cat > "$REPO_DIR/tests/fixtures/bad-schema.json" <<'EOF'
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
@@ -259,7 +259,7 @@ RW_NL="$REPO_DIR/tests/fixtures/output-rw-nl.json"
 RW_NUBO="$REPO_DIR/tests/fixtures/output-rw-nubo.json"
 RW_PEBBI_TRK="$REPO_DIR/tests/fixtures/output-rw-pebbi-trk.json"
 
-# Create real-world HAR fixture if it doesn't exist
+# Create the real-world HAR fixture if missing.
 if [ ! -f "$RW_HAR" ]; then
     cat > "$RW_HAR" <<'EOF'
 {
@@ -326,7 +326,7 @@ EOF
 fi
 
 RW_OK=1
-# Pebbi: app.pebbi.co (label match) + firebaselogging (body packageName match) = 2 flows
+# Pebbi: host label + body packageName => 2 flows.
 if bash "$DECODER" "$RW_HAR" com.pebbi.android "$RW_PEBBI" >/dev/null 2>&1; then
     RW_PCNT=$(python3 -c "import json; print(len(json.load(open('$RW_PEBBI')).get('flows',[])))")
     if [ "$RW_PCNT" -ge 2 ]; then
@@ -337,7 +337,7 @@ if bash "$DECODER" "$RW_HAR" com.pebbi.android "$RW_PEBBI" >/dev/null 2>&1; then
 else
     fail "Pebbi real-world decode failed"; RW_OK=0
 fi
-# Nurture Lock: api.revenuecat.com with X-Client-Bundle-ID header = 1 flow
+# Nurture Lock: RevenueCat header => 1 flow.
 if bash "$DECODER" "$RW_HAR" com.angry.shark.studio.nurturelock "$RW_NL" >/dev/null 2>&1; then
     RW_NLCNT=$(python3 -c "import json; print(len(json.load(open('$RW_NL')).get('flows',[])))")
     if [ "$RW_NLCNT" -eq 1 ]; then
@@ -348,7 +348,7 @@ if bash "$DECODER" "$RW_HAR" com.angry.shark.studio.nurturelock "$RW_NL" >/dev/n
 else
     fail "Nurture Lock real-world decode failed"; RW_OK=0
 fi
-# Nubo: no matching traffic in this HAR = 0 flows (negative control)
+# Nubo: no match in this HAR => 0 flows.
 if bash "$DECODER" "$RW_HAR" com.clicksie.nuboapp "$RW_NUBO" >/dev/null 2>&1; then
     RW_NBCNT=$(python3 -c "import json; print(len(json.load(open('$RW_NUBO')).get('flows',[])))")
     if [ "$RW_NBCNT" -eq 0 ]; then
@@ -360,9 +360,7 @@ else
     fail "Nubo real-world decode failed"; RW_OK=0
 fi
 
-# Tracker-domain fidelity: SDK hosts (googleapis.com, firebaseio.com, crashlytics.com)
-# must be classified as trackers so cross-app shared-tracker detection works.
-# Pebbi HAR contains firebaselogging-pa.googleapis.com, which must now count.
+# SDK hosts (googleapis, firebaseio, crashlytics) must count as trackers.
 if bash "$DECODER" "$RW_HAR" com.pebbi.android "$RW_PEBBI_TRK" >/dev/null 2>&1; then
     RW_TRK=$(python3 -c "import json; d=json.load(open('$RW_PEBBI_TRK')); print(d['summary']['tracker_flows'], d['summary']['unique_trackers'])")
     RW_TRK_FLOWS=$(echo "$RW_TRK" | cut -d' ' -f1)
@@ -375,9 +373,7 @@ else
     fail "Pebbi tracker-fidelity decode failed"; RW_OK=0
 fi
 
-# Test 18: Wave-1 packages get explicit filter hosts. Common-word labels
-# ("lite" from com.hp.pregnancy.lite, "view" from com.wte.view) must NOT
-# attribute unrelated hosts; the real product hostname label must.
+# Test 18: do not match short package words like "lite" or "view" alone.
 echo "Test 18: Wave-1 filter hosts reject common-word labels"
 W1_HAR="$REPO_DIR/tests/fixtures/wave1-capture.har"
 W1_PREG="$REPO_DIR/tests/fixtures/output-rw-pregnancyplus.json"
@@ -496,9 +492,7 @@ else
     fail "Wave-1 Amila decode failed"; W1_OK=0
 fi
 
-# Test 20: Wave-1 ad-SDK domains must classify as trackers. Captures show
-# *.appsflyersdk.com, *.clarity.ms, *.scorecardresearch.com alongside known
-# tracker domains; each must map to its vendor for shared-tracker detection.
+# Test 20: AppsFlyer, Clarity, and ScorecardResearch must map as trackers.
 echo "Test 20: Wave-1 ad-SDK domains (AppsFlyer SDK, Clarity, Scorecard) classify as trackers"
 W1_TRK_HAR="$REPO_DIR/tests/fixtures/wave1-trackers.har"
 W1_TRK_OUT="$REPO_DIR/tests/fixtures/output-rw-trackers.json"

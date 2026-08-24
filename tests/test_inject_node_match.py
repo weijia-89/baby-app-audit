@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Unit tests for injector node matching. No device required."""
+"""Tests for injector node match. No device."""
 import importlib.util
 import xml.etree.ElementTree as ET
 from pathlib import Path

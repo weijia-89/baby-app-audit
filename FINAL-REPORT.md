@@ -156,6 +156,7 @@ The Play Store pages make no no-data-sharing or offline promise. We acquired the
 | Google (Firebase) | Downloads app settings and crash-configuration rules. No data about you | POST firebaseremoteconfig.googleapis.com/v1/projects/254761198014/namespaces/firebase:fetch -> 200; GET firebase-settings.crashlytics.com/spi/v2/platforms/android/gmp/... -> 200 |
 
 - **Network log:** [network-log-bellybloom.json](results/network-log-bellybloom.json)
+- **Live check (article pictures):** On this API 29 emulator a later launch hit Pairip **CLOSE** (`article-pairip-close.png`). That CLOSE is an environment blocker. It is not a privacy PASS or FAIL. The No-claim / 🚫 mark above is from the 2026-08-14 launch capture.
 
 ### Nanit
 - **Claim:** No claim - see [Google Play listing](https://play.google.com/store/apps/details?id=com.nanit.baby) (data safety: "Shares Personal info, App activity, and App info and performance")
@@ -308,6 +309,7 @@ Baby Buddy is the only open-source app in this test.
 | Google (messages) | Registers the phone to receive push and message services | android.apis.google.com |
 
 - **Network log:** [network-log-baby-daybook.json](results/network-log-baby-daybook.json)
+- **Live check (2026-08-17):** On this API 29 emulator the app crashed at Pairip native load (`VMRunner` UnsatisfiedLinkError). No profile was entered. That crash is an environment blocker. It is not a privacy PASS or FAIL. The FAIL mark above is from the 2026-08-08 launch capture, not from this crash.
 
 ### MimiLog
 - **Claim:** "Fully offline" - see [Google Play listing](https://play.google.com/store/apps/details?id=com.mimiapp.mimilog)
@@ -349,7 +351,7 @@ Baby Buddy is the only open-source app in this test.
 | RevenueCat | Receives your subscription state: whether you pay and what you have unlocked | api.revenuecat.com |
 
 - **Network log:** [network-log-nurture-lock.json](results/network-log-nurture-lock.json)
-- **Live check (2026-08-17):** Launch opened Pairip `LicenseActivity`. The dialog says to enable Google Play and use an up-to-date version. The only button is **CLOSE**. Appium then failed because `MainActivity` never started. No profile was entered. The emulator Play Store package is stub `com.android.vending` 1.8.
+- **Live check (2026-08-17):** Launch opened Pairip `LicenseActivity`. The dialog says to enable Google Play and use an up-to-date version. The only button is **CLOSE**. Appium then failed because `MainActivity` never started. No profile was entered. The emulator Play Store package is stub `com.android.vending` 1.8. Pairip CLOSE here is an environment blocker. It is not a privacy PASS or FAIL. The FAIL mark above is from the 2026-08-03 launch capture.
 
 ### Pebbi
 - **Claim:** No claim (control app)
@@ -364,7 +366,7 @@ Baby Buddy is the only open-source app in this test.
 | Google (messages) | Registers the phone to receive push and message services | android.apis.google.com |
 
 - **Network log:** [network-log-pebbi.json](results/network-log-pebbi.json)
-- **Live check (2026-08-17):** A monkey launch hit the same Pairip **CLOSE** dialog. An Appium session with no app reset reached native **Welcome to Pebbi**, then **Customise Settings** (units), then **Add New Baby**. Contexts stayed `NATIVE_APP` (no WebView). The name field took typing. Date of birth is a picker (`Select date and time of birth`). Gender is two icon buttons with no TalkBack name. **Complete Setup** stayed disabled. Pulled APKPure 3.2.1 (opens, then **Update required** with no Later), 3.4.0 and 3.5.0 (Pairip). 4.0.1 cold start returns to Pairip on this Play stub. Proxy capture of the 4.0.1 walk: 8 flows. Scan: `no_transmission_detected`. This is not a saved profile.
+- **Live check (2026-08-17):** A monkey launch hit the same Pairip **CLOSE** dialog. An Appium session with no app reset reached native **Welcome to Pebbi**, then **Customise Settings** (units), then **Add New Baby**. Contexts stayed `NATIVE_APP` (no WebView). The name field took typing. Date of birth is a picker (`Select date and time of birth`). Gender is two icon buttons with no TalkBack name. **Complete Setup** stayed disabled. Pulled APKPure 3.2.1 (opens, then **Update required** with no Later), 3.4.0 and 3.5.0 (Pairip). 4.0.1 cold start returns to Pairip on this Play stub. Proxy capture of the 4.0.1 walk: 8 flows. Scan: `no_transmission_detected`. This is not a saved profile. Pairip CLOSE on cold start is an environment blocker. It is not a privacy PASS or FAIL. The No-claim / 🚫 mark above is from the 2026-08-03 launch capture.
 
 ## Cross-app view
 
