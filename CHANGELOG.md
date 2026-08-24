@@ -1,5 +1,10 @@
 # Changelog
 
+## 4.6.16 - 2026-08-24
+
+### Changed
+- `ROADMAP.md`: backfilled inject rule for short lists (chips, pickers, units). Prefer the profile sentinel when it sticks; otherwise keep the value that sticks, name it in the Final Report, and scan for transmission. Fixed targets such as formula-per-click 90 are not required. Pairip CLOSE and native Pairip crashes stay environment blockers, not privacy PASS/FAIL. Queue table: Slice D next after PR 49.
+
 ## 4.6.15 - 2026-08-24
 
 ### Changed

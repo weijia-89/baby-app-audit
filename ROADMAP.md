@@ -99,9 +99,27 @@ Apps that make privacy/offline claims but cannot be acquired via APKPure or F-Dr
 - The committed, sanitized network logs are NOT searched: their bodies are redacted, so the fictional values would be invisible there. Only the raw local capture can show exfiltration.
 - Procedure is documented in `METHODOLOGY.md` (Synthetic baby-data transmission test).
 
-**Status:** Profile, scan tool, and unit test are committed. Live captures across the 16 apps are pending operator execution on the emulator, after which the per-app verdicts feed the Final Report.
+**Backfilled inject and limited options (rule, 2026-08-24):** When we return to an app for a later inject, re-scan, or article picture pass, follow the same bar as a first pass:
 
-**Success criterion:** Every app exercised with the fictional profile has a verdict in the Final Report: `transmission_observed` (a marker left the device, with recipient) or `no_transmission_detected` (the capture shows the entered values did not leave).
+1. Prefer profile sentinel values when the UI accepts them.
+2. When a field only offers a short list (chips, pickers, units), pick from those options. If the preferred sentinel will not stick, keep the value that sticks.
+3. Write the exact number or unit that was saved into `FINAL-REPORT.md` (and this roadmap row when it is the live note).
+4. Scan the raw capture for that exact string as well as the usual profile markers. Say whether those strings left the device.
+5. A fixed target (for example Nubo formula-per-click 90) is not required for a finished inject. Missing a preferred chip is not an unfinished test when the stuck value is recorded and scanned.
+6. Pairip CLOSE, Play stub blocks, and native Pairip crashes stay environment blockers. They are never privacy PASS or FAIL.
+
+Example: Nubo 2026-08-23 entered formula-per-click **15** (90 did not stick). That value is what to name and search for. Backup Now remains optional and unfinished (GMS consent).
+
+**Status:** Profile, scan tool, and unit test are committed. Live captures across the 16 apps are pending operator execution on the emulator, after which the per-app verdicts feed the Final Report. PR 49 merged the limited-picker rule into `AGENTS.md`, `METHODOLOGY.md`, and the Nubo live notes.
+
+**Success criterion:** Every app exercised with the fictional profile has a verdict in the Final Report: `transmission_observed` (a marker left the device, with recipient) or `no_transmission_detected` (the capture shows the entered values did not leave). When the entered amount or unit differs from the profile sentinel, the report also names that entered value and whether it left the device.
+
+### Queue after PR 49 (2026-08-24)
+
+| Slice | Scope | Status |
+| --- | --- | --- |
+| D | Pairip / Play stub tooling-only: docs and harness messaging so Pairip CLOSE and Baby Daybook native crash are never read as privacy PASS/FAIL. No fake verdicts. | Next. Branch from `origin/main` after PR 49 merge. |
+| Later | Nubo Backup Now (GMS consent) optional live pass. Formula 90 optional; **15** already counts when recorded. Shut qemu when the pass ends. | Optional. |
 
 ### Per-app injection flows (automated, in progress)
 
@@ -213,5 +231,6 @@ This is a planning report, not a new privacy verdict. Percents are rough from sc
 
 1. Baby Buddy first-launch pictures are on disk (2026-08-23): GitHub `babybuddy-for-android` v2.6.4 sideloaded on emulator-5554. Login screen only. Did not connect a server. PASS is still the Django web capture, not this companion.
 2. Baby+ About You picture and capture are done (2026-08-21). Batch re-scan of preserved `.mitm` after HAR `postData` fix (2026-08-23): only Baby+ About You captures flip to `transmission_observed` (2026-08-16 and 2026-08-21). All other non-zero captures in the tree stayed `no_transmission_detected`. Force-upgrade still blocks home.
-3. For Nubo: Google sign-in for backup is done (2026-08-23, proxy off). Backup Now still did not finish (GMS `ConsentActivity` + spinner). Formula-per-click is still 15. A `wlan0` pcap exists for that hung window; `eth0` is missing on this AVD. Do not treat the 0-byte `.mitm` as Firebase silence.
+3. For Nubo: Google sign-in for backup is done (2026-08-23, proxy off). Backup Now still did not finish (GMS `ConsentActivity` + spinner). Formula-per-click entered as **15** (preferred 90 did not stick). That entered value is enough under the limited-options rule above; name it and scan for it. A `wlan0` pcap exists for that hung window; `eth0` is missing on this AVD. Do not treat the 0-byte `.mitm` as Firebase silence.
 4. Do not treat a 0-byte file, a 0-flow file, or a short emulator-wide HTTP-proxy file as "Firebase sent nothing." See METHODOLOGY.md.
+5. Next docs slice: Pairip / Play stub wording (Slice D) so CLOSE and Daybook crash never read as privacy PASS/FAIL.
