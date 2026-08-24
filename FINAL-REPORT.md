@@ -156,6 +156,7 @@ The Play Store pages make no no-data-sharing or offline promise. We acquired the
 | Google (Firebase) | Downloads app settings and crash-configuration rules. No data about you | POST firebaseremoteconfig.googleapis.com/v1/projects/254761198014/namespaces/firebase:fetch -> 200; GET firebase-settings.crashlytics.com/spi/v2/platforms/android/gmp/... -> 200 |
 
 - **Network log:** [network-log-bellybloom.json](results/network-log-bellybloom.json)
+- **Live check (article pictures):** On this API 29 emulator a later launch hit Pairip **CLOSE** (`article-pairip-close.png`). That CLOSE is an environment blocker. It is not a privacy PASS or FAIL. The No-claim / 🚫 mark above is from the 2026-08-14 launch capture.
 
 ### Nanit
 - **Claim:** No claim - see [Google Play listing](https://play.google.com/store/apps/details?id=com.nanit.baby) (data safety: "Shares Personal info, App activity, and App info and performance")

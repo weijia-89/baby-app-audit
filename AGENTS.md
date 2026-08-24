@@ -249,7 +249,7 @@ Outputs delivered:
 - When a field only offers a short list (chips, pickers, units), pick from those options. Prefer the profile sentinel when it is tappable. If it will not stick, use a value that does stick. Record the exact number or unit that was saved, scan the capture for that value, and name both the entered value and the transmission finding in FINAL-REPORT. A fixed target such as formula-per-click 90 is not required for a finished inject.
 - When offering a choice, explain it in very simple language (ELI12) and say which option is more thorough.
 - Keep FINAL-REPORT as the existing table plus per-app block. Put deep-dive license or provenance material in footnotes. Do not add special per-app dive sections.
-- When Play license, a missing package, or Pairip blocks inject, pull or sideload an APK or emulate the needed calls. Do not treat a CLOSE-only dump as a completed profile.
+- When Play license, a missing package, or Pairip blocks inject, pull or sideload an APK or emulate the needed calls. Do not treat a CLOSE-only dump as a completed profile. Pairip CLOSE and Pairip native crashes are environment blockers, not privacy PASS or FAIL.
 - Keep screenshots of each inject step (home, form, saved log, charts). We will later turn this project into a public site and article that explains, piece by piece, how we collected the data, including for readers who are not engineers. Store those PNGs under `results/<app>-test-<date>/artifacts/uiux/` (binary `adb exec-out screencap`; gitignored evidence tree; never commit secrets). Never invent a screenshot; if the emulator cannot show the screen, write the reason. Backfill the same pictures for every earlier test, not only Nubo. See ROADMAP.md "Screenshots for every prior test".
 - One pull request per roadmap slice. Do not merge unless the operator asks. Wait for that merge before starting the next slice. In review comments, do not name review postures; use the trainer templates only.
 
@@ -265,4 +265,4 @@ Outputs delivered:
 - Most captures are a short first-launch window. That is not a 20-minute idle, and it is not Backup/Sign-in/device-pair. Nubo 2026-08-18 finished home activities on device; Settings extras, Backup, and BLE pair were not tapped. See ROADMAP.md "App surface and sync-condition coverage".
 - `adb exec-out screencap` must stay binary. Do not decode it as text or the PNG is corrupted.
 - Use screenshots to drive WebView coordinates when uiautomator dumps expose no nodes.
-- On this API 29 Google APIs AVD, a stub Play Store (`com.android.vending` 1.8) makes Pairip `LicenseActivity` CLOSE-only (Pebbi, Nurture Lock). Baby Daybook crashes `UnsatisfiedLinkError` Pairip `VMRunner`. That is not a privacy verdict.
+- On this API 29 Google APIs AVD, a stub Play Store (`com.android.vending` 1.8) makes Pairip `LicenseActivity` CLOSE-only (Pebbi, Nurture Lock, BellyBloom). Baby Daybook crashes `UnsatisfiedLinkError` Pairip `VMRunner`. That is not a privacy verdict.

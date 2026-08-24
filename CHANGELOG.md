@@ -3,8 +3,9 @@
 ## 4.6.17 - 2026-08-24
 
 ### Changed
-- Slice D: Pairip CLOSE and Baby Daybook Pairip native crash are documented as environment blockers, not privacy PASS or FAIL (`METHODOLOGY.md`, `FINAL-REPORT.md`, `README.md`, `ROADMAP.md`).
+- Slice D: Pairip CLOSE and Baby Daybook Pairip native crash are documented as environment blockers, not privacy PASS or FAIL (`METHODOLOGY.md`, `FINAL-REPORT.md`, `README.md`, `ROADMAP.md`, `AGENTS.md`). BellyBloom CLOSE called out the same way.
 - Code comments in `scripts/` and `tests/`: short plain English. Removed empty section labels. Behavior unchanged.
+- `scripts/run-tests.sh`: inject warn text says continuing capture is not a privacy PASS/FAIL.
 
 ## 4.6.16 - 2026-08-24
 
