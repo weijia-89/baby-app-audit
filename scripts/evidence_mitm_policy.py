@@ -1,12 +1,9 @@
 #!/usr/bin/env python3
-"""Classify zero-byte .mitm files in one captures directory.
+"""List zero-byte .mitm files in one captures directory.
 
-Policy (AGENTS.md Evidence retention):
-- Never delete zero-byte .mitm files from failed mitmdump starts.
-- Always WARN on zero-byte .mitm (kept evidence of a bad start).
-- Do not ERROR on zero-byte alone: intentional empty files and true clobbers
-  look the same on disk without a prior size ledger.
-- Hard failures stay on missing committed network logs (see evidence-inventory.sh).
+Keep zero-byte .mitm files (failed mitmdump starts). Always WARN.
+Do not ERROR on zero-byte alone. Missing network logs still fail
+in evidence-inventory.sh (see AGENTS.md).
 """
 from __future__ import annotations
 
@@ -16,11 +13,10 @@ from typing import List, Sequence, Tuple
 def classify_zero_byte_mitms(
     mitm_sizes: Sequence[Tuple[str, int]],
 ) -> Tuple[List[str], List[str]]:
-    """Return (error_names, warn_names) for zero-byte .mitm entries.
+    """Return (error_names, warn_names) for zero-byte .mitm files.
 
-    Filenames are matched case-insensitively for the .mitm suffix by callers.
-    error_names is always empty under the keep-zero-byte policy.
-    Non-integer sizes are treated as zero-byte so a bad caller cannot skip WARN.
+    error_names is always empty (keep-zero-byte policy).
+    Non-integer size counts as empty so WARN still runs.
     """
     warns: List[str] = []
     for name, size in mitm_sizes:

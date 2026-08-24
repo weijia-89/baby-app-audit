@@ -1,5 +1,11 @@
 # Changelog
 
+## 4.6.17 - 2026-08-24
+
+### Changed
+- Slice D: Pairip CLOSE and Baby Daybook Pairip native crash are documented as environment blockers, not privacy PASS or FAIL (`METHODOLOGY.md`, `FINAL-REPORT.md`, `README.md`, `ROADMAP.md`).
+- Code comments in `scripts/` and `tests/`: short plain English. Removed empty section labels. Behavior unchanged.
+
 ## 4.6.16 - 2026-08-24
 
 ### Changed

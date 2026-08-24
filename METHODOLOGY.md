@@ -185,6 +185,15 @@ The fictional profile is one identity: "Privatia Rigatoni", born 2026-03-14 at 6
    The script reads the markers from `results/synthetic-baby-profile.json`, greps the raw capture for each one, and reports which fictional values appear in a request body, a response body, or a request URL, with the recipient host, path, method, and status. It emits no adjacent body content, so its report is safe to commit. If you entered a non-sentinel amount or unit because the UI forced it, also search the raw capture for that exact string and record the result.
 9. Record the verdict per app in the Final Report: `transmission_observed` (a marker left the device) or `no_transmission_detected` (the capture shows the entered values did not leave). Name the exact amounts and units that were entered, and say whether those strings left the device.
 
+### Environment blockers (not privacy verdicts)
+
+Some apps never reach a profile form on this API 29 Google APIs emulator:
+
+- Pairip `LicenseActivity` with only **CLOSE** (stub Play Store `com.android.vending` 1.8): Pebbi cold start, Nurture Lock, BellyBloom on this AVD.
+- Pairip native crash (`VMRunner` UnsatisfiedLinkError): Baby Daybook on this AVD.
+
+These are environment blockers. They are not privacy PASS. They are not privacy FAIL. Do not treat a CLOSE-only dump or a crash before inject as a completed profile or as proof that data stayed on the device. The Final Report launch marks for those apps come from earlier captures, not from the CLOSE or crash screen.
+
 The committed, sanitized network logs are NOT searched by this test. Their bodies are replaced by redaction slugs, so the fictional values would be invisible there. Only the raw local capture can prove exfiltration.
 
 ### What proves Firebase is silent

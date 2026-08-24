@@ -96,10 +96,9 @@ EOF
 
 output="$tmp_dir/analytics-pii.json"
 
-# Second fixture: vendor attribution edge cases.
-#  - a hostile host that embeds a vendor name across a label boundary must NOT
-#    be attributed to that vendor (misattribution = audit integrity failure)
-#  - vendors captured with dashed subdomains must still be attributed correctly
+# Second fixture: vendor match edge cases.
+# - Host that embeds a vendor name across a label must not match that vendor.
+# - Dashed subdomains of a real vendor must still match.
 cat > "$tmp_dir/network-log-vendors.json" <<'EOF'
 {
   "$schema": "network-log/1.0",
@@ -153,7 +152,7 @@ cat > "$tmp_dir/network-log-vendors.json" <<'EOF'
 }
 EOF
 
-# A corrupt log must be skipped, not crash the whole scan.
+# Skip a corrupt log; do not crash the scan.
 printf '{ this is not valid json' > "$tmp_dir/network-log-bad.json"
 
 bash "$scanner" "$tmp_dir" "$output"
@@ -192,7 +191,7 @@ vendor = next(item for item in data["vendors"] if item["vendor"] == "Facebook")
 assert vendor["call_count"] == 1
 assert "app_activity_events" in vendor["pii_categories"]
 
-# Vendor attribution edge cases (second fixture app).
+# Vendor match edge cases (second fixture).
 vapp = next(a for a in data["apps"] if a["app"] == "vendors")
 vcalls = {c["host"]: c["vendor"] for c in vapp["calls"]}
 assert vcalls["evilgoogle.com.attacker.net"] == "Unclassified host", \

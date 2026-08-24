@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Behavioral tests for HAR postData pack/decode, path guards, and scan wiring."""
+"""Tests for HAR postData pack/decode, path checks, and scan use."""
 import base64
 import sys
 from pathlib import Path

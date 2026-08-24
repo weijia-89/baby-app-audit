@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
-"""Drive Baby+ (or another package) login through Appium UiAutomator2 + WebView.
+"""Log in to Baby+ (or another package) with Appium and WebView.
 
-Requires a running Appium 3 server with the uiautomator2 driver:
+Needs Appium 3 with the uiautomator2 driver:
   appium '--allow-insecure=*:chromedriver_autodownload'
   .test-venv/bin/python scripts/appium-webview-login.py --package com.hp.babyapp
 
-Does not print secrets. Does not read .secrets. Device Google account picker is preferred.
+Does not print secrets. Does not read .secrets.
+Prefer the device Google account list.
 """
 import argparse
 import os
@@ -81,7 +82,7 @@ def wait_text_gone(driver, text, timeout=90):
 
 
 def tap_google_account_row(driver):
-    """Tap the device Google account in the GMS picker. Do not log the address."""
+    """Tap the Google account on the device list. Do not log the address."""
     from appium.webdriver.common.appiumby import AppiumBy
 
     sel = 'new UiSelector().packageName("com.google.android.gms").textContains("@gmail.com")'
@@ -107,7 +108,7 @@ def wait_webview(driver, package, timeout=45):
 
 
 def try_webview_google(driver):
-    """Click a Google sign-in control inside the current WebView. No password typing."""
+    """Click Google sign-in in the current WebView. Do not type a password."""
     from selenium.webdriver.common.by import By
 
     xpaths = [

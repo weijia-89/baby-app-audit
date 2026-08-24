@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Unit tests for WebView context picking. No Appium required."""
+"""Tests for WebView context pick. No Appium."""
 import sys
 from pathlib import Path
 

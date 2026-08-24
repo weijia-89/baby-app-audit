@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Pure helpers for HAR request body packing and text decode (no mitmproxy import)."""
+"""Pack and decode HAR request bodies. No mitmproxy import."""
 from __future__ import annotations
 
 import base64
@@ -9,7 +9,7 @@ from typing import Optional, Union
 
 
 def request_post_data(content_type: str, body_bytes: Optional[bytes]) -> Optional[dict]:
-    """Return HAR postData dict for a request body, or None if empty."""
+    """Build HAR postData for a body, or None if empty."""
     if not body_bytes:
         return None
     text, encoding = encode_body_text(body_bytes)
@@ -23,7 +23,7 @@ def request_post_data(content_type: str, body_bytes: Optional[bytes]) -> Optiona
 
 
 def encode_body_text(body_bytes: bytes) -> tuple:
-    """Return (text, encoding_or_None) for a raw body."""
+    """Decode a raw body to (text, encoding_or_None)."""
     try:
         return body_bytes.decode("utf-8"), None
     except UnicodeDecodeError:
@@ -31,10 +31,9 @@ def encode_body_text(body_bytes: bytes) -> tuple:
 
 
 def decode_har_text(text: str, encoding: Optional[str] = None) -> str:
-    """Return searchable plaintext from a HAR body field.
+    """Return plain text from a HAR body field for scanning.
 
-    When encoding is base64, decode before scan. On decode failure return empty
-    so base64 noise cannot invent marker hits.
+    Decode base64 when set. On failure return empty (avoid false marker hits).
     """
     if not text:
         return ""
@@ -48,7 +47,7 @@ def decode_har_text(text: str, encoding: Optional[str] = None) -> str:
 
 
 def is_under_directory(path: Union[str, Path], root: Union[str, Path]) -> bool:
-    """True when resolved path is root or a descendant. Rejects sibling prefix tricks."""
+    """True if path is root or under root. Reject sibling-prefix paths."""
     try:
         Path(path).resolve().relative_to(Path(root).resolve())
         return True

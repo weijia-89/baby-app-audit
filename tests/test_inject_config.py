@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Check inject-config JSON files parse and each has a steps list."""
+"""Check each inject-config JSON parses and has steps."""
 import json
 import re
 import sys
@@ -19,7 +19,7 @@ def _parse_bounds(raw):
 
 
 def _babyplus_recipe_invalid(data, silent=False):
-    """Return True if Baby+ steps cannot open Girl then save on this AVD."""
+    """True if Baby+ steps cannot open Girl and save on this AVD."""
 
     def fail(msg):
         if not silent:
@@ -63,10 +63,10 @@ def _babyplus_recipe_invalid(data, silent=False):
     girl = _parse_bounds(bounds[1])
     if spinner is None or girl is None:
         return fail("babyplus tap_bounds must be four integers")
-    # Chevron is the right edge of CustomMaterialSpinner [63,820][1025,987].
+    # Gender spinner chevron: right edge of [63,820][1025,987].
     if spinner[0] < 900 or spinner[1] < 800 or spinner[3] > 1000:
         return fail("babyplus spinner tap must be the right-edge chevron")
-    # Popup content [63,971][1025,1219]; Girl is the lower row (y1 >= 1095).
+    # Girl row is the lower half of popup [63,971][1025,1219].
     if girl != (63, 1095, 1025, 1219):
         return fail("babyplus Girl tap must be the lower popup row")
     ids = [s.get("tap_id") for s in steps if "tap_id" in s]

@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -uo pipefail
 
-# Android UI QA Minimal with Quality Guards
-# Target: com.hp.pregnancy.lite onboarding "About you"
+# Minimal UI QA for Pregnancy+ About You.
+# Package: com.hp.pregnancy.lite.
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ARTIFACT_DIR="${HOME}/.local/state/baby-app-audit/android_qa"
@@ -34,7 +34,7 @@ get_density() {
   adb shell wm density | awk '{print $3}' || echo 480
 }
 
-# Constants - centralize coordinates base 1080x2400
+# Tap points for a 1080x2400 screen.
 PACKAGE="com.hp.pregnancy.lite"
 LAUNCH_ACTIVITY="/.onboarding.SplashScreenActivity"
 BASE_DENSITY=480
@@ -48,7 +48,7 @@ CHILDREN_OPTION_NO_X_BASE=540
 CHILDREN_OPTION_NO_Y_BASE=1550
 CONTINUE_X_BASE=540
 CONTINUE_Y_BASE=1896
-# Baby data entry placeholders
+# Placeholder baby form values.
 DUE_DATE_FIELD_X_BASE=540
 DUE_DATE_FIELD_Y_BASE=600
 BABY_NAME_FIELD_X_BASE=540
@@ -80,7 +80,7 @@ setup() {
 
 teardown() {
   log "Teardown start"
-  # Capture final dump
+  # Save the final UI dump.
   adb_safe shell uiautomator dump /sdcard/uidump_final.xml
   adb_safe pull /sdcard/uidump_final.xml "$ARTIFACT_DIR/uidump_final.xml"
   log "Artifacts at $ARTIFACT_DIR"
@@ -157,9 +157,8 @@ main() {
   adb_safe shell input keyevent 23
   sleep "$WAIT_SHORT"
 
-  log "Step: set age to 30 via tap heuristic"
-  # Age is already 30 from previous run, skip for idempotency
-  # In real flow, would open spinner and select
+  log "Step: set age to 30 by tap"
+  # Age is already 30; skip this step.
 
   log "Step: open children spinner"
   local child_x=$(scale_coord "$CHILDREN_FIELD_X_BASE")
@@ -189,7 +188,7 @@ main() {
   sleep 3
 
   log "Step: verify next screen - Due date"
-  # Mandatory for green: due date screen must appear
+  # Fail if the due-date screen does not appear.
   if wait_for_text "Due date" 5; then
     log "Due date screen detected"
     local due_x=$(scale_coord "$DUE_DATE_FIELD_X_BASE")

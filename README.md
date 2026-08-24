@@ -154,6 +154,8 @@ The machine-readable summary is [results/RESULTS-20260803.json](results/RESULTS-
 
 The full procedure is in [APK_PRIVACY_TEST_HARNESS.md](APK_PRIVACY_TEST_HARNESS.md). Method, consent, and known limits (no radio checks, no static scan for Nubo) are in [METHODOLOGY.md](METHODOLOGY.md).
 
+Pairip **CLOSE** (stub Play Store) and Pairip native crashes on this emulator are environment blockers. They are not privacy PASS or FAIL. See METHODOLOGY.md "Environment blockers".
+
 ## Discussion and Roadmap
 
 This project tests baby and parenting apps against their privacy claims. The current work covers 16 apps. The full results are in [FINAL-REPORT.md](FINAL-REPORT.md).

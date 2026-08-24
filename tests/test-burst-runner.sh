@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Test burst runner functionality
+# Tests for the burst runner.
 # Usage: bash tests/test-burst-runner.sh
 
 set -euo pipefail
@@ -104,7 +104,6 @@ else
 fi
 rm -f "$TEMP_CONFIG" "$REPO_DIR/localonly/bursts/burst-97-config.sh"
 
-# Summary
 echo ""
 if [[ $FAILED -eq 0 ]]; then
     echo "=== ALL TESTS PASSED ==="

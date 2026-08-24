@@ -1,26 +1,17 @@
 #!/usr/bin/env python3
-"""Automated synthetic baby-profile injector for the APK privacy test harness.
+"""Type the synthetic baby profile into an app UI during capture.
 
-This replaces the former "operator enters the values by hand" step. It drives the
-app's own UI while the capture proxy is live so the synthetic markers actually
-leave the device and land in the raw .mitm the scan searches.
+While the proxy runs, fill form fields so markers can appear in the .mitm.
+This script does not decide if data left the device. The scan of the .mitm does.
 
-Method (no per-app coordinates required, but overridable):
-  1. uiautomator dumps the current view to XML.
-  2. Every EditText is matched to a synthetic value by hint/text/resource-id
-     keyword (name -> baby name, note/comment -> synth_token, feed -> synth_feed,
-     weight/date/age/volume/sleep/diaper -> the numeric/string sentinels).
-  3. The field is focused (tap center) and the value typed; DPAD_CENTER commits.
-  4. A forward button (continue/next/save/add/create/sign up/done/finish/ok) is
-     tapped to advance multi-screen onboarding.
-  5. Repeat for MAX_SCREENS or until no progress.
+Steps:
+  1. Dump the UI with uiautomator.
+  2. Match each EditText to a profile value by hint, text, or resource-id.
+  3. Tap the field and type the value.
+  4. Tap a forward button (continue, next, save, done, ...).
+  5. Repeat until MAX_SCREENS or no change.
 
-Per-app overrides live in scripts/inject-config/<package>.json and can pin exact
-values, skip fields, or add pre-tap coordinates for pickers the heuristic misses.
-
-Nothing here proves a transmission by itself: the scan on the captured .mitm is the
-judge. This script only maximizes the chance the markers are entered somewhere the
-app will sync.
+Optional overrides: scripts/inject-config/<package>.json
 
 Usage: inject-synthetic-profile.py <package> [profile_json] [device_serial]
 """
@@ -48,23 +39,23 @@ FORWARD_RE = re.compile(
     r"submit|ok|confirm|start|log\s*in|let'?s\s*go|→|forward)\b",
     re.IGNORECASE,
 )
-# Navigation CTAs to try when a screen has no editable fields (splash/intro gates).
+# Buttons to try on splash screens with no input fields.
 NAV_RE = re.compile(
     r"\b(get\s*started|let'?s\s*go|start|continue|create|sign\s*up|add|next|"
     r"enter|begin|→|open|set\s*up|try)\b",
     re.IGNORECASE,
 )
-# Buttons that would dismiss/abandon the flow - never auto-tapped.
+# Never tap these dismiss buttons.
 EXCLUDE_RE = re.compile(
     r"\b(close|exit|cancel|skip|no\s*thanks|not\s*now|later|deny|maybe\s*later|"
     r"not\s*interested|dismiss)\b",
     re.IGNORECASE,
 )
-# Same-package activity only. No spaces, flags, or shell metacharacters.
+# Activity must stay in the app package. No spaces or shell chars.
 AM_START_RE = re.compile(
     r"^[A-Za-z][A-Za-z0-9_]*(\.[A-Za-z][A-Za-z0-9_]*)+/[A-Za-z][A-Za-z0-9_]*(\.[A-Za-z][A-Za-z0-9_]*)+$"
 )
-# BACK, DPAD_CENTER, TAB, ENTER, DEL, ESCAPE. Not POWER/HOME.
+# Allowed keys: BACK, DPAD_CENTER, TAB, ENTER, DEL, ESCAPE.
 ALLOWED_KEYEVENTS = frozenset({4, 23, 61, 66, 67, 111})
 WAIT_MAX_SEC = 30.0
 
@@ -93,7 +84,7 @@ def load_profile(path):
 
 def pick_value(hint, text, rid, vals, overrides):
     s = " ".join([hint or "", text or "", rid or ""]).lower()
-    # explicit per-app override by resource-id or hint substring
+    # Optional match by resource-id or hint text.
     for key, val in (overrides.get("field_values", {}) or {}).items():
         if key.lower() in s:
             return val
@@ -132,7 +123,7 @@ def dump_view():
 
 
 def find_node_by_text(ns, text):
-    """Match node text first, then content-desc (Flutter TalkBack labels)."""
+    """Match node text first, then content-desc (TalkBack labels)."""
     needle = text.lower()
     for n in ns:
         if (n.get("text") or "") == text:
@@ -150,7 +141,7 @@ def find_node_by_text(ns, text):
 
 
 def find_node_by_id(ns, rid):
-    """Match resource-id exactly, then by suffix (Nubo icon buttons)."""
+    """Match resource-id exactly, then by suffix."""
     want = rid or ""
     if not want:
         return None
@@ -162,7 +153,7 @@ def find_node_by_id(ns, rid):
 
 
 def tap_text(text):
-    """Tap the first node whose text or content-desc equals or contains `text`."""
+    """Tap the first node with matching text or content-desc."""
     tree = dump_view()
     n = find_node_by_text(nodes(tree), text)
     if n is None:
@@ -192,7 +183,7 @@ def tap_id(rid):
 
 
 def parse_am_start(step, package):
-    """Return component only when it belongs to the inject target package."""
+    """Return component only when it is in the target package."""
     comp = step.get("am_start")
     if not isinstance(comp, str) or not AM_START_RE.match(comp):
         return None
@@ -205,7 +196,7 @@ def parse_am_start(step, package):
 
 
 def parse_keyevent(step):
-    """Return an allowlisted key code, or None."""
+    """Return an allowed key code, or None."""
     raw = step.get("keyevent")
     try:
         code = int(raw)
@@ -217,7 +208,7 @@ def parse_keyevent(step):
 
 
 def parse_wait(step):
-    """Return a wait in seconds, capped so a recipe cannot hang the run."""
+    """Return wait seconds, capped so a recipe cannot hang."""
     raw = step.get("wait")
     try:
         sec = float(raw)
@@ -229,7 +220,7 @@ def parse_wait(step):
 
 
 def parse_swipe(step):
-    """Return [x1,y1,x2,y2,duration_ms] or None if the recipe is not numeric."""
+    """Return swipe [x1,y1,x2,y2,ms] or None if not numeric."""
     coords = step.get("swipe")
     if not isinstance(coords, (list, tuple)) or len(coords) < 4:
         return None
@@ -262,9 +253,9 @@ def _step_dismiss(step, default=True):
 
 
 def parse_fill_nth(step):
-    """Return (values, dismiss). dismiss defaults True so native IME hide still runs.
+    """Return (values, dismiss). Default dismiss=True hides the keyboard.
 
-    Flutter sheets (MimiLog Bottle) close on ESCAPE. Set dismiss false on that step.
+    Set dismiss false for Flutter sheets that close on ESCAPE (e.g. MimiLog Bottle).
     """
     vals = step.get("fill_nth")
     if not isinstance(vals, (list, tuple)):
@@ -273,10 +264,9 @@ def parse_fill_nth(step):
 
 
 def type_into_focused(val, dismiss=True):
-    """Replace the focused field. Spaces must be %s for adb input text.
+    """Replace text in the focused field. Spaces become %s for adb.
 
-    dismiss=False skips DPAD_CENTER and ESCAPE. ESCAPE closes Flutter sheets
-    (MimiLog Bottle Save never ran because ESCAPE dismissed the form).
+    dismiss=False skips DPAD_CENTER and ESCAPE (ESCAPE can close Flutter sheets).
     """
     adb(["shell", "input", "keyevent", "123"])
     dels = ["67"] * 40
@@ -292,7 +282,7 @@ def type_into_focused(val, dismiss=True):
 
 
 def fill_field_by_keyword(kw, val):
-    """Focus the first EditText whose hint/text/resource-id contains `kw` and type `val`."""
+    """Focus the first EditText whose hint, text, or resource-id contains `kw`, then type `val`."""
     tree = dump_view()
     for e in nodes(tree):
         if "EditText" not in (e.get("class") or ""):
@@ -339,9 +329,7 @@ def main():
     launched = adb(["shell", "monkey", "-p", package, "-c", "android.intent.category.LAUNCHER", "1"])
     time.sleep(3)
 
-    # Per-app flow mode: a committed "steps" list built from the UI/UX capture
-    # drives the exact onboarding (tap_text / fill / wait). This is precise and
-    # reusable - no re-driving the app by hand each run.
+    # Use the committed "steps" list (tap_text / fill / wait).
     steps = overrides.get("steps")
     if steps:
         for step in steps:
@@ -380,8 +368,8 @@ def main():
             elif "screenshot" in step:
                 adb(["shell", "screencap", "-p", "/sdcard/step.png"])
             elif "fill_nth" in step:
-                # Fill the Nth native EditText with value N (fields have no hints).
-                # Re-dump after each field: the IME changes bounds for later fields.
+                # Fill EditText N with value N when fields have no hints.
+                # Re-dump UI after each field; the keyboard moves later fields.
                 field_vals, dismiss = parse_fill_nth(step)
                 for i, v in enumerate(field_vals):
                     tree = dump_view()
@@ -436,8 +424,7 @@ def main():
                 continue
             val = pick_value(hint, text, rid, vals, overrides)
             if val is None:
-                # Last-resort: spray the high-confidence token into any still-empty
-                # free-text field so a transmission has something to carry.
+                # Last resort: put the high-confidence token in any empty text field.
                 if overrides.get("spray_token_on_unknown", True):
                     val = vals["token"]
                 else:
@@ -452,7 +439,6 @@ def main():
             entries.append({"field": rid or hint or "(unnamed)", "value": val})
             progressed = True
 
-        # forward button
         btn = None
         for n in ns:
             t = n.get("text") or ""
@@ -471,8 +457,7 @@ def main():
                 time.sleep(SCREEN_PAUSE)
                 progressed = True
         elif not edit_texts:
-            # Splash/intro gate with no form yet: tap a primary navigation CTA to
-            # advance, but never a dismiss button. Bounded by MAX_SCREENS.
+            # No form yet: tap a forward button (not dismiss). Stop at MAX_SCREENS.
             for n in ns:
                 t = n.get("text") or ""
                 if not t.strip():

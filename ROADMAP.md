@@ -118,7 +118,7 @@ Example: Nubo 2026-08-23 entered formula-per-click **15** (90 did not stick). Th
 
 | Slice | Scope | Status |
 | --- | --- | --- |
-| D | Pairip / Play stub tooling-only: docs and harness messaging so Pairip CLOSE and Baby Daybook native crash are never read as privacy PASS/FAIL. No fake verdicts. | Next. Branch from `origin/main` after PR 49 merge. |
+| D | Pairip / Play stub tooling-only: docs and harness messaging so Pairip CLOSE and Baby Daybook native crash are never read as privacy PASS/FAIL. No fake verdicts. | This PR (`feat/slice-d-pairip-stub-docs`). |
 | Later | Nubo Backup Now (GMS consent) optional live pass. Formula 90 optional; **15** already counts when recorded. Shut qemu when the pass ends. | Optional. |
 
 ### Per-app injection flows (automated, in progress)
@@ -233,4 +233,4 @@ This is a planning report, not a new privacy verdict. Percents are rough from sc
 2. Baby+ About You picture and capture are done (2026-08-21). Batch re-scan of preserved `.mitm` after HAR `postData` fix (2026-08-23): only Baby+ About You captures flip to `transmission_observed` (2026-08-16 and 2026-08-21). All other non-zero captures in the tree stayed `no_transmission_detected`. Force-upgrade still blocks home.
 3. For Nubo: Google sign-in for backup is done (2026-08-23, proxy off). Backup Now still did not finish (GMS `ConsentActivity` + spinner). Formula-per-click entered as **15** (preferred 90 did not stick). That entered value is enough under the limited-options rule above; name it and scan for it. A `wlan0` pcap exists for that hung window; `eth0` is missing on this AVD. Do not treat the 0-byte `.mitm` as Firebase silence.
 4. Do not treat a 0-byte file, a 0-flow file, or a short emulator-wide HTTP-proxy file as "Firebase sent nothing." See METHODOLOGY.md.
-5. Next docs slice: Pairip / Play stub wording (Slice D) so CLOSE and Daybook crash never read as privacy PASS/FAIL.
+5. Slice D (this PR): Pairip / Play stub wording so CLOSE and Daybook crash never read as privacy PASS/FAIL.

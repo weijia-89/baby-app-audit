@@ -1,23 +1,14 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Evidence inventory guard.
+# Check that evidence files still exist.
 #
 # Usage: scripts/evidence-inventory.sh --check
 #
-# Raw captures, decode files, and network logs are permanent evidence and
-# must never be deleted or swept (see AGENTS.md, "Evidence retention").
-# This check fails the run when the committed inventory is broken:
-#
-#   - every app in results/RESULTS-20260803.json has a readable
-#     results/network-log-<app>.json (committed, so this passes on CI)
-#
-# Zero-byte *.mitm files only warn. They are kept on purpose when mitmdump
-# dies on the first start (AGENTS.md). Missing committed network logs still fail.
-#
-# It warns (never fails) about rot signals: decode files whose flow list
-# has emptied, and empty preserved HAR conversions. The warning list is
-# printed at the end of run-tests.sh --check so a sweep can never hide.
+# Do not delete raw captures, decode files, or network logs (AGENTS.md).
+# Fail if a committed network-log-<app>.json is missing.
+# Zero-byte .mitm: warn only (keep failed mitmdump starts).
+# Warn (do not fail) on empty decode flow lists or empty HAR files.
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 MODE="${1:---check}"
@@ -26,8 +17,7 @@ MODE="${1:---check}"
   exit 2
 }
 
-# Optional override for tests. When set, must resolve under $repo_root/.tmp
-# so a stray env var cannot redirect the inventory at an arbitrary tree.
+# Test override must stay under $repo_root/.tmp.
 if [ -n "${EVIDENCE_RESULTS_DIR:-}" ]; then
   results="$(cd "$EVIDENCE_RESULTS_DIR" && pwd)"
   tmp_root="$(cd "$repo_root/.tmp" 2>/dev/null && pwd)" || {

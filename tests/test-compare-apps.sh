@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Unit tests for compare-apps.sh
+# Tests for compare-apps.sh.
 # Usage: bash tests/test-compare-apps.sh
 
 set -euo pipefail
@@ -9,7 +9,7 @@ REPO_DIR="$(dirname "$SCRIPT_DIR")"
 COMPARER="$REPO_DIR/scripts/compare-apps.sh"
 FAILED=0
 
-# Use venv python if available (for jsonschema)
+# Prefer venv python when present (jsonschema).
 if [ -f "$REPO_DIR/.test-venv/bin/python" ]; then
     PYTHON="$REPO_DIR/.test-venv/bin/python"
 else
@@ -205,7 +205,7 @@ fi
 
 # Test 11: Integration with decode-traffic output
 echo "Test 11: Integration with decode-traffic.sh output"
-# Use the existing test-capture.har to produce a real decoded output
+# Decode the committed test-capture.har.
 HAR_FILE="$REPO_DIR/tests/fixtures/test-capture.har"
 if [ -f "$HAR_FILE" ]; then
     DECODED_A="$REPO_DIR/tests/fixtures/decoded-a-$$.json"

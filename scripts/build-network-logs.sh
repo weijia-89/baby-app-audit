@@ -1,15 +1,13 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Build a sanitized per-app network log straight from the raw mitmproxy capture.
+# Build a redacted network log from a raw .mitm capture.
 #
 # Usage: scripts/build-network-logs.sh <slug> <capture.mitm> [capture_date]
 #
-# The output results/network-log-<slug>.json keeps every flow from the raw
-# capture with query strings removed, token-like path segments replaced by
-# descriptive redaction slugs, and request/response details reduced to sizes,
-# JSON body keys, and header presence flags. Raw values (FIDs, refresh tokens,
-# API keys, install IDs) never reach the output. Call metadata remains.
+# Output: results/network-log-<slug>.json
+# Keep every flow. Strip query strings. Replace token-like path parts.
+# Keep sizes, JSON keys, and header flags. Do not keep secrets.
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 slug="${1:?usage: build-network-logs.sh <slug> <capture.mitm> [capture_date]}"
@@ -28,11 +26,8 @@ import re
 import sys
 from urllib.parse import urlparse
 
-# A path segment is treated as a token/ID (and redacted) when it is 12+ chars
-# of alphanumerics/dots/dashes and not a pure word. This catches Firebase IDs,
-# install IDs, and hex tokens while leaving normal SEO words and version
-# strings mostly intact. The threshold is deliberately low: over-redaction of a
-# path segment is safe, under-redaction of a real token would leak PII.
+# Redact a path part if it looks like an ID (12+ chars, not a plain word).
+# Prefer over-redact. Under-redact can leak secrets.
 TOKEN_RE = re.compile(r'^[A-Za-z0-9._\-]{12,}$')
 
 repo_root, slug, mitm, capture_date, har = sys.argv[1:6]
@@ -73,8 +68,7 @@ def redact_path(url):
         url = url.split("?", 1)[0]
     segs = url.split("/")
     path_redactions = 0
-    # segs[0] is "scheme:", segs[2] is the host. Only redact path segments
-    # (index > 2) so the host is never mangled inside the path string.
+    # Redact path segments only (keep scheme and host).
     for i in range(3, len(segs)):
         seg = segs[i]
         if TOKEN_RE.match(seg) and not seg.isalpha():
