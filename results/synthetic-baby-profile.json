@@ -32,7 +32,7 @@
   },
   "app_field_notes": [
     "If an app asks for a value that is not in baby, check field_aliases first. Only then add a net-new field. Do not invent a second baby.",
-    "Nubo formula-per-click is formula_click_increment (90), not feeding_example_volume_ml (482). Nursing timeout is nursing_timeout_minutes (45), not sleep_example_minutes (777). Sleep idle timeout is sleep_idle_timeout_hours (5).",
+    "Nubo formula-per-click prefers formula_click_increment (90), not feeding_example_volume_ml (482). If 90 will not stick, keep the chip that does stick, record that number, and scan for it. Nursing timeout is nursing_timeout_minutes (45), not sleep_example_minutes (777). Sleep idle timeout is sleep_idle_timeout_hours (5).",
     "Nubo has no gender field. Complete left and right milk, sleep, pump (start then stop), plus one bottle click, pee, poop, and a saved note so finished-activity events exist."
   ],
   "markers": [

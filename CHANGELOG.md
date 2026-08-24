@@ -1,5 +1,10 @@
 # Changelog
 
+## 4.6.15 - 2026-08-24
+
+### Changed
+- Testing rule for short lists (chips, pickers, units): pick from the options the app offers, prefer the profile sentinel when it sticks, otherwise keep the value that sticks. Record the exact number or unit in `FINAL-REPORT.md` and say whether that string left the device. A fixed target such as Nubo formula-per-click 90 is not required for a finished inject. Docs: `AGENTS.md`, `METHODOLOGY.md`, `FINAL-REPORT.md`, `ROADMAP.md`, `scripts/inject-config/README.md`, `results/synthetic-baby-profile.json`.
+
 ## 4.6.14 - 2026-08-23
 
 ### Added
