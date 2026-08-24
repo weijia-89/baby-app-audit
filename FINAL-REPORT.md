@@ -374,7 +374,8 @@ Four of the five long-report apps ship install and ad programs (Facebook, Adjust
 - Launch captures predate the injector. Re-captures enter the fictional profile. The synthetic table states whether those strings left the device.
 - Captures are launch and early use. Later sessions can differ.
 - We removed response bodies and header values because they can carry tokens. Logs keep method, host, path, status, count, and sizes. A scrubbed body is not proof that PII was absent.
-- Evidence depth is not equal. Eleven apps are `raw-replay`. Five are `session-summary` (raw files gone). Treat session-summary rows as a lower bound. Plan: `ROADMAP.md`.
+- Evidence depth is not equal. Eight apps are `raw-replay`. Eight are `session-summary` in `results/RESULTS-20260803.json`.
+- Treat session-summary rows as a lower bound. Later local `.mitm` files can exist and still not change a mark. Recapture plan: `ROADMAP.md` Sprint 5.
 - baby-track, cradle, and dymn-baby had no usable APK. No captures.
 
 ## Advice
