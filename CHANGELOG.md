@@ -1,5 +1,18 @@
 # Changelog
 
+## 4.6.15 - 2026-08-24
+
+### Changed
+- Testing rule for short lists (chips, pickers, units): pick from the options the app offers, prefer the profile sentinel when it sticks, otherwise keep the value that sticks. Record the exact number or unit in `FINAL-REPORT.md` and say whether that string left the device. A fixed target such as Nubo formula-per-click 90 is not required for a finished inject. Docs: `AGENTS.md`, `METHODOLOGY.md`, `FINAL-REPORT.md`, `ROADMAP.md`, `scripts/inject-config/README.md`, `results/synthetic-baby-profile.json`.
+
+## 4.6.14 - 2026-08-23
+
+### Added
+- Nubo Backup / formula-90 live pass (2026-08-23) on emulator-5554. Google sign-in for backup with the HTTP proxy off (`thebabyaudit@gmail.com` already on the device). Settings then showed Logout. Backup Now opened a Yes/No dialog, then a spinner while `ConsentActivity` stayed in front. The Drive/GMS consent dump had no uiautomator nodes. Formula-per-click stayed 15: the 90 chip is not clickable; a full-width `viewMap1` overlay eats taps, and an Appium click on text 90 also left `selected=false`.
+
+### Changed
+- `ROADMAP.md` and `FINAL-REPORT.md`: record gitignored pictures under `results/nubo-test-20260823/artifacts/uiux/`. Kept 0-byte `Nubo-backup-google.mitm` (failed HTTP-proxy capture for this backup). Pulled `nubo-backup-wlan0.pcap` (41518 bytes) from `wlan0` (`eth0` does not exist on this AVD). TLS to Google IPs during the hung consent window is not a finished backup and is not the Firebase-silence bar.
+
 ## 4.6.13 - 2026-08-23
 
 ### Added

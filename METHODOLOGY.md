@@ -174,15 +174,16 @@ The fictional profile is one identity: "Privatia Rigatoni", born 2026-03-14 at 6
 1. Start the emulator and route its traffic through mitmproxy (same setup as Step 1 of How I Tested).
 2. Install the app under test and pull its APK for the hash record (Step 2).
 3. The automated injector (`scripts/inject-synthetic-profile.py`, wired into `run-tests.sh --live`) enters the values into the app's own data-entry screens while the capture proxy is live: baby name, birth date and weight, one feeding of 482 mL with the formula note, one sleep session of 777 minutes, one diaper weight of 1234 g, and the free-text note `PRIVATIA-RIGATONI-SYNTH` in any note field. If the app uses timers instead of amount fields, start the activity and stop it so the session is finished. No manual entry is required.
-4. Where an app forces account creation, create a fictional account with the same profile values. Note in the report that the transmission may be to the app's own server.
-5. Save the raw capture as `results/<app>-test-<date>/artifacts/captures/<app>.mitm`. Keep it local. It holds live tokens and must never be committed.
-6. Build the sanitized network log with `scripts/build-network-logs.sh` and commit only that.
-7. Run the transmission scan against the raw local capture:
+4. When a field only offers a short list (chips, pickers, units), pick from those options. Prefer the profile sentinel when it is tappable. If the preferred value will not stick, use a value that does stick. Write down the exact number or unit that was saved. Scan for that value as well as the usual profile markers. A fixed target (for example Nubo formula-per-click 90) is not required for a finished inject.
+5. Where an app forces account creation, create a fictional account with the same profile values. Note in the report that the transmission may be to the app's own server.
+6. Save the raw capture as `results/<app>-test-<date>/artifacts/captures/<app>.mitm`. Keep it local. It holds live tokens and must never be committed.
+7. Build the sanitized network log with `scripts/build-network-logs.sh` and commit only that.
+8. Run the transmission scan against the raw local capture:
 
    `bash scripts/scan-synthetic-baby-data.sh results/<app>-test-<date>/artifacts/captures/<app>.mitm`
 
-   The script reads the markers from `results/synthetic-baby-profile.json`, greps the raw capture for each one, and reports which fictional values appear in a request body, a response body, or a request URL, with the recipient host, path, method, and status. It emits no adjacent body content, so its report is safe to commit.
-8. Record the verdict per app in the Final Report: `transmission_observed` (a marker left the device) or `no_transmission_detected` (the capture shows the entered values did not leave).
+   The script reads the markers from `results/synthetic-baby-profile.json`, greps the raw capture for each one, and reports which fictional values appear in a request body, a response body, or a request URL, with the recipient host, path, method, and status. It emits no adjacent body content, so its report is safe to commit. If you entered a non-sentinel amount or unit because the UI forced it, also search the raw capture for that exact string and record the result.
+9. Record the verdict per app in the Final Report: `transmission_observed` (a marker left the device) or `no_transmission_detected` (the capture shows the entered values did not leave). Name the exact amounts and units that were entered, and say whether those strings left the device.
 
 The committed, sanitized network logs are NOT searched by this test. Their bodies are replaced by redaction slugs, so the fictional values would be invisible there. Only the raw local capture can prove exfiltration.
 
