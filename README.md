@@ -164,7 +164,7 @@ This project tests baby and parenting apps against their privacy claims. The cur
 
 * **Live data collection:** `scripts/decode-traffic.sh` decodes network captures into structured JSON with per-app metadata.
 * **Cross-app comparison:** `scripts/compare-apps.sh` compares network traffic across apps to find shared trackers.
-* **Granular test results:** `FINAL-REPORT.md` lists every captured call per app in a Service | Data shared | Call/Log table.
+* **Test results:** `FINAL-REPORT.md` has the verdict table plus a short per-app block. Host, path, status, and sizes stay in `results/network-log-<app>.json`.
 * **Full analytics and PII fanout:** `scripts/scan-analytics-pii.sh` scans every committed network log, including unclassified hosts, for analytics roles and PII indicators.
 * **CI checks:** the test matrix covers 16 apps, and unit tests check the decoder and comparison scripts.
 

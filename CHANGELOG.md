@@ -1,5 +1,10 @@
 # Changelog
 
+## 4.6.19 - 2026-08-24
+
+### Changed
+- `FINAL-REPORT.md`: shorter public layout. Summary table and per-app Claim / Result / service tables stay. Dropped per-call URLs and status codes (those stay in `results/network-log-<app>.json`). Session diaries and inject method moved to a synthetic-marker table and `ROADMAP.md`. `README.md` points at that split.
+
 ## 4.6.18 - 2026-08-24
 
 ### Added
