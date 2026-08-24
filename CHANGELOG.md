@@ -1,5 +1,13 @@
 # Changelog
 
+## 4.6.18 - 2026-08-24
+
+### Added
+- Nubo Backup Now live pass (2026-08-24) on windowed emulator-5554 (`apk-test-api29`). Settings still showed Logout for `thebabyaudit@gmail.com`. HTTP proxy stayed `:0` for GMS consent. Backup Now, Yes, then GMS `ConsentActivity` Drive-files screen. Continue was in the WebView dump after scroll (`[556,1809][946,1922]`). After Continue, `tvLastBackupValue` read `08/24/2026 18:49:05`. Formula-per-click stayed **15** (not changed).
+
+### Changed
+- `ROADMAP.md` and `FINAL-REPORT.md`: gitignored pictures under `results/nubo-test-20260824/artifacts/uiux/`. `wlan0` pcap `nubo-backup-wlan0.pcap` is 1339264 bytes (TLS to Google IPv4s; no `eth0`). No new `.mitm` this pass (proxy off). This is a finished Backup Now in the app UI. It is not a Firebase-silence result and not a change to the 2026-08-03 FAIL mark.
+
 ## 4.6.17 - 2026-08-24
 
 ### Changed
