@@ -39,7 +39,7 @@ expected = {
     "Baby Buddy": "pass",
     "Amila": "minor",
     "Baby Daybook": "major",
-    "Baby+": "minor",
+    "Baby+": "major",
     "MimiLog": "pass",
     "Nara": "major",
     "Heartful Baby": "minor",
