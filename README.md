@@ -131,7 +131,7 @@ An app with no privacy claim cannot fail, because there is no promise to break. 
 
 Every failed app links to its own sanitized network log (`results/network-log-<app>.json`). The logs list hosts, redacted paths, status codes, flow counts, request and response sizes, JSON body keys, header-flag names, and redaction slugs for each captured flow. They contain no query strings, header values, or body values. The slugs state what was removed and why. The method, host, path, status, count, and sizes remain, so the record still proves that the call was sent. The logs are generated from the raw `.mitm` captures by `scripts/build-network-logs.sh`; the raw captures stay local only.
 
-The machine-readable summary is [results/RESULTS-20260803.json](results/RESULTS-20260803.json). Each app row carries an `evidence_source`: `raw-replay` (every flow in the preserved capture was replayed and mined) or `session-summary` (raw capture no longer exists; results rest on the original session summaries). The eight session-summary apps are lower-bound evidence until the planned legacy re-capture. See [CHANGELOG.md](CHANGELOG.md) for history.
+The machine-readable summary is [results/RESULTS-20260803.json](results/RESULTS-20260803.json). Each app row carries an `evidence_source`: `raw-replay` (every flow in the preserved capture was replayed and mined) or `session-summary` (raw capture no longer exists; results rest on the original session summaries). The eight session-summary apps are lower-bound evidence until Sprint 5 recapture or promotion in [ROADMAP.md](ROADMAP.md). A later local `.mitm` file does not change that field by itself. See [CHANGELOG.md](CHANGELOG.md) for history.
 
 | App | Privacy claim | Result | Privacy | Confidence | Key findings |
 | --- | --- | --- | --- | --- | --- |
@@ -170,12 +170,12 @@ This project tests baby and parenting apps against their privacy claims. The cur
 
 ### What is next
 
+* **Sprint 5:** recapture or promote the eight `session-summary` apps listed in `ROADMAP.md`. Committed RESULTS still use `session-summary` for those eight. Kept `.mitm` files on disk are not a new privacy mark. Pairip CLOSE and Baby Daybook Pairip crash stay environment blockers.
 * **Independent verification welcome:** the harness and method are open for others to confirm the findings.
-* **Wave 1 coverage:** the next test set targets five high-download Google Play parenting apps. The final report records each app's data-safety statement before testing.
 * **Open-source plan:** publishing the harness and method is on the roadmap.
-* **Code review (PR #22):** a review hardened the harness. HAR timestamps are now UTC, SDK hosts count as trackers, and archived static dark-pattern false positives (0dp layouts, benign "timer" strings) are recorded as historical context only.
 
 If you have suggestions for coverage or issues with the method, I welcome them.
+
 ## Artifacts
 
 Network capture logs:

@@ -114,13 +114,13 @@ Example: Nubo 2026-08-23 entered formula-per-click **15** (90 did not stick). Th
 
 **Success criterion:** Every app exercised with the fictional profile has a verdict in the Final Report: `transmission_observed` (a marker left the device, with recipient) or `no_transmission_detected` (the capture shows the entered values did not leave). When the entered amount or unit differs from the profile sentinel, the report also names that entered value and whether it left the device.
 
-### Queue after PR 50 (2026-08-24)
+### Queue after PR 51 (2026-08-24)
 
 | Slice | Scope | Status |
 | --- | --- | --- |
 | D | Pairip / Play stub tooling-only: docs and harness messaging so Pairip CLOSE and Baby Daybook native crash are never read as privacy PASS/FAIL. No fake verdicts. | Done (PR 50). |
-| Nubo Backup Now | Optional live pass: finish or document GMS consent. Formula 90 optional; **15** already counts. Shut qemu when the pass ends. | Done 2026-08-24 (this PR). Last backup time `08/24/2026 18:49:05`. |
-| Sprint 5 | Legacy re-capture and evidence parity (see section below). | Next after merge. |
+| Nubo Backup Now | Optional live pass: finish or document GMS consent. Formula 90 optional; **15** already counts. Shut qemu when the pass ends. | Done (PR 51). Last backup time `08/24/2026 18:49:05`. |
+| Sprint 5 | Legacy re-capture and evidence parity (see section below). | Next. |
 
 ### Per-app injection flows (automated, in progress)
 
@@ -149,15 +149,30 @@ Note: the earlier generic heuristic injector still works for apps whose onboardi
 
 ## Sprint 5  -  Planned  -  Legacy re-capture and evidence parity
 
-**Goal:** Bring the 8 legacy apps (nurture-lock, nubo, pebbi, amila, baby-buddy, baby-daybook, baby-plus, mimilog) up to the same evidence depth as the wave-1/wave-2 apps. Their raw `.mitm` captures disappeared before the retention rule existed (AGENTS.md "Evidence retention"); their results are decode-level only, and two of them (Amila, Baby+) are the same shape of thin evidence that flipped Nanit and Pregnancy+ to major.
+**Goal:** Bring the eight apps that `results/RESULTS-20260803.json` still marks `session-summary` up to the same committed evidence depth as the eight `raw-replay` apps. Those eight names are Nurture Lock, Nubo, Pebbi, Baby Buddy, Amila, Baby Daybook, Baby+, and MimiLog. This slice names priorities. It does not change a privacy PASS or FAIL.
+
+**What is true on disk vs in RESULTS (2026-08-24, this machine):** committed RESULTS still list all eight as `session-summary`. Later kept `.mitm` files also exist under `results/<app>-test-<date>/artifacts/captures/`. A kept file is not a new verdict. Do not promote `evidence_source` until a later live slice runs inventory and rebuilds the network log. Then refresh the report.
+
+| App | RESULTS `evidence_source` | Kept `.mitm` on this machine | Sprint 5 note |
+| --- | --- | --- | --- |
+| Nurture Lock | session-summary | `nurture-lock-test-20260803` (136052 bytes) | Pairip CLOSE on this AVD. Environment blocker. Not privacy PASS or FAIL. Do not install a real Play Store unless the operator asks. |
+| Nubo | session-summary | `nubo-test-20260803` (94146). Soak `nubo-test-20260818-soak` (628913). Zero-byte `Nubo.mitm` (2026-08-17) and `Nubo-backup-google.mitm` (2026-08-23) kept. | Backup Now finished in the app UI (PR 51). Not Firebase-silence. JSON still session-summary. |
+| Pebbi | session-summary | `pebbi-test-20260816` and `pebbi-test-20260817` (largest `Pebbi-profile.mitm` 386435) | Pairip CLOSE on cold start. Environment blocker. Not privacy PASS or FAIL. |
+| Baby Buddy | session-summary | `baby-buddy-test-20260803` (2265 bytes) | Web PASS stays the Django capture. Companion pictures exist (PR 48). Not a new privacy capture. |
+| Amila | session-summary | `amila-test-20260816` and `amila-test-20260817` (several non-zero files) | Later inject captures exist. RESULTS still session-summary. |
+| Baby Daybook | session-summary | `baby-daybook-test-20260816` and `baby-daybook-test-20260817` | Pairip native crash on this AVD. Environment blocker. Not privacy PASS or FAIL. |
+| Baby+ | session-summary | `baby-plus-test-20260816`, `20260819`, `20260821` (including About You 589030). Zero-byte files kept. | Later captures exist. Force-upgrade still blocks home. RESULTS still session-summary. |
+| MimiLog | session-summary | `mimilog-test-20260816` (7771). Zero-byte 2026-08-17 files kept. | Zero-byte files stay. RESULTS still session-summary. |
+
+Prefer a live first recapture that is not Pairip-blocked on this AVD (not Pebbi, Nurture Lock, BellyBloom CLOSE, or Daybook Pairip crash). One app, one PR. Stop for operator merge between slices.
 
 ### Legacy re-capture  -  Planned
-- Re-run the harness on all 8 legacy apps with the new retention rule in force; preserve `results/<app>-test-<date>/artifacts/captures/*.mitm` permanently (evidence-inventory guard now enforces this).
-- Expected caveat: current APK versions differ from the tested builds (e.g. we tested Baby+ at v2.0.10 and BellyBloom at v1.0.8). Record the tested APK hash in RESULTS and note version drift in the report; if archived APKs exist locally, prefer them for continuity.
-- After each capture: run `scripts/build-network-logs.sh` to produce enriched network logs, then re-audit `privacy_class` and evidence at full depth (expect: Amila and Baby+ may flip minor -> major like Nanit/Pregnancy+ did).
-- After each capture: run `scripts/scan-analytics-pii.sh` to inventory all analytics and PII-bearing calls, including unknown hosts.
-- Update `RESULTS-20260803.json` `evidence_source` for the 8 apps from `session-summary` to `raw-replay`, refresh the FINAL-REPORT blocks, and re-run all gates (unit tests, evidence inventory, schema validation).
-- Success criterion: all 16 apps have `evidence_source: raw-replay` and a preserved, non-zero-byte capture tree; zero apps classified on decode-level evidence alone.
+- Re-run the harness on each session-summary app that still needs a promotable capture. Keep `results/<app>-test-<date>/artifacts/captures/*.mitm` forever, including zero-byte files (evidence-inventory guard).
+- Expected caveat: current APK versions differ from the tested builds (for example Baby+ v2.0.10). Record the tested APK hash in RESULTS and note version drift in the report. If archived APKs exist locally, prefer them for continuity.
+- After each capture: run `scripts/build-network-logs.sh` to produce enriched network logs, then re-audit `privacy_class` at full depth. Amila and Baby+ can still change class after a full replay, the same way Nanit and Pregnancy+ did. That change is a later slice, not this docs PR.
+- After each capture: run `scripts/scan-analytics-pii.sh` to inventory analytics and PII-bearing calls, including unknown hosts.
+- Update `RESULTS-20260803.json` `evidence_source` from `session-summary` to `raw-replay` only after that replay. Then refresh the Final Report blocks. Re-run unit tests, evidence inventory, and schema validation.
+- Success criterion: all 16 apps have `evidence_source: raw-replay` and a preserved capture tree. Zero apps classified on decode-level evidence alone. Keep zero-byte `.mitm` files.
 
 ## Final sprint - operator sit-down
 

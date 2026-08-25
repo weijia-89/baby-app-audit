@@ -1,5 +1,13 @@
 # Changelog
 
+## 4.6.20 - 2026-08-24
+
+### Changed
+- `ROADMAP.md`: queue after PR 51. Slice D Done (PR 50). Nubo Backup Now Done (PR 51). Next work is Sprint 5 legacy re-capture.
+- `ROADMAP.md`: table names which of the eight `session-summary` apps already have a kept `.mitm` on disk. Pairip CLOSE and Baby Daybook Pairip crash stay environment blockers. No new privacy PASS or FAIL.
+- `FINAL-REPORT.md` Limits: eight `raw-replay` and eight `session-summary` in RESULTS. Points at `ROADMAP.md` Sprint 5. Does not add per-call URLs.
+- `README.md` What is next: Sprint 5 recapture is the next slice.
+
 ## 4.6.19 - 2026-08-24
 
 ### Changed
