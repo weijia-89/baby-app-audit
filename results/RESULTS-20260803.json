@@ -199,18 +199,20 @@
       "verdict": "fail",
       "privacy_class": "minor",
       "verdict_confidence": 90,
-      "evidence": "The launch capture shows Firebase Installations, Firebase Remote Config, and Google Fonts traffic. Static analysis found tracking libraries, but no analytics or advertising payload was observed in the capture.",
+      "evidence": "The 2026-08-25 live recapture shows Firebase Installations, Firebase Remote Config, Firebase Logging, Crashlytics settings, Google app-measurement, and Funding Choices traffic. No baby-name marker left the device in the raw capture. privacy_class stays minor; a deeper class re-audit is a later slice.",
       "offline_test": {
-        "outbound_requests_count": 6,
+        "outbound_requests_count": 13,
         "outbound_destinations": [
+          "app-measurement.com",
+          "firebase-settings.crashlytics.com",
           "firebaseinstallations.googleapis.com",
+          "firebaselogging.googleapis.com",
           "firebaseremoteconfig.googleapis.com",
-          "fonts.googleapis.com",
-          "fonts.gstatic.com"
+          "fundingchoicesmessages.google.com"
         ],
-        "flow_file": "results/decode-traffic-amila.json"
+        "flow_file": "results/amila-test-20260825/artifacts/captures/Amila.mitm"
       },
-      "evidence_source": "session-summary"
+      "evidence_source": "raw-replay"
     },
     {
       "name": "Baby Daybook",

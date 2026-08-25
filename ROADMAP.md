@@ -120,7 +120,7 @@ Example: Nubo 2026-08-23 entered formula-per-click **15** (90 did not stick). Th
 | --- | --- | --- |
 | D | Pairip / Play stub tooling-only: docs and harness messaging so Pairip CLOSE and Baby Daybook native crash are never read as privacy PASS/FAIL. No fake verdicts. | Done (PR 50). |
 | Nubo Backup Now | Optional live pass: finish or document GMS consent. Formula 90 optional; **15** already counts. Shut qemu when the pass ends. | Done (PR 51). Last backup time `08/24/2026 18:49:05`. |
-| Sprint 5 | Legacy re-capture and evidence parity (see section below). | Next. |
+| Sprint 5 | Legacy re-capture and evidence parity (see section below). | In progress (Amila Done 2026-08-25). |
 
 ### Per-app injection flows (automated, in progress)
 
@@ -137,7 +137,7 @@ Example: Nubo 2026-08-23 entered formula-per-click **15** (90 did not stick). Th
 | App | Package | Baseline | UI/UX | Flow | Verdict |
 |-----|---------|----------|-------|------|---------|
 | Pebbi | com.pebbi.android | done | 2026-08-17: Pairip CLOSE on cold start. Appium warm path: Welcome, units, Add New Baby (name EditText + date picker + icon gender). No WebView. | BLOCKED: Play license on cold start (vending 1.8 stub). Form reached once; Complete Setup not saved | no_transmission_detected on 8-flow proxy capture; profile not saved |
-| Amila | com.amila.parenting | done | 2 native EditText (Baby name, Birthday) + 16+ checkbox + Done | built + validated (`inject-config/com.amila.parenting.json`) | no_transmission_detected (profile stored locally; app syncs only after login) |
+| Amila | com.amila.parenting | done | 2 native EditText (Baby name, Birthday) + 16+ checkbox + Done | built + validated (`inject-config/com.amila.parenting.json`) | 2026-08-25 live recapture: `no_transmission_detected` (name on home; profile sync still login-gated). Recipe taps reported ok; form shots still showed the form until home opened. |
 | Baby Daybook | com.drillyapps.babydaybook | done | 2 native EditText (same layout as Amila) + 16+ checkbox + Done | built + validated (`inject-config/com.drillyapps.babydaybook.json`) | no_transmission_detected (same) |
 | Baby+ | com.hp.babyapp | done | Logged in. About You (2026-08-16 and 2026-08-21). About Baby name + Girl + DONE. Then MainActivity Important Update (GO TO PLAYSTORE). Gender TalkBack dump still has no Boy/Girl nodes; Girl is in a PopupWindow | Recipe taps spinner then Girl then `done_button` (`inject-config/com.hp.babyapp.json`) | `transmission_observed` on About You PUT (`firstName` to maker server) in both `Baby+-about-you.mitm` (2026-08-16, 1 flow) and `BabyPlus-about-you-full.mitm` (2026-08-21). Re-scan after HAR `postData` fix (2026-08-23). 2026-08-19 upgrade soak still `no_transmission_detected` (name only in a maker **response**; About You not on screen that day). Force-upgrade still blocks home. |
 | MimiLog | com.mimiapp.mimilog | done | Native Flutter. Create profile then Dashboard. Labels in `content-desc`. No Google. Package has no `INTERNET`. | onboarded recipe `inject-config/com.mimiapp.mimilog.json` (Bottle 482 mL, `dismiss: false`) | no_transmission_detected on system HTTP proxy (0 flows). Play license is not a baby-profile upload. |
@@ -149,9 +149,9 @@ Note: the earlier generic heuristic injector still works for apps whose onboardi
 
 ## Sprint 5  -  Planned  -  Legacy re-capture and evidence parity
 
-**Goal:** Bring the eight apps that `results/RESULTS-20260803.json` still marks `session-summary` up to the same committed evidence depth as the eight `raw-replay` apps. Those eight names are Nurture Lock, Nubo, Pebbi, Baby Buddy, Amila, Baby Daybook, Baby+, and MimiLog. This slice names priorities. It does not change a privacy PASS or FAIL.
+**Goal:** Bring the apps that `results/RESULTS-20260803.json` still marks `session-summary` up to the same committed evidence depth as the `raw-replay` apps. After the 2026-08-25 Amila live slice, seven names remain: Nurture Lock, Nubo, Pebbi, Baby Buddy, Baby Daybook, Baby+, and MimiLog. This section names priorities. It does not invent a privacy PASS or FAIL.
 
-**What is true on disk vs in RESULTS (2026-08-24, this machine):** committed RESULTS still list all eight as `session-summary`. Later kept `.mitm` files also exist under `results/<app>-test-<date>/artifacts/captures/`. A kept file is not a new verdict. Do not promote `evidence_source` until a later live slice runs inventory and rebuilds the network log. Then refresh the report.
+**What is true on disk vs in RESULTS (2026-08-25, this machine):** Amila is `raw-replay` after a live inject, network-log rebuild, inventory check, and report refresh. The other seven session-summary apps may still have later kept `.mitm` files on disk. A kept file is not a new verdict until a live slice promotes it the same way.
 
 | App | RESULTS `evidence_source` | Kept `.mitm` on this machine | Sprint 5 note |
 | --- | --- | --- | --- |
@@ -159,12 +159,12 @@ Note: the earlier generic heuristic injector still works for apps whose onboardi
 | Nubo | session-summary | `nubo-test-20260803` (94146). Soak `nubo-test-20260818-soak` (628913). Zero-byte `Nubo.mitm` (2026-08-17) and `Nubo-backup-google.mitm` (2026-08-23) kept. | Backup Now finished in the app UI (PR 51). Not Firebase-silence. JSON still session-summary. |
 | Pebbi | session-summary | `pebbi-test-20260816` and `pebbi-test-20260817` (largest `Pebbi-profile.mitm` 386435) | Pairip CLOSE on cold start. Environment blocker. Not privacy PASS or FAIL. |
 | Baby Buddy | session-summary | `baby-buddy-test-20260803` (2265 bytes) | Web PASS stays the Django capture. Companion pictures exist (PR 48). Not a new privacy capture. |
-| Amila | session-summary | `amila-test-20260816` and `amila-test-20260817` (several non-zero files) | Later inject captures exist. RESULTS still session-summary. |
+| Amila | raw-replay | `amila-test-20260825` (`Amila.mitm` 106226 bytes). Earlier `amila-test-20260816` and `amila-test-20260817` kept. | Live inject 2026-08-25. Name **Privatia Rigatoni** on home. Scan `no_transmission_detected`. Network log rebuilt. Not Firebase-silence. |
 | Baby Daybook | session-summary | `baby-daybook-test-20260816` and `baby-daybook-test-20260817` | Pairip native crash on this AVD. Environment blocker. Not privacy PASS or FAIL. |
 | Baby+ | session-summary | `baby-plus-test-20260816`, `20260819`, `20260821` (including About You 589030). Zero-byte files kept. | Later captures exist. Force-upgrade still blocks home. RESULTS still session-summary. |
 | MimiLog | session-summary | `mimilog-test-20260816` (7771). Zero-byte 2026-08-17 files kept. | Zero-byte files stay. RESULTS still session-summary. |
 
-Prefer a live first recapture that is not Pairip-blocked on this AVD (not Pebbi, Nurture Lock, BellyBloom CLOSE, or Daybook Pairip crash). One app, one PR. Stop for operator merge between slices.
+Prefer the next live recapture that is not Pairip-blocked on this AVD (not Pebbi, Nurture Lock, BellyBloom CLOSE, or Daybook Pairip crash). One app, one PR. Stop for operator merge between slices.
 
 ### Legacy re-capture  -  Planned
 - Re-run the harness on each session-summary app that still needs a promotable capture. Keep `results/<app>-test-<date>/artifacts/captures/*.mitm` forever, including zero-byte files (evidence-inventory guard).
@@ -197,7 +197,7 @@ The later public article needs a picture of each step we actually ran, not only 
 | App | Labeled PNG (under that app's `artifacts/uiux/`) | Notes |
 | --- | --- | --- |
 | Nubo | soak dir `nubo-test-20260818-soak` plus `nubo-test-20260823` plus `nubo-test-20260824`: `article-home.png`, `article-settings.png`, `article-backup.png`, `article-backup-now.png`, `article-backup-yes.png`, `article-backup-wait.png`, `article-backup-consent-scrolled.png`, `article-backup-consent-bottom.png`, `article-backup-after-gms.png`, `article-backup-done.png` | 2026-08-18 finished inject. 2026-08-23: Google login with proxy off; Backup Now hung on GMS spinner. 2026-08-24: GMS Continue, last backup time set. Formula stayed 15. |
-| Amila | `article-home-done.png`, `article-form.png` | Copies of the 2026-08-17 Done/home and name screens. |
+| Amila | `article-home-done.png`, `article-form.png` (2026-08-17 copies). 20260825: `article-launch.png`, `article-after-inject.png`, `article-home-done.png`, `article-home-current.png`, `article-app-home.png` | 2026-08-25 live recapture. Home shows **Privatia Rigatoni**. |
 | MimiLog | `article-bottle-save.png` | Copy of the 482 mL bottle log. |
 | Baby+ | 20260816: `article-about-baby.png`, `article-launch.png`, `article-relaunch.png`. 20260819: `article-about-baby-girl.png`, `article-gender-required-dialog.png`, `article-gender-icons-unlabeled.png`, `article-gender-popup-boy-girl.png`, `article-upgrade-gate.png`. 20260821: `article-about-you.png`, `article-about-you-filled-full.png`, `article-gender-popup-full.png`, `article-about-baby-girl-full.png`, `article-upgrade-gate.png` | About You captured after `pm clear`. Girl + DONE. Force-upgrade again. |
 | Pebbi | `article-pairip-close.png`, `article-form.png`, `article-pairip-close-relaunch.png` | Pairip CLOSE is not a privacy verdict. |
@@ -235,7 +235,7 @@ This is a planning report, not a new privacy verdict. Percents are rough from sc
 | --- | --- | --- | --- | --- |
 | Nubo | Home timers, Logs, saved note, Settings, Edit profile, Backup & Restore. 2026-08-23: Google account picked with proxy off. 2026-08-24: Backup Now finished after GMS Drive Continue (last backup `08/24/2026 18:49:05`). Chart/Device still from earlier pictures. Not BLE pair. Formula-per-click entered as **15** (preferred 90 did not stick; that is enough when recorded and scanned). | Yes. Inject plus about 21 minutes with the system HTTP proxy still on. The flow file did not grow after 18:58. | 2026-08-18 proxy stayed up. 2026-08-23: 0-byte HTTP-proxy file for backup; small `wlan0` pcap during hung consent. 2026-08-24: proxy `:0`; `wlan0` pcap 1339264 bytes during finished backup. | Opened Backup. Signed in with proxy off. 2026-08-24 Backup Now completed in the app UI. |
 | MimiLog | Create profile (earlier), Dashboard Bottle 482 mL, nap 777, note. | Yes, local save. | No. Package has no `INTERNET`. | None. Play license is not a baby-data upload. |
-| Amila | Name, birthday, 16+ box, Done. Home showed the name. | Profile save, yes. Feeding/sleep/diaper, no. | No. | Login/sync after account, no. |
+| Amila | Name, birthday, 16+ box, Done. 2026-08-25 home showed **Privatia Rigatoni**. One bottle row appeared during the session (`5s, 8oz`). | Profile save, yes. Full feeding/sleep/diaper suite, no. | Short proxy window after inject (~20s observe plus flush). | Login/sync after account, no. |
 | Baby+ | Google login (proxy off). About You parent name + CONTINUE (2026-08-21). About Baby name + Girl + DONE. Then force-upgrade gate. | About You + baby form saved; home blocked by upgrade. | Proxy up about 21 minutes on the upgrade screen after inject. File stayed 589,030 bytes (no growth after inject). | Play Store button not tapped. |
 | Pebbi | Welcome, units, Add New Baby. Complete Setup not saved. Pairip on cold start. | No. | No. | No. |
 | Nurture Lock | Pairip CLOSE only. | No. | No. | No. |

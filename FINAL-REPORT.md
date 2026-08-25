@@ -1,7 +1,7 @@
 # Final Report - Which Baby Apps Keep Their Privacy Promises
 
 **Test run:** baby-app-audit-20260803
-**Dates:** 2026-08-03 to 2026-08-24
+**Dates:** 2026-08-03 to 2026-08-25
 **Harness version:** 3.3.0
 **Author:** Wei Jia
 **License:** GPL-3.0
@@ -15,7 +15,7 @@ Host, path, status, count, and sizes live in the sanitized network logs. This re
 | --- | --- | --- | --- | --- | --- |
 | Baby Buddy | Open source | PASS | 💖 | 100% | Django web: no app-originated traffic. Android companion login photos are not the PASS |
 | MimiLog | "Fully offline" | PASS | 💖 | 100% | Firebase setup never completed. Later local save: no baby-profile traffic on the system proxy |
-| Amila | No claim | No claim | ❕ | 90% | Registers the install with Google and downloads settings and fonts |
+| Amila | No claim | No claim | ❕ | 90% | Registers the install with Google; settings, logging, and measurement calls (2026-08-25 recapture) |
 | Baby+ | "AdID not auto-enabled" | FAIL | ❕ | 90% | Contacts Philips, Google, and Firebase at launch. Later About You PUT sends the parent name |
 | Heartful Baby | "HIPAA-compliant" | FAIL | ❕ | 90% | One Firebase usage log at launch. A HIPAA claim does not match this |
 | Baby Daybook | "AdID not auto-enabled" | FAIL | 🚫 | 90% | Google plus a subscription service. Package also contains Facebook code |
@@ -85,6 +85,7 @@ We enter one fictional baby (Privatia Rigatoni). Markers are in `results/synthet
 | Baby+ | 2026-08-16 and 2026-08-21 About You | `transmission_observed` | Parent name in a request PUT to `appserver.health-and-parenting.com` |
 | Baby+ | 2026-08-19 Girl + DONE, then upgrade | `no_transmission_detected` | Name only in a maker response. Home still blocked by force-upgrade |
 | Amila | 2026-08-17 name save | `no_transmission_detected` | Name stayed on the home screen |
+| Amila | 2026-08-25 live recapture | `no_transmission_detected` | Name **Privatia Rigatoni** on home. No name in the raw capture. Not Firebase-silence |
 | MimiLog | 2026-08-17 local save | `no_transmission_detected` | No `INTERNET` permission. Detail in footnotes |
 | Nubo | 2026-08-18 finished timers + note | `no_transmission_detected` | Formula stayed **15**. Whole-emulator proxy. Not Firebase-silence |
 | Nubo | 2026-08-24 Backup Now | not a marker scan | Last backup `08/24/2026 18:49:05` after Google Drive Continue. FAIL mark unchanged |
@@ -266,13 +267,14 @@ Baby Buddy is the only open-source app in this test.
 
 - **Claim:** No claim - [Play listing](https://play.google.com/store/apps/details?id=com.amila.parenting)
 - **Result:** No claim
-- **Confidence:** 90%. Six flows at launch. Nothing showed data that identifies you, so the mark is ❕.
-- **Capture:** 2026-08-08, launch window, 6 flows.
+- **Confidence:** 90%. Thirteen flows on the 2026-08-25 recapture. Nothing showed data that identifies you, so the mark is ❕. `privacy_class` stays minor.
+- **Capture:** 2026-08-25 live inject + proxy, 13 flows. Evidence source promoted to `raw-replay`.
 
 | Service | What we saw |
 | --- | --- |
-| Google (Firebase) | Install register and settings |
-| Google (Fonts) | Font files. No data about you |
+| Google (Firebase) | Install register, settings, logging, Crashlytics settings |
+| Google (Measurement) | App Measurement config and batch posts |
+| Google (Funding Choices) | Consent messages |
 
 - **Network log:** [network-log-amila.json](results/network-log-amila.json)
 
@@ -374,7 +376,7 @@ Four of the five long-report apps ship install and ad programs (Facebook, Adjust
 - Launch captures predate the injector. Re-captures enter the fictional profile. The synthetic table states whether those strings left the device.
 - Captures are launch and early use. Later sessions can differ.
 - We removed response bodies and header values because they can carry tokens. Logs keep method, host, path, status, count, and sizes. A scrubbed body is not proof that PII was absent.
-- Evidence depth is not equal. Eight apps are `raw-replay`. Eight are `session-summary` in `results/RESULTS-20260803.json`.
+- Evidence depth is not equal. Nine apps are `raw-replay` (Amila promoted 2026-08-25). Seven are still `session-summary` in `results/RESULTS-20260803.json`.
 - Treat session-summary rows as a lower bound. Later local `.mitm` files can exist and still not change a mark. Recapture plan: `ROADMAP.md` Sprint 5.
 - baby-track, cradle, and dymn-baby had no usable APK. No captures.
 

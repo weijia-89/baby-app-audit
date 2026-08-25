@@ -4,7 +4,7 @@
   "scope": {
     "input_pattern": "network-log-*.json",
     "apps_scanned": 16,
-    "calls_scanned": 212,
+    "calls_scanned": 219,
     "assessment_rule": "A sent call remains evidence even when body or header values are scrubbed. Scrubbed content is not evidence that PII was absent."
   },
   "static_capabilities": [
@@ -444,8 +444,6 @@
         "firebaselogging.googleapis.com",
         "firebaseremoteconfig.googleapis.com",
         "firebaseremoteconfigrealtime.googleapis.com",
-        "fonts.googleapis.com",
-        "fonts.gstatic.com",
         "fundingchoicesmessages.google.com",
         "googleads.g.doubleclick.net",
         "marketingplatform.google.com",
@@ -467,7 +465,7 @@
         "pregnancyplus",
         "whattoexpect"
       ],
-      "call_count": 56,
+      "call_count": 63,
       "roles": [
         "account_or_messaging",
         "advertising",
@@ -739,15 +737,15 @@
     {
       "app": "Amila",
       "package_name": "com.amila.parenting",
-      "call_count": 6,
-      "analytics_call_count": 0,
-      "pii_call_count": 0,
-      "unassessed_call_count": 0,
+      "call_count": 13,
+      "analytics_call_count": 9,
+      "pii_call_count": 8,
+      "unassessed_call_count": 4,
       "calls": [
         {
           "method": "POST",
           "host": "firebaseinstallations.googleapis.com",
-          "path": "/v1/projects/parenting-891b7/installations",
+          "path": "https://firebaseinstallations.googleapis.com/v1/projects/[REDACTED:path-token-or-id]/installations",
           "status": 200,
           "count": 1,
           "vendor": "Google/Firebase",
@@ -755,108 +753,266 @@
             "identifier_registration"
           ],
           "sent_call": true,
-          "request_size": null,
-          "response_size": null,
+          "request_size": 129,
+          "response_size": 620,
+          "analytics_call": true,
+          "pii_categories": [
+            "authentication_tokens",
+            "device_or_app_identifiers"
+          ],
+          "assessments": [
+            "call_sent_header_value_scrubbed",
+            "capability_or_endpoint_inference",
+            "response_key_names_observed_values_scrubbed"
+          ],
+          "redaction_slugs": [
+            "[REDACTED:path-token-or-id:secret-or-PII]",
+            "[REDACTED:request-body-values:secret-or-PII]",
+            "[REDACTED:request-header-values:secret-or-PII]",
+            "[REDACTED:response-body-values:secret-or-PII]",
+            "[REDACTED:response-header-values:secret-or-PII]"
+          ]
+        },
+        {
+          "method": "POST",
+          "host": "fundingchoicesmessages.google.com",
+          "path": "https://fundingchoicesmessages.google.com/a/consent",
+          "status": 200,
+          "count": 1,
+          "vendor": "Google/Firebase",
+          "roles": [],
+          "sent_call": true,
+          "request_size": 408,
+          "response_size": 929,
           "analytics_call": false,
           "pii_categories": [],
           "assessments": [
-            "destination_only"
+            "call_metadata_only"
           ],
-          "redaction_slugs": []
+          "redaction_slugs": [
+            "[REDACTED:request-body-values:secret-or-PII]",
+            "[REDACTED:request-header-values:secret-or-PII]",
+            "[REDACTED:response-body-values:secret-or-PII]",
+            "[REDACTED:response-header-values:secret-or-PII]"
+          ]
+        },
+        {
+          "method": "POST",
+          "host": "fundingchoicesmessages.google.com",
+          "path": "https://fundingchoicesmessages.google.com/um/[REDACTED:path-token-or-id]",
+          "status": 204,
+          "count": 1,
+          "vendor": "Google/Firebase",
+          "roles": [],
+          "sent_call": true,
+          "request_size": 133,
+          "response_size": 0,
+          "analytics_call": false,
+          "pii_categories": [],
+          "assessments": [
+            "call_sent_body_scrubbed"
+          ],
+          "redaction_slugs": [
+            "[REDACTED:path-token-or-id:secret-or-PII]",
+            "[REDACTED:request-body-values:secret-or-PII]",
+            "[REDACTED:request-header-values:secret-or-PII]",
+            "[REDACTED:response-header-values:secret-or-PII]"
+          ]
         },
         {
           "method": "POST",
           "host": "firebaseremoteconfig.googleapis.com",
-          "path": "/v1/projects/946125544729/namespaces/firebase:fetch",
+          "path": "https://firebaseremoteconfig.googleapis.com/v1/projects/[REDACTED:path-token-or-id]/namespaces/firebase:fetch",
           "status": 200,
-          "count": 1,
+          "count": 2,
           "vendor": "Google/Firebase",
           "roles": [
             "sdk_configuration"
           ],
           "sent_call": true,
-          "request_size": null,
-          "response_size": null,
+          "request_size": 690,
+          "response_size": 631,
           "analytics_call": false,
           "pii_categories": [],
           "assessments": [
-            "destination_only"
+            "call_sent_header_value_scrubbed",
+            "response_key_names_observed_values_scrubbed"
           ],
-          "redaction_slugs": []
+          "redaction_slugs": [
+            "[REDACTED:path-token-or-id:secret-or-PII]",
+            "[REDACTED:request-body-values:secret-or-PII]",
+            "[REDACTED:request-header-values:secret-or-PII]",
+            "[REDACTED:response-body-values:secret-or-PII]",
+            "[REDACTED:response-header-values:secret-or-PII]"
+          ]
         },
         {
-          "method": "POST",
-          "host": "firebaseremoteconfig.googleapis.com",
-          "path": "/v1/projects/946125544729/namespaces/firebase:fetch",
+          "method": "GET",
+          "host": "firebase-settings.crashlytics.com",
+          "path": "https://firebase-settings.crashlytics.com/spi/v2/platforms/android/gmp/1:946125544729:android:93c2e0fd613b3b89/settings",
           "status": 200,
           "count": 1,
           "vendor": "Google/Firebase",
           "roles": [
+            "diagnostics",
             "sdk_configuration"
           ],
           "sent_call": true,
-          "request_size": null,
-          "response_size": null,
-          "analytics_call": false,
+          "request_size": 0,
+          "response_size": 745,
+          "analytics_call": true,
           "pii_categories": [],
           "assessments": [
-            "destination_only"
+            "response_key_names_observed_values_scrubbed"
           ],
-          "redaction_slugs": []
+          "redaction_slugs": [
+            "[REDACTED:query-string:privacy]",
+            "[REDACTED:request-header-values:secret-or-PII]",
+            "[REDACTED:response-body-values:secret-or-PII]",
+            "[REDACTED:response-header-values:secret-or-PII]"
+          ]
         },
         {
           "method": "GET",
-          "host": "fonts.googleapis.com",
-          "path": "/css",
+          "host": "app-measurement.com",
+          "path": "https://app-measurement.com/config/app/1%3A946125544729%3Aandroid%3A93c2e0fd613b3b89",
           "status": 200,
           "count": 1,
           "vendor": "Google/Firebase",
-          "roles": [],
-          "sent_call": true,
-          "request_size": null,
-          "response_size": null,
-          "analytics_call": false,
-          "pii_categories": [],
-          "assessments": [
-            "destination_only"
+          "roles": [
+            "analytics",
+            "sdk_configuration"
           ],
-          "redaction_slugs": []
+          "sent_call": true,
+          "request_size": 0,
+          "response_size": 803,
+          "analytics_call": true,
+          "pii_categories": [
+            "app_activity_events"
+          ],
+          "assessments": [
+            "call_metadata_only",
+            "capability_or_endpoint_inference"
+          ],
+          "redaction_slugs": [
+            "[REDACTED:query-string:privacy]",
+            "[REDACTED:request-header-values:secret-or-PII]",
+            "[REDACTED:response-body-values:secret-or-PII]",
+            "[REDACTED:response-header-values:secret-or-PII]"
+          ]
+        },
+        {
+          "method": "POST",
+          "host": "app-measurement.com",
+          "path": "https://app-measurement.com/a",
+          "status": 204,
+          "count": 3,
+          "vendor": "Google/Firebase",
+          "roles": [
+            "analytics"
+          ],
+          "sent_call": true,
+          "request_size": 2010,
+          "response_size": 0,
+          "analytics_call": true,
+          "pii_categories": [
+            "app_activity_events"
+          ],
+          "assessments": [
+            "call_sent_body_scrubbed"
+          ],
+          "redaction_slugs": [
+            "[REDACTED:request-body-values:secret-or-PII]",
+            "[REDACTED:request-header-values:secret-or-PII]",
+            "[REDACTED:response-header-values:secret-or-PII]"
+          ]
         },
         {
           "method": "GET",
-          "host": "fonts.gstatic.com",
-          "path": "/s/poppins/v24/pxiByp8kv8JHgFVrLGT9Z1xlFd2JQEk.woff2",
+          "host": "app-measurement.com",
+          "path": "https://app-measurement.com/config/app/1%3A1009074339940%3Aandroid%3Ac45aacd92fa78881",
           "status": 200,
           "count": 1,
           "vendor": "Google/Firebase",
-          "roles": [],
-          "sent_call": true,
-          "request_size": null,
-          "response_size": null,
-          "analytics_call": false,
-          "pii_categories": [],
-          "assessments": [
-            "destination_only"
+          "roles": [
+            "analytics",
+            "sdk_configuration"
           ],
-          "redaction_slugs": []
+          "sent_call": true,
+          "request_size": 0,
+          "response_size": 679,
+          "analytics_call": true,
+          "pii_categories": [
+            "app_activity_events"
+          ],
+          "assessments": [
+            "call_metadata_only",
+            "capability_or_endpoint_inference"
+          ],
+          "redaction_slugs": [
+            "[REDACTED:query-string:privacy]",
+            "[REDACTED:request-header-values:secret-or-PII]",
+            "[REDACTED:response-body-values:secret-or-PII]",
+            "[REDACTED:response-header-values:secret-or-PII]"
+          ]
         },
         {
           "method": "GET",
-          "host": "fonts.gstatic.com",
-          "path": "/s/roboto/v51/KFO7CnqEu92Fr1ME7kSn66aGLdTylUAMa3yUBHMdazQ.woff2",
+          "host": "app-measurement.com",
+          "path": "https://app-measurement.com/config/app/1%3A1073993904376%3Aandroid%3Af4c2e1baecc62ade",
           "status": 200,
           "count": 1,
           "vendor": "Google/Firebase",
-          "roles": [],
-          "sent_call": true,
-          "request_size": null,
-          "response_size": null,
-          "analytics_call": false,
-          "pii_categories": [],
-          "assessments": [
-            "destination_only"
+          "roles": [
+            "analytics",
+            "sdk_configuration"
           ],
-          "redaction_slugs": []
+          "sent_call": true,
+          "request_size": 0,
+          "response_size": 1070,
+          "analytics_call": true,
+          "pii_categories": [
+            "app_activity_events"
+          ],
+          "assessments": [
+            "call_metadata_only",
+            "capability_or_endpoint_inference"
+          ],
+          "redaction_slugs": [
+            "[REDACTED:query-string:privacy]",
+            "[REDACTED:request-header-values:secret-or-PII]",
+            "[REDACTED:response-body-values:secret-or-PII]",
+            "[REDACTED:response-header-values:secret-or-PII]"
+          ]
+        },
+        {
+          "method": "POST",
+          "host": "firebaselogging.googleapis.com",
+          "path": "https://firebaselogging.googleapis.com/v0cc/log/batch",
+          "status": 200,
+          "count": 1,
+          "vendor": "Google/Firebase",
+          "roles": [
+            "analytics"
+          ],
+          "sent_call": true,
+          "request_size": 1926,
+          "response_size": 352,
+          "analytics_call": true,
+          "pii_categories": [
+            "app_activity_events"
+          ],
+          "assessments": [
+            "capability_or_endpoint_inference",
+            "response_key_names_observed_values_scrubbed"
+          ],
+          "redaction_slugs": [
+            "[REDACTED:query-string:privacy]",
+            "[REDACTED:request-body-values:secret-or-PII]",
+            "[REDACTED:request-header-values:secret-or-PII]",
+            "[REDACTED:response-body-values:secret-or-PII]",
+            "[REDACTED:response-header-values:secret-or-PII]"
+          ]
         }
       ]
     },
