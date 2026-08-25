@@ -72,7 +72,7 @@ def scan(results_dir):
             continue
         row = rows.setdefault(
             slug, {"slug": slug, "name": APP_NAMES[slug],
-                   "png_count": 0, "zero_byte": 0,
+                   "png_count": 0, "zero_byte": 0, "labeled": 0,
                    "total_bytes": 0, "test_dirs": []}
         )
         row["test_dirs"].append(entry.name)
@@ -83,6 +83,8 @@ def scan(results_dir):
                 continue
             size = png.stat().st_size
             row["png_count"] += 1
+            if png.name.startswith("article-"):
+                row["labeled"] += 1
             row["total_bytes"] += size
             if size == 0:
                 row["zero_byte"] += 1
@@ -96,18 +98,20 @@ def markdown(rows, app_names=None):
         names.update(app_names)
     seen_slugs = {row["slug"] for row in rows}
     lines = [
-        "| App | Test dirs with PNGs | PNGs | Zero-byte |",
-        "| --- | --- | --- | --- |",
+        "| App | Test dirs with PNGs | PNGs | Labeled | Zero-byte |",
+        "| --- | --- | --- | --- | --- |",
     ]
     for slug in sorted(set(names) | seen_slugs):
         name = names.get(slug, slug)
         match = next((r for r in rows if r["slug"] == slug), None)
         if match is None:
-            lines.append(f"| {name} | no PNGs yet | 0 | 0 |")
+            lines.append(f"| {name} | no PNGs yet | 0 | 0 | 0 |")
             continue
         dirs = ", ".join(match["test_dirs"])
         zb = f"{match['zero_byte']} zero-byte" if match["zero_byte"] else "0"
-        lines.append(f"| {name} | {dirs} | {match['png_count']} | {zb} |")
+        lines.append(
+            f"| {name} | {dirs} | {match['png_count']} | "
+            f"{match['labeled']} | {zb} |")
     return "\n".join(lines) + "\n"
 
 

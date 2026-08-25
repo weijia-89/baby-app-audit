@@ -17,6 +17,7 @@ mkdir -p "$tmp/results/baby-plus-test-20260821/artifacts/uiux" \
          "$tmp/results/stray-dir/artifacts/uiux"
 printf 'PNGDATA' > "$tmp/results/baby-plus-test-20260821/artifacts/uiux/article-about-you.png"
 printf 'PNGDATA' > "$tmp/results/baby-plus-test-20260821/artifacts/uiux/article-launch.png"
+printf 'PNGDATA' > "$tmp/results/baby-plus-test-20260821/artifacts/uiux/screen3.png"
 printf 'PNGDATA' > "$tmp/results/nubo-test-20260818-soak/artifacts/uiux/article-home.png"
 : > "$tmp/results/mimilog-test-20260817/artifacts/uiux/broken.png"
 echo notpng > "$tmp/results/baby-plus-test-20260821/artifacts/uiux/notes.txt"
@@ -40,7 +41,8 @@ by_slug = {row["slug"]: row for row in tree}
 assert set(by_slug) == {"baby-plus", "nubo", "mimilog"}, sorted(by_slug)
 
 bp = by_slug["baby-plus"]
-assert bp["png_count"] == 2 and bp["zero_byte"] == 0, bp
+assert bp["png_count"] == 3 and bp["zero_byte"] == 0, bp
+assert bp["labeled"] == 2 and bp["png_count"] - bp["labeled"] == 1, bp
 
 # The symlinked PNG is excluded from counts.
 assert "leak.png" not in json.dumps(tree)
@@ -56,7 +58,7 @@ assert mm["png_count"] == 1 and mm["zero_byte"] == 1, mm
 
 # Markdown rendering includes every app row and flags the zero byte.
 md = inv.markdown(tree)
-for needle in ("baby-plus", "nubo", "mimilog", "1 zero-byte"):
+for needle in ("baby-plus", "nubo", "mimilog", "1 zero-byte", "| Labeled |"):
     assert needle in md, needle
 
 # CLI contract: --results/--format work end-to-end and JSON is stable.
