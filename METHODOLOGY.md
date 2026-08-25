@@ -161,7 +161,15 @@ You can run this test yourself. Everything is open-source:
 
 I welcome independent verification. If you run the test and get different results, please open an issue.
 
+### Test-environment notes (2026-08-25)
+
+Two environment facts matter when reading or repeating a capture session:
+
+1. **Cold boots lose the traffic-capture certificate.** The emulator trusts our recording certificate only while it is installed in the system certificate store. A fresh emulator boot can come up without it; apps then connect but the capture records nothing (a 0-byte `.mitm`). Every capture session therefore starts with a store check, and `scripts/playstore-setup.sh verify` re-checks it after any reboot. Two 0-byte Baby+ files from 2026-08-25 are kept as evidence of exactly this failure mode.
+2. **Results are tagged by device stack.** Sessions run on the stock test image are the default. Sessions that need a licensed Play Store (Pairip-protected apps) will run on a playstore-enabled image and are labeled as such wherever their results appear - same app, different system layer. A result from one stack never silently upgrades another.
+
 ---
+
 
 ## Synthetic baby-data transmission test
 
