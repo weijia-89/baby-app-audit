@@ -41,7 +41,9 @@ handle_serial() {
 ' ;;
         *ro.product.cpu.abi*) echo arm64-v8a ;;
         *sys.boot_completed*) echo 1 ;;
-        *cacerts/c8750f0d.0*) echo "/system/etc/security/cacerts/c8750f0d.0" ;;
+        *cacerts/c8750f0d.0*)
+          if [ -n "\${FAKE_NO_CA:-}" ]; then exit 1; fi
+          echo "/system/etc/security/cacerts/c8750f0d.0" ;;
         *pm*path*|*mkdir*|*chmod*) echo ok ;;
         *resolve-activity*)
           last=\$(printf '%s
@@ -195,5 +197,14 @@ run_setup "$fake" pairip-probe com.mimiapp.mimilog >/dev/null
 found=$(find "$repo_root/results"/com.mimiapp.mimilog-test-*/artifacts/logs -name "com.mimiapp.mimilog.verdict" 2>/dev/null | head -1)
 [ -n "$found" ] && grep -q "ok" "$found" || { echo "S8 FAIL (verdict)"; exit 1; }
 echo "S8 pass"
+
+# --- S9: verify refuses when the mitm CA vanished post-install ---------------
+fake="$tmp_root/s9"; make_fake_env "$fake"
+mkdir -p "$fake/avd/snapshots/pre-gapps"
+if ( export FAKE_NO_CA=1; run_setup "$fake" verify ) >/tmp/s9-out.txt 2>&1; then
+    echo "S9 FAIL (verify passed without CA)"; exit 1
+fi
+grep -q "re-push it before any capture" /tmp/s9-out.txt || { echo "S9 FAIL (missing hint)"; cat /tmp/s9-out.txt; exit 1; }
+echo "S9 pass"
 
 echo "playstore-setup flow tests passed"

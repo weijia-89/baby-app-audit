@@ -109,7 +109,11 @@ def zip_listing_has_escape(listing_text):
         if stripped.startswith("Length") and "Name" in stripped:
             continue
         token = stripped.split()[-1]
-        if token.startswith("/") or "../" in token or token == "..":
+        if token.startswith("/") or token == "..":
+            return True
+        # Substring sweep catches escapes inside names that contain spaces,
+        # where last-token parsing would only see the final segment.
+        if "../" in stripped:
             return True
     return False
 

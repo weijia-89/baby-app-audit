@@ -138,6 +138,18 @@ ESCAPE_IN_REAL = REAL_LISTING.replace(
     "Core/gmscore/arm64_v8a/GmsCore.apk", "../evil.sh")
 assert gs.zip_listing_has_escape(ESCAPE_IN_REAL) is True
 
+# Escape members whose names contain spaces must also be caught; a
+# last-token parser silently misses them.
+SPACED = REAL_LISTING.replace(
+    "Core/gmscore/arm64_v8a/GmsCore.apk", "../evil dir/run.sh")
+assert gs.zip_listing_has_escape(SPACED) is True, (
+    "parent-escape with a space in the name went undetected")
+
+# --- select_abi_candidate: no ABI signal refuses ambiguity --------------------
+amb = ["/tmp/w/a/GmsCore.apk", "/tmp/w/b/GmsCore.apk"]
+assert gs.select_abi_candidate(amb, "") is None
+assert gs.select_abi_candidate(amb, None) is None
+
 # --- validate_component --------------------------------------------------------
 assert gs.validate_component("com.mimiapp.mimilog/.MainActivity") == "com.mimiapp.mimilog/.MainActivity"
 assert gs.validate_component("com.hp.babyapp/com.hp.babyplus.baby20.splash.SplashScreenActivity") is not None

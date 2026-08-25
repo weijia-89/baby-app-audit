@@ -284,5 +284,23 @@ case "${1:-}" in
     install-zip) shift; cmd_install_zip "$@" ;;
     verify) shift; cmd_verify ;;
     pairip-probe) shift; cmd_pairip_probe "$@" ;;
-    *) sed -n '2,20p' "$0" | sed 's/^# \{0,1\}//'; exit 1 ;;
+    *)
+        cat <<'USAGE'
+usage: scripts/playstore-setup.sh SUBCOMMAND
+
+  check                    Report prerequisites; exit 1 when any are unmet.
+  backup NAME [--force]    Save a quickboot snapshot of the running emulator.
+  install-zip ZIP SUMS     Verify ZIP against SHA256SUMS, then flash core
+                           GApps into /system and reboot. Requires the
+                           pre-gapps snapshot; refuses on checksum or
+                           archive-path problems.
+  verify                   Post-boot: store real, GMS present, mitm CA intact.
+  pairip-probe PACKAGE     Launch PACKAGE (max 3 tries) and classify whether
+                           it got past Pairip licensing.
+
+Environment: ANDROID_SERIAL (default emulator-5554), PLAYSTORE_AVD_DIR.
+No subcommand modifies the system without the matching explicit step and,
+for install-zip, an existing pre-gapps snapshot.
+USAGE
+        exit 1 ;;
 esac
