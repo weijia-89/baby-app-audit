@@ -21,7 +21,9 @@ SERIAL="${ANDROID_SERIAL:-emulator-5554}"
 AVD_DIR="${PLAYSTORE_AVD_DIR:-${HOME}/.android/avd/apk-test-api29.avd}"
 REQUIRED_SNAPSHOT="pre-gapps"
 MITM_CA_HASH="c8750f0d"
-PROBE_TRIES=3
+PROBE_TRIES="${PROBE_TRIES:-3}"
+PROBE_SETTLE_SEC="${PROBE_SETTLE_SEC:-8}"
+PROBE_RETRY_PAUSE_SEC="${PROBE_RETRY_PAUSE_SEC:-4}"
 
 log() { printf '[playstore] %s\n' "$*"; }
 die() { printf '[playstore] ERROR: %s\n' "$*" >&2; exit 1; }
@@ -252,7 +254,7 @@ import gapps_state as g
 print(g.validate_component(os.environ['COMP_IN']) or '')")
         [ -n "$comp" ] || die "could not resolve a launchable activity for $package (got: '$(adb_sel shell cmd package resolve-activity --brief "$package" | tail -1 | tr -d '\r')')"
         adb_sel shell am start -n "$comp" >/dev/null
-        sleep 8
+        sleep "$PROBE_SETTLE_SEC"
         resumed=$(adb_sel shell "dumpsys activity activities | grep mResumedActivity | head -1")
         adb_sel shell rm -f /sdcard/ui.xml 2>/dev/null || true
         rm -f /tmp/probe-ui.xml
@@ -270,7 +272,7 @@ import gapps_state as g
 print(g.classify_pairip(os.environ['RESUMED'], os.environ['XML']))")
         log "probe try ${try}: $verdict"
         [ "$verdict" = "ok" ] && break
-        sleep 4
+        sleep "$PROBE_RETRY_PAUSE_SEC"
     done
     echo "$verdict" > "$repo_root/results/${package}-test-${probe_date}/artifacts/logs/${package}.verdict"
     [ "$verdict" = "ok" ] && log "PASS: app is running past licensing" || die "app never got past licensing (see $out_dir)"

@@ -76,6 +76,32 @@ OTHER_RESUMED = (
 )
 assert gs.classify_pairip(OTHER_RESUMED, GENERIC_ERROR) == "ok"
 
+# Truth-table spec: every combination of foreground activity, dialog title,
+# and dialog body has one defined answer. Written as a table so an
+# unspecified combination is itself a test failure.
+PAIRIP_RESUMED = BLOCKED_RESUMED
+TABLE = []
+for resumed in (PAIRIP_RESUMED, OK_RESUMED, ""):
+    for title in (0, 1):
+        for body in (0, 1):
+            text = ""
+            if title:
+                text += '<node text="Something went wrong" />'
+            if body:
+                text += '<node text="Check that Google Play" />'
+            if resumed == PAIRIP_RESUMED:
+                expected = "license_blocked" if (title or body) else "license_checking"
+            elif not resumed.strip():
+                expected = "unknown"
+            elif title and body:
+                expected = "license_blocked"
+            else:
+                expected = "ok"
+            TABLE.append((resumed, text, expected))
+for idx, (resumed, text, expected) in enumerate(TABLE):
+    got = gs.classify_pairip(resumed, text)
+    assert got == expected, f"table row {idx}: expected {expected}, got {got}" 
+
 # --- parse_build_identity ---------------------------------------------------
 MIMILOG_DUMPSYS = """Package [com.mimiapp.mimilog] (abcd):
     versionName=1.0.0

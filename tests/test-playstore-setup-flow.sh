@@ -48,9 +48,12 @@ handle_serial() {
         *resolve-activity*)
           last=\$(printf '%s
 ' "\$sub" | rev | cut -d' ' -f1 | rev)
-          printf 'priority=0 preferredOrder=0
-%s/.MainActivity
-' "\$last" ;;
+          pkg=\$(printf '%s' "\$last" | cut -d/ -f1)
+          if [ -n "\${FAKE_PAIRIP:-}" ]; then
+            printf 'priority=0 preferredOrder=0\n%s/com.pairip.licensecheck.LicenseActivity\n' "\$pkg"
+          else
+            printf 'priority=0 preferredOrder=0\n%s/.MainActivity\n' "\$last"
+          fi ;;
         *uiautomator*|*rm*-f*) : ;;
         *) echo ok ;;
       esac ;;
@@ -58,7 +61,13 @@ handle_serial() {
       src="\${1:-}"; dst="\${2:-}"
       echo "pushed \$src -> \$dst" >> "\$FAKE/pushed.log" ;;
     pull)
-      if [ "\$#" -ge 2 ]; then printf '<node />' > "\$2"; fi ;;
+      if [ "\$#" -ge 2 ]; then
+        if [ -n "\${FAKE_PAIRIP:-}" ]; then
+          printf '<node text="Something went wrong" /><node text="Check that Google Play" />' > "\$2"
+        else
+          printf '<node />' > "\$2"
+        fi
+      fi ;;
     exec-out)
       : ;;
     reboot) : ;;
@@ -193,7 +202,7 @@ echo "S7 pass"
 # --- S8: probe classifies a healthy launch and writes the verdict file -------
 fake="$tmp_root/s8"; make_fake_env "$fake"
 mkdir -p "$fake/avd/snapshots/pre-gapps" "$fake/results-tree"
-run_setup "$fake" pairip-probe com.mimiapp.mimilog >/dev/null
+PROBE_SETTLE_SEC=1 PROBE_RETRY_PAUSE_SEC=0 run_setup "$fake" pairip-probe com.mimiapp.mimilog >/dev/null
 found=$(find "$repo_root/results"/com.mimiapp.mimilog-test-*/artifacts/logs -name "com.mimiapp.mimilog.verdict" 2>/dev/null | head -1)
 [ -n "$found" ] && grep -q "ok" "$found" || { echo "S8 FAIL (verdict)"; exit 1; }
 echo "S8 pass"
@@ -206,5 +215,15 @@ if ( export FAKE_NO_CA=1; run_setup "$fake" verify ) >/tmp/s9-out.txt 2>&1; then
 fi
 grep -q "re-push it before any capture" /tmp/s9-out.txt || { echo "S9 FAIL (missing hint)"; cat /tmp/s9-out.txt; exit 1; }
 echo "S9 pass"
+
+# --- S10: probe classifies a real Pairip block and refuses -------------------
+fake="$tmp_root/s10"; make_fake_env "$fake"
+mkdir -p "$fake/avd/snapshots/pre-gapps"
+if ( export FAKE_PAIRIP=1 PROBE_SETTLE_SEC=1 PROBE_RETRY_PAUSE_SEC=0; run_setup "$fake" pairip-probe com.mimiapp.mimilog ) >/tmp/s10-out.txt 2>&1; then
+    echo "S10 FAIL (blocked app classified as running)"; exit 1
+fi
+verdict_file=$(find "$repo_root/results"/com.mimiapp.mimilog-test-*/artifacts/logs -name "com.mimiapp.mimilog.verdict" 2>/dev/null | head -1)
+[ -n "$verdict_file" ] && grep -q "license_blocked" "$verdict_file" || { echo "S10 FAIL (verdict missing/blocked-expected)"; exit 1; }
+echo "S10 pass"
 
 echo "playstore-setup flow tests passed"
