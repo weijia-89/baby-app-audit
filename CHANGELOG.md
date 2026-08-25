@@ -1,5 +1,6 @@
 # Changelog
 
+<<<<<<< HEAD
 ## 4.6.22 - 2026-08-25
 
 ### Added
@@ -21,6 +22,12 @@
 - `scripts/build-network-logs.sh`: slug map gained `baby-plus`, `mimilog`, and `baby-daybook`; logs for those slugs no longer get a null `package_name`.
 - `tests/test-network-log-redaction.sh`, `tests/test-results-artifacts.sh`: cover the three new slugs and expect Baby+ and Nubo `raw-replay`.
 - `FINAL-REPORT.md`, `ROADMAP.md`, `README.md`: blocks and queue refreshed. Five `session-summary` apps remain (MimiLog, Nurture Lock, Pebbi, Baby Buddy, Baby Daybook). Nurture Lock, Pebbi, and Baby Daybook stay environment blockers. Baby Buddy default unchanged.
+=======
+## 4.6.23 - 2026-08-25
+
+### Added
+- Play-store unlock slice (planned): deterministic harness for putting a real Google Play store on the rootable test emulator so Pairip-licensed apps (MimiLog, Pebbi, Nurture Lock, Baby Daybook) can pass their license check while traffic capture keeps working. `scripts/gapps_state.py` holds pure classifiers (store version vs stub, license-dialog state from a launch probe, build identity for provenance rows, snapshot guard); `tests/test-gapps-state.sh` pins them with fixtures captured from real sessions and runs in CI. `scripts/playstore-setup.sh` orchestrates `check`, `backup`, checksum-verified `install-zip`, `verify` (boot, store, GMS, mitm CA), and a bounded `pairip-probe`. The system image is never modified unless a `pre-gapps` snapshot exists; results from the new stack will be tagged as captured on a playstore-enabled image.
+>>>>>>> a9e12bf (Play-store unlock slice: deterministic harness before any system change.)
 
 ## 4.6.21 - 2026-08-25
 
