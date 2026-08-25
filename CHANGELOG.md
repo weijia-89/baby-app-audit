@@ -1,5 +1,15 @@
 # Changelog
 
+## 4.6.24 - 2026-08-25
+
+### Added
+- Screenshot-backfill verification: `scripts/uiux_inventory.py` walks the local evidence tree, folds soak directories into their app slug, counts PNGs and zero-byte files, and renders JSON or markdown. Tested by `tests/test-uiux-inventory.sh` (fixture tree, runs in CI). First run: all 16 apps have PNGs on disk, 258 total, none zero-byte.
+- `METHODOLOGY.md` test-environment notes: cold boots can drop the capture certificate (the recorded cause of the two kept 0-byte Baby+ files), and results captured on a playstore-enabled image are labeled as such.
+
+### Changed
+- `ROADMAP.md`: Play-store unlock slice marked harness-merged (PR 55); flash step documented as pending the operator-supplied GApps zip plus published SHA256SUMS. Screenshots section now names the verification tool and its first-run numbers.
+
+
 ## 4.6.23 - 2026-08-25
 
 ### Added

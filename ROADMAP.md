@@ -154,7 +154,9 @@ Note: the earlier generic heuristic injector still works for apps whose onboardi
 **What is true on disk vs in RESULTS (2026-08-25, this machine):** Amila, Nubo, and Baby+ joined the `raw-replay` set today. Nubo was promoted by replaying its preserved 2026-08-03 launch capture. Baby+ was promoted after a live finished-profile recapture that needed a system-store mitm CA reinstall first (`-writable-system` boot; two 0-byte same-day attempts are kept). MimiLog hit a Pairip license dialog CLOSE-loop on cold start, for the installed build and an archived-build sideload test, so it stays `session-summary`.
 
 
-### Play-store unlock slice  -  Planned
+### Play-store unlock slice  -  Harness merged; flash pending
+- PR 55 merged the harness (2026-08-25): `scripts/gapps_state.py`, `scripts/playstore-setup.sh`, and both deterministic suites now run in CI.
+- Remaining step needs an operator-supplied GApps zip plus its published SHA256SUMS. Then: `backup pre-gapps` -> `install-zip` -> `verify` -> `pairip-probe` on MimiLog, Pebbi, Nurture Lock, and Baby Daybook.
 - Goal: pass the Pairip license check on MimiLog, Pebbi, Nurture Lock, and Baby Daybook by putting a real Google Play store on the rootable test emulator (operator approved 2026-08-25), while keeping root so captures stay readable.
 - Scope guard: only the four blocked apps run on the playstore-enabled snapshot. No full retest of already-promoted apps; their verdicts describe captured sessions and stay valid. Any result from the new stack is tagged as captured on a playstore-enabled image.
 - Safety: `scripts/playstore-setup.sh` refuses system changes without a `pre-gapps` snapshot, verifies zip checksums before install, and re-checks the mitm CA after reboot. Deterministic classifiers live in `scripts/gapps_state.py` with fixtures from real sessions (`tests/test-gapps-state.sh`, runs in CI).
@@ -220,6 +222,8 @@ The later public article needs a picture of each step we actually ran, not only 
 | Baby Buddy | 20260823: `article-launch.png`, `article-login-form.png` | Sideload of GitHub release `apks/babybuddy-for-android-v2.6.4.apk` (package `eu.pkgsoftware.babybuddywidgets`, version 2.6.4, MIT). First screen is "Login to Baby Buddy" (server URL, login name, password). We did not type a URL or log in. This companion is not the Django web app we audited. PASS still rests on the 2026-08-03 localhost web session. No new privacy verdict. |
 
 **Success for this slice:** every FINAL-REPORT app has a labeled PNG. Baby+ has About You, About Baby, Girl, and upgrade-gate pictures.
+
+**Verified 2026-08-25** with `scripts/uiux_inventory.py --results results --format markdown`: all 16 apps have at least one PNG on disk (258 total, 0 zero-byte). The tool is tested (`tests/test-uiux-inventory.sh`, runs in CI); run it locally for a current count. Backfill rule stays: every new capture session adds labeled PNGs for launch, form, saved state, and any blocker screen.
 
 ## App surface and sync-condition coverage (snapshot 2026-08-18)
 
