@@ -21,6 +21,14 @@ printf 'PNGDATA' > "$tmp/results/nubo-test-20260818-soak/artifacts/uiux/article-
 : > "$tmp/results/mimilog-test-20260817/artifacts/uiux/broken.png"
 echo notpng > "$tmp/results/baby-plus-test-20260821/artifacts/uiux/notes.txt"
 
+# Symlinks must never pull outside-tree content into the inventory.
+outside="$tmp/outside"; mkdir -p "$outside"
+printf 'SECRET' > "$outside/leak.png"
+mkdir -p "$tmp/results/pixy-test-20260812/artifacts" "$tmp/results/nubo-test-20260818-soak/artifacts/uiux"
+ln -s "$tmp/results/nubo-test-20260818-soak/artifacts/uiux" "$tmp/results/pixy-test-20260812/uiux-link"
+ln -s "$outside" "$tmp/results/pixy-test-20260812/artifacts/uiux"
+ln -s "$outside/leak.png" "$tmp/results/baby-plus-test-20260821/artifacts/uiux/leak.png"
+
 REPO_ROOT="$repo_root" FIXTURE="$tmp/results" python3 - <<'PY'
 import json, os, sys
 sys.path.insert(0, os.path.join(os.environ["REPO_ROOT"], "scripts"))
@@ -34,6 +42,12 @@ assert set(by_slug) == {"baby-plus", "nubo", "mimilog"}, sorted(by_slug)
 bp = by_slug["baby-plus"]
 assert bp["png_count"] == 2 and bp["zero_byte"] == 0, bp
 
+# The symlinked PNG is excluded from counts.
+assert "leak.png" not in json.dumps(tree)
+# The app whose uiux dir itself was replaced by a symlink is skipped.
+pixy = [r for r in tree if r["slug"] == "pixy"]
+assert pixy == [], pixy
+
 nubo = by_slug["nubo"]
 assert nubo["png_count"] == 1 and nubo["test_dirs"] == ["nubo-test-20260818-soak"], nubo
 
@@ -44,6 +58,32 @@ assert mm["png_count"] == 1 and mm["zero_byte"] == 1, mm
 md = inv.markdown(tree)
 for needle in ("baby-plus", "nubo", "mimilog", "1 zero-byte"):
     assert needle in md, needle
+
+# CLI contract: --results/--format work end-to-end and JSON is stable.
+import subprocess
+cli = subprocess.run(
+    [sys.executable, os.path.join(os.environ["REPO_ROOT"], "scripts",
+                                  "uiux_inventory.py"),
+     "--results", os.environ["FIXTURE"], "--format", "json"],
+    capture_output=True, text=True)
+assert cli.returncode == 0, cli.stderr
+parsed = json.loads(cli.stdout)
+assert {r["slug"] for r in parsed} == {"baby-plus", "nubo", "mimilog"}
+md_cli = subprocess.run(
+    [sys.executable, os.path.join(os.environ["REPO_ROOT"], "scripts",
+                                  "uiux_inventory.py"),
+     "--results", os.environ["FIXTURE"], "--format", "markdown"],
+    capture_output=True, text=True)
+assert md_cli.returncode == 0
+assert "MimiLog" in md_cli.stdout and "no PNGs yet" in md_cli.stdout  # Pixy absent by default names
+
+# Determinism: two scans produce identical JSON bytes.
+again = subprocess.run(
+    [sys.executable, os.path.join(os.environ["REPO_ROOT"], "scripts",
+                                  "uiux_inventory.py"),
+     "--results", os.environ["FIXTURE"], "--format", "json"],
+    capture_output=True, text=True)
+assert again.stdout == cli.stdout
 
 # Missing-app reporting: an app with no directories shows as absent.
 apps = {"Baby+": "baby-plus", "Nubo": "nubo", "MimiLog": "mimilog", "Pixy": "pixy"}

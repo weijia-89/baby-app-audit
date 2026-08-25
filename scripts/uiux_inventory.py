@@ -6,6 +6,11 @@ into their app slug, counts PNGs and zero-byte files, and renders either
 JSON or a markdown table for the ROADMAP backfill section.
 
 Offline and deterministic: same tree in, same bytes out.
+
+Accepted limit: files are counted by size only - PNG content is never
+decoded, so a truncated capture that still has bytes counts as good.
+Symlinked test directories and PNGs are excluded so the inventory can
+never import counts from outside the evidence tree.
 """
 import argparse
 import json
@@ -52,12 +57,19 @@ def scan(results_dir):
     rows = {}
     root = Path(results_dir)
     for entry in sorted(root.iterdir()) if root.is_dir() else []:
-        if not entry.is_dir():
+        if not entry.is_dir() or entry.is_symlink():
+            # Symlinked test directories could point anywhere on disk; the
+            # inventory describes only real members of the evidence tree.
             continue
         slug = slug_for(entry.name)
         if slug is None:
             continue
         uiux = entry / "artifacts" / "uiux"
+        # A symlinked artifacts/uiux points outside the evidence tree; the
+        # whole test directory leaves the inventory rather than importing
+        # foreign counts.
+        if uiux.is_symlink():
+            continue
         row = rows.setdefault(
             slug, {"slug": slug, "name": APP_NAMES[slug],
                    "png_count": 0, "zero_byte": 0,
@@ -67,6 +79,8 @@ def scan(results_dir):
         if not uiux.is_dir():
             continue
         for png in sorted(uiux.glob("*.png")):
+            if png.is_symlink():
+                continue
             size = png.stat().st_size
             row["png_count"] += 1
             row["total_bytes"] += size
