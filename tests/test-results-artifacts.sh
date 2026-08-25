@@ -108,12 +108,18 @@ for name, app in apps.items():
 
 # A capture path written into a committed log must exist with exact casing.
 # A case-insensitive laptop filesystem hides this; a Linux checkout does not.
+# Capture trees are local-only (gitignored), so a missing directory skips:
+# CI checkouts never carry raw captures. When the directory IS present, the
+# committed name must match an entry exactly.
 for path in sorted((root / "results").glob("network-log-*.json")):
     log = json.loads(path.read_text())
     capture = log.get("capture", "")
     if capture.startswith("results/") and " " not in capture:
         parent, name = os.path.split(capture)
-        assert name in os.listdir(root / parent), (
+        parent_dir = root / parent
+        if not parent_dir.is_dir():
+            continue
+        assert name in os.listdir(parent_dir), (
             f"{path.name}: capture path does not exist (exact case): {capture}"
         )
 
