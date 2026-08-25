@@ -123,6 +123,40 @@ assert gs.zip_listing_has_escape("  100  2026-01-01 /abs/path.sh\n") is True
 assert gs.zip_listing_has_escape("  100  2026-01-01 core/Phonesky.apk\n") is False
 assert gs.zip_listing_has_escape("") is False
 
+# --- validate_component --------------------------------------------------------
+assert gs.validate_component("com.mimiapp.mimilog/.MainActivity") == "com.mimiapp.mimilog/.MainActivity"
+assert gs.validate_component("com.hp.babyapp/com.hp.babyplus.baby20.splash.SplashScreenActivity") is not None
+assert gs.validate_component("") is None
+assert gs.validate_component("Warning: intent failed") is None
+assert gs.validate_component("Using default activity: None") is None
+assert gs.validate_component("no spaces allowed here") is None
+
+# --- select_abi_candidate -------------------------------------------------------
+cands = [
+    "/tmp/w/Core/gmscore/x86_64/GmsCore.apk",
+    "/tmp/w/Core/gmscore/arm64_v8a/GmsCore.apk",
+    "/tmp/w/Core/gmscore/armeabi_v7a/GmsCore.apk",
+]
+got = gs.select_abi_candidate(cands, "arm64-v8a")
+assert got is not None and "arm64_v8a" in got, got
+# Device ABI token uses hyphens; archive dirs use underscores - both must match.
+assert gs.select_abi_candidate(cands, "x86_64").endswith("x86_64/GmsCore.apk")
+# Single candidate passes through even without an ABI segment.
+assert gs.select_abi_candidate(["/tmp/w/Phonesky.apk"], "arm64-v8a") == "/tmp/w/Phonesky.apk"
+assert gs.select_abi_candidate([], "arm64-v8a") is None
+# Ambiguous candidates with no ABI info at all -> refuse rather than guess.
+amb = ["/tmp/w/a/GmsCore.apk", "/tmp/w/b/GmsCore.apk"]
+assert gs.select_abi_candidate(amb, "arm64-v8a") is None
+
+# --- evaluate_prerequisites ------------------------------------------------------
+ok, fails = gs.evaluate_prerequisites(device=True, snapshot=True, ca=True)
+assert ok is True and fails == []
+ok, fails = gs.evaluate_prerequisites(device=False, snapshot=False, ca=True)
+assert ok is False
+assert fails == ["emulator not connected", "snapshot pre-gapps missing"], fails
+ok, fails = gs.evaluate_prerequisites(device=True, snapshot=True, ca=False)
+assert ok is False and fails == ["mitm CA c8750f0d absent (captures will be empty)"]
+
 print("gapps_state deterministic tests passed")
 PY
 

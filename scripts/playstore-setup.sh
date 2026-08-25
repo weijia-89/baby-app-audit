@@ -54,17 +54,53 @@ print(('STUB ' + v) if g.is_stub_vending(v) else ('REAL ' + v))")
 
 cmd_check() {
     cmd
+    local device_ok=0 snap_ok=0 ca_ok=0
     log "device: $(adb devices | grep -w "$SERIAL" >/dev/null 2>&1 && echo connected || echo absent)"
-    if adb devices | grep -qw "$SERIAL"; then log "$(state_line)"; fi
+    if adb devices | grep -qw "$SERIAL"; then
+        device_ok=1
+        log "$(state_line)"
+    fi
     if [ -d "$AVD_DIR/snapshots/$REQUIRED_SNAPSHOT" ]; then
+        snap_ok=1
         log "snapshot $REQUIRED_SNAPSHOT: present"
     else
         log "snapshot $REQUIRED_SNAPSHOT: MISSING (run: $0 backup $REQUIRED_SNAPSHOT)"
     fi
-    local ca
-    ca=$(adb devices | grep -qw "$SERIAL" && adb_sel shell "ls /system/etc/security/cacerts/${MITM_CA_HASH}.0 2>/dev/null" || true)
-    [ -n "$ca" ] && log "mitm CA ${MITM_CA_HASH}: present" || log "mitm CA ${MITM_CA_HASH}: absent (captures will be empty)"
-    [ -d "$AVD_DIR/snapshots/$REQUIRED_SNAPSHOT" ] || exit 1
+    local ca=""
+    if [ "$device_ok" = "1" ]; then
+        ca=$(adb_sel shell "ls /system/etc/security/cacerts/${MITM_CA_HASH}.0 2>/dev/null")
+    fi
+    if [ -n "$ca" ]; then
+        ca_ok=1
+        log "mitm CA ${MITM_CA_HASH}: present"
+    else
+        log "mitm CA ${MITM_CA_HASH}: absent (captures will be empty)"
+    fi
+    local ok
+    ok=$(PREREQ_DEVICE="$device_ok" PREREQ_SNAP="$snap_ok" PREREQ_CA="$ca_ok" python3 -c "
+import os, sys
+sys.path.insert(0, '$repo_root/scripts')
+import gapps_state as g
+good, _ = g.evaluate_prerequisites(
+    device=os.environ['PREREQ_DEVICE'] == '1',
+    snapshot=os.environ['PREREQ_SNAP'] == '1',
+    ca=os.environ['PREREQ_CA'] == '1',
+)
+print(1 if good else 0)")
+    if [ "$ok" != "1" ]; then
+        printf '[playstore] unmet prerequisites:\n%s\n' "$(
+            PREREQ_DEVICE="$device_ok" PREREQ_SNAP="$snap_ok" PREREQ_CA="$ca_ok" python3 -c "
+import os, sys
+sys.path.insert(0, '$repo_root/scripts')
+import gapps_state as g
+_, failures = g.evaluate_prerequisites(
+    device=os.environ['PREREQ_DEVICE'] == '1',
+    snapshot=os.environ['PREREQ_SNAP'] == '1',
+    ca=os.environ['PREREQ_CA'] == '1',
+)
+print('\n'.join('  - ' + f for f in failures))" )" >&2
+        exit 1
+    fi
 }
 
 cmd_backup() {
@@ -83,9 +119,13 @@ cmd_backup() {
     fi
     log "saving snapshot '$name' (takes up to ~60s)"
     adb_sel emu avd snapshot save "$name"
-    sleep 5
-    [ -e "$AVD_DIR/snapshots/$name" ] || die "snapshot save reported ok but no files appeared under $AVD_DIR/snapshots/"
-    log "snapshot saved: $name"
+    local waited=0
+    until [ -e "$AVD_DIR/snapshots/$name" ]; do
+        waited=$((waited + 5))
+        [ "$waited" -ge 60 ] && die "snapshot '$name' never appeared under $AVD_DIR/snapshots/"
+        sleep 5
+    done
+    log "snapshot saved: $name (waited ${waited}s)"
 }
 
 cmd_install_zip() {
@@ -109,28 +149,48 @@ cmd_install_zip() {
     checksum_report_ok "$report" "$target" \
         || die "checksum verification did not pass for $target; refusing to install. Report was:
 $report"
+    log "checksum OK"
 
-    local work
+    local work abi
     work=$(mktemp -d "${TMPDIR:-/tmp}/gapps.XXXXXX")
     unzip -q "$zip_path" -d "$work"
-    local pushed=0 pkg base
+    abi=$(adb_sel shell getprop ro.product.cpu.abi | tr -d '\r')
+    log "device ABI: ${abi:-unknown}"
+
+    # Phase 1: locate every core package (ABI-aware) before touching the device.
+    local found="" missing="" pkg cands base
     for pkg in Phonesky GoogleServicesFramework PrebuiltGmsCore; do
         case "$pkg" in
-            Phonesky)                base=$(find "$work" \( -iname 'Phonesky.apk' -o -iname 'Vending.apk' \) | head -1) ;;
-            PrebuiltGmsCore)         base=$(find "$work" -iname '*GmsCore*.apk' | head -1) ;;
-            *)                       base=$(find "$work" -iname "${pkg}.apk" | head -1) ;;
+            Phonesky)        cands=$(find "$work" \( -iname 'Phonesky.apk' -o -iname 'Vending.apk' \)) ;;
+            PrebuiltGmsCore) cands=$(find "$work" -iname '*GmsCore*.apk') ;;
+            *)               cands=$(find "$work" -iname "${pkg}.apk") ;;
         esac
-        [ -n "$base" ] || { log "WARN: ${pkg}.apk not in zip (skipped)"; continue; }
-        adb_sel root >/dev/null 2>&1 || true; sleep 2
-        adb_sel remount >/dev/null || die "adb remount failed; system image is not writable"
+        base=$(CANDS="$cands" ABI="$abi" python3 -c "
+import os, sys
+sys.path.insert(0, '$repo_root/scripts')
+import gapps_state as g
+cands = [line for line in os.environ['CANDS'].splitlines() if line.strip()]
+print(g.select_abi_candidate(cands, os.environ['ABI']) or '')")
+        if [ -n "$base" ]; then
+            found+="${pkg}=${base}"$'\n'
+        else
+            missing+=" $pkg"
+        fi
+    done
+    rm -rf "$work"
+    [ -z "$missing" ] || die "core packages missing or ambiguous in zip:$missing; refusing a partial store install"
+    log "all core packages located for this ABI"
+
+    # Phase 2: push the resolved set.
+    adb_sel root >/dev/null 2>&1 || true; sleep 2
+    adb_sel remount >/dev/null || die "adb remount failed; system image is not writable"
+    printf '%s' "$found" | while IFS='=' read -r pkg base; do
+        [ -n "$pkg" ] || continue
         adb_sel shell "mkdir -p /system/priv-app/${pkg}"
         adb_sel push "$base" "/system/priv-app/${pkg}/${pkg}.apk" >/dev/null
         adb_sel shell "chmod 644 /system/priv-app/${pkg}/${pkg}.apk"
         log "installed ${pkg}.apk into /system/priv-app/${pkg}/"
-        pushed=$((pushed+1))
     done
-    rm -rf "$work"
-    [ "$pushed" -ge 1 ] || die "nothing was installed; check the zip layout"
     log "rebooting (wait for boot before verify)"
     adb_sel reboot
     log "if this flash leaves the AVD unbootable: quit the emulator, delete $AVD_DIR/snapshots/default_boot, and start once from the '$REQUIRED_SNAPSHOT' snapshot to roll back"
@@ -173,7 +233,15 @@ cmd_pairip_probe() {
     mkdir -p "$out_dir" "$repo_root/results/${package}-test-${probe_date}/artifacts/logs"
     for try in $(seq 1 "$PROBE_TRIES"); do
         adb_sel shell am force-stop "$package" 2>/dev/null || true
-        adb_sel shell am start -n "$(adb_sel shell cmd package resolve-activity --brief "$package" | tail -1 | tr -d '\r')" >/dev/null
+        local comp
+        comp=$(adb_sel shell cmd package resolve-activity --brief "$package" | tail -1 | tr -d '\r')
+        comp=$(COMP_IN="$comp" python3 -c "
+import os, sys
+sys.path.insert(0, '$repo_root/scripts')
+import gapps_state as g
+print(g.validate_component(os.environ['COMP_IN']) or '')")
+        [ -n "$comp" ] || die "could not resolve a launchable activity for $package (got: '$(adb_sel shell cmd package resolve-activity --brief "$package" | tail -1 | tr -d '\r')')"
+        adb_sel shell am start -n "$comp" >/dev/null
         sleep 8
         resumed=$(adb_sel shell "dumpsys activity activities | grep mResumedActivity | head -1")
         adb_sel shell rm -f /sdcard/ui.xml 2>/dev/null || true

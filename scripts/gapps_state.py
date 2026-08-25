@@ -104,6 +104,69 @@ def zip_listing_has_escape(listing_text):
     return False
 
 
+_COMPONENT_RE = re.compile(
+    r"^[A-Za-z][A-Za-z0-9_]*(?:\.[A-Za-z][A-Za-z0-9_]*)+"
+    r"/\.?[A-Za-z][A-Za-z0-9_]*(?:\.[A-Za-z][A-Za-z0-9_]*)*$"
+)
+
+
+def validate_component(text):
+    """Return the component string when it is a well-formed pkg/.Class path.
+
+    `cmd package resolve-activity` can print warnings or blank lines; those
+    must never reach `am start`. Anything that is not a clean component
+    returns None.
+    """
+    text = (text or "").strip()
+    if not text or " " in text:
+        return None
+    return text if _COMPONENT_RE.match(text) else None
+
+
+def select_abi_candidate(paths, abi):
+    """Pick the archive member matching the device ABI, refusing to guess.
+
+    Archive trees use underscore ABI segments (arm64_v8a) while the device
+    property uses hyphens (arm64-v8a); both spellings are matched. With one
+    candidate there is nothing to choose. With several and no ABI signal,
+    returning None refuses rather than flashing a wrong-architecture store.
+    """
+    candidates = [p for p in (paths or []) if p]
+    if not candidates:
+        return None
+    if len(candidates) == 1:
+        return candidates[0]
+    tokens = [abi, abi.replace("-", "_")] if abi else []
+    for token in tokens:
+        matches = [p for p in candidates if token in p]
+        if len(matches) == 1:
+            return matches[0]
+    return None
+
+
+def evaluate_prerequisites(device, snapshot, ca):
+    """Evaluate slice prerequisites; deterministic failure ordering.
+
+    Returns (ok, failures) where failures are plain-language strings in
+    stable order so reports never shuffle between runs.
+    """
+    failures = []
+    if not device:
+        failures.append("emulator not connected")
+    if not snapshot:
+        failures.append("snapshot pre-gapps missing")
+    if not ca:
+        failures.append(f"mitm CA {_ca_hash()} absent (captures will be empty)")
+    return (len(failures) == 0, failures)
+
+
+_CA_HASH = "c8750f0d"
+
+
+def _ca_hash():
+    return _CA_HASH
+
+
 def snapshot_guard(avd_dir, required_snapshot):
     """Check a usable quickboot snapshot exists before any system change.
 
