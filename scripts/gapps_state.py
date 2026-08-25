@@ -38,15 +38,27 @@ def classify_pairip(resumed_activity, ui_text):
     """Classify one app-launch probe from its resumed-activity line and UI dump.
 
     Returns one of: ok, license_blocked, license_checking, unknown.
+
+    A block needs the Pairip signature: its license activity in the
+    foreground, or both dialog strings ("Something went wrong" plus the
+    "Check that Google Play" body). Generic app errors alone are not a
+    Pairip block - normal apps print similar text.
     """
     resumed = resumed_activity or ""
     text = ui_text or ""
-    blocked = "Something went wrong" in text
-    if "pairip.licensecheck.LicenseActivity" in resumed:
-        return "license_blocked" if blocked else "license_checking"
+    on_pairip_activity = "com.pairip.licensecheck" in resumed
+    dialog_title = "Something went wrong" in text
+    dialog_body = "Check that Google Play" in text
+    blocked = dialog_title and dialog_body
+    if "com.pairip.licensecheck" in resumed:
+        if not (dialog_title or dialog_body):
+            return "license_checking"
+        return "license_blocked"
     if not resumed.strip():
         return "unknown"
-    return "license_blocked" if blocked else "ok"
+    if blocked:
+        return "license_blocked"
+    return "ok"
 
 
 def parse_build_identity(dumpsys_text):

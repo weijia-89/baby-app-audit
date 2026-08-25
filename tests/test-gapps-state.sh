@@ -59,6 +59,23 @@ assert gs.classify_pairip(OK_RESUMED, "<node />") == "ok"
 assert gs.classify_pairip(OK_RESUMED, BLOCKED_XML) == "license_blocked"
 assert gs.classify_pairip("", "") == "unknown"
 
+# False-positive class: a NORMAL app can print its own generic error text.
+GENERIC_ERROR = '<node text="Something went wrong. Please try again." />'
+assert gs.classify_pairip(OK_RESUMED, GENERIC_ERROR) == "ok", (
+    "generic app errors must not read as a Pairip block")
+# The real Pairip dialog carries both strings; either alone is not a block
+# for a NORMAL app, but sitting on the Pairip activity itself means the
+# license gate is live even if the dump caught only a text fragment.
+HALF_DIALOG = '<node text="Something went wrong" /><node text="Close" />'
+assert gs.classify_pairip(OK_RESUMED, HALF_DIALOG) == "ok"
+assert gs.classify_pairip(BLOCKED_RESUMED, HALF_DIALOG) == "license_blocked"
+# Non-Pairip activities that merely mention licensecheck stay ok.
+OTHER_RESUMED = (
+    "mResumedActivity: ActivityRecord{1 u0 com.other.app/"
+    "com.other.app.licensecheck.MainActivity t9}"
+)
+assert gs.classify_pairip(OTHER_RESUMED, GENERIC_ERROR) == "ok"
+
 # --- parse_build_identity ---------------------------------------------------
 MIMILOG_DUMPSYS = """Package [com.mimiapp.mimilog] (abcd):
     versionName=1.0.0

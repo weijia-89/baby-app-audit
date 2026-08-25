@@ -133,6 +133,7 @@ $report"
     [ "$pushed" -ge 1 ] || die "nothing was installed; check the zip layout"
     log "rebooting (wait for boot before verify)"
     adb_sel reboot
+    log "if this flash leaves the AVD unbootable: quit the emulator, delete $AVD_DIR/snapshots/default_boot, and start once from the '$REQUIRED_SNAPSHOT' snapshot to roll back"
 }
 
 cmd_verify() {
