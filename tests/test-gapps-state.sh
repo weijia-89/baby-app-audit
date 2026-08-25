@@ -88,6 +88,24 @@ with tempfile.TemporaryDirectory() as td:
     ok, _ = gs.snapshot_guard(str(empty), "pre-gapps")
     assert ok is False
 
+# --- checksum_report_ok -------------------------------------------------------
+# Real `shasum -a 256 -c` output looks like "<name>: OK".
+good_report = "gapps-arm64.zip: OK\n"
+assert gs.checksum_report_ok(good_report, "gapps-arm64.zip") is True
+assert gs.checksum_report_ok("other.zip: OK\n", "gapps-arm64.zip") is False
+assert gs.checksum_report_ok("gapps-arm64.zip: FAILED\n", "gapps-arm64.zip") is False
+assert gs.checksum_report_ok("shasum: gapps-arm64.zip: no such file\n", "gapps-arm64.zip") is False
+assert gs.checksum_report_ok("", "gapps-arm64.zip") is False
+assert gs.checksum_report_ok("ABCD1234  gapps-arm64.zip\n", "gapps-arm64.zip") is False  # not a -c report
+mixed = "a.zip: OK\nb.zip: FAILED open or read\n"
+assert gs.checksum_report_ok(mixed, "a.zip") is False  # any failure poisons the run
+
+# --- zip_listing_has_escape -----------------------------------------------------
+assert gs.zip_listing_has_escape("  100  2026-01-01 ../evil.sh\n") is True
+assert gs.zip_listing_has_escape("  100  2026-01-01 /abs/path.sh\n") is True
+assert gs.zip_listing_has_escape("  100  2026-01-01 core/Phonesky.apk\n") is False
+assert gs.zip_listing_has_escape("") is False
+
 print("gapps_state deterministic tests passed")
 PY
 

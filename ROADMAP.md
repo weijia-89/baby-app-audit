@@ -149,18 +149,15 @@ Note: the earlier generic heuristic injector still works for apps whose onboardi
 
 ## Sprint 5  -  Planned  -  Legacy re-capture and evidence parity
 
-<<<<<<< HEAD
 **Goal:** Bring the apps that `results/RESULTS-20260803.json` still marks `session-summary` up to the same committed evidence depth as the `raw-replay` apps. After the 2026-08-25 overnight batch, five names remain: MimiLog, Nurture Lock, Pebbi, Baby Buddy, and Baby Daybook. This section names priorities. It does not invent a privacy PASS or FAIL.
-=======
+
+**What is true on disk vs in RESULTS (2026-08-25, this machine):** Amila, Nubo, and Baby+ joined the `raw-replay` set today. Nubo was promoted by replaying its preserved 2026-08-03 launch capture. Baby+ was promoted after a live finished-profile recapture that needed a system-store mitm CA reinstall first (`-writable-system` boot; two 0-byte same-day attempts are kept). MimiLog hit a Pairip license dialog CLOSE-loop on cold start, for the installed build and an archived-build sideload test, so it stays `session-summary`.
+
+
 ### Play-store unlock slice  -  Planned
 - Goal: pass the Pairip license check on MimiLog, Pebbi, Nurture Lock, and Baby Daybook by putting a real Google Play store on the rootable test emulator (operator approved 2026-08-25), while keeping root so captures stay readable.
 - Scope guard: only the four blocked apps run on the playstore-enabled snapshot. No full retest of already-promoted apps; their verdicts describe captured sessions and stay valid. Any result from the new stack is tagged as captured on a playstore-enabled image.
 - Safety: `scripts/playstore-setup.sh` refuses system changes without a `pre-gapps` snapshot, verifies zip checksums before install, and re-checks the mitm CA after reboot. Deterministic classifiers live in `scripts/gapps_state.py` with fixtures from real sessions (`tests/test-gapps-state.sh`, runs in CI).
-
-**Goal:** Bring the apps that `results/RESULTS-20260803.json` still marks `session-summary` up to the same committed evidence depth as the `raw-replay` apps. After the 2026-08-25 Amila live slice, seven names remain: Nurture Lock, Nubo, Pebbi, Baby Buddy, Baby Daybook, Baby+, and MimiLog. This section names priorities. It does not invent a privacy PASS or FAIL.
->>>>>>> a9e12bf (Play-store unlock slice: deterministic harness before any system change.)
-
-**What is true on disk vs in RESULTS (2026-08-25, this machine):** Amila, Nubo, and Baby+ joined the `raw-replay` set today. Nubo was promoted by replaying its preserved 2026-08-03 launch capture. Baby+ was promoted after a live finished-profile recapture that needed a system-store mitm CA reinstall first (`-writable-system` boot; two 0-byte same-day attempts are kept). MimiLog hit a Pairip license dialog CLOSE-loop on cold start, for the installed build and an archived-build sideload test, so it stays `session-summary`.
 
 | App | RESULTS `evidence_source` | Kept `.mitm` on this machine | Sprint 5 note |
 | --- | --- | --- | --- |

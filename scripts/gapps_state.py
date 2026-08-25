@@ -60,6 +60,38 @@ def parse_build_identity(dumpsys_text):
     }
 
 
+def checksum_report_ok(report_text, zip_name):
+    """True only when a `shasum -c` report lists zip_name as OK and nothing failed.
+
+    Any FAILED/missing line poisons the run even if it names another file,
+    because partial checksum files mean we cannot trust what was verified.
+    """
+    lines = [ln for ln in (report_text or "").splitlines() if ln.strip()]
+    if not lines:
+        return False
+    saw_target = False
+    for line in lines:
+        low = line.lower()
+        if "failed" in low or "no such file" in low:
+            return False
+        if not low.rstrip().endswith(": ok") and ": ok" not in low:
+            return False
+        if zip_name in line:
+            saw_target = True
+    return saw_target
+
+
+def zip_listing_has_escape(listing_text):
+    """True when an archive listing contains absolute or parent-escape paths."""
+    for line in (listing_text or "").splitlines():
+        stripped = line.strip()
+        # Archive listing lines end with the member path; take the last token.
+        token = stripped.split()[-1] if stripped else ""
+        if token.startswith("/") or "../" in token or token == "..":
+            return True
+    return False
+
+
 def snapshot_guard(avd_dir, required_snapshot):
     """Check a usable quickboot snapshot exists before any system change.
 
