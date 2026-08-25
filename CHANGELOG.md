@@ -1,5 +1,14 @@
 # Changelog
 
+## 4.6.21 - 2026-08-25
+
+### Added
+- Amila live Sprint 5 recapture (2026-08-25) on windowed emulator-5554. Synthetic name **Privatia Rigatoni** saved on home. Capture `results/amila-test-20260825/artifacts/captures/Amila.mitm` (106226 bytes, 13 flows). Scan: `no_transmission_detected` for the name. Not Firebase-silence.
+
+### Changed
+- `RESULTS-20260803.json`: Amila `evidence_source` promoted to `raw-replay`. Network log rebuilt from that capture. Analytics fanout regenerated. `privacy_class` stays minor.
+- `FINAL-REPORT.md`, `ROADMAP.md`, `README.md`: Amila block and Sprint 5 queue (seven session-summary apps left). Tests expect Amila `raw-replay`.
+
 ## 4.6.20 - 2026-08-24
 
 ### Changed

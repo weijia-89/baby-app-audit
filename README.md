@@ -131,13 +131,13 @@ An app with no privacy claim cannot fail, because there is no promise to break. 
 
 Every failed app links to its own sanitized network log (`results/network-log-<app>.json`). The logs list hosts, redacted paths, status codes, flow counts, request and response sizes, JSON body keys, header-flag names, and redaction slugs for each captured flow. They contain no query strings, header values, or body values. The slugs state what was removed and why. The method, host, path, status, count, and sizes remain, so the record still proves that the call was sent. The logs are generated from the raw `.mitm` captures by `scripts/build-network-logs.sh`; the raw captures stay local only.
 
-The machine-readable summary is [results/RESULTS-20260803.json](results/RESULTS-20260803.json). Each app row carries an `evidence_source`: `raw-replay` (every flow in the preserved capture was replayed and mined) or `session-summary` (raw capture no longer exists; results rest on the original session summaries). The eight session-summary apps are lower-bound evidence until Sprint 5 recapture or promotion in [ROADMAP.md](ROADMAP.md). A later local `.mitm` file does not change that field by itself. See [CHANGELOG.md](CHANGELOG.md) for history.
+The machine-readable summary is [results/RESULTS-20260803.json](results/RESULTS-20260803.json). Each app row carries an `evidence_source`: `raw-replay` (every flow in the preserved capture was replayed and mined) or `session-summary` (raw capture no longer exists; results rest on the original session summaries). Seven apps remain `session-summary` until Sprint 5 finishes. Amila was promoted to `raw-replay` on 2026-08-25. See [ROADMAP.md](ROADMAP.md) and [CHANGELOG.md](CHANGELOG.md).
 
 | App | Privacy claim | Result | Privacy | Confidence | Key findings |
 | --- | --- | --- | --- | --- | --- |
 | Baby Buddy | Open-source | PASS | 💖 | 100% | No tracking libraries. All traffic stays on localhost in default configuration |
 | MimiLog | "Fully offline" | PASS | 💖 | 100% | One Firebase configuration call; the device held no valid Firebase project, so no data was exchanged |
-| Amila | No claim | No claim | ❕ | 90% | Firebase Installations, Firebase Remote Config, and Google Fonts calls on launch |
+| Amila | No claim | No claim | ❕ | 90% | Firebase Installations, Remote Config, Logging, Measurement, and Funding Choices on the 2026-08-25 recapture |
 | Baby+ | "AdID not auto-enabled" | FAIL | ❕ | 90% | Philips server, Firebase, and Google calls on launch. The AdID claim does not cover this traffic |
 | Heartful Baby | "HIPAA-compliant" | FAIL | ❕ | 90% | One Firebase logging batch on launch |
 | Baby Daybook | "AdID not auto-enabled" | FAIL | 🚫 | 90% | Firebase and RevenueCat calls on launch; Facebook SDK found in code. The AdID claim does not cover this traffic |
@@ -170,7 +170,7 @@ This project tests baby and parenting apps against their privacy claims. The cur
 
 ### What is next
 
-* **Sprint 5:** recapture or promote the eight `session-summary` apps listed in `ROADMAP.md`. Committed RESULTS still use `session-summary` for those eight. Kept `.mitm` files on disk are not a new privacy mark. Pairip CLOSE and Baby Daybook Pairip crash stay environment blockers.
+* **Sprint 5:** continue live recapture for the seven remaining `session-summary` apps in `ROADMAP.md`. Amila is done (`raw-replay`, 2026-08-25). Kept `.mitm` files alone are not a new privacy mark. Pairip CLOSE and Baby Daybook Pairip crash stay environment blockers.
 * **Independent verification welcome:** the harness and method are open for others to confirm the findings.
 * **Open-source plan:** publishing the harness and method is on the roadmap.
 
