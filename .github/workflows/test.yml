@@ -125,6 +125,8 @@ jobs:
           bash -n tests/test-adb-text.sh || exit 1
           bash -n tests/test-google-account-intent.sh || exit 1
           bash -n tests/test-inject-config.sh || exit 1
+          bash -n tests/test-gapps-state.sh || exit 1
+          bash -n tests/test-playstore-setup-flow.sh || exit 1
           echo "All unit test scripts parse cleanly"
 
       - name: Secret scan (gitleaks)
@@ -189,6 +191,8 @@ jobs:
           bash tests/test-adb-text.sh
           bash tests/test-google-account-intent.sh
           bash tests/test-inject-config.sh
+          bash tests/test-gapps-state.sh
+          bash tests/test-playstore-setup-flow.sh
 
       - name: Verify product-metadata.json is valid JSON
         run: python3 -m json.tool results/product-metadata.json > /dev/null

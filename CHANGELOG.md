@@ -1,5 +1,10 @@
 # Changelog
 
+## 4.6.23 - 2026-08-25
+
+### Added
+- Play-store unlock slice (planned): deterministic harness for putting a real Google Play store on the rootable test emulator so Pairip-licensed apps (MimiLog, Pebbi, Nurture Lock, Baby Daybook) can pass their license check while traffic capture keeps working. `scripts/gapps_state.py` holds pure classifiers (store version vs stub, license-dialog state from a launch probe, build identity for provenance rows, snapshot guard); `tests/test-gapps-state.sh` pins them with fixtures captured from real sessions and runs in CI. `scripts/playstore-setup.sh` orchestrates `check`, `backup`, checksum-verified `install-zip`, `verify` (boot, store, GMS, mitm CA), and a bounded `pairip-probe`. The system image is never modified unless a `pre-gapps` snapshot exists; results from the new stack will be tagged as captured on a playstore-enabled image.
+
 ## 4.6.22 - 2026-08-25
 
 ### Added
