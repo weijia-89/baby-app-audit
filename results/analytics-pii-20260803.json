@@ -3499,12 +3499,12 @@
       "call_count": 5,
       "analytics_call_count": 1,
       "pii_call_count": 1,
-      "unassessed_call_count": 1,
+      "unassessed_call_count": 0,
       "calls": [
         {
           "method": "GET",
           "host": "connectivitycheck.gstatic.com",
-          "path": "http://[REDACTED]/generate_204",
+          "path": "http://connectivitycheck.gstatic.com/[REDACTED:path-token-or-id]",
           "status": 204,
           "count": 2,
           "vendor": "Google/Firebase",
@@ -3518,13 +3518,15 @@
             "call_metadata_only"
           ],
           "redaction_slugs": [
-            "[REDACTED:path-token-or-id:secret-or-PII]"
+            "[REDACTED:path-token-or-id:secret-or-PII]",
+            "[REDACTED:request-header-values:secret-or-PII]",
+            "[REDACTED:response-header-values:secret-or-PII]"
           ]
         },
         {
           "method": "GET",
           "host": "www.google.com",
-          "path": "https://www.google.com/generate_204",
+          "path": "https://www.google.com/[REDACTED:path-token-or-id]",
           "status": 204,
           "count": 2,
           "vendor": "Google/Firebase",
@@ -3537,12 +3539,16 @@
           "assessments": [
             "call_metadata_only"
           ],
-          "redaction_slugs": []
+          "redaction_slugs": [
+            "[REDACTED:path-token-or-id:secret-or-PII]",
+            "[REDACTED:request-header-values:secret-or-PII]",
+            "[REDACTED:response-header-values:secret-or-PII]"
+          ]
         },
         {
           "method": "POST",
           "host": "firebaselogging.googleapis.com",
-          "path": "https://[REDACTED]/v0cc/log/batch",
+          "path": "https://firebaselogging.googleapis.com/v0cc/log/batch",
           "status": 200,
           "count": 1,
           "vendor": "Google/Firebase",
@@ -3557,12 +3563,15 @@
             "app_activity_events"
           ],
           "assessments": [
-            "call_sent_body_scrubbed",
+            "capability_or_endpoint_inference",
             "response_key_names_observed_values_scrubbed"
           ],
           "redaction_slugs": [
-            "[REDACTED:path-token-or-id:secret-or-PII]",
-            "[REDACTED:request-body-values:secret-or-PII]"
+            "[REDACTED:query-string:privacy]",
+            "[REDACTED:request-body-values:secret-or-PII]",
+            "[REDACTED:request-header-values:secret-or-PII]",
+            "[REDACTED:response-body-values:secret-or-PII]",
+            "[REDACTED:response-header-values:secret-or-PII]"
           ]
         }
       ]

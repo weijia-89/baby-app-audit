@@ -14,13 +14,13 @@ Host, path, status, count, and sizes live in the sanitized network logs. This re
 | App | Privacy claim | Result | Privacy | Confidence | Key findings |
 | --- | --- | --- | --- | --- | --- |
 | Baby Buddy | Open source | PASS | 💖 | 100% | Django web: no app-originated traffic. Android companion login photos are not the PASS |
-| MimiLog | "Fully offline" | PASS | 💖 | 100% | Firebase setup never completed. Later local save: no baby-profile traffic on the system proxy |
+| MimiLog | "Fully offline" | PASS | 💖 | 90% | Package declares no `INTERNET`. One unattributed measurement call in the kept launch capture. Live re-run blocked by a license dialog |
 | Amila | No claim | No claim | ❕ | 90% | Registers the install with Google; settings, logging, and measurement calls (2026-08-25 recapture) |
 | Baby+ | "AdID not auto-enabled" | FAIL | ❕ | 90% | Contacts Philips, Google, and Firebase at launch. Later About You PUT sends the parent name |
 | Heartful Baby | "HIPAA-compliant" | FAIL | ❕ | 90% | One Firebase usage log at launch. A HIPAA claim does not match this |
 | Baby Daybook | "AdID not auto-enabled" | FAIL | 🚫 | 90% | Google plus a subscription service. Package also contains Facebook code |
 | Nara | "Complete privacy" | FAIL | 🚫 | 90% | Nine Facebook calls at launch, plus a Google crash report |
-| Nubo | "Local-first" | FAIL | 🚫 | 95% | First launch sends screen and setup steps to Firebase |
+| Nubo | "Local-first" | FAIL | 🚫 | 95% | First launch sends an install register, crash settings, and push registers to Google |
 | Nurture Lock | "100% offline" | FAIL | 🚫 | 95% | Subscription call at launch. Package lists eight tracking companies |
 | Pebbi | No claim (control) | No claim | 🚫 | 100% | Firebase, Google ads, and Google messages at launch |
 | Pixy | "Bank-level encryption" | FAIL | 🚫 | 90% | Three Facebook calls at launch to load tracking rules |
@@ -83,6 +83,7 @@ We enter one fictional baby (Privatia Rigatoni). Markers are in `results/synthet
 | App | Inject window | Marker result | Notes |
 | --- | --- | --- | --- |
 | Baby+ | 2026-08-16 and 2026-08-21 About You | `transmission_observed` | Parent name in a request PUT to `appserver.health-and-parenting.com` |
+| Baby+ | 2026-08-25 finished-profile recapture | `no_transmission_detected` | Install register POST to the Philips server plus Facebook and Google ad hosts. The name did not appear in this capture |
 | Baby+ | 2026-08-19 Girl + DONE, then upgrade | `no_transmission_detected` | Name only in a maker response. Home still blocked by force-upgrade |
 | Amila | 2026-08-17 name save | `no_transmission_detected` | Name stayed on the home screen |
 | Amila | 2026-08-25 live recapture | `no_transmission_detected` | Name **Privatia Rigatoni** on home. No name in the raw capture. Not Firebase-silence |

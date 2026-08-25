@@ -3,6 +3,27 @@ set -euo pipefail
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
+# The committed analytics fanout must match what the scanner produces from
+# the committed network logs. A stale fanout (logs rebuilt after the last
+# regen) fails here instead of drifting silently.
+tmp_fanout="$(mktemp "${TMPDIR:-/tmp}/analytics-fresh.XXXXXX.json")"
+trap 'rm -f "$tmp_fanout"' EXIT
+bash "$repo_root/scripts/scan-analytics-pii.sh" "$repo_root/results" "$tmp_fanout" > /dev/null
+
+REPO_ROOT="$repo_root" TMP_FANOUT="$tmp_fanout" python3 - <<'PY'
+import json
+import os
+
+root = os.environ["REPO_ROOT"]
+committed = json.loads(open(os.path.join(root, "results/analytics-pii-20260803.json")).read())
+fresh = json.loads(open(os.environ["TMP_FANOUT"]).read())
+assert committed == fresh, (
+    "results/analytics-pii-20260803.json is stale: rerun "
+    "`bash scripts/scan-analytics-pii.sh results/ results/analytics-pii-20260803.json` "
+    "after any network-log rebuild"
+)
+PY
+
 REPO_ROOT="$repo_root" python3 - <<'PY'
 import json
 import os

@@ -7,6 +7,8 @@
 - MimiLog blocker evidence (2026-08-25): Pairip `LicenseActivity` shows "Something went wrong" and CLOSE-loops on cold start for the installed build and for the archived `com.mimiapp.mimilog.xapk` build after a sideload test. Screenshots under `results/mimilog-test-20260825/artifacts/uiux/`. A 0-byte `MimiLog.mitm` from that attempt is kept.
 
 ### Fixed
+- `results/analytics-pii-20260803.json` resynced after the network-log rebuilds. A new freshness check in `tests/test-results-artifacts.sh` regenerates the fanout into a temp file and fails when the committed copy drifts from the committed logs.
+- `FINAL-REPORT.md`: MimiLog summary-row confidence aligned to 90 with the new evidence basis; Nubo summary row now names what the replayed capture actually shows (install register, crash settings, push registers); synthetic table gained the 2026-08-25 Baby+ finished-profile row.
 - `results/network-log-heartful-baby.json`: rebuilt from the kept 2026-08-12 capture at its exact on-disk path (the old log named a lowercase file that a Linux checkout cannot resolve) and `RESULTS-20260803.json` Heartful Baby `outbound_requests_count` corrected from 1 to 5 to match the replay total and the row's own text. Tests now guard both contracts: replay-total agreement for every capture-backed row, and exact-case existence for every committed capture path.
 - `scripts/build-network-logs.sh`: warns on stderr when no package is known for a slug instead of writing a silent null `package_name`.
 - `tests/test-network-log-redaction.sh`: slug-pair parsing hardened; new edge case proves a zero-flow capture still yields a schema-shaped log.
