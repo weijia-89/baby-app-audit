@@ -94,11 +94,21 @@ def checksum_report_ok(report_text, zip_name):
 
 
 def zip_listing_has_escape(listing_text):
-    """True when an archive listing contains absolute or parent-escape paths."""
+    """True when archive members contain absolute or parent-escape paths.
+
+    `unzip -l` decorates the listing with host-side metadata: the Archive:
+    header (an absolute path on THIS machine) and dash separator lines.
+    Those are skipped; only member lines are inspected.
+    """
     for line in (listing_text or "").splitlines():
         stripped = line.strip()
-        # Archive listing lines end with the member path; take the last token.
-        token = stripped.split()[-1] if stripped else ""
+        if not stripped or stripped.startswith("Archive:"):
+            continue
+        if set(stripped) <= {"-", " ", "="}:
+            continue
+        if stripped.startswith("Length") and "Name" in stripped:
+            continue
+        token = stripped.split()[-1]
         if token.startswith("/") or "../" in token or token == "..":
             return True
     return False

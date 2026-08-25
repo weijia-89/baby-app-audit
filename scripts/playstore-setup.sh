@@ -18,7 +18,7 @@ set -euo pipefail
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 SERIAL="${ANDROID_SERIAL:-emulator-5554}"
-AVD_DIR="${HOME}/.android/avd/apk-test-api29.avd"
+AVD_DIR="${PLAYSTORE_AVD_DIR:-${HOME}/.android/avd/apk-test-api29.avd}"
 REQUIRED_SNAPSHOT="pre-gapps"
 MITM_CA_HASH="c8750f0d"
 PROBE_TRIES=3
@@ -139,14 +139,24 @@ cmd_install_zip() {
     zip_abs=$(abs_path "$zip_path")
     sums_abs=$(abs_path "$sums")
     log "checking archive for escape paths"
-    if zip_listing_has_escape "$(unzip -l "$zip_abs")"; then
-        die "archive listing contains absolute or parent-escape paths; refusing"
-    fi
+    local escape
+    escape=$(LISTING="$(unzip -l "$zip_abs")" python3 -c "
+import os, sys
+sys.path.insert(0, '$repo_root/scripts')
+import gapps_state as g
+print(g.zip_listing_has_escape(os.environ['LISTING']))")
+    [ "$escape" = "True" ] \
+        && die "archive listing contains absolute or parent-escape paths; refusing"
     log "verifying checksum"
-    local report target
+    local report target verdict
     target=$(basename "$zip_abs")
     report=$(cd "$(dirname "$zip_abs")" && shasum -a 256 -c "$sums_abs" 2>&1 || true)
-    checksum_report_ok "$report" "$target" \
+    verdict=$(REPORT="$report" TARGET="$target" python3 -c "
+import os, sys
+sys.path.insert(0, '$repo_root/scripts')
+import gapps_state as g
+print(g.checksum_report_ok(os.environ['REPORT'], os.environ['TARGET']))")
+    [ "$verdict" = "True" ] \
         || die "checksum verification did not pass for $target; refusing to install. Report was:
 $report"
     log "checksum OK"
@@ -249,7 +259,10 @@ print(g.validate_component(os.environ['COMP_IN']) or '')")
         adb_sel shell uiautomator dump /sdcard/ui.xml >/dev/null 2>&1 || true
         adb_sel pull /sdcard/ui.xml /tmp/probe-ui.xml >/dev/null 2>&1 || : > /tmp/probe-ui.xml
         xml=$(cat /tmp/probe-ui.xml 2>/dev/null || true)
-        adb_sel exec-out screencap -p > "$out_dir/${package}-try${try}.png"
+        if ! adb_sel exec-out screencap -p > "$out_dir/${package}-try${try}.png" 2>/dev/null; then
+            log "WARN: screenshot failed for try ${try}; continuing with classification only"
+            rm -f "$out_dir/${package}-try${try}.png"
+        fi
         verdict=$(RESUMED="$resumed" XML="$xml" python3 -c "
 import os, sys
 sys.path.insert(0, '$repo_root/scripts')

@@ -122,6 +122,21 @@ assert gs.zip_listing_has_escape("  100  2026-01-01 ../evil.sh\n") is True
 assert gs.zip_listing_has_escape("  100  2026-01-01 /abs/path.sh\n") is True
 assert gs.zip_listing_has_escape("  100  2026-01-01 core/Phonesky.apk\n") is False
 assert gs.zip_listing_has_escape("") is False
+# Real `unzip -l` output carries an absolute path in its Archive: header;
+# that is metadata about the host file, not a member path.
+REAL_LISTING = (
+    "Archive:  /tmp/host-side/gapps.zip\n"
+    "  Length      Date    Time    Name\n"
+    "---------  ---------- -----   ----\n"
+    "        1  08-25-2026 14:01   Core/gmscore/arm64_v8a/GmsCore.apk\n"
+    "---------                     -------\n"
+    "        2                     2 files\n"
+)
+assert gs.zip_listing_has_escape(REAL_LISTING) is False, (
+    "Archive: header path must not be treated as a member")
+ESCAPE_IN_REAL = REAL_LISTING.replace(
+    "Core/gmscore/arm64_v8a/GmsCore.apk", "../evil.sh")
+assert gs.zip_listing_has_escape(ESCAPE_IN_REAL) is True
 
 # --- validate_component --------------------------------------------------------
 assert gs.validate_component("com.mimiapp.mimilog/.MainActivity") == "com.mimiapp.mimilog/.MainActivity"
