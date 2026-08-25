@@ -5,6 +5,7 @@ decompiled/
 # Network captures may contain live tokens (Firebase JWTs, installation IDs).
 # They are evidence but must stay local unless explicitly scrubbed.
 results/mitm-capture/
+results/rescan-mitm-postdata-*/
 results/*-test-*/
 *.mitm
 *.pid

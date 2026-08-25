@@ -115,6 +115,10 @@ for path in sorted((root / "results").glob("network-log-*.json")):
     log = json.loads(path.read_text())
     capture = log.get("capture", "")
     if capture.startswith("results/") and " " not in capture:
+        segments = capture.split("/")
+        assert ".." not in segments and "." not in segments, (
+            f"{path.name}: capture path escapes results/: {capture}"
+        )
         parent, name = os.path.split(capture)
         parent_dir = root / parent
         if not parent_dir.is_dir():
