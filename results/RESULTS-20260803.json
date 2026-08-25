@@ -307,7 +307,7 @@
       "verdict_confidence": 90,
       "evidence": "The launch capture shows one Firebase logging batch and four Android connectivity checks. No identifying user data was observed in the sanitized capture.",
       "offline_test": {
-        "outbound_requests_count": 1,
+        "outbound_requests_count": 5,
         "outbound_destinations": [
           "firebaselogging.googleapis.com"
         ],

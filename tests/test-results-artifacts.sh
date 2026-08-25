@@ -64,7 +64,7 @@ for name, cls in expected.items():
     assert emoji_for[cls] in row, f"report row for {name} does not show class {emoji_for[cls]}"
 
 network_logs = {
-    log["package_name"]: log["summary"]["unique_destinations"]
+    log["package_name"]: log
     for log in (
         json.loads(p.read_text())
         for p in sorted((root / "results").glob("network-log-*.json"))
@@ -74,9 +74,27 @@ for name, app in apps.items():
     dests = app.get("offline_test", {}).get("outbound_destinations", [])
     pkg = app["package_name"]
     assert pkg in network_logs, f"no network log for {name} ({pkg})"
-    assert set(dests) <= set(network_logs[pkg]), (
+    assert set(dests) <= set(network_logs[pkg]["summary"]["unique_destinations"]), (
         f"{name}: offline_test destination not in network log"
     )
+    flow_file = app.get("offline_test", {}).get("flow_file", "")
+    if flow_file.endswith(".mitm"):
+        total = network_logs[pkg]["summary"]["total_flows"]
+        count = app.get("offline_test", {}).get("outbound_requests_count")
+        assert count == total, (
+            f"{name}: outbound_requests_count {count} != {flow_file} replay total {total}"
+        )
+
+# A capture path written into a committed log must exist with exact casing.
+# A case-insensitive laptop filesystem hides this; a Linux checkout does not.
+for path in sorted((root / "results").glob("network-log-*.json")):
+    log = json.loads(path.read_text())
+    capture = log.get("capture", "")
+    if capture.startswith("results/") and " " not in capture:
+        parent, name = os.path.split(capture)
+        assert name in os.listdir(root / parent), (
+            f"{path.name}: capture path does not exist (exact case): {capture}"
+        )
 
 for log in (
     json.loads(p.read_text())

@@ -60,6 +60,12 @@ if package is None:
         if slug in key.lower() or str(value.get("slug", "")).lower() == slug.lower():
             package = key
             break
+if package is None:
+    print(
+        f"WARN: no package known for slug {slug!r}; "
+        "package_name will be null and app-origin labeling is disabled",
+        file=sys.stderr,
+    )
 
 HEADERS_OF_NOTE = {"x-android-package", "x-android-cert", "x-goog-api-key",
                    "x-firebase-client", "authorization", "x-apikey"}
