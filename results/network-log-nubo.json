@@ -1,49 +1,294 @@
 {
   "$schema": "network-log/1.0",
   "schema_version": "1.0",
-  "app": "Nubo",
+  "app": "nubo",
   "package_name": "com.clicksie.nuboapp",
   "capture_date": "2026-08-03",
-  "capture": "2026-08-03 capture; destinations only (raw capture kept local)",
-  "redaction": "Query strings, headers, and bodies stripped. Project numbers and subscriber IDs replaced with [REDACTED].",
+  "capture": "results/nubo-test-20260803/artifacts/captures/nubo.mitm",
+  "redaction": {
+    "policy": "Sensitive values never appear. Call metadata remains so the sent call can be assessed.",
+    "slugs": {
+      "query": "[REDACTED:query-string:privacy]",
+      "path": "[REDACTED:path-token-or-id:secret-or-PII]",
+      "request_body": "[REDACTED:request-body-values:secret-or-PII]",
+      "request_headers": "[REDACTED:request-header-values:secret-or-PII]",
+      "response_body": "[REDACTED:response-body-values:secret-or-PII]",
+      "response_headers": "[REDACTED:response-header-values:secret-or-PII]"
+    },
+    "body_keys": "Names only. Values are scrubbed."
+  },
   "flows": [
     {
-      "method": "*",
+      "method": "POST",
+      "host": "infinitedata-pa.googleapis.com",
+      "path": "https://infinitedata-pa.googleapis.com/[REDACTED:path-token-or-id]/Lookup",
+      "status": 200,
+      "origin": "device",
+      "count": 1,
+      "request": {
+        "size": 58,
+        "content_type": "application/grpc",
+        "body_keys": null,
+        "headers": [
+          "x-android-cert",
+          "x-android-package",
+          "x-goog-api-key"
+        ]
+      },
+      "response": {
+        "size": 9,
+        "content_type": "application/grpc",
+        "body_keys": null
+      },
+      "redactions": [
+        "[REDACTED:path-token-or-id:secret-or-PII]",
+        "[REDACTED:request-body-values:secret-or-PII]",
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-body-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
+    },
+    {
+      "method": "POST",
       "host": "firebaseinstallations.googleapis.com",
-      "path": "(destination only)",
-      "status": "unknown",
-      "origin": "app"
+      "path": "https://firebaseinstallations.googleapis.com/v1/projects/nubo-47f2d/installations",
+      "status": 200,
+      "origin": "app",
+      "count": 1,
+      "request": {
+        "size": 135,
+        "content_type": "application/json",
+        "body_keys": [
+          "appId",
+          "authVersion",
+          "fid",
+          "sdkVersion"
+        ],
+        "headers": [
+          "x-android-cert",
+          "x-android-package",
+          "x-firebase-client",
+          "x-goog-api-key"
+        ]
+      },
+      "response": {
+        "size": 631,
+        "content_type": "application/json; charset=UTF-8",
+        "body_keys": [
+          "authToken",
+          "fid",
+          "name",
+          "refreshToken"
+        ]
+      },
+      "redactions": [
+        "[REDACTED:request-body-values:secret-or-PII]",
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-body-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
     },
     {
-      "method": "*",
+      "method": "GET",
       "host": "firebase-settings.crashlytics.com",
-      "path": "(destination only)",
-      "status": "unknown",
-      "origin": "app"
+      "path": "https://firebase-settings.crashlytics.com/spi/v2/platforms/android/gmp/1:286063999540:android:74f9280aa598b8afdb6861/settings",
+      "status": 200,
+      "origin": "session",
+      "count": 1,
+      "request": {
+        "size": 0,
+        "content_type": null,
+        "body_keys": null,
+        "headers": []
+      },
+      "response": {
+        "size": 746,
+        "content_type": "application/json; charset=utf-8",
+        "body_keys": [
+          "app",
+          "app_quality",
+          "cache_duration",
+          "fabric",
+          "features",
+          "on_demand_backoff_base",
+          "on_demand_backoff_step_duration_seconds",
+          "on_demand_thread_recording_suspension_enabled",
+          "on_demand_upload_rate_per_minute",
+          "settings_version"
+        ]
+      },
+      "redactions": [
+        "[REDACTED:query-string:privacy]",
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-body-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
     },
     {
-      "method": "*",
+      "method": "POST",
       "host": "android.apis.google.com",
-      "path": "(destination only)",
-      "status": "unknown",
-      "origin": "app"
+      "path": "https://android.apis.google.com/c2dm/register3",
+      "status": 200,
+      "origin": "session",
+      "count": 1,
+      "request": {
+        "size": 1289,
+        "content_type": "application/x-www-form-urlencoded",
+        "body_keys": null,
+        "headers": [
+          "authorization"
+        ]
+      },
+      "response": {
+        "size": 148,
+        "content_type": "text/plain; charset=UTF-8",
+        "body_keys": null
+      },
+      "redactions": [
+        "[REDACTED:request-body-values:secret-or-PII]",
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-body-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
     },
     {
-      "method": "*",
+      "method": "POST",
+      "host": "android.apis.google.com",
+      "path": "https://android.apis.google.com/c2dm/register3",
+      "status": 301,
+      "origin": "session",
+      "count": 2,
+      "request": {
+        "size": 251,
+        "content_type": "application/x-www-form-urlencoded",
+        "body_keys": null,
+        "headers": [
+          "authorization"
+        ]
+      },
+      "response": {
+        "size": 25,
+        "content_type": "text/plain; charset=UTF-8",
+        "body_keys": null
+      },
+      "redactions": [
+        "[REDACTED:request-body-values:secret-or-PII]",
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-body-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
+    },
+    {
+      "method": "POST",
       "host": "app-measurement.com",
-      "path": "(destination only)",
-      "status": "unknown",
-      "origin": "app"
+      "path": "https://app-measurement.com/a",
+      "status": 204,
+      "origin": "session",
+      "count": 2,
+      "request": {
+        "size": 52266,
+        "content_type": "application/x-www-form-urlencoded",
+        "body_keys": null,
+        "headers": []
+      },
+      "response": {
+        "size": 0,
+        "content_type": "image/gif",
+        "body_keys": null
+      },
+      "redactions": [
+        "[REDACTED:request-body-values:secret-or-PII]",
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
+    },
+    {
+      "method": "GET",
+      "host": "app-measurement.com",
+      "path": "https://app-measurement.com/config/app/1%3A286063999540%3Aandroid%3A74f9280aa598b8afdb6861",
+      "status": 200,
+      "origin": "session",
+      "count": 1,
+      "request": {
+        "size": 0,
+        "content_type": null,
+        "body_keys": null,
+        "headers": []
+      },
+      "response": {
+        "size": 640,
+        "content_type": "application/x-protobuf",
+        "body_keys": null
+      },
+      "redactions": [
+        "[REDACTED:query-string:privacy]",
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-body-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
+    },
+    {
+      "method": "POST",
+      "host": "android.apis.google.com",
+      "path": "https://android.apis.google.com/c2dm/register3",
+      "status": 400,
+      "origin": "session",
+      "count": 1,
+      "request": {
+        "size": 483,
+        "content_type": "application/x-www-form-urlencoded",
+        "body_keys": null,
+        "headers": [
+          "authorization"
+        ]
+      },
+      "response": {
+        "size": 19,
+        "content_type": "text/plain; charset=UTF-8",
+        "body_keys": null
+      },
+      "redactions": [
+        "[REDACTED:request-body-values:secret-or-PII]",
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-body-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
+    },
+    {
+      "method": "POST",
+      "host": "android.googleapis.com",
+      "path": "https://android.googleapis.com/auth/devicekey",
+      "status": 400,
+      "origin": "session",
+      "count": 1,
+      "request": {
+        "size": 7293,
+        "content_type": "application/octet-stream",
+        "body_keys": null,
+        "headers": []
+      },
+      "response": {
+        "size": 1664,
+        "content_type": "text/html; charset=utf-8",
+        "body_keys": null
+      },
+      "redactions": [
+        "[REDACTED:request-body-values:secret-or-PII]",
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-body-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
     }
   ],
   "summary": {
-    "total_flows": 4,
+    "total_flows": 11,
     "unique_destinations": [
       "android.apis.google.com",
+      "android.googleapis.com",
       "app-measurement.com",
       "firebase-settings.crashlytics.com",
-      "firebaseinstallations.googleapis.com"
-    ],
-    "tracked": "Hosts listed are carriers of tracking or analytics SDKs (Facebook, Firebase, RevenueCat, Crashlytics, FCM). Font and system checks are marked by origin."
+      "firebaseinstallations.googleapis.com",
+      "infinitedata-pa.googleapis.com"
+    ]
   }
 }

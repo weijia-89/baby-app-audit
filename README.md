@@ -131,7 +131,7 @@ An app with no privacy claim cannot fail, because there is no promise to break. 
 
 Every failed app links to its own sanitized network log (`results/network-log-<app>.json`). The logs list hosts, redacted paths, status codes, flow counts, request and response sizes, JSON body keys, header-flag names, and redaction slugs for each captured flow. They contain no query strings, header values, or body values. The slugs state what was removed and why. The method, host, path, status, count, and sizes remain, so the record still proves that the call was sent. The logs are generated from the raw `.mitm` captures by `scripts/build-network-logs.sh`; the raw captures stay local only.
 
-The machine-readable summary is [results/RESULTS-20260803.json](results/RESULTS-20260803.json). Each app row carries an `evidence_source`: `raw-replay` (every flow in the preserved capture was replayed and mined) or `session-summary` (raw capture no longer exists; results rest on the original session summaries). Seven apps remain `session-summary` until Sprint 5 finishes. Amila was promoted to `raw-replay` on 2026-08-25. See [ROADMAP.md](ROADMAP.md) and [CHANGELOG.md](CHANGELOG.md).
+The machine-readable summary is [results/RESULTS-20260803.json](results/RESULTS-20260803.json). Each app row carries an `evidence_source`: `raw-replay` (every flow in the preserved capture was replayed and mined) or `session-summary` (raw capture no longer exists; results rest on the original session summaries). Five apps remain `session-summary` until Sprint 5 finishes. Nubo and Baby+ joined Amila at `raw-replay` on 2026-08-25. See [ROADMAP.md](ROADMAP.md) and [CHANGELOG.md](CHANGELOG.md).
 
 | App | Privacy claim | Result | Privacy | Confidence | Key findings |
 | --- | --- | --- | --- | --- | --- |
@@ -170,7 +170,7 @@ This project tests baby and parenting apps against their privacy claims. The cur
 
 ### What is next
 
-* **Sprint 5:** continue live recapture for the seven remaining `session-summary` apps in `ROADMAP.md`. Amila is done (`raw-replay`, 2026-08-25). Kept `.mitm` files alone are not a new privacy mark. Pairip CLOSE and Baby Daybook Pairip crash stay environment blockers.
+* **Sprint 5:** continue recapture for the five remaining `session-summary` apps in `ROADMAP.md`. Amila, Nubo, and Baby+ are done (`raw-replay`, 2026-08-25). Kept `.mitm` files alone are not a new privacy mark. Pairip CLOSE (now including MimiLog) and Baby Daybook Pairip crash stay environment blockers.
 * **Independent verification welcome:** the harness and method are open for others to confirm the findings.
 * **Open-source plan:** publishing the harness and method is on the roadmap.
 

@@ -3,6 +3,27 @@ set -euo pipefail
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
+# The committed analytics fanout must match what the scanner produces from
+# the committed network logs. A stale fanout (logs rebuilt after the last
+# regen) fails here instead of drifting silently.
+tmp_fanout="$(mktemp "${TMPDIR:-/tmp}/analytics-fresh.XXXXXX.json")"
+trap 'rm -f "$tmp_fanout"' EXIT
+bash "$repo_root/scripts/scan-analytics-pii.sh" "$repo_root/results" "$tmp_fanout" > /dev/null
+
+REPO_ROOT="$repo_root" TMP_FANOUT="$tmp_fanout" python3 - <<'PY'
+import json
+import os
+
+root = os.environ["REPO_ROOT"]
+committed = json.loads(open(os.path.join(root, "results/analytics-pii-20260803.json")).read())
+fresh = json.loads(open(os.environ["TMP_FANOUT"]).read())
+assert committed == fresh, (
+    "results/analytics-pii-20260803.json is stale: rerun "
+    "`bash scripts/scan-analytics-pii.sh results/ results/analytics-pii-20260803.json` "
+    "after any network-log rebuild"
+)
+PY
+
 REPO_ROOT="$repo_root" python3 - <<'PY'
 import json
 import os
@@ -44,9 +65,9 @@ assert {name: app["evidence_source"] for name, app in apps.items()} == {
     "BabyCenter": "raw-replay", "BellyBloom": "raw-replay", "Nanit": "raw-replay",
     "Pregnancy+": "raw-replay", "What to Expect": "raw-replay", "Heartful Baby": "raw-replay",
     "Nara": "raw-replay", "Pixy": "raw-replay",
-    "Nurture Lock": "session-summary", "Nubo": "session-summary", "Pebbi": "session-summary",
+    "Nurture Lock": "session-summary", "Nubo": "raw-replay", "Pebbi": "session-summary",
     "Amila": "raw-replay", "Baby Buddy": "session-summary",
-    "Baby Daybook": "session-summary", "Baby+": "session-summary", "MimiLog": "session-summary",
+    "Baby Daybook": "session-summary", "Baby+": "raw-replay", "MimiLog": "session-summary",
 }
 
 network_schema = json.loads((root / "results/network-log.schema.json").read_text())
@@ -64,7 +85,7 @@ for name, cls in expected.items():
     assert emoji_for[cls] in row, f"report row for {name} does not show class {emoji_for[cls]}"
 
 network_logs = {
-    log["package_name"]: log["summary"]["unique_destinations"]
+    log["package_name"]: log
     for log in (
         json.loads(p.read_text())
         for p in sorted((root / "results").glob("network-log-*.json"))
@@ -74,9 +95,37 @@ for name, app in apps.items():
     dests = app.get("offline_test", {}).get("outbound_destinations", [])
     pkg = app["package_name"]
     assert pkg in network_logs, f"no network log for {name} ({pkg})"
-    assert set(dests) <= set(network_logs[pkg]), (
+    assert set(dests) <= set(network_logs[pkg]["summary"]["unique_destinations"]), (
         f"{name}: offline_test destination not in network log"
     )
+    flow_file = app.get("offline_test", {}).get("flow_file", "")
+    if flow_file.endswith(".mitm"):
+        total = network_logs[pkg]["summary"]["total_flows"]
+        count = app.get("offline_test", {}).get("outbound_requests_count")
+        assert count == total, (
+            f"{name}: outbound_requests_count {count} != {flow_file} replay total {total}"
+        )
+
+# A capture path written into a committed log must exist with exact casing.
+# A case-insensitive laptop filesystem hides this; a Linux checkout does not.
+# Capture trees are local-only (gitignored), so a missing directory skips:
+# CI checkouts never carry raw captures. When the directory IS present, the
+# committed name must match an entry exactly.
+for path in sorted((root / "results").glob("network-log-*.json")):
+    log = json.loads(path.read_text())
+    capture = log.get("capture", "")
+    if capture.startswith("results/") and " " not in capture:
+        segments = capture.split("/")
+        assert ".." not in segments and "." not in segments, (
+            f"{path.name}: capture path escapes results/: {capture}"
+        )
+        parent, name = os.path.split(capture)
+        parent_dir = root / parent
+        if not parent_dir.is_dir():
+            continue
+        assert name in os.listdir(parent_dir), (
+            f"{path.name}: capture path does not exist (exact case): {capture}"
+        )
 
 for log in (
     json.loads(p.read_text())

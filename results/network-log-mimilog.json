@@ -1,16 +1,52 @@
 {
   "$schema": "network-log/1.0",
   "schema_version": "1.0",
-  "app": "MimiLog",
+  "app": "mimilog",
   "package_name": "com.mimiapp.mimilog",
-  "capture_date": "2026-08-03",
-  "capture": "2026-08-03 capture; raw capture kept local",
-  "redaction": "Query strings, headers, and bodies stripped. Project numbers and subscriber IDs replaced with [REDACTED].",
-  "flows": [],
-  "summary": {
-    "total_flows": 0,
-    "unique_destinations": [],
-    "tracked": "Hosts listed are carriers of tracking or analytics SDKs (Facebook, Firebase, RevenueCat, Crashlytics, FCM). Font and system checks are marked by origin."
+  "capture_date": "2026-08-16",
+  "capture": "results/mimilog-test-20260816/artifacts/captures/mimilog.mitm",
+  "redaction": {
+    "policy": "Sensitive values never appear. Call metadata remains so the sent call can be assessed.",
+    "slugs": {
+      "query": "[REDACTED:query-string:privacy]",
+      "path": "[REDACTED:path-token-or-id:secret-or-PII]",
+      "request_body": "[REDACTED:request-body-values:secret-or-PII]",
+      "request_headers": "[REDACTED:request-header-values:secret-or-PII]",
+      "response_body": "[REDACTED:response-body-values:secret-or-PII]",
+      "response_headers": "[REDACTED:response-header-values:secret-or-PII]"
+    },
+    "body_keys": "Names only. Values are scrubbed."
   },
-  "note": "One call to a Google Firebase configuration endpoint in the test window. The device held no valid Firebase project, so no data was exchanged."
+  "flows": [
+    {
+      "method": "POST",
+      "host": "app-measurement.com",
+      "path": "https://app-measurement.com/a",
+      "status": 204,
+      "origin": "session",
+      "count": 1,
+      "request": {
+        "size": 556,
+        "content_type": "application/x-www-form-urlencoded",
+        "body_keys": null,
+        "headers": []
+      },
+      "response": {
+        "size": 0,
+        "content_type": "image/gif",
+        "body_keys": null
+      },
+      "redactions": [
+        "[REDACTED:request-body-values:secret-or-PII]",
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
+    }
+  ],
+  "summary": {
+    "total_flows": 1,
+    "unique_destinations": [
+      "app-measurement.com"
+    ]
+  }
 }
