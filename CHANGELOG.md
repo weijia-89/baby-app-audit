@@ -1,5 +1,18 @@
 # Changelog
 
+## 4.6.22 - 2026-08-25
+
+### Added
+- Baby+ live Sprint 5 recapture (2026-08-25) on windowed emulator-5554 after a system-store mitm CA reinstall (`-writable-system` boot). Full onboarding completed: parent and baby name **Privatia Rigatoni**, gender Girl. Capture `results/baby-plus-test-20260825/artifacts/captures/BabyPlus-final.mitm` (1373381 bytes, 40 flows). Scan found no name egress this run. Two earlier same-day attempts produced 0-byte files before the CA fix; those files are kept.
+- MimiLog blocker evidence (2026-08-25): Pairip `LicenseActivity` shows "Something went wrong" and CLOSE-loops on cold start for the installed build and for the archived `com.mimiapp.mimilog.xapk` build after a sideload test. Screenshots under `results/mimilog-test-20260825/artifacts/uiux/`. A 0-byte `MimiLog.mitm` from that attempt is kept.
+
+### Changed
+- `RESULTS-20260803.json`: Baby+ and Nubo `evidence_source` promoted to `raw-replay`. Baby+ points at the 2026-08-25 live capture. Nubo points at the preserved 2026-08-03 launch capture (11 flows), replayed through the pipeline. Classes stay minor and major. Analytics fanout regenerated.
+- `results/network-log-baby-plus.json`, `network-log-nubo.json`, `network-log-mimilog.json`: rebuilt from their preserved captures by `scripts/build-network-logs.sh`. MimiLog keeps `session-summary`: its pass mark now cites the manifest fact (no `INTERNET` permission), one unattributed App Measurement call in the kept 2026-08-16 capture, and the new Pairip block.
+- `scripts/build-network-logs.sh`: slug map gained `baby-plus`, `mimilog`, and `baby-daybook`; logs for those slugs no longer get a null `package_name`.
+- `tests/test-network-log-redaction.sh`, `tests/test-results-artifacts.sh`: cover the three new slugs and expect Baby+ and Nubo `raw-replay`.
+- `FINAL-REPORT.md`, `ROADMAP.md`, `README.md`: blocks and queue refreshed. Five `session-summary` apps remain (MimiLog, Nurture Lock, Pebbi, Baby Buddy, Baby Daybook). Nurture Lock, Pebbi, and Baby Daybook stay environment blockers. Baby Buddy default unchanged.
+
 ## 4.6.21 - 2026-08-25
 
 ### Added

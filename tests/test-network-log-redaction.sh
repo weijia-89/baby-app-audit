@@ -175,4 +175,57 @@ assert origins["api.other.example"] == "device", origins
 assert origins["api.session.example"] == "session", origins
 PY
 
+# Slug-to-package map must know every audited app slug. Without it the log
+# gets a null package_name and mislabels the app's own calls as "session".
+for pair in \
+    "baby-plus com.hp.babyapp" \
+    "mimilog com.mimiapp.mimilog" \
+    "baby-daybook com.drillyapps.babydaybook"; do
+    set -- $pair
+    slug="$1"
+    pkg="$2"
+    har3="$tmp_dir/map-$slug.har"
+    capture3="$tmp_dir/map-$slug.mitm"
+    output3="$tmp_dir/network-log-$slug.json"
+    : > "$capture3"
+    cat > "$har3" <<EOF
+{
+  "log": {
+    "version": "1.2",
+    "creator": {"name": "test", "version": "1.0"},
+    "entries": [
+      {
+        "request": {
+          "method": "POST",
+          "url": "https://api.$slug.example/v1/event",
+          "headers": [{"name": "X-Android-Package", "value": "$pkg"}],
+          "postData": {"text": "{}"},
+          "bodySize": 2
+        },
+        "response": {
+          "status": 200,
+          "headers": [],
+          "content": {"size": 2, "mimeType": "application/json", "text": "{}"}
+        }
+      }
+    ]
+  }
+}
+EOF
+    PATH="$fake_bin:$PATH" FAKE_HAR="$har3" NETWORK_LOG_OUTPUT="$output3" \
+        bash "$repo_root/scripts/build-network-logs.sh" "$slug" "$capture3" 2026-08-25
+
+    OUTPUT3="$output3" EXPECTED_PKG="$pkg" python3 - <<'PY'
+import json
+import os
+
+data = json.load(open(os.environ["OUTPUT3"]))
+assert data["package_name"] == os.environ["EXPECTED_PKG"], (
+    f"{data['app']}: package_name is {data['package_name']!r}, "
+    f"expected {os.environ['EXPECTED_PKG']!r}"
+)
+assert data["flows"][0]["origin"] == "app", data["flows"][0]
+PY
+done
+
 echo "Network log redaction test passed"

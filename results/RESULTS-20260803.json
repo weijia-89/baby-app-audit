@@ -68,21 +68,23 @@
       "verdict": "fail",
       "privacy_class": "major",
       "verdict_confidence": 95,
-      "evidence": "Firebase Installations registration, Crashlytics config, FCM push registration, and Firebase Analytics session/screen-view batches on first launch. Claim of 'local-first' is false. Static analysis not performed (dynamic evidence only).",
+      "evidence": "Replay of the preserved 2026-08-03 launch capture: Firebase Installations register sent by the app itself, Crashlytics settings fetch, push and message registers, and App Measurement. The 2026-08-18 finished-use soak is also kept on disk and shows Google device traffic only. privacy_class stays major.",
       "apk_hash": {
         "sha256": "4612efb6152c4069f8d08a07ef546fbf1c46e062d2d41dd6e2701cdf064b5c1e",
         "timestamp": "2026-08-03T22:03:44Z",
         "source": "mirror"
       },
       "offline_test": {
-        "outbound_requests_count": 5,
+        "outbound_requests_count": 11,
         "outbound_destinations": [
-          "firebaseinstallations.googleapis.com",
-          "firebase-settings.crashlytics.com",
           "android.apis.google.com",
-          "app-measurement.com"
+          "android.googleapis.com",
+          "app-measurement.com",
+          "firebase-settings.crashlytics.com",
+          "firebaseinstallations.googleapis.com",
+          "infinitedata-pa.googleapis.com"
         ],
-        "flow_file": "results/nubo-test-20260803/capture.mitm"
+        "flow_file": "results/nubo-test-20260803/artifacts/captures/nubo.mitm"
       },
       "dynamic_capture": {
         "destinations": [
@@ -122,9 +124,9 @@
           "DNS tunneling"
         ],
         "pinning_bypass_required": false,
-        "flow_file": "results/nubo-test-20260803/capture.mitm"
+        "flow_file": "results/nubo-test-20260803/artifacts/captures/nubo.mitm"
       },
-      "evidence_source": "session-summary"
+      "evidence_source": "raw-replay"
     },
     {
       "name": "Pebbi",
@@ -242,17 +244,24 @@
       "verdict": "fail",
       "privacy_class": "minor",
       "verdict_confidence": 90,
-      "evidence": "The launch capture shows a Parse installation call, Firebase Remote Config, and FCM registration. Static analysis found the Facebook SDK, but no advertising or analytics payload was observed in the capture.",
+      "evidence": "The 2026-08-25 finished-profile recapture shows a first-party installation register POST to appserver.health-and-parenting.com plus Facebook and Google advertising hosts during onboarding and home. The parent and baby name did not leave the device in this capture; the 2026-08-21 kept capture saw that name PUT once. privacy_class stays minor; a deeper class re-audit is a later slice.",
       "offline_test": {
-        "outbound_requests_count": 3,
+        "outbound_requests_count": 40,
         "outbound_destinations": [
-          "android.apis.google.com",
           "appserver.health-and-parenting.com",
-          "firebaseremoteconfig.googleapis.com"
+          "graph.facebook.com",
+          "googleads.g.doubleclick.net",
+          "pagead2.googlesyndication.com",
+          "pubads.g.doubleclick.net",
+          "securepubads.g.doubleclick.net",
+          "tpc.googlesyndication.com",
+          "www.googleadservices.com",
+          "firebaseremoteconfig.googleapis.com",
+          "android.apis.google.com"
         ],
-        "flow_file": "results/decode-traffic-baby-plus.json"
+        "flow_file": "results/baby-plus-test-20260825/artifacts/captures/BabyPlus-final.mitm"
       },
-      "evidence_source": "session-summary"
+      "evidence_source": "raw-replay"
     },
     {
       "name": "MimiLog",
@@ -260,12 +269,14 @@
       "app_type": "native",
       "verdict": "pass",
       "privacy_class": "pass",
-      "verdict_confidence": 100,
-      "evidence": "The app made one Firebase configuration call, but the device held no valid Firebase project. No app data was exchanged, so the fully offline claim holds.",
+      "verdict_confidence": 90,
+      "evidence": "The manifest requests no INTERNET permission. The preserved 2026-08-16 launch capture holds one completed Google App Measurement call with no app package header, so the caller cannot be attributed from the capture alone. Synthetic-marker scan found nothing. A 2026-08-25 live re-run hit a Pairip license dialog on this AVD and stayed session-summary.",
       "offline_test": {
-        "outbound_requests_count": 0,
-        "outbound_destinations": [],
-        "flow_file": "results/network-log-mimilog.json"
+        "outbound_requests_count": 1,
+        "outbound_destinations": [
+          "app-measurement.com"
+        ],
+        "flow_file": "results/mimilog-test-20260816/artifacts/captures/mimilog.mitm"
       },
       "evidence_source": "session-summary"
     },

@@ -149,20 +149,20 @@ Note: the earlier generic heuristic injector still works for apps whose onboardi
 
 ## Sprint 5  -  Planned  -  Legacy re-capture and evidence parity
 
-**Goal:** Bring the apps that `results/RESULTS-20260803.json` still marks `session-summary` up to the same committed evidence depth as the `raw-replay` apps. After the 2026-08-25 Amila live slice, seven names remain: Nurture Lock, Nubo, Pebbi, Baby Buddy, Baby Daybook, Baby+, and MimiLog. This section names priorities. It does not invent a privacy PASS or FAIL.
+**Goal:** Bring the apps that `results/RESULTS-20260803.json` still marks `session-summary` up to the same committed evidence depth as the `raw-replay` apps. After the 2026-08-25 overnight batch, five names remain: MimiLog, Nurture Lock, Pebbi, Baby Buddy, and Baby Daybook. This section names priorities. It does not invent a privacy PASS or FAIL.
 
-**What is true on disk vs in RESULTS (2026-08-25, this machine):** Amila is `raw-replay` after a live inject, network-log rebuild, inventory check, and report refresh. The other seven session-summary apps may still have later kept `.mitm` files on disk. A kept file is not a new verdict until a live slice promotes it the same way.
+**What is true on disk vs in RESULTS (2026-08-25, this machine):** Amila, Nubo, and Baby+ joined the `raw-replay` set today. Nubo was promoted by replaying its preserved 2026-08-03 launch capture. Baby+ was promoted after a live finished-profile recapture that needed a system-store mitm CA reinstall first (`-writable-system` boot; two 0-byte same-day attempts are kept). MimiLog hit a Pairip license dialog CLOSE-loop on cold start, for the installed build and an archived-build sideload test, so it stays `session-summary`.
 
 | App | RESULTS `evidence_source` | Kept `.mitm` on this machine | Sprint 5 note |
 | --- | --- | --- | --- |
 | Nurture Lock | session-summary | `nurture-lock-test-20260803` (136052 bytes) | Pairip CLOSE on this AVD. Environment blocker. Not privacy PASS or FAIL. Do not install a real Play Store unless the operator asks. |
-| Nubo | session-summary | `nubo-test-20260803` (94146). Soak `nubo-test-20260818-soak` (628913). Zero-byte `Nubo.mitm` (2026-08-17) and `Nubo-backup-google.mitm` (2026-08-23) kept. | Backup Now finished in the app UI (PR 51). Not Firebase-silence. JSON still session-summary. |
+| Nubo | raw-replay (2026-08-25) | Replay of `nubo-test-20260803` (94146, 11 flows). Soak `nubo-test-20260818-soak` (628913) kept. Zero-byte `Nubo.mitm` (2026-08-17) and `Nubo-backup-google.mitm` (2026-08-23) kept. | Promoted by replaying the preserved launch capture; Firebase Installations row has origin `app`. Backup Now finished in the app UI (PR 51). Not Firebase-silence. |
 | Pebbi | session-summary | `pebbi-test-20260816` and `pebbi-test-20260817` (largest `Pebbi-profile.mitm` 386435) | Pairip CLOSE on cold start. Environment blocker. Not privacy PASS or FAIL. |
 | Baby Buddy | session-summary | `baby-buddy-test-20260803` (2265 bytes) | Web PASS stays the Django capture. Companion pictures exist (PR 48). Not a new privacy capture. |
 | Amila | raw-replay | `amila-test-20260825` (`Amila.mitm` 106226 bytes). Earlier `amila-test-20260816` and `amila-test-20260817` kept. | Live inject 2026-08-25. Name **Privatia Rigatoni** on home. Scan `no_transmission_detected`. Network log rebuilt. Not Firebase-silence. |
 | Baby Daybook | session-summary | `baby-daybook-test-20260816` and `baby-daybook-test-20260817` | Pairip native crash on this AVD. Environment blocker. Not privacy PASS or FAIL. |
-| Baby+ | session-summary | `baby-plus-test-20260816`, `20260819`, `20260821` (including About You 589030). Zero-byte files kept. | Later captures exist. Force-upgrade still blocks home. RESULTS still session-summary. |
-| MimiLog | session-summary | `mimilog-test-20260816` (7771). Zero-byte 2026-08-17 files kept. | Zero-byte files stay. RESULTS still session-summary. |
+| Baby+ | raw-replay (2026-08-25) | `baby-plus-test-20260825` (`BabyPlus-final.mitm` 1373381, 40 flows). Zero-byte `BabyPlus.mitm` and `BabyPlus-retry.mitm` from 2026-08-25 kept; they predate the CA reinstall. Earlier `20260816`, `20260819`, `20260821` kept. | Live finished-profile recapture (name Privatia Rigatoni twice, gender Girl). Install register POST to Philips server plus Facebook and Google ad hosts. Name PUT not seen leaving today; the 2026-08-21 capture saw it once. Force-upgrade gate did not appear this run. |
+| MimiLog | session-summary | `mimilog-test-20260816` (7771). Zero-byte 2026-08-17 files and 0-byte `MimiLog.mitm` from 2026-08-25 kept. | 2026-08-25: Pairip `LicenseActivity` shows "Something went wrong" and CLOSE-loops on cold start. Same on the archived xapk after a sideload test. Network log rebuilt from the kept capture; manifest declares no `INTERNET`. Pass mark unchanged, evidence text refreshed. |
 
 Prefer the next live recapture that is not Pairip-blocked on this AVD (not Pebbi, Nurture Lock, BellyBloom CLOSE, or Daybook Pairip crash). One app, one PR. Stop for operator merge between slices.
 
