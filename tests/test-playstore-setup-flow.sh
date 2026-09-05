@@ -200,10 +200,14 @@ printf '%s' "$out" | grep -qi "escape paths" || { echo "S7 FAIL (message)"; exit
 echo "S7 pass"
 
 # --- S8: probe classifies a healthy launch and writes the verdict file -------
+# The probe output root is isolated per scenario: writes must never land in
+# the repo's real results/ tree (stale verdicts there must not sway the find).
 fake="$tmp_root/s8"; make_fake_env "$fake"
 mkdir -p "$fake/avd/snapshots/pre-gapps" "$fake/results-tree"
-PROBE_SETTLE_SEC=1 PROBE_RETRY_PAUSE_SEC=0 run_setup "$fake" pairip-probe com.mimiapp.mimilog >/dev/null
-found=$(find "$repo_root/results"/com.mimiapp.mimilog-test-*/artifacts/logs -name "com.mimiapp.mimilog.verdict" 2>/dev/null | head -1)
+PROBE_SETTLE_SEC=1 PROBE_RETRY_PAUSE_SEC=0 \
+    PLAYSTORE_RESULTS_DIR="$fake/results-tree" \
+    run_setup "$fake" pairip-probe com.mimiapp.mimilog >/dev/null
+found=$(find "$fake/results-tree"/com.mimiapp.mimilog-test-*/artifacts/logs -name "com.mimiapp.mimilog.verdict" 2>/dev/null | head -1)
 [ -n "$found" ] && grep -q "ok" "$found" || { echo "S8 FAIL (verdict)"; exit 1; }
 echo "S8 pass"
 
@@ -218,11 +222,11 @@ echo "S9 pass"
 
 # --- S10: probe classifies a real Pairip block and refuses -------------------
 fake="$tmp_root/s10"; make_fake_env "$fake"
-mkdir -p "$fake/avd/snapshots/pre-gapps"
-if ( export FAKE_PAIRIP=1 PROBE_SETTLE_SEC=1 PROBE_RETRY_PAUSE_SEC=0; run_setup "$fake" pairip-probe com.mimiapp.mimilog ) >/tmp/s10-out.txt 2>&1; then
+mkdir -p "$fake/avd/snapshots/pre-gapps" "$fake/results-tree"
+if ( export FAKE_PAIRIP=1 PROBE_SETTLE_SEC=1 PROBE_RETRY_PAUSE_SEC=0 PLAYSTORE_RESULTS_DIR="$fake/results-tree"; run_setup "$fake" pairip-probe com.mimiapp.mimilog ) >/tmp/s10-out.txt 2>&1; then
     echo "S10 FAIL (blocked app classified as running)"; exit 1
 fi
-verdict_file=$(find "$repo_root/results"/com.mimiapp.mimilog-test-*/artifacts/logs -name "com.mimiapp.mimilog.verdict" 2>/dev/null | head -1)
+verdict_file=$(find "$fake/results-tree"/com.mimiapp.mimilog-test-*/artifacts/logs -name "com.mimiapp.mimilog.verdict" 2>/dev/null | head -1)
 [ -n "$verdict_file" ] && grep -q "license_blocked" "$verdict_file" || { echo "S10 FAIL (verdict missing/blocked-expected)"; exit 1; }
 echo "S10 pass"
 

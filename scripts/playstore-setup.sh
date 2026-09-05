@@ -24,6 +24,7 @@ MITM_CA_HASH="c8750f0d"
 PROBE_TRIES="${PROBE_TRIES:-3}"
 PROBE_SETTLE_SEC="${PROBE_SETTLE_SEC:-8}"
 PROBE_RETRY_PAUSE_SEC="${PROBE_RETRY_PAUSE_SEC:-4}"
+RESULTS_ROOT="${PLAYSTORE_RESULTS_DIR:-$repo_root/results}"
 
 log() { printf '[playstore] %s\n' "$*"; }
 die() { printf '[playstore] ERROR: %s\n' "$*" >&2; exit 1; }
@@ -241,8 +242,8 @@ cmd_pairip_probe() {
     require_device
     local try resumed xml verdict out_dir probe_date
     probe_date=$(date +%Y%m%d)
-    out_dir="$repo_root/results/${package}-test-${probe_date}/artifacts/uiux"
-    mkdir -p "$out_dir" "$repo_root/results/${package}-test-${probe_date}/artifacts/logs"
+    out_dir="$RESULTS_ROOT/${package}-test-${probe_date}/artifacts/uiux"
+    mkdir -p "$out_dir" "$RESULTS_ROOT/${package}-test-${probe_date}/artifacts/logs"
     for try in $(seq 1 "$PROBE_TRIES"); do
         adb_sel shell am force-stop "$package" 2>/dev/null || true
         local comp
@@ -274,7 +275,7 @@ print(g.classify_pairip(os.environ['RESUMED'], os.environ['XML']))")
         [ "$verdict" = "ok" ] && break
         sleep "$PROBE_RETRY_PAUSE_SEC"
     done
-    echo "$verdict" > "$repo_root/results/${package}-test-${probe_date}/artifacts/logs/${package}.verdict"
+    echo "$verdict" > "$RESULTS_ROOT/${package}-test-${probe_date}/artifacts/logs/${package}.verdict"
     [ "$verdict" = "ok" ] && log "PASS: app is running past licensing" || die "app never got past licensing (see $out_dir)"
 }
 
@@ -300,7 +301,8 @@ usage: scripts/playstore-setup.sh SUBCOMMAND
   pairip-probe PACKAGE     Launch PACKAGE (max 3 tries) and classify whether
                            it got past Pairip licensing.
 
-Environment: ANDROID_SERIAL (default emulator-5554), PLAYSTORE_AVD_DIR.
+Environment: ANDROID_SERIAL (default emulator-5554), PLAYSTORE_AVD_DIR,
+PLAYSTORE_RESULTS_DIR (probe verdict/screenshot root; default: repo results/).
 No subcommand modifies the system without the matching explicit step and,
 for install-zip, an existing pre-gapps snapshot.
 USAGE

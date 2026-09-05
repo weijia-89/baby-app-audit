@@ -1,5 +1,10 @@
 # Changelog
 
+## 4.6.25 - 2026-09-05
+
+### Fixed
+- Pairip-probe test isolation: `scripts/playstore-setup.sh` now honors `PLAYSTORE_RESULTS_DIR` (default unchanged: the repo `results/` tree), and `tests/test-playstore-setup-flow.sh` points S8/S10 at a per-scenario temp tree. Before this fix the probe wrote verdicts and screenshots into the real evidence tree even under the fake-adb harness, and the S8 lookup picked whichever dated directory sorted first - so the suite passed on its first day and failed from the next day on whenever a stale `license_blocked` verdict was on disk. Fresh CI checkouts masked the bug; local evidence trees triggered it.
+
 ## 4.6.24 - 2026-08-25
 
 ### Added
