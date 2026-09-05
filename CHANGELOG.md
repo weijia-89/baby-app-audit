@@ -1,5 +1,16 @@
 # Changelog
 
+## 4.6.25 - 2026-08-25
+
+### Added
+- Full-depth privacy-class re-audits: **Baby+ moved minor -> major** (Facebook Graph calls in capture, Facebook SDK in the APK with 87 dex string hits, Philips install register with installation ID, Google ad hosts; one observed parent-name PUT in the kept 2026-08-21 capture). **Amila stays minor at 95 confidence** (all 13 flows Google/Firebase-only, zero third-party vendors or tracker strings, marker-clean). `FINAL-REPORT.md` and the artifacts test updated to match.
+- Strict Firebase-silence protocol: `scripts/firebase_silence.py` (pure logic, table-tested, runs in CI) enforces the METHODOLOGY bar - control traffic and a finished-profile window are prerequisites, Firebase DATA endpoints are checked across pcap and proxy records, and telemetry presence is reported separately.
+- First two formal windows recorded locally: Amila finished-profile = `silent_in_window` with telemetry flagged present; Nubo pairing attempt = inconclusive-by-window with zero Firebase hits and a newly observed first-party host `appserver-prod.nubo.clicksie.io`.
+
+### Changed
+- **Nubo pairing coverage** (2026-08-25): drove Settings -> Devices -> Add a Nubo through both location permission dialogs; terminal state is the app's pairing-guide screen waiting for hardware that an emulator cannot provide. Screenshots and both capture records kept under `nubo-test-20260825` (gitignored).
+
+
 ## 4.6.24 - 2026-08-25
 
 ### Added

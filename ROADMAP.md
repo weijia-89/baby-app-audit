@@ -154,6 +154,15 @@ Note: the earlier generic heuristic injector still works for apps whose onboardi
 **What is true on disk vs in RESULTS (2026-08-25, this machine):** Amila, Nubo, and Baby+ joined the `raw-replay` set today. Nubo was promoted by replaying its preserved 2026-08-03 launch capture. Baby+ was promoted after a live finished-profile recapture that needed a system-store mitm CA reinstall first (`-writable-system` boot; two 0-byte same-day attempts are kept). MimiLog hit a Pairip license dialog CLOSE-loop on cold start, for the installed build and an archived-build sideload test, so it stays `session-summary`.
 
 
+### Strict Firebase-silence protocol + BLE pairing attempt  -  Run 2026-08-25
+- New tooling: `scripts/firebase_silence.py` (tested, CI-wired) implements the METHODOLOGY bar: control traffic required, finished-profile window required, Firebase DATA endpoints checked across both pcap and proxy records, and telemetry reported separately so data-sync silence is never misread as total silence.
+- **Nubo pair attempt** (`nubo-test-20260825`): drove Settings -> Devices -> Add a Nubo through both location permission dialogs (fine + background granted). Terminal state is the app's own "Pairing guide - press and hold Connect" screen: no physical device exists on the emulator. Capture: 27 flows including a NEW first-party host `appserver-prod.nubo.clicksie.io`; synthetic scan clean; zero Firebase endpoints in either record (verdict inconclusive-by-window, recorded).
+- **Amila finished-profile window** (`amila-test-20260825-silence`): control ping seen, window valid -> verdict `silent_in_window` for Firebase DATA endpoints with telemetry explicitly flagged present (logging/measurement/config). Machinery demonstrated end-to-end; formal MimiLog silence claim still waits on the Play-store unlock.
+
+### Full-depth class re-audits  -  Done 2026-08-25
+- **Baby+** moved minor -> major (PR-pending): finished-profile replay shows Facebook Graph calls plus the SDK in the APK (87 dex hits), a Philips install register with installation ID, and Google ad hosts; the 2026-08-21 capture holds the one observed parent-name PUT.
+- **Amila** stays minor at 95 confidence: all 13 flows are Google/Firebase endpoints, zero third-party vendors in the fanout, zero tracker strings across the archived APK's dex files, marker-clean.
+
 ### Play-store unlock slice  -  Harness merged; flash pending
 - PR 55 merged the harness (2026-08-25): `scripts/gapps_state.py`, `scripts/playstore-setup.sh`, and both deterministic suites now run in CI.
 - Remaining step needs an operator-supplied GApps zip plus its published SHA256SUMS. Then: `backup pre-gapps` -> `install-zip` -> `verify` -> `pairip-probe` on MimiLog, Pebbi, Nurture Lock, and Baby Daybook.

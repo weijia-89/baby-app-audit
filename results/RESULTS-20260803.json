@@ -200,8 +200,8 @@
       "app_type": "native",
       "verdict": "fail",
       "privacy_class": "minor",
-      "verdict_confidence": 90,
-      "evidence": "The 2026-08-25 live recapture shows Firebase Installations, Firebase Remote Config, Firebase Logging, Crashlytics settings, Google app-measurement, and Funding Choices traffic. No baby-name marker left the device in the raw capture. privacy_class stays minor; a deeper class re-audit is a later slice.",
+      "verdict_confidence": 95,
+      "evidence": "Full-depth re-audit confirms the 2026-08-25 recapture: 13 flows, nine on analytics or PII-bearing paths, every one of them Google/Firebase endpoints; zero third-party vendor calls in the fanout and zero tracker strings across all dex files of the archived APK. No synthetic marker left the device. privacy_class stays minor.",
       "offline_test": {
         "outbound_requests_count": 13,
         "outbound_destinations": [
@@ -242,9 +242,9 @@
       "package_name": "com.hp.babyapp",
       "app_type": "native",
       "verdict": "fail",
-      "privacy_class": "minor",
-      "verdict_confidence": 90,
-      "evidence": "The 2026-08-25 finished-profile recapture shows a first-party installation register POST to appserver.health-and-parenting.com plus Facebook and Google advertising hosts during onboarding and home. The parent and baby name did not leave the device in this capture; the 2026-08-21 kept capture saw that name PUT once. privacy_class stays minor; a deeper class re-audit is a later slice.",
+      "privacy_class": "major",
+      "verdict_confidence": 95,
+      "evidence": "Full-depth re-audit of the 2026-08-25 finished-profile capture: 40 flows, 24 on analytics or PII-bearing paths, Facebook Graph calls in the capture and the Facebook SDK present in the APK (87 dex string hits), a first-party install register with installation ID plus locale and time zone, and Google advertising hosts. The kept 2026-08-21 capture saw the parent name PUT once. privacy_class moves minor -> major on this full replay.",
       "offline_test": {
         "outbound_requests_count": 40,
         "outbound_destinations": [
