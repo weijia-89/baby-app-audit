@@ -16,7 +16,7 @@ Host, path, status, count, and sizes live in the sanitized network logs. This re
 | Baby Buddy | Open source | PASS | 💖 | 100% | Django web: no app-originated traffic. Android companion login photos are not the PASS |
 | MimiLog | "Fully offline" | PASS | 💖 | 90% | Package declares no `INTERNET`. One unattributed measurement call in the kept launch capture. Live re-run blocked by a license dialog |
 | Amila | No claim | No claim | ❕ | 90% | Registers the install with Google; settings, logging, and measurement calls (2026-08-25 recapture) |
-| Baby+ | "AdID not auto-enabled" | FAIL | ❕ | 90% | Contacts Philips, Google, and Firebase at launch. Later About You PUT sends the parent name |
+| Baby+ | "AdID not auto-enabled" | FAIL | 🚫 | 95% | Facebook SDK plus Google ads on the finished-profile replay; the parent name PUT was seen once. Full replay moved the class to major |
 | Heartful Baby | "HIPAA-compliant" | FAIL | ❕ | 90% | One Firebase usage log at launch. A HIPAA claim does not match this |
 | Baby Daybook | "AdID not auto-enabled" | FAIL | 🚫 | 90% | Google plus a subscription service. Package also contains Facebook code |
 | Nara | "Complete privacy" | FAIL | 🚫 | 90% | Nine Facebook calls at launch, plus a Google crash report |
@@ -283,7 +283,8 @@ Baby Buddy is the only open-source app in this test.
 
 - **Claim:** "AdID not auto-enabled" (Google Play listing)
 - **Result:** FAIL
-- **Confidence:** 90%. Forty flows on the 2026-08-25 finished-profile recapture. A first-party install register went to the Philips server, and Facebook plus Google advertising hosts appeared during onboarding and home. The name did not leave the device in this capture. The kept 2026-08-21 capture saw that name PUT once.
+- **Confidence:** 95%. Forty flows on the 2026-08-25 finished-profile recapture: 24 sit on analytics or PII-bearing paths, Facebook Graph calls appear in the capture, and the APK carries the Facebook SDK (87 dex string hits). A first-party install register goes to the Philips server. The name did not leave the device in this capture; the kept 2026-08-21 capture saw that PUT once.
+- **Class change:** full-depth replay moved Baby+ from ❕ minor to 🚫 major, the same way Nanit and Pregnancy+ changed after their replays.
 - **Capture:** 2026-08-25 live inject + proxy after a system-store CA reinstall, 40 flows. Evidence source promoted to `raw-replay`.
 - **About Baby gender:** required. TalkBack has no Boy/Girl names. We selected Girl via the popup row, then DONE reached home. Session dumps: `ROADMAP.md`.
 
