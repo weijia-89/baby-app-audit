@@ -4,6 +4,7 @@
 No adb calls here. Every function takes captured text and returns plain
 values so tests stay deterministic and offline.
 """
+import hashlib
 import re
 from pathlib import Path
 
@@ -72,25 +73,28 @@ def parse_build_identity(dumpsys_text):
     }
 
 
-def checksum_report_ok(report_text, zip_name):
-    """True only when a `shasum -c` report lists zip_name as OK and nothing failed.
+def md5_matches(sums_text, zip_path):
+    """True when a target zip matches its entry in an OpenGApps .md5 file.
 
-    Any FAILED/missing line poisons the run even if it names another file,
-    because partial checksum files mean we cannot trust what was verified.
+    OpenGApps publishes an MD5 (32 hex digits) beside each build, not a
+    SHA-256 manifest. A line is "<digest><space(s)><name>". The zip's
+    basename must appear and the recorded digest must equal the file's real
+    MD5. Integrity check only - MD5 here mirrors the publisher's published
+    digest, not a security control.
     """
-    lines = [ln for ln in (report_text or "").splitlines() if ln.strip()]
-    if not lines:
+    name = Path(zip_path).name
+    expected = None
+    for line in (sums_text or "").splitlines():
+        match = re.match(r"^\s*([0-9a-fA-F]{32})\s+(.+?)\s*$", line)
+        if match and match.group(2) == name:
+            expected = match.group(1).lower()
+    if not expected:
         return False
-    saw_target = False
-    for line in lines:
-        low = line.lower()
-        if "failed" in low or "no such file" in low:
-            return False
-        if not low.rstrip().endswith(": ok") and ": ok" not in low:
-            return False
-        if zip_name in line:
-            saw_target = True
-    return saw_target
+    digest = hashlib.md5()
+    with open(zip_path, "rb") as fh:
+        for chunk in iter(lambda: fh.read(1 << 20), b""):
+            digest.update(chunk)
+    return digest.hexdigest() == expected
 
 
 def zip_listing_has_escape(listing_text):
@@ -118,6 +122,28 @@ def zip_listing_has_escape(listing_text):
     return False
 
 
+def gapps_tarballs(listing_text):
+    """Return .tar.lz member names from an `unzip -l` listing.
+
+    Only member lines match; the Archive: header and dash separators are
+    skipped the same way zip_listing_has_escape skips them. OpenGApps ships
+    every package as a .tar.lz member, never a loose .apk.
+    """
+    names = []
+    for line in (listing_text or "").splitlines():
+        stripped = line.strip()
+        if not stripped or stripped.startswith("Archive:"):
+            continue
+        if set(stripped) <= {"-", " ", "="}:
+            continue
+        if stripped.startswith("Length") and "Name" in stripped:
+            continue
+        token = stripped.split()[-1]
+        if token.endswith(".tar.lz"):
+            names.append(token)
+    return names
+
+
 _COMPONENT_RE = re.compile(
     r"^[A-Za-z][A-Za-z0-9_]*(?:\.[A-Za-z][A-Za-z0-9_]*)+"
     r"/\.?[A-Za-z][A-Za-z0-9_]*(?:\.[A-Za-z][A-Za-z0-9_]*)*$"
@@ -137,25 +163,50 @@ def validate_component(text):
     return text if _COMPONENT_RE.match(text) else None
 
 
-def select_abi_candidate(paths, abi):
-    """Pick the archive member matching the device ABI, refusing to guess.
+def select_tarball(entries, component, abi):
+    """Pick an OpenGApps .tar.lz member for a core package, matching the ABI.
 
-    Archive trees use underscore ABI segments (arm64_v8a) while the device
-    property uses hyphens (arm64-v8a); both spellings are matched. With one
-    candidate there is nothing to choose. With several and no ABI signal,
-    returning None refuses rather than flashing a wrong-architecture store.
+    Members look like Core/gmscore-arm64.tar.lz, Core/gsfcore-all.tar.lz,
+    Core/vending-arm64.tar.lz. '-common' members hold data, never the apk,
+    so they are skipped. An ABI-specific member wins; '-all' is the fallback.
+    No matching member for the device ABI -> None (refuse to flash a
+    wrong-architecture package).
     """
-    candidates = [p for p in (paths or []) if p]
+    candidates = [
+        e for e in (entries or [])
+        if f"/{component}-" in f"/{e}" and "-common" not in e and e.endswith(".tar.lz")
+    ]
     if not candidates:
         return None
-    if len(candidates) == 1:
-        return candidates[0]
-    tokens = [abi, abi.replace("-", "_")] if abi else []
-    for token in tokens:
-        matches = [p for p in candidates if token in p]
-        if len(matches) == 1:
-            return matches[0]
+    suffix = {
+        "arm64-v8a": "-arm64",
+        "x86_64": "-x86_64",
+        "armeabi-v7a": "-arm",
+    }.get((abi or "").replace("_", "-"))
+    if suffix:
+        for cand in candidates:
+            if cand.endswith(suffix + ".tar.lz"):
+                return cand
+    for cand in candidates:
+        if "-all" in cand:
+            return cand
     return None
+
+
+def select_apk_path(listing_text, apk_name):
+    """Pick an apk member from a tarball listing, preferring the density-
+    independent nodpi build when several densities ship the same apk.
+    """
+    lines = [
+        ln.strip() for ln in (listing_text or "").splitlines()
+        if ln.strip().endswith("/" + apk_name)
+    ]
+    if not lines:
+        return None
+    for ln in lines:
+        if "/nodpi/" in ln:
+            return ln
+    return lines[0]
 
 
 def evaluate_prerequisites(device, snapshot, ca):

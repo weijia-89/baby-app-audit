@@ -1,5 +1,14 @@
 # Changelog
 
+## 4.6.26 - 2026-09-06
+
+### Changed
+- GApps install now verifies the zip by MD5 instead of a SHA-256 manifest. OpenGApps publishes an MD5 next to each build, not SHA-256, so the published digest is the trust anchor.
+- `install-zip` unpacks real OpenGApps packages. Every package ships as a lzip tarball (for example `Core/gmscore-arm64.tar.lz`), never a loose `.apk`, so the script now streams the right tarball per package and device ABI, picks the density-independent `nodpi` apk, and pushes it into `/system/priv-app`. A `-common` tarball (data only) is never mistaken for the apk, and a wrong-architecture match refuses instead of guessing.
+
+### Fixed
+- `install-zip` no longer deletes its unpack directory before pushing the apks. The old order removed the extracted files before `adb push`; the fake-adb tests masked it.
+
 ## 4.6.25 - 2026-09-06
 
 ### Fixed

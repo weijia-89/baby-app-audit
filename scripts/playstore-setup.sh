@@ -6,13 +6,13 @@
 # Subcommands:
 #   check                     Print current state; mutate nothing; exit 1 when prerequisites are missing.
 #   backup NAME               Save a quickboot snapshot NAME on the running emulator (refuses overwrite without --force).
-#   install-zip ZIP SUMS      Verify ZIP against SHA256SUMS file, then push core GApps packages into /system and reboot.
+#   install-zip ZIP SUMS      Verify ZIP against its MD5SUMS file, then push core GApps packages into /system and reboot.
 #   verify                    Post-boot assertions: boot complete, real store, GMS present, mitm CA intact.
 #   pairip-probe PACKAGE      Launch PACKAGE up to 3 times and classify what happens (license dialog vs running app).
 #
 # Safety rules baked in:
 # - install-zip refuses to run unless snapshot "pre-gapps" exists (see backup).
-# - install-zip refuses to run unless the zip checksum matches SUMS exactly.
+# - install-zip refuses to run unless the zip MD5 matches SUMS exactly.
 # - Every destructive step is one explicit subcommand; nothing runs implicitly.
 set -euo pipefail
 
@@ -131,9 +131,17 @@ cmd_backup() {
     log "snapshot saved: $name (waited ${waited}s)"
 }
 
+list_tarlz() {
+    tar --lzip -tf "$1" 2>/dev/null || bsdtar -tf "$1" 2>/dev/null || tar -tf "$1" 2>/dev/null
+}
+
+extract_tarlz() {
+    tar --lzip -xf "$1" -C "$2" 2>/dev/null || bsdtar -xf "$1" -C "$2" 2>/dev/null || tar -xf "$1" -C "$2" 2>/dev/null
+}
+
 cmd_install_zip() {
-    local zip_path="${1:?usage: $0 install-zip CORE_ZIP SHA256SUMS}"
-    local sums="${2:?usage: $0 install-zip CORE_ZIP SHA256SUMS}"
+    local zip_path="${1:?usage: $0 install-zip CORE_ZIP MD5SUMS}"
+    local sums="${2:?usage: $0 install-zip CORE_ZIP MD5SUMS}"
     [ -f "$zip_path" ] || die "zip not found: $zip_path"
     [ -f "$sums" ] || die "checksums file not found: $sums"
     [ -e "$AVD_DIR/snapshots/$REQUIRED_SNAPSHOT" ] \
@@ -141,69 +149,85 @@ cmd_install_zip() {
     local zip_abs sums_abs
     zip_abs=$(abs_path "$zip_path")
     sums_abs=$(abs_path "$sums")
+
     log "checking archive for escape paths"
+    local listing
+    listing=$(unzip -l "$zip_abs" 2>/dev/null || true)
     local escape
-    escape=$(LISTING="$(unzip -l "$zip_abs")" python3 -c "
+    escape=$(LISTING="$listing" python3 -c "
 import os, sys
 sys.path.insert(0, '$repo_root/scripts')
 import gapps_state as g
 print(g.zip_listing_has_escape(os.environ['LISTING']))")
     [ "$escape" = "True" ] \
         && die "archive listing contains absolute or parent-escape paths; refusing"
-    log "verifying checksum"
-    local report target verdict
-    target=$(basename "$zip_abs")
-    report=$(cd "$(dirname "$zip_abs")" && shasum -a 256 -c "$sums_abs" 2>&1 || true)
-    verdict=$(REPORT="$report" TARGET="$target" python3 -c "
+
+    log "verifying MD5 checksum"
+    local verdict
+    verdict=$(SUMSTEXT="$(cat "$sums_abs")" ZIP_ABS="$zip_abs" python3 -c "
 import os, sys
 sys.path.insert(0, '$repo_root/scripts')
 import gapps_state as g
-print(g.checksum_report_ok(os.environ['REPORT'], os.environ['TARGET']))")
+print(g.md5_matches(os.environ['SUMSTEXT'], os.environ['ZIP_ABS']))")
     [ "$verdict" = "True" ] \
-        || die "checksum verification did not pass for $target; refusing to install. Report was:
-$report"
+        || die "checksum verification did not pass for $(basename "$zip_abs"); refusing to install"
     log "checksum OK"
 
-    local work abi
+    local work abi tarballs
     work=$(mktemp -d "${TMPDIR:-/tmp}/gapps.XXXXXX")
-    unzip -q "$zip_path" -d "$work"
     abi=$(adb_sel shell getprop ro.product.cpu.abi | tr -d '\r')
     log "device ABI: ${abi:-unknown}"
-
-    # Phase 1: locate every core package (ABI-aware) before touching the device.
-    local found="" missing="" pkg cands base
-    for pkg in Phonesky GoogleServicesFramework PrebuiltGmsCore; do
-        case "$pkg" in
-            Phonesky)        cands=$(find "$work" \( -iname 'Phonesky.apk' -o -iname 'Vending.apk' \)) ;;
-            PrebuiltGmsCore) cands=$(find "$work" -iname '*GmsCore*.apk') ;;
-            *)               cands=$(find "$work" -iname "${pkg}.apk") ;;
-        esac
-        base=$(CANDS="$cands" ABI="$abi" python3 -c "
+    tarballs=$(LISTING="$listing" python3 -c "
 import os, sys
 sys.path.insert(0, '$repo_root/scripts')
 import gapps_state as g
-cands = [line for line in os.environ['CANDS'].splitlines() if line.strip()]
-print(g.select_abi_candidate(cands, os.environ['ABI']) or '')")
-        if [ -n "$base" ]; then
-            found+="${pkg}=${base}"$'\n'
-        else
-            missing+=" $pkg"
-        fi
+print('\n'.join(g.gapps_tarballs(os.environ['LISTING'])))")
+
+    # Phase 1: locate and unpack every core apk before touching the device.
+    local found="" missing="" pkg comp apkname tarball tarlz listing_t rel exdir apk_file dest
+    for pkg in Phonesky PrebuiltGmsCore GoogleServicesFramework; do
+        case "$pkg" in
+            Phonesky)                 comp="vending"; apkname="Phonesky.apk" ;;
+            PrebuiltGmsCore)          comp="gmscore"; apkname="PrebuiltGmsCore.apk" ;;
+            GoogleServicesFramework)  comp="gsfcore"; apkname="GoogleServicesFramework.apk" ;;
+        esac
+        tarball=$(TARBALLS="$tarballs" COMP="$comp" ABI="$abi" python3 -c "
+import os, sys
+sys.path.insert(0, '$repo_root/scripts')
+import gapps_state as g
+print(g.select_tarball(os.environ['TARBALLS'].splitlines(), os.environ['COMP'], os.environ['ABI']) or '')")
+        if [ -z "$tarball" ]; then missing+=" $pkg"; continue; fi
+        tarlz="$work/${comp}.tar.lz"
+        unzip -p "$zip_abs" "$tarball" > "$tarlz" 2>/dev/null || true
+        listing_t=$(list_tarlz "$tarlz")
+        rel=$(LISTING="$listing_t" APKNAME="$apkname" python3 -c "
+import os, sys
+sys.path.insert(0, '$repo_root/scripts')
+import gapps_state as g
+print(g.select_apk_path(os.environ['LISTING'], os.environ['APKNAME']) or '')")
+        if [ -z "$rel" ]; then missing+=" $pkg"; continue; fi
+        exdir="$work/${comp}-out"
+        mkdir -p "$exdir"
+        extract_tarlz "$tarlz" "$exdir" || { missing+=" $pkg"; continue; }
+        apk_file="$exdir/$rel"
+        [ -f "$apk_file" ] || { missing+=" $pkg"; continue; }
+        dest="${apkname%.apk}"
+        found+="${dest}=${apk_file}"$'\n'
     done
-    rm -rf "$work"
-    [ -z "$missing" ] || die "core packages missing or ambiguous in zip:$missing; refusing a partial store install"
+    [ -z "$missing" ] || { rm -rf "$work"; die "core packages missing or ambiguous in zip:$missing; refusing a partial store install"; }
     log "all core packages located for this ABI"
 
     # Phase 2: push the resolved set.
     adb_sel root >/dev/null 2>&1 || true; sleep 2
     adb_sel remount >/dev/null || die "adb remount failed; system image is not writable"
-    printf '%s' "$found" | while IFS='=' read -r pkg base; do
-        [ -n "$pkg" ] || continue
-        adb_sel shell "mkdir -p /system/priv-app/${pkg}"
-        adb_sel push "$base" "/system/priv-app/${pkg}/${pkg}.apk" >/dev/null
-        adb_sel shell "chmod 644 /system/priv-app/${pkg}/${pkg}.apk"
-        log "installed ${pkg}.apk into /system/priv-app/${pkg}/"
+    printf '%s' "$found" | while IFS='=' read -r dest base; do
+        [ -n "$dest" ] || continue
+        adb_sel shell "mkdir -p /system/priv-app/${dest}"
+        adb_sel push "$base" "/system/priv-app/${dest}/${dest}.apk" >/dev/null
+        adb_sel shell "chmod 644 /system/priv-app/${dest}/${dest}.apk"
+        log "installed ${dest}.apk into /system/priv-app/${dest}/"
     done
+    rm -rf "$work"
     log "rebooting (wait for boot before verify)"
     adb_sel reboot
     log "if this flash leaves the AVD unbootable: quit the emulator, delete $AVD_DIR/snapshots/default_boot, and start once from the '$REQUIRED_SNAPSHOT' snapshot to roll back"
@@ -293,7 +317,7 @@ usage: scripts/playstore-setup.sh SUBCOMMAND
 
   check                    Report prerequisites; exit 1 when any are unmet.
   backup NAME [--force]    Save a quickboot snapshot of the running emulator.
-  install-zip ZIP SUMS     Verify ZIP against SHA256SUMS, then flash core
+  install-zip ZIP SUMS     Verify ZIP against MD5SUMS, then flash core
                            GApps into /system and reboot. Requires the
                            pre-gapps snapshot; refuses on checksum or
                            archive-path problems.

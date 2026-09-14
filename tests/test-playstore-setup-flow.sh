@@ -139,41 +139,48 @@ if run_setup "$fake" install-zip "$fake/app.zip" "$fake/SUMS" >/dev/null 2>&1; t
 fi
 echo "S4 pass"
 
-# --- S5..S7 fixtures: a real zip + sums, plus an escape-path zip -------------
-fake="$tmp_root/s5"; make_fake_env "$fake"
-mkdir -p "$fake/avd/snapshots/pre-gapps" "$fake/payload/Core/gmscore/arm64_v8a" "$fake/payload/x86_64"
-python3 - "$fake" <<'PY'
+# --- S5..S7 fixtures: a real OpenGApps-style zip (lzip tarballs) + MD5 sums ---
+mk_gapps_fixture() {
+    local dir="$1"
+    mkdir -p "$dir/payload/vending-arm64/nodpi/priv-app/Phonesky" \
+             "$dir/payload/gmscore-arm64/nodpi/priv-app/PrebuiltGmsCore" \
+             "$dir/payload/gsfcore-all/nodpi/priv-app/GoogleServicesFramework"
+    printf apk > "$dir/payload/vending-arm64/nodpi/priv-app/Phonesky/Phonesky.apk"
+    printf apk > "$dir/payload/gmscore-arm64/nodpi/priv-app/PrebuiltGmsCore/PrebuiltGmsCore.apk"
+    printf apk > "$dir/payload/gsfcore-all/nodpi/priv-app/GoogleServicesFramework/GoogleServicesFramework.apk"
+    ( cd "$dir/payload" && \
+        tar --lzip -cf "$dir/vending-arm64.tar.lz" vending-arm64 && \
+        tar --lzip -cf "$dir/gmscore-arm64.tar.lz" gmscore-arm64 && \
+        tar --lzip -cf "$dir/gsfcore-all.tar.lz" gsfcore-all )
+    python3 - "$dir" <<'PY'
 import sys, zipfile, hashlib, os
-fake = sys.argv[1]
-payload = os.path.join(fake, "payload")
-zpath = os.path.join(fake, "gapps.zip")
+d = sys.argv[1]
+members = ["vending-arm64.tar.lz", "gmscore-arm64.tar.lz", "gsfcore-all.tar.lz"]
+zpath = os.path.join(d, "gapps.zip")
 with zipfile.ZipFile(zpath, "w") as z:
-    z.write(os.path.join(payload, "Core", "gmscore", "arm64_v8a"), "")  # placeholder no-op guard
-# zipfile cannot add dirs; write members explicitly:
-with zipfile.ZipFile(zpath, "w") as z:
-    for rel in (
-        "Core/gmscore/arm64_v8a/GmsCore.apk",
-        "Core/phonesky/arm64_v8a/Phonesky.apk",
-        "Core/gsf/arm64_v8a/GoogleServicesFramework.apk",
-        "Core/gmscore/x86_64/GmsCore.apk",
-    ):
-        z.writestr(rel, "apk-bytes")
-h = hashlib.sha256(open(zpath, "rb").read()).hexdigest()
-open(os.path.join(fake, "SUMS"), "w").write(f"{h}  gapps.zip\n")
+    for m in members:
+        z.write(os.path.join(d, m), os.path.join("Core", m))
+h = hashlib.md5(open(zpath, "rb").read()).hexdigest()
+open(os.path.join(d, "SUMS"), "w").write(f"{h}  gapps.zip\n")
 # escape-path archive for S7
-with zipfile.ZipFile(os.path.join(fake, "evil.zip"), "w") as z:
+with zipfile.ZipFile(os.path.join(d, "evil.zip"), "w") as z:
     z.writestr("../evil.sh", "bad")
 print("fixtures ready")
 PY
+}
+
+# --- S5: MD5-verified install of a real lzip-tarball GApps zip ----------------
+fake="$tmp_root/s5"; make_fake_env "$fake"
+mkdir -p "$fake/avd/snapshots/pre-gapps"
+mk_gapps_fixture "$fake"
 run_setup "$fake" install-zip "$fake/gapps.zip" "$fake/SUMS" >/dev/null
 grep -q "priv-app/Phonesky/Phonesky.apk" "$fake/pushed.log" || { echo "S5 FAIL (Phonesky)"; exit 1; }
 grep -q "priv-app/PrebuiltGmsCore/PrebuiltGmsCore.apk" "$fake/pushed.log" || { echo "S5 FAIL (GmsCore)"; exit 1; }
-grep -q "arm64_v8a/GmsCore.apk" "$fake/pushed.log" || { echo "S5 FAIL (wrong ABI selected)"; exit 1; }
-grep -qv "x86_64" "$fake/pushed.log" || true
+grep -q "priv-app/GoogleServicesFramework/GoogleServicesFramework.apk" "$fake/pushed.log" || { echo "S5 FAIL (GSF)"; exit 1; }
 run_setup "$fake" verify >/dev/null
-echo "S5 pass (ABI-aware happy path + verify)"
+echo "S5 pass (MD5 + lzip-tarball happy path + verify)"
 
-# --- S6: checksum mismatch refuses ------------------------------------------
+# --- S6: MD5 mismatch refuses ------------------------------------------------
 fake="$tmp_root/s6"; make_fake_env "$fake"
 mkdir -p "$fake/avd/snapshots/pre-gapps"
 echo stale > "$fake/gapps.zip"
@@ -186,15 +193,7 @@ echo "S6 pass"
 # --- S7: escape-path archive refuses ----------------------------------------
 fake="$tmp_root/s7"; make_fake_env "$fake"
 mkdir -p "$fake/avd/snapshots/pre-gapps"
-python3 - "$fake" <<'PY'
-import zipfile, hashlib, os, sys
-fake = sys.argv[1]
-zpath = os.path.join(fake, "evil.zip")
-with zipfile.ZipFile(zpath, "w") as z:
-    z.writestr("../evil.sh", "bad")
-h = hashlib.sha256(open(zpath, "rb").read()).hexdigest()
-open(os.path.join(fake, "SUMS"), "w").write(f"{h}  evil.zip\n")
-PY
+mk_gapps_fixture "$fake" >/dev/null
 out=$(run_setup "$fake" install-zip "$fake/evil.zip" "$fake/SUMS" 2>&1) && { echo "S7 FAIL"; exit 1; }
 printf '%s' "$out" | grep -qi "escape paths" || { echo "S7 FAIL (message)"; exit 1; }
 echo "S7 pass"
