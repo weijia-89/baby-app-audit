@@ -131,17 +131,28 @@ with tempfile.TemporaryDirectory() as td:
     ok, _ = gs.snapshot_guard(str(empty), "pre-gapps")
     assert ok is False
 
-# --- checksum_report_ok -------------------------------------------------------
-# Real `shasum -a 256 -c` output looks like "<name>: OK".
-good_report = "gapps-arm64.zip: OK\n"
-assert gs.checksum_report_ok(good_report, "gapps-arm64.zip") is True
-assert gs.checksum_report_ok("other.zip: OK\n", "gapps-arm64.zip") is False
-assert gs.checksum_report_ok("gapps-arm64.zip: FAILED\n", "gapps-arm64.zip") is False
-assert gs.checksum_report_ok("shasum: gapps-arm64.zip: no such file\n", "gapps-arm64.zip") is False
-assert gs.checksum_report_ok("", "gapps-arm64.zip") is False
-assert gs.checksum_report_ok("ABCD1234  gapps-arm64.zip\n", "gapps-arm64.zip") is False  # not a -c report
-mixed = "a.zip: OK\nb.zip: FAILED open or read\n"
-assert gs.checksum_report_ok(mixed, "a.zip") is False  # any failure poisons the run
+# --- md5_matches --------------------------------------------------------------
+# OpenGApps publishes an MD5 next to each build, not a SHA-256 manifest. The
+# digest must match the target's basename and equal the file's real MD5.
+import hashlib
+
+with tempfile.TemporaryDirectory() as md:
+    def _write(name, data):
+        p = Path(md) / name
+        p.write_bytes(data)
+        return str(p)
+
+    z = _write("gapps.zip", b"real-content")
+    good_sum = hashlib.md5(b"real-content").hexdigest()
+    sums = f"{good_sum}  gapps.zip\n"
+    assert gs.md5_matches(sums, z) is True
+    assert gs.md5_matches(f"{'0' * 32}  gapps.zip\n", z) is False
+    # single-space separator also accepted
+    assert gs.md5_matches(f"{good_sum} gapps.zip\n", z) is True
+    # no entry for the target's name -> never pass
+    assert gs.md5_matches(f"{good_sum}  other.zip\n", z) is False
+    assert gs.md5_matches("", z) is False
+    assert gs.md5_matches("not-a-sums-line\n", z) is False
 
 # --- zip_listing_has_escape -----------------------------------------------------
 assert gs.zip_listing_has_escape("  100  2026-01-01 ../evil.sh\n") is True
@@ -171,10 +182,30 @@ SPACED = REAL_LISTING.replace(
 assert gs.zip_listing_has_escape(SPACED) is True, (
     "parent-escape with a space in the name went undetected")
 
-# --- select_abi_candidate: no ABI signal refuses ambiguity --------------------
-amb = ["/tmp/w/a/GmsCore.apk", "/tmp/w/b/GmsCore.apk"]
-assert gs.select_abi_candidate(amb, "") is None
-assert gs.select_abi_candidate(amb, None) is None
+# --- gapps_tarballs -----------------------------------------------------------
+TAR_LISTING = (
+    "Archive:  /tmp/host-side/gapps.zip\n"
+    "  Length      Date    Time    Name\n"
+    "---------  ---------- -----   ----\n"
+    " 44330583  05-05-2017 10:06   Core/gmscore-arm64.tar.lz\n"
+    " 26349589  05-05-2017 10:06   Core/vending-arm64.tar.lz\n"
+    "     2884  05-05-2017 10:06   Core/vending-common.tar.lz\n"
+    "  1234567  05-05-2017 10:06   Core/gsfcore-all.tar.lz\n"
+    "---------                     -------\n"
+    "                   4 files\n"
+)
+assert gs.gapps_tarballs(TAR_LISTING) == [
+    "Core/gmscore-arm64.tar.lz",
+    "Core/vending-arm64.tar.lz",
+    "Core/vending-common.tar.lz",
+    "Core/gsfcore-all.tar.lz",
+], gs.gapps_tarballs(TAR_LISTING)
+assert gs.gapps_tarballs("") == []
+assert gs.gapps_tarballs("Core/gmscore-arm64.tar.lz\nCore/gmscore-arm64.tar.lz\nCore/gsfcore-all.tar.lz\nInject/readme.txt\n") == [
+    "Core/gmscore-arm64.tar.lz",
+    "Core/gmscore-arm64.tar.lz",
+    "Core/gsfcore-all.tar.lz",
+]
 
 # --- validate_component --------------------------------------------------------
 assert gs.validate_component("com.mimiapp.mimilog/.MainActivity") == "com.mimiapp.mimilog/.MainActivity"
@@ -184,22 +215,45 @@ assert gs.validate_component("Warning: intent failed") is None
 assert gs.validate_component("Using default activity: None") is None
 assert gs.validate_component("no spaces allowed here") is None
 
-# --- select_abi_candidate -------------------------------------------------------
-cands = [
-    "/tmp/w/Core/gmscore/x86_64/GmsCore.apk",
-    "/tmp/w/Core/gmscore/arm64_v8a/GmsCore.apk",
-    "/tmp/w/Core/gmscore/armeabi_v7a/GmsCore.apk",
+# --- select_tarball -----------------------------------------------------------
+# OpenGApps names members like Core/gmscore-arm64.tar.lz, Core/gsfcore-all
+# .tar.lz, Core/vending-arm64.tar.lz. '-common' items hold data, never the apk.
+entries = [
+    "/tmp/w/Core/gmscore-arm64.tar.lz",
+    "/tmp/w/Core/gsfcore-all.tar.lz",
+    "/tmp/w/Core/vending-arm64.tar.lz",
+    "/tmp/w/Core/vending-common.tar.lz",
 ]
-got = gs.select_abi_candidate(cands, "arm64-v8a")
-assert got is not None and "arm64_v8a" in got, got
-# Device ABI token uses hyphens; archive dirs use underscores - both must match.
-assert gs.select_abi_candidate(cands, "x86_64").endswith("x86_64/GmsCore.apk")
-# Single candidate passes through even without an ABI segment.
-assert gs.select_abi_candidate(["/tmp/w/Phonesky.apk"], "arm64-v8a") == "/tmp/w/Phonesky.apk"
-assert gs.select_abi_candidate([], "arm64-v8a") is None
-# Ambiguous candidates with no ABI info at all -> refuse rather than guess.
-amb = ["/tmp/w/a/GmsCore.apk", "/tmp/w/b/GmsCore.apk"]
-assert gs.select_abi_candidate(amb, "arm64-v8a") is None
+assert gs.select_tarball(entries, "gmscore", "arm64-v8a").endswith("gmscore-arm64.tar.lz")
+assert gs.select_tarball(entries, "gsfcore", "arm64-v8a").endswith("gsfcore-all.tar.lz")
+assert gs.select_tarball(entries, "vending", "arm64-v8a").endswith("vending-arm64.tar.lz")
+# '-common' is never the apk: refuse even when it is the only candidate.
+assert gs.select_tarball(["/tmp/w/Core/vending-common.tar.lz"], "vending", "arm64-v8a") is None
+# Wrong architecture with no '-all' fallback must refuse, not flash cross-arch.
+assert gs.select_tarball(entries, "gmscore", "x86_64") is None
+assert gs.select_tarball(entries, "gmscore", "") is None
+# '-all' is the fallback when the ABI-specific member is absent.
+assert gs.select_tarball(["/tmp/w/Core/extra-all.tar.lz"], "extra", "arm64-v8a").endswith("extra-all.tar.lz")
+assert gs.select_tarball([], "gmscore", "arm64-v8a") is None
+
+# --- select_apk_path -----------------------------------------------------------
+# Prefer the density-independent nodpi build when several densities ship the
+# same apk.
+GMS_LISTING = (
+    "gmscore-arm64/nodpi/priv-app/PrebuiltGmsCore/PrebuiltGmsCore.apk\n"
+    "gmscore-arm64/320/priv-app/PrebuiltGmsCore/PrebuiltGmsCore.apk\n"
+    "gmscore-arm64/480/priv-app/PrebuiltGmsCore/PrebuiltGmsCore.apk\n"
+)
+assert gs.select_apk_path(GMS_LISTING, "PrebuiltGmsCore.apk").endswith(
+    "nodpi/priv-app/PrebuiltGmsCore/PrebuiltGmsCore.apk")
+assert gs.select_apk_path(
+    "gsfcore-all/nodpi/priv-app/GoogleServicesFramework/GoogleServicesFramework.apk\n",
+    "GoogleServicesFramework.apk").endswith("GoogleServicesFramework.apk")
+# A single non-nodpi member is still chosen when no nodpi build exists.
+assert gs.select_apk_path(
+    "vending-arm64/priv-app/Phonesky/Phonesky.apk\n", "Phonesky.apk").endswith("Phonesky.apk")
+assert gs.select_apk_path(GMS_LISTING, "Missing.apk") is None
+assert gs.select_apk_path("", "Phonesky.apk") is None
 
 # --- evaluate_prerequisites ------------------------------------------------------
 ok, fails = gs.evaluate_prerequisites(device=True, snapshot=True, ca=True)

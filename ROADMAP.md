@@ -165,7 +165,7 @@ Note: the earlier generic heuristic injector still works for apps whose onboardi
 
 ### Play-store unlock slice  -  Harness merged; flash pending
 - PR 55 merged the harness (2026-08-25): `scripts/gapps_state.py`, `scripts/playstore-setup.sh`, and both deterministic suites now run in CI.
-- Remaining step needs an operator-supplied GApps zip plus its published SHA256SUMS. Then: `backup pre-gapps` -> `install-zip` -> `verify` -> `pairip-probe` on MimiLog, Pebbi, Nurture Lock, and Baby Daybook.
+- Remaining step needs an operator-supplied GApps zip plus its published MD5SUMS. Then: `backup pre-gapps` -> `install-zip` -> `verify` -> `pairip-probe` on MimiLog, Pebbi, Nurture Lock, and Baby Daybook.
 - Goal: pass the Pairip license check on MimiLog, Pebbi, Nurture Lock, and Baby Daybook by putting a real Google Play store on the rootable test emulator (operator approved 2026-08-25), while keeping root so captures stay readable.
 - Scope guard: only the four blocked apps run on the playstore-enabled snapshot. No full retest of already-promoted apps; their verdicts describe captured sessions and stay valid. Any result from the new stack is tagged as captured on a playstore-enabled image.
 - Safety: `scripts/playstore-setup.sh` refuses system changes without a `pre-gapps` snapshot, verifies zip checksums before install, and re-checks the mitm CA after reboot. Deterministic classifiers live in `scripts/gapps_state.py` with fixtures from real sessions (`tests/test-gapps-state.sh`, runs in CI).
