@@ -1,5 +1,10 @@
 # Changelog
 
+## 4.6.27 - 2026-09-20
+
+### Fixed
+- `install-zip` now pushes a privapp-permissions whitelist for `com.android.vending` alongside the Play Store apk. Without it, Android 10 kills system_server at boot (a priv-app requesting unwhitelisted permissions is fatal), so the first live run of the flash left the emulator bootlooping. The whitelist lists the 29 permissions the Play build requests; it was derived from the real crash message during the live run.
+
 ## 4.6.26 - 2026-09-06
 
 ### Changed

@@ -59,7 +59,8 @@ handle_serial() {
       esac ;;
     push)
       src="\${1:-}"; dst="\${2:-}"
-      echo "pushed \$src -> \$dst" >> "\$FAKE/pushed.log" ;;
+      echo "pushed \$src -> \$dst" >> "\$FAKE/pushed.log"
+      cp "\$src" "\$FAKE/pushed-src-\$(basename "\$src")" 2>/dev/null || : ;;
     pull)
       if [ "\$#" -ge 2 ]; then
         if [ -n "\${FAKE_PAIRIP:-}" ]; then
@@ -228,5 +229,21 @@ fi
 verdict_file=$(find "$fake/results-tree"/com.mimiapp.mimilog-test-*/artifacts/logs -name "com.mimiapp.mimilog.verdict" 2>/dev/null | head -1)
 [ -n "$verdict_file" ] && grep -q "license_blocked" "$verdict_file" || { echo "S10 FAIL (verdict missing/blocked-expected)"; exit 1; }
 echo "S10 pass"
+
+# --- S11: install pushes the privapp-permissions whitelist for the store -----
+fake="$tmp_root/s11"; make_fake_env "$fake"
+mkdir -p "$fake/avd/snapshots/pre-gapps"
+mk_gapps_fixture "$fake"
+run_setup "$fake" install-zip "$fake/gapps.zip" "$fake/SUMS" >/dev/null
+wl_pushed=$(grep -- "-> /system/etc/permissions/privapp-permissions-phonesky.xml$" "$fake/pushed.log" | head -1 || true)
+[ -n "$wl_pushed" ] || { echo "S11 FAIL (whitelist not pushed)"; exit 1; }
+wl_src="$fake/pushed-src-privapp-permissions-phonesky.xml"
+[ -f "$wl_src" ] || { echo "S11 FAIL (whitelist copy missing)"; exit 1; }
+grep -q 'package="com.android.vending"' "$wl_src" || { echo "S11 FAIL (wrong package)"; exit 1; }
+wl_count=$(grep -c '<permission name="android.permission.' "$wl_src")
+[ "$wl_count" -ge 29 ] || { echo "S11 FAIL (only $wl_count permissions)"; exit 1; }
+grep -q 'android.permission.INSTALL_PACKAGES' "$wl_src" || { echo "S11 FAIL (INSTALL_PACKAGES missing)"; exit 1; }
+grep -q 'android.permission.GET_ACCOUNTS_PRIVILEGED' "$wl_src" || { echo "S11 FAIL (GET_ACCOUNTS_PRIVILEGED missing)"; exit 1; }
+echo "S11 pass (privapp whitelist pushed with the store)"
 
 echo "playstore-setup flow tests passed"
