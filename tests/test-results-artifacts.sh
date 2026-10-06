@@ -65,9 +65,9 @@ assert {name: app["evidence_source"] for name, app in apps.items()} == {
     "BabyCenter": "raw-replay", "BellyBloom": "raw-replay", "Nanit": "raw-replay",
     "Pregnancy+": "raw-replay", "What to Expect": "raw-replay", "Heartful Baby": "raw-replay",
     "Nara": "raw-replay", "Pixy": "raw-replay",
-    "Nurture Lock": "session-summary", "Nubo": "raw-replay", "Pebbi": "session-summary",
+    "Nurture Lock": "raw-replay", "Nubo": "raw-replay", "Pebbi": "raw-replay",
     "Amila": "raw-replay", "Baby Buddy": "session-summary",
-    "Baby Daybook": "session-summary", "Baby+": "raw-replay", "MimiLog": "session-summary",
+    "Baby Daybook": "raw-replay", "Baby+": "raw-replay", "MimiLog": "session-summary",
 }
 
 network_schema = json.loads((root / "results/network-log.schema.json").read_text())

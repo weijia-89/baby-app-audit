@@ -24,18 +24,49 @@
       "verdict": "fail",
       "privacy_class": "major",
       "verdict_confidence": 95,
-      "evidence": "RevenueCat subscriber API called on every launch (api.revenuecat.com); 8 tracking libraries found in static analysis (RevenueCat, Mixpanel, Firebase, AppsFlyer, Adjust, OneSignal, CleverTap, Tenjin). Claim of '100% offline' is false.",
+      "evidence": "RevenueCat subscriber calls are attributed to the package during onboarding (2 flows). The 70-flow window also shows Adapty, OneSignal, AppsFlyer, Comscore Scorecard, Microsoft Clarity, Facebook graph, Google ads, Philips first-party hosts, and Firebase. Static analysis found 8 tracking libraries. The claim of '100% offline' is false.",
       "apk_hash": {
         "sha256": "d0f2219c6f2a8bfa2f1dec67bb2cc0dd1685495417aa8695e2ec8da013f8bf31",
         "timestamp": "2026-08-03T21:49:16Z",
         "source": "mirror"
       },
       "offline_test": {
-        "outbound_requests_count": 2,
+        "outbound_requests_count": 70,
         "outbound_destinations": [
-          "api.revenuecat.com"
+          "a2lve5.cdn-settings.appsflyersdk.com",
+          "android.clients.google.com",
+          "android.googleapis.com",
+          "api-eu.adapty.io",
+          "api.onesignal.com",
+          "api.revenuecat.com",
+          "census-app.scorecardresearch.com",
+          "cognito-identity.us-east-1.amazonaws.com",
+          "connectivitycheck.gstatic.com",
+          "crashlyticsreports-pa.googleapis.com",
+          "fallback.adapty.io",
+          "firebase-settings.crashlytics.com",
+          "firebaseinstallations.googleapis.com",
+          "firebaselogging-pa.googleapis.com",
+          "firebaselogging.googleapis.com",
+          "firebaseremoteconfig.googleapis.com",
+          "googleads.g.doubleclick.net",
+          "graph.facebook.com",
+          "mobile-data.onetrust.io",
+          "play.googleapis.com",
+          "s3-us-west-1.amazonaws.com",
+          "s3.amazonaws.com",
+          "udm.scorecardresearch.com",
+          "user-engagement-prod.philips-digital.com",
+          "userlocation.googleapis.com",
+          "www.clarity.ms",
+          "www.global.api.philips.com",
+          "www.google.com",
+          "www.googleadservices.com",
+          "www.googleapis.com",
+          "www.youtube.com",
+          "youtubei.googleapis.com"
         ],
-        "flow_file": "results/nurture-lock-test-20260803/capture.mitm"
+        "flow_file": "results/nurture-lock-test-20261004/artifacts/captures/nurture-lock.mitm"
       },
       "static_scan": {
         "trackers_found": 8,
@@ -59,7 +90,7 @@
         ],
         "source_hits": "decompiled/nurture-lock (9,817 Java files, jadx 1.5.6)"
       },
-      "evidence_source": "session-summary"
+      "evidence_source": "raw-replay"
     },
     {
       "name": "Nubo",
@@ -135,21 +166,25 @@
       "verdict": "fail",
       "privacy_class": "major",
       "verdict_confidence": 100,
-      "evidence": "Positive control. Firebase Crashlytics/Analytics/Sessions/Installations/Remote Config, version-policy endpoint phoning home every ~30s (app.pebbi.co), FCM registration, AdServices, Install Referrer, RevenueCat, PairIP LicenseCheck.",
+      "evidence": "Positive control. The 2026-10-04 capture (51 flows) attributes Firebase Installations and the app.pebbi.co version-policy call to the package; the window also holds Crashlytics settings, RevenueCat, and Play Store traffic. The baby profile form was reached, but the date-of-birth field took no input, so Complete Setup never fired and the profile was not saved. Pairip license check passes on the Play-enabled image.",
       "apk_hash": {
         "sha256": "2178136085fc16b74f8bc4c7e2a1c7dbb3b4e6e39b40617065a9b0433d345066",
         "timestamp": "2026-08-03T21:49:45Z",
         "source": "mirror"
       },
       "offline_test": {
-        "outbound_requests_count": 4,
+        "outbound_requests_count": 51,
         "outbound_destinations": [
-          "firebase-settings.crashlytics.com",
+          "api.revenuecat.com",
           "app.pebbi.co",
-          "android.apis.google.com",
-          "firebaselogging-pa.googleapis.com"
+          "connectivitycheck.gstatic.com",
+          "firebase-settings.crashlytics.com",
+          "firebaseinstallations.googleapis.com",
+          "play-fe.googleapis.com",
+          "play.googleapis.com",
+          "www.google.com"
         ],
-        "flow_file": "results/mitm-capture/capture-clean.mitm"
+        "flow_file": "results/pebbi-test-20261004/artifacts/captures/pebbi.mitm"
       },
       "static_scan": {
         "trackers_found": 6,
@@ -170,7 +205,7 @@
         ],
         "source_hits": "decompiled/pebbi (17,231 Java files, jadx 1.5.6)"
       },
-      "evidence_source": "session-summary"
+      "evidence_source": "raw-replay"
     },
     {
       "name": "Baby Buddy",
@@ -223,19 +258,40 @@
       "verdict": "fail",
       "privacy_class": "major",
       "verdict_confidence": 90,
-      "evidence": "The launch capture shows Firebase Installations, RevenueCat subscriber calls, Firebase Remote Config, and FCM registration. Static analysis found the Facebook SDK. The AdID claim does not cover this traffic.",
+      "evidence": "The 2026-10-04 onboarding capture (132 flows, emulator-wide window) attributes nine flows to the package: Firebase Installations, Remote Config, realtime Remote Config, Firelog, FCM register, three RevenueCat subscriber reads, and one Sentry envelope. The window also carries a Facebook graph destination; static analysis found the Facebook SDK. The synthetic profile saved on-device (local SQLite) and the marker scan found no name in traffic. The AdID claim does not cover this traffic.",
       "offline_test": {
-        "outbound_requests_count": 8,
+        "outbound_requests_count": 132,
         "outbound_destinations": [
-          "android.apis.google.com",
+          "android-safebrowsing.google.com",
+          "android.clients.google.com",
+          "android.googleapis.com",
           "api.revenuecat.com",
+          "app-measurement.com",
+          "connectivitycheck.gstatic.com",
+          "digitalassetlinks.googleapis.com",
+          "firebase-settings.crashlytics.com",
           "firebaseinstallations.googleapis.com",
+          "firebaselogging-pa.googleapis.com",
+          "firebaselogging.googleapis.com",
           "firebaseremoteconfig.googleapis.com",
-          "firebaseremoteconfigrealtime.googleapis.com"
+          "firebaseremoteconfigrealtime.googleapis.com",
+          "graph.facebook.com",
+          "o473335.ingest.sentry.io",
+          "play-fe.googleapis.com",
+          "play-lh.googleusercontent.com",
+          "play.googleapis.com",
+          "rr1---sn-bvvbaxivnuxqjvhj5nu-5uae.gvt1.com",
+          "rr2---sn-bvvbaxivnuxqjvhj5nu-5ual.gvt1.com",
+          "rr5---sn-bvvbaxivnuxqjvhj5nu-5uae.gvt1.com",
+          "rr6---sn-bvvbaxivnuxqjvhj5nu-5ual.gvt1.com",
+          "rr8---sn-bvvbaxivnuxqjvhj5nu-5uae.gvt1.com",
+          "www.google.com",
+          "www.googleapis.com",
+          "youtubei.googleapis.com"
         ],
-        "flow_file": "results/decode-traffic-baby-daybook.json"
+        "flow_file": "results/baby-daybook-test-20261004/artifacts/captures/baby-daybook.mitm"
       },
-      "evidence_source": "session-summary"
+      "evidence_source": "raw-replay"
     },
     {
       "name": "Baby+",
@@ -270,7 +326,7 @@
       "verdict": "pass",
       "privacy_class": "pass",
       "verdict_confidence": 90,
-      "evidence": "The manifest requests no INTERNET permission. The preserved 2026-08-16 launch capture holds one completed Google App Measurement call with no app package header, so the caller cannot be attributed from the capture alone. Synthetic-marker scan found nothing. A 2026-08-25 live re-run hit a Pairip license dialog on this AVD and stayed session-summary.",
+      "evidence": "The manifest requests no INTERNET permission (permission dump kept in artifacts), so the app cannot open its own connections. The preserved 2026-08-16 launch capture holds one completed Google App Measurement call with no app package header, so the caller cannot be attributed from the capture alone. The 2026-10-04 window shows only Play Store and Google hosts while a license gate held the app. Synthetic-marker scan found nothing. Stays session-summary: the capture window never held an app session.",
       "offline_test": {
         "outbound_requests_count": 1,
         "outbound_destinations": [
