@@ -1,5 +1,16 @@
 # Changelog
 
+## 4.6.28 - 2026-10-06
+
+### Added
+- Synthetic marker scans for the four 2026-10-04 windows (local, gitignored evidence): Baby Daybook full profile inject, Nurture Lock onboarding, Pebbi profile-form attempt (two windows), MimiLog Play-gated window. All report `no_transmission_detected`; only low-confidence numeric coincidences matched, no name marker.
+
+### Changed
+- Play-enabled recapture: network logs rebuilt from fresh raw captures for Baby Daybook (132 flows), Nurture Lock (70), and Pebbi (51); analytics fanout regenerated (503 calls across 16 logs, 19 vendor or host groups).
+- `results/RESULTS-20260803.json`: Baby Daybook, Nurture Lock, and Pebbi promoted from `session-summary` to `raw-replay` with new `flow_file`, counts, and destination lists; evidence text refreshed per app. Two apps remain `session-summary`: Baby Buddy and MimiLog.
+- `scripts/inject-config/com.drillyapps.babydaybook.json` rewritten as a 16-step onboarding recipe (profile form, Girl, save, sync, units, permissions, paywall close) and validated against a live capture.
+- `FINAL-REPORT.md`, `ROADMAP.md`, and `README.md` updated for the Play-enabled recapture: all four former Pairip-blocked apps pass the license probe; three now carry `raw-replay` evidence.
+
 ## 4.6.27 - 2026-09-20
 
 ### Fixed

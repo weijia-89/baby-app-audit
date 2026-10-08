@@ -87,7 +87,7 @@ Apps that make privacy/offline claims but cannot be acquired via APKPure or F-Dr
 ### Analytics and PII fanout (done)
 
 - `scripts/scan-analytics-pii.sh` scans every committed network log, keeps unclassified hosts, and records every sent call with its data categories and assessment limit.
-- `results/analytics-pii-20260803.json` is the machine-readable inventory for all 16 apps and 212 captured calls.
+- `results/analytics-pii-20260803.json` is the machine-readable inventory for all 16 apps and 503 captured calls (recounted 2026-10-06 after the Play-enabled recapture logs were built).
 - High-risk findings (screen capture, screen-image upload, contact data, auth tokens, device identifiers) are bolded in the Final Report.
 
 ### Synthetic baby-data transmission test (in progress)
@@ -136,11 +136,12 @@ Example: Nubo 2026-08-23 entered formula-per-click **15** (90 did not stick). Th
 
 | App | Package | Baseline | UI/UX | Flow | Verdict |
 |-----|---------|----------|-------|------|---------|
-| Pebbi | com.pebbi.android | done | 2026-08-17: Pairip CLOSE on cold start. Appium warm path: Welcome, units, Add New Baby (name EditText + date picker + icon gender). No WebView. | BLOCKED: Play license on cold start (vending 1.8 stub). Form reached once; Complete Setup not saved | no_transmission_detected on 8-flow proxy capture; profile not saved |
+| Pebbi | com.pebbi.android | done | 2026-08-17: Pairip CLOSE on cold start. Appium warm path: Welcome, units, Add New Baby (name EditText + date picker + icon gender). No WebView. 2026-10-04: form reached under the real Play store | BLOCKED on input: date-of-birth field focuses but rejects all typed formats, so Complete Setup never enables; no config yet | 2026-10-04 two windows: `no_transmission_detected`; profile not saved |
 | Amila | com.amila.parenting | done | 2 native EditText (Baby name, Birthday) + 16+ checkbox + Done | built + validated (`inject-config/com.amila.parenting.json`) | 2026-08-25 live recapture: `no_transmission_detected` (name on home; profile sync still login-gated). Recipe taps reported ok; form shots still showed the form until home opened. |
-| Baby Daybook | com.drillyapps.babydaybook | done | 2 native EditText (same layout as Amila) + 16+ checkbox + Done | built + validated (`inject-config/com.drillyapps.babydaybook.json`) | no_transmission_detected (same) |
+| Baby Daybook | com.drillyapps.babydaybook | done | 2 native EditText (same layout as Amila) + 16+ checkbox + Done | rewritten + validated 2026-10-04 (`inject-config/com.drillyapps.babydaybook.json`, 16 steps: profile form, Girl, save, sync, units, permissions, paywall close) | 2026-10-04 live capture: `no_transmission_detected` (profile in local SQLite; home shows **Privatia Rigatoni**) |
 | Baby+ | com.hp.babyapp | done | Logged in. About You (2026-08-16 and 2026-08-21). About Baby name + Girl + DONE. Then MainActivity Important Update (GO TO PLAYSTORE). Gender TalkBack dump still has no Boy/Girl nodes; Girl is in a PopupWindow | Recipe taps spinner then Girl then `done_button` (`inject-config/com.hp.babyapp.json`) | `transmission_observed` on About You PUT (`firstName` to maker server) in both `Baby+-about-you.mitm` (2026-08-16, 1 flow) and `BabyPlus-about-you-full.mitm` (2026-08-21). Re-scan after HAR `postData` fix (2026-08-23). 2026-08-19 upgrade soak still `no_transmission_detected` (name only in a maker **response**; About You not on screen that day). Force-upgrade still blocks home. |
-| MimiLog | com.mimiapp.mimilog | done | Native Flutter. Create profile then Dashboard. Labels in `content-desc`. No Google. Package has no `INTERNET`. | onboarded recipe `inject-config/com.mimiapp.mimilog.json` (Bottle 482 mL, `dismiss: false`) | no_transmission_detected on system HTTP proxy (0 flows). Play license is not a baby-profile upload. |
+| MimiLog | com.mimiapp.mimilog | done | Native Flutter. Create profile then Dashboard. Labels in `content-desc`. No Google. Package has no `INTERNET`. | onboarded recipe `inject-config/com.mimiapp.mimilog.json` (Bottle 482 mL, `dismiss: false`) | no_transmission_detected on system HTTP proxy (0 flows). Play license is not a baby-profile upload. 2026-10-04: capture window held by the Play license gate; permission dump kept in `results/mimilog-test-20261004/artifacts/logs/` |
+| Nurture Lock | com.angry.shark.studio.nurturelock | done | 2026-10-04: full-screen hint, name form (default "Baby" cleared with key events), reminders declined, home | no config yet; onboarding driven by hand 2026-10-04 | 2026-10-04: `no_transmission_detected` on the 70-flow capture; home shows **Privatia Rigatoni** |
 | Nubo | com.clicksie.nuboapp | done | 2026-08-17 create profile; 2026-08-18 home timers + Logs | built (`inject-config/com.clicksie.nuboapp.json`): start/stop milk L/R, sleep, pump; bottle/pee/poop taps; NoteActivity save | no_transmission_detected on 15-flow 2026-08-18 soak (emulator-wide proxy). 0-byte 2026-08-17 file kept. 2026-08-24 Backup Now finished in UI (Drive consent Continue); no new `.mitm` (proxy `:0`); not Firebase-silence |
 
 **Validation result (2026-08-16):** the injector + per-app `steps` flows are proven end-to-end on Amila and Baby Daybook - they fill the baby name, check the 16+ box, tap Done, and the capture + scan report the correct `no_transmission_detected`. Those two apps keep the profile local and only sync after account login. A Google account is on the emulator. Baby+ Google login succeeded with the proxy off. Baby+ **DONE** (2026-08-19): Girl is not in the uiautomator dump. Open the spinner, tap the lower popup row, then DONE. Pebbi (2026-08-17) is native after Pairip, not WebView login. Cold start needs a real Play Store license, not the API 29 stub. Nurture Lock on this AVD is Pairip CLOSE only. Nubo 1.4 is installed from `apks/nubo.apk`. Profile saved 2026-08-17. Full activity inject 2026-08-18 (see table). MimiLog (2026-08-17) does not need Appium.
@@ -149,7 +150,7 @@ Note: the earlier generic heuristic injector still works for apps whose onboardi
 
 ## Sprint 5  -  Planned  -  Legacy re-capture and evidence parity
 
-**Goal:** Bring the apps that `results/RESULTS-20260803.json` still marks `session-summary` up to the same committed evidence depth as the `raw-replay` apps. After the 2026-08-25 overnight batch, five names remain: MimiLog, Nurture Lock, Pebbi, Baby Buddy, and Baby Daybook. This section names priorities. It does not invent a privacy PASS or FAIL.
+**Goal:** Bring the apps that `results/RESULTS-20260803.json` still marks `session-summary` up to the same committed evidence depth as the `raw-replay` apps. After the 2026-08-25 overnight batch, five names remained: MimiLog, Nurture Lock, Pebbi, Baby Buddy, and Baby Daybook. After the 2026-10-04 Play-enabled recapture, two remain: Baby Buddy and MimiLog. This section names priorities. It does not invent a privacy PASS or FAIL.
 
 **What is true on disk vs in RESULTS (2026-08-25, this machine):** Amila, Nubo, and Baby+ joined the `raw-replay` set today. Nubo was promoted by replaying its preserved 2026-08-03 launch capture. Baby+ was promoted after a live finished-profile recapture that needed a system-store mitm CA reinstall first (`-writable-system` boot; two 0-byte same-day attempts are kept). MimiLog hit a Pairip license dialog CLOSE-loop on cold start, for the installed build and an archived-build sideload test, so it stays `session-summary`.
 
@@ -163,27 +164,29 @@ Note: the earlier generic heuristic injector still works for apps whose onboardi
 - **Baby+** moved minor -> major (PR-pending): finished-profile replay shows Facebook Graph calls plus the SDK in the APK (87 dex hits), a Philips install register with installation ID, and Google ad hosts; the 2026-08-21 capture holds the one observed parent-name PUT.
 - **Amila** stays minor at 95 confidence: all 13 flows are Google/Firebase endpoints, zero third-party vendors in the fanout, zero tracker strings across the archived APK's dex files, marker-clean.
 
-### Play-store unlock slice  -  Harness merged; flash pending
+### Play-store unlock slice  -  Done (flash 2026-09-20; recapture 2026-10-04)
 - PR 55 merged the harness (2026-08-25): `scripts/gapps_state.py`, `scripts/playstore-setup.sh`, and both deterministic suites now run in CI.
-- Remaining step needs an operator-supplied GApps zip plus its published MD5SUMS. Then: `backup pre-gapps` -> `install-zip` -> `verify` -> `pairip-probe` on MimiLog, Pebbi, Nurture Lock, and Baby Daybook.
+- Flash done 2026-09-20: operator-supplied OpenGApps pico zip (local MD5 matched the published digest), Phonesky 30.3.21 pushed, privapp whitelist crafted from the real system_server crash message (PR 60). Pairip probe passed first try for all four apps.
+- Recapture done 2026-10-04: Baby Daybook full inject to home with the profile (recipe rewritten, 16 steps), Nurture Lock onboarding to home, Pebbi form reached (date-of-birth field took no input, profile not saved), MimiLog capture window held by the Play license gate (no Google account sign-in approved).
 - Goal: pass the Pairip license check on MimiLog, Pebbi, Nurture Lock, and Baby Daybook by putting a real Google Play store on the rootable test emulator (operator approved 2026-08-25), while keeping root so captures stay readable.
 - Scope guard: only the four blocked apps run on the playstore-enabled snapshot. No full retest of already-promoted apps; their verdicts describe captured sessions and stay valid. Any result from the new stack is tagged as captured on a playstore-enabled image.
 - Safety: `scripts/playstore-setup.sh` refuses system changes without a `pre-gapps` snapshot, verifies zip checksums before install, and re-checks the mitm CA after reboot. Deterministic classifiers live in `scripts/gapps_state.py` with fixtures from real sessions (`tests/test-gapps-state.sh`, runs in CI).
 
 | App | RESULTS `evidence_source` | Kept `.mitm` on this machine | Sprint 5 note |
 | --- | --- | --- | --- |
-| Nurture Lock | session-summary | `nurture-lock-test-20260803` (136052 bytes) | Pairip CLOSE on this AVD. Environment blocker. Not privacy PASS or FAIL. Do not install a real Play Store unless the operator asks. |
+| Nurture Lock | raw-replay (2026-10-04) | `nurture-lock-test-20261004` (`nurture-lock.mitm`, 70 flows); `nurture-lock-test-20260803` (136052 bytes) kept | Recaptured on the Play-enabled image: onboarding to home with the profile. RevenueCat tagged to the package. Marker scan `no_transmission_detected`. |
 | Nubo | raw-replay (2026-08-25) | Replay of `nubo-test-20260803` (94146, 11 flows). Soak `nubo-test-20260818-soak` (628913) kept. Zero-byte `Nubo.mitm` (2026-08-17) and `Nubo-backup-google.mitm` (2026-08-23) kept. | Promoted by replaying the preserved launch capture; Firebase Installations row has origin `app`. Backup Now finished in the app UI (PR 51). Not Firebase-silence. |
-| Pebbi | session-summary | `pebbi-test-20260816` and `pebbi-test-20260817` (largest `Pebbi-profile.mitm` 386435) | Pairip CLOSE on cold start. Environment blocker. Not privacy PASS or FAIL. |
+| Pebbi | raw-replay (2026-10-04) | `pebbi-test-20261004` (`pebbi.mitm` 51 flows, `pebbi-profile.mitm`); earlier `pebbi-test-20260816` and `pebbi-test-20260817` (largest `Pebbi-profile.mitm` 386435) kept | Play license passes. Form reached; date-of-birth field took no input, so Complete Setup never fired and the profile was not saved. Marker scan `no_transmission_detected`. |
 | Baby Buddy | session-summary | `baby-buddy-test-20260803` (2265 bytes) | Web PASS stays the Django capture. Companion pictures exist (PR 48). Not a new privacy capture. |
 | Amila | raw-replay | `amila-test-20260825` (`Amila.mitm` 106226 bytes). Earlier `amila-test-20260816` and `amila-test-20260817` kept. | Live inject 2026-08-25. Name **Privatia Rigatoni** on home. Scan `no_transmission_detected`. Network log rebuilt. Not Firebase-silence. |
-| Baby Daybook | session-summary | `baby-daybook-test-20260816` and `baby-daybook-test-20260817` | Pairip native crash on this AVD. Environment blocker. Not privacy PASS or FAIL. |
+| Baby Daybook | raw-replay (2026-10-04) | `baby-daybook-test-20261004` (`baby-daybook.mitm`, 132 flows); earlier `baby-daybook-test-20260816` and `baby-daybook-test-20260817` kept | Full inject to home with the profile (recipe rewritten). Local SQLite holds the name. Marker scan `no_transmission_detected`. |
 | Baby+ | raw-replay (2026-08-25) | `baby-plus-test-20260825` (`BabyPlus-final.mitm` 1373381, 40 flows). Zero-byte `BabyPlus.mitm` and `BabyPlus-retry.mitm` from 2026-08-25 kept; they predate the CA reinstall. Earlier `20260816`, `20260819`, `20260821` kept. | Live finished-profile recapture (name Privatia Rigatoni twice, gender Girl). Install register POST to Philips server plus Facebook and Google ad hosts. Name PUT not seen leaving today; the 2026-08-21 capture saw it once. Force-upgrade gate did not appear this run. |
 | MimiLog | session-summary | `mimilog-test-20260816` (7771). Zero-byte 2026-08-17 files and 0-byte `MimiLog.mitm` from 2026-08-25 kept. | 2026-08-25: Pairip `LicenseActivity` shows "Something went wrong" and CLOSE-loops on cold start. Same on the archived xapk after a sideload test. Network log rebuilt from the kept capture; manifest declares no `INTERNET`. Pass mark unchanged, evidence text refreshed. |
 
-Prefer the next live recapture that is not Pairip-blocked on this AVD (not Pebbi, Nurture Lock, BellyBloom CLOSE, or Daybook Pairip crash). One app, one PR. Stop for operator merge between slices.
+Prefer the next live recapture that is not blocked on this AVD. As of 2026-10-04 the remaining `session-summary` apps are Baby Buddy (web PASS; the Android companion is login-only) and MimiLog (its own window needs a signed-in Google account for the Play license check). One app, one PR. Stop for operator merge between slices.
 
-### Legacy re-capture  -  Planned
+### Legacy re-capture  -  In progress
+- 2026-10-04: Baby Daybook, Nurture Lock, and Pebbi promoted to `raw-replay` from the Play-enabled captures; network logs, analytics fanout, and Final Report blocks rebuilt in the same slice. Two names remain: Baby Buddy and MimiLog.
 - Re-run the harness on each session-summary app that still needs a promotable capture. Keep `results/<app>-test-<date>/artifacts/captures/*.mitm` forever, including zero-byte files (evidence-inventory guard).
 - Expected caveat: current APK versions differ from the tested builds (for example Baby+ v2.0.10). Record the tested APK hash in RESULTS and note version drift in the report. If archived APKs exist locally, prefer them for continuity.
 - After each capture: run `scripts/build-network-logs.sh` to produce enriched network logs, then re-audit `privacy_class` at full depth. Amila and Baby+ can still change class after a full replay, the same way Nanit and Pregnancy+ did. That change is a later slice, not this docs PR.
@@ -197,9 +200,9 @@ One session. Keep the windowed API 29 emulator (`emulator-5554`). Do not restart
 
 | Blocker | Why an operator is required | What to do |
 | --- | --- | --- |
-| Pebbi Play license / Pairip | Cold start opens Pairip `LicenseActivity`. Play Store on this AVD is stub 1.8. Complete Setup stayed disabled when female was not tapped. | Install a real Play Store, open 4.0.1, tap female, save the profile, then capture+scan. |
-| Nurture Lock Pairip | Local 1.0.13 only. CLOSE only. No inject. | Same Play license path, or skip if the licensed build still cannot leave Pairip. |
-| Baby Daybook Pairip native crash | `VMRunner` UnsatisfiedLinkError on this AVD. Not a privacy verdict. | Try a device or AVD that loads Pairip, then inject. |
+| Pebbi Play license / Pairip | Resolved 2026-10-04 for the license check. Profile still blocked: the date-of-birth field focuses on tap but rejects all typed input, so Complete Setup never enables. | Input path is still open: try a newer build, a different date format the field accepts, or an accessibility-driven date picker. Then save the profile and capture+scan. |
+| Nurture Lock Pairip | Resolved 2026-10-04. | Real Play store passed Pairip; onboarding reached home with the profile under the capture proxy. No operator step left. |
+| Baby Daybook Pairip native crash | Resolved 2026-09-20 (real Play store) and 2026-10-04 (full inject). | None. |
 | Baby+ About Baby gender | Done 2026-08-19. Dump still has no Boy/Girl nodes. PopupWindow frame `[63,971][1025,1219]`; Girl is the lower row. | Recipe updated. About You picture + capture done 2026-08-21 after app-data clear. Force-upgrade still blocks home after DONE. |
 | Nubo capture+scan of finished use | Done 2026-08-18 (evening soak). New file only. 0-byte `results/nubo-test-20260817/artifacts/captures/Nubo.mitm` kept. 2026-08-23: Google login for backup with proxy off. Backup Now did not finish that day. Formula stayed at the chip that stuck (15). Preferred sentinel 90 did not stick. 2026-08-24: Backup Now finished after GMS Continue. | Ran inject on `com.clicksie.nuboapp`. The system HTTP proxy stayed up about 21 minutes. The new file has 15 flows and did not grow after 18:58. Those flows are the whole emulator proxy (Play, GMS, YouTube, host control), not Nubo-only. Scan: `no_transmission_detected` (no high/medium name or note marker in a request or URL). 2026-08-23: account picker completed with proxy `:0`. Backup Now then Yes left a spinner and `com.google.android.gms/.signin.activity.ConsentActivity`. 0-byte `results/nubo-test-20260823/artifacts/captures/Nubo-backup-google.mitm` kept. `wlan0` pcap 41518 bytes (no `eth0`). 2026-08-24: proxy `:0`; last backup `08/24/2026 18:49:05`; `wlan0` pcap 1339264 bytes. Entered formula-per-click **15** (90 chip would not stick). Record that value and whether it left the device; do not treat missing 90 as an unfinished inject. This is still not the Firebase-silence bar in METHODOLOGY.md. |
 
@@ -229,6 +232,15 @@ The later public article needs a picture of each step we actually ran, not only 
 | Nara | `article-launch.png` | Sideload of `apks/nara.apk` then "keeps stopping". |
 | Pixy | `article-launch.png` | Sideload of `apks/pixy.apk` then "keeps stopping". |
 | Baby Buddy | 20260823: `article-launch.png`, `article-login-form.png` | Sideload of GitHub release `apks/babybuddy-for-android-v2.6.4.apk` (package `eu.pkgsoftware.babybuddywidgets`, version 2.6.4, MIT). First screen is "Login to Baby Buddy" (server URL, login name, password). We did not type a URL or log in. This companion is not the Django web app we audited. PASS still rests on the 2026-08-03 localhost web session. No new privacy verdict. |
+
+**Captured 2026-10-04, Play-enabled recapture (gitignored PNGs; numbered names from confirmed screen flows):**
+
+| App | PNG files (under that app's `artifacts/uiux/`) | Notes |
+| --- | --- | --- |
+| Baby Daybook | `01-welcome-add-baby.png`, `02-profile-form-empty.png`, `03-profile-form-filled-name.png`, `04-protect-and-sync.png`, `05-units-settings.png`, `06-permissions.png`, `07-premium-paywall.png`, `08-home-with-profile.png` | Full inject steps to home with the profile |
+| Nurture Lock | `01-launch-screen.png`, `02-after-hint-screen.png`, `02b-after-hint-repeat.png`, `03-form-typing-attempt.png`, `04-next-screen.png`, `05-name-form.png`, `06-form-filled.png`, `07-reminders-prompt.png`, `08-home-with-profile.png` | Onboarding to home with the profile |
+| Pebbi | `01-launch-screen.png`, `03-baby-form.png`, `05-play-store-error-screen.png`, `05b-current-screen.png`, `07-form-filled-name.png`, `08-after-setup.png`, `09-after-complete-setup.png` | Form reached; date field would not take input; profile not saved |
+| MimiLog | `01-bottle-record-482ml.png`, `02-dashboard-with-record.png`, `03-feeding-482ml.png` | Offline bottle record before the captured Play-gated window |
 
 **Success for this slice:** every FINAL-REPORT app has a labeled PNG. Baby+ has About You, About Baby, Girl, and upgrade-gate pictures.
 

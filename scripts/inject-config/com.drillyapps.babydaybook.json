@@ -1,9 +1,20 @@
 {
   "steps": [
-    { "wait": 4 },
+    { "wait": 3 },
+    { "tap_text": "Add baby" },
+    { "wait": 3 },
     { "fill_nth": ["Privatia Rigatoni"] },
-    { "tap_bounds": "[41,1439][158,1556]" },
-    { "tap_bounds": "[493,1661][588,1709]" },
-    { "wait": 8 }
+    { "tap_text": "Girl" },
+    { "wait": 1 },
+    { "tap_bounds": "[926,1874][1058,2006]" },
+    { "wait": 4 },
+    { "tap_bounds": "[926,1874][1058,2006]" },
+    { "wait": 3 },
+    { "tap_bounds": "[926,1874][1058,2006]" },
+    { "wait": 3 },
+    { "tap_bounds": "[926,1874][1058,2006]" },
+    { "wait": 4 },
+    { "tap_bounds": "[948,66][1080,198]" },
+    { "wait": 10 }
   ]
 }

@@ -1,7 +1,7 @@
 # Final Report - Which Baby Apps Keep Their Privacy Promises
 
 **Test run:** baby-app-audit-20260803
-**Dates:** 2026-08-03 to 2026-08-25
+**Dates:** 2026-08-03 to 2026-10-04
 **Harness version:** 3.3.0
 **Author:** Wei Jia
 **License:** GPL-3.0
@@ -14,15 +14,15 @@ Host, path, status, count, and sizes live in the sanitized network logs. This re
 | App | Privacy claim | Result | Privacy | Confidence | Key findings |
 | --- | --- | --- | --- | --- | --- |
 | Baby Buddy | Open source | PASS | 💖 | 100% | Django web: no app-originated traffic. Android companion login photos are not the PASS |
-| MimiLog | "Fully offline" | PASS | 💖 | 90% | Package declares no `INTERNET`. One unattributed measurement call in the kept launch capture. Live re-run blocked by a license dialog |
+| MimiLog | "Fully offline" | PASS | 💖 | 90% | Package declares no `INTERNET`. One unattributed measurement call in the kept launch capture. 2026-10-04: Play license gate held the app; it cannot connect |
 | Amila | No claim | No claim | ❕ | 90% | Registers the install with Google; settings, logging, and measurement calls (2026-08-25 recapture) |
 | Baby+ | "AdID not auto-enabled" | FAIL | 🚫 | 95% | Facebook SDK plus Google ads on the finished-profile replay; the parent name PUT was seen once. Full replay moved the class to major |
 | Heartful Baby | "HIPAA-compliant" | FAIL | ❕ | 90% | One Firebase usage log at launch. A HIPAA claim does not match this |
-| Baby Daybook | "AdID not auto-enabled" | FAIL | 🚫 | 90% | Google plus a subscription service. Package also contains Facebook code |
+| Baby Daybook | "AdID not auto-enabled" | FAIL | 🚫 | 90% | 2026-10-04 onboarding capture: Firebase, RevenueCat, and Sentry calls tagged to the app. Package also contains Facebook code |
 | Nara | "Complete privacy" | FAIL | 🚫 | 90% | Nine Facebook calls at launch, plus a Google crash report |
 | Nubo | "Local-first" | FAIL | 🚫 | 95% | First launch sends an install register, crash settings, and push registers to Google |
-| Nurture Lock | "100% offline" | FAIL | 🚫 | 95% | Subscription call at launch. Package lists eight tracking companies |
-| Pebbi | No claim (control) | No claim | 🚫 | 100% | Firebase, Google ads, and Google messages at launch |
+| Nurture Lock | "100% offline" | FAIL | 🚫 | 95% | RevenueCat call tagged to the app; onboarding window shows ad and measurement hosts. Eight tracking companies in the APK |
+| Pebbi | No claim (control) | No claim | 🚫 | 100% | Own server and Firebase again on 2026-10-04; profile form blocked by a dead date field |
 | Pixy | "Bank-level encryption" | FAIL | 🚫 | 90% | Three Facebook calls at launch to load tracking rules |
 | BabyCenter | No claim | No claim | 🚫 | 95% | **Microsoft Clarity receives screen content, text, pictures, and taps.** Ads and attribution too |
 | BellyBloom | No claim | No claim | 🚫 | 90% | Advertising ID, usage, and which advert brought you, to many companies |
@@ -57,7 +57,7 @@ To check a host, path, or status code, open the network log for that app.
 
 ## Analytics and PII fanout
 
-The fanout scan covers all 16 committed network logs: 212 calls, 18 vendor or host groups. Machine output: [results/analytics-pii-20260803.json](results/analytics-pii-20260803.json).
+The fanout scan covers all 16 committed network logs: 503 calls, 19 vendor or host groups. Machine output: [results/analytics-pii-20260803.json](results/analytics-pii-20260803.json).
 
 **High-risk findings:**
 
@@ -93,6 +93,10 @@ We enter one fictional baby (Privatia Rigatoni). Markers are in `results/synthet
 | Baby Daybook | 2026-08-17 | no inject | Pairip native crash. Environment blocker, not a privacy verdict |
 | Pebbi | 2026-08-17 | `no_transmission_detected` on an 8-flow walk | Profile not saved. Pairip CLOSE on cold start is an environment blocker |
 | Nurture Lock | 2026-08-17 | no inject | Pairip CLOSE only. Environment blocker |
+| Baby Daybook | 2026-10-04 full profile inject | `no_transmission_detected` | Name saved on-device (local SQLite row); home shows **Privatia Rigatoni**. Numeric marker hits were low-confidence coincidences in Google auth replies |
+| Nurture Lock | 2026-10-04 onboarding name | `no_transmission_detected` | Home shows **Privatia Rigatoni**. RevenueCat tagged to the package; no name marker in the capture |
+| Pebbi | 2026-10-04 profile form, two windows | `no_transmission_detected` | Name typed, but the date field took no input; Complete Setup never fired; profile not saved |
+| MimiLog | 2026-10-04 Play-gated window | `no_transmission_detected` | App has no `INTERNET` permission; capture holds Play Store and Google hosts only |
 
 ## Proprietary apps - long report
 
@@ -301,14 +305,16 @@ Baby Buddy is the only open-source app in this test.
 
 - **Claim:** "AdID not auto-enabled" (Google Play listing)
 - **Result:** FAIL
-- **Confidence:** 90%. Eight flows at launch. Payloads not readable. FAIL is from 2026-08-08, not from the later Pairip crash.
-- **Capture:** 2026-08-08, launch window, 8 flows.
+- **Confidence:** 90%. The 2026-10-04 onboarding capture (132 flows, emulator-wide window) tags nine flows to the package: Firebase Installations and Remote Config, a realtime config stream, a Firelog batch, an FCM register, three RevenueCat subscriber reads, and one Sentry envelope. The window also shows a Facebook graph destination; the package contains the Facebook SDK. The profile saved on-device (local SQLite); the marker scan found no name in traffic.
+- **Capture:** 2026-10-04, full onboarding to home with the profile, 132 flows. Evidence source promoted to `raw-replay`. Launch window: 2026-08-08, 8 flows.
 
 | Service | What we saw |
 | --- | --- |
-| RevenueCat | Subscription state |
-| Google (Firebase) | Install register and settings |
-| Google (messages) | Push and message register |
+| RevenueCat | Subscriber reads, tagged to the app package |
+| Google (Firebase) | Install register, settings, realtime config, usage log |
+| Google (messages) | Push register |
+| Sentry | One crash report envelope |
+| Facebook | Graph call in the same window, not tagged to the app |
 
 - **Network log:** [network-log-baby-daybook.json](results/network-log-baby-daybook.json)
 
@@ -316,8 +322,8 @@ Baby Buddy is the only open-source app in this test.
 
 - **Claim:** "Fully offline" - [Play listing](https://play.google.com/store/apps/details?id=com.mimiapp.mimilog)
 - **Result:** PASS
-- **Confidence:** 90%. The package declares no `INTERNET` permission, so the app cannot open its own network connections. The kept launch capture holds one completed Google App Measurement call with no app package header, so the caller cannot be attributed from the capture alone. The synthetic scan found nothing.
-- **Capture:** 2026-08-16, launch window, 1 flow. Evidence stays `session-summary`: a 2026-08-25 live re-run hit a Pairip license dialog and CLOSE-loop on this AVD, for the installed build and for an archived-build sideload test.
+- **Confidence:** 90%. The package declares no `INTERNET` permission (permission dump kept in `results/mimilog-test-20261004/artifacts/logs/`), so the app cannot open its own network connections. The kept launch capture holds one completed Google App Measurement call with no app package header, so the caller cannot be attributed from the capture alone. The synthetic scan found nothing.
+- **Capture:** 2026-08-16, launch window, 1 flow. Evidence stays `session-summary`. The 2026-10-04 re-run passed the Pairip probe; with the audit proxy on, Play Store license auth failed (no signed-in Google account) and the capture held Play and Google hosts only.
 
 | Service | What we saw |
 | --- | --- |
@@ -345,12 +351,20 @@ Baby Buddy is the only open-source app in this test.
 
 - **Claim:** "100% offline" (Google Play listing)
 - **Result:** FAIL
-- **Confidence:** 95%. A subscription call at launch breaks "100% offline". Package lists eight tracking companies. FAIL is from 2026-08-03, not from later Pairip CLOSE.
-- **Capture:** 2026-08-03, launch window, 17 flows (raw replay).
+- **Confidence:** 95%. A RevenueCat subscriber call tagged to the package during onboarding breaks "100% offline". The 70-flow window also shows Adapty, OneSignal, AppsFlyer, Comscore Scorecard, Microsoft Clarity, Facebook, Google ads, Philips first-party hosts, and Firebase; static analysis ties eight tracking companies to the package. The table lists what the window saw; only RevenueCat carries the package tag in this capture.
+- **Capture:** 2026-10-04, full onboarding to home with the profile, 70 flows. Evidence source promoted to `raw-replay`. Launch window: 2026-08-03.
 
 | Service | What we saw |
 | --- | --- |
-| RevenueCat | Subscription state |
+| RevenueCat | Subscriber reads, tagged to the app package |
+| Adapty | Subscription state in the window |
+| OneSignal | Push rules in the window |
+| AppsFlyer | Attribution settings in the window |
+| Comscore (Scorecard) | "This phone is here" pings in the window |
+| Microsoft (Clarity) | Collection endpoint in the window |
+| Facebook | Graph destination in the window |
+| Philips (own) | First-party usage endpoints in the window |
+| Google (Firebase) | Install and crash settings in the window |
 
 - **Network log:** [network-log-nurture-lock.json](results/network-log-nurture-lock.json)
 
@@ -358,14 +372,15 @@ Baby Buddy is the only open-source app in this test.
 
 - **Claim:** No claim (control app)
 - **Result:** No claim
-- **Confidence:** 100%. Four flows at launch. 🚫 because volume is heavy even with no claim. Later Pairip CLOSE is an environment blocker.
-- **Capture:** 2026-08-03, launch window, destinations only.
+- **Confidence:** 100%. The 2026-10-04 window holds 51 flows: the capture tags Firebase Installations and the `app.pebbi.co` version-policy call to the package, with Crashlytics settings, RevenueCat, and Play Store traffic around them. Heavy volume keeps the 🚫 mark. We reached the profile form, but the date-of-birth field took no input, so Complete Setup never fired and no profile saved.
+- **Capture:** 2026-10-04, profile-form window, 51 flows. Evidence source promoted to `raw-replay`. Launch window: 2026-08-03.
 
 | Service | What we saw |
 | --- | --- |
-| Google (Firebase) | Usage logs and crash rules |
-| Pebbi (own) | Own server |
-| Google (messages) | Push and message register |
+| Pebbi (own) | Version-policy call, tagged to the app package |
+| Google (Firebase) | Install register tagged to the app package; crash settings in the window |
+| RevenueCat | Subscription state in the window |
+| Google (Play) | Store traffic in the same window |
 
 - **Network log:** [network-log-pebbi.json](results/network-log-pebbi.json)
 
@@ -380,9 +395,9 @@ Four of the five long-report apps ship install and ad programs (Facebook, Adjust
 - Launch captures predate the injector. Re-captures enter the fictional profile. The synthetic table states whether those strings left the device.
 - Captures are launch and early use. Later sessions can differ.
 - We removed response bodies and header values because they can carry tokens. Logs keep method, host, path, status, count, and sizes. A scrubbed body is not proof that PII was absent.
-- Evidence depth is not equal. Eleven apps are `raw-replay` (Nubo and Baby+ promoted 2026-08-25). Five are still `session-summary` in `results/RESULTS-20260803.json`.
+- Evidence depth is not equal. Fourteen apps are `raw-replay` (Nubo and Baby+ promoted 2026-08-25; Baby Daybook, Nurture Lock, and Pebbi promoted 2026-10-04). Two are still `session-summary` in `results/RESULTS-20260803.json`: Baby Buddy and MimiLog.
 - Treat session-summary rows as a lower bound. Later local `.mitm` files can exist and still not change a mark. Recapture plan: `ROADMAP.md` Sprint 5.
-- MimiLog joined the Pairip-blocked set on 2026-08-25: the license dialog CLOSE-loops on cold start. Pebbi, Nurture Lock, and Baby Daybook stay blocked too. These are environment blockers, not privacy marks.
+- Pairip blocked all four apps until 2026-09-20, when a real Play Store on the test emulator made the license checks pass. We recaptured Baby Daybook, Nurture Lock, and Pebbi on 2026-10-04. MimiLog's own window never opened: without a signed-in Google account the Play license check fails, and the package has no `INTERNET` permission anyway. These are environment facts, not privacy marks.
 - baby-track, cradle, and dymn-baby had no usable APK. No captures.
 
 ## Advice
