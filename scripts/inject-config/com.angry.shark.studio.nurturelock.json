@@ -1,0 +1,18 @@
+{
+  "steps": [
+    { "wait": 5 },
+    { "tap_bounds": "[44,1189][1036,1343]" },
+    { "keyevent": 67 },
+    { "keyevent": 67 },
+    { "keyevent": 67 },
+    { "keyevent": 67 },
+    { "keyevent": 67 },
+    { "keyevent": 67 },
+    { "fill_nth": ["Privatia Rigatoni"] },
+    { "keyevent": 111 },
+    { "tap_text": "Let's go!" },
+    { "wait": 3 },
+    { "tap_text": "Not now" },
+    { "wait": 3 }
+  ]
+}

@@ -1,5 +1,10 @@
 # Changelog
 
+## 4.6.29 - 2026-10-10
+
+### Added
+- Nurture Lock onboarding inject recipe `scripts/inject-config/com.angry.shark.studio.nurturelock.json`: focus the name field (pre-filled "Baby"), clear it with DEL keyevents, fill `Privatia Rigatoni`, hide the keyboard, tap "Let's go!", decline feeding reminders, land on home. Derived from a fresh 2026-10-10 launch with per-step dumps and revalidated live; added to the json.tool list in `tests/test-inject-config.sh`.
+
 ## 4.6.28 - 2026-10-06
 
 ### Added
