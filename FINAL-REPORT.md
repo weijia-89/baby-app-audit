@@ -22,7 +22,7 @@ Host, path, status, count, and sizes live in the sanitized network logs. This re
 | Nara | "Complete privacy" | FAIL | 🚫 | 90% | Nine Facebook calls at launch, plus a Google crash report |
 | Nubo | "Local-first" | FAIL | 🚫 | 95% | First launch sends an install register, crash settings, and push registers to Google |
 | Nurture Lock | "100% offline" | FAIL | 🚫 | 95% | RevenueCat call tagged to the app; onboarding window shows ad and measurement hosts. Eight tracking companies in the APK |
-| Pebbi | No claim (control) | No claim | 🚫 | 100% | Own server and Firebase again on 2026-10-04; profile form blocked by a dead date field |
+| Pebbi | No claim (control) | No claim | 🚫 | 100% | Own server and Firebase attributed on 2026-10-04; profile saved 2026-10-10, and a packet capture caught the app talking to its own server outside the HTTP proxy |
 | Pixy | "Bank-level encryption" | FAIL | 🚫 | 90% | Three Facebook calls at launch to load tracking rules |
 | BabyCenter | No claim | No claim | 🚫 | 95% | **Microsoft Clarity receives screen content, text, pictures, and taps.** Ads and attribution too |
 | BellyBloom | No claim | No claim | 🚫 | 90% | Advertising ID, usage, and which advert brought you, to many companies |
@@ -96,6 +96,7 @@ We enter one fictional baby (Privatia Rigatoni). Markers are in `results/synthet
 | Baby Daybook | 2026-10-04 full profile inject | `no_transmission_detected` | Name saved on-device (local SQLite row); home shows **Privatia Rigatoni**. Numeric marker hits were low-confidence coincidences in Google auth replies |
 | Nurture Lock | 2026-10-04 onboarding name | `no_transmission_detected` | Home shows **Privatia Rigatoni**. RevenueCat tagged to the package; no name marker in the capture |
 | Pebbi | 2026-10-04 profile form, two windows | `no_transmission_detected` | Name typed, but the date field took no input; Complete Setup never fired; profile not saved |
+| Pebbi | 2026-10-10 full profile inject on the rootable image | `no_transmission_detected` on the proxy window; packet capture contradicts a silence claim | Profile saved (Privatia Rigatoni, born 2026-03-14 22:25, Girl). The proxy window held only Google and Play flows with no name marker, but a root packet capture on the same device caught DNS and TLS to `app.pebbi.co` plus Crashlytics lookups: the app talks outside the system HTTP proxy |
 | MimiLog | 2026-10-04 Play-gated window | `no_transmission_detected` | App has no `INTERNET` permission; capture holds Play Store and Google hosts only |
 
 ## Proprietary apps - long report
@@ -372,12 +373,13 @@ Baby Buddy is the only open-source app in this test.
 
 - **Claim:** No claim (control app)
 - **Result:** No claim
-- **Confidence:** 100%. The 2026-10-04 window holds 51 flows: the capture tags Firebase Installations and the `app.pebbi.co` version-policy call to the package, with Crashlytics settings, RevenueCat, and Play Store traffic around them. Heavy volume keeps the 🚫 mark. We reached the profile form, but the date-of-birth field took no input, so Complete Setup never fired and no profile saved.
-- **Capture:** 2026-10-04, profile-form window, 51 flows. Evidence source promoted to `raw-replay`. Launch window: 2026-08-03.
+- **Confidence:** 100%. The 2026-10-04 window holds 51 flows: the capture tags Firebase Installations and the `app.pebbi.co` version-policy call to the package, with Crashlytics settings, RevenueCat, and Play Store traffic around them. Heavy volume keeps the 🚫 mark. On 2026-10-10 the full profile saved on the rootable image (Privatia Rigatoni, born 2026-03-14 22:25, Girl). The live proxy window for that run held only Google and Play flows with no name marker, but a root packet capture right after caught DNS and TLS to `app.pebbi.co` plus Crashlytics lookups: the app talks to its own server outside the system HTTP proxy, so a quiet proxy window alone is not proof of silence here. The packet contents stay unread (TLS).
+- **Capture:** 2026-10-04, profile-form window, 51 flows. 2026-10-10, full profile save, 8 proxy flows plus a root packet capture. Evidence source promoted to `raw-replay`. Launch window: 2026-08-03.
 
 | Service | What we saw |
 | --- | --- |
 | Pebbi (own) | Version-policy call, tagged to the app package |
+| Pebbi (own) | Cold-start DNS and TLS to `app.pebbi.co` in the 2026-10-10 packet capture, outside the proxy |
 | Google (Firebase) | Install register tagged to the app package; crash settings in the window |
 | RevenueCat | Subscription state in the window |
 | Google (Play) | Store traffic in the same window |

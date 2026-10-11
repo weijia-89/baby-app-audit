@@ -166,7 +166,7 @@
       "verdict": "fail",
       "privacy_class": "major",
       "verdict_confidence": 100,
-      "evidence": "Positive control. The 2026-10-04 capture (51 flows) attributes Firebase Installations and the app.pebbi.co version-policy call to the package; the window also holds Crashlytics settings, RevenueCat, and Play Store traffic. The baby profile form was reached, but the date-of-birth field took no input, so Complete Setup never fired and the profile was not saved. Pairip license check passes on the Play-enabled image.",
+      "evidence": "Positive control. The 2026-10-04 capture (51 flows) attributes Firebase Installations and the app.pebbi.co version-policy call to the package; the window also holds Crashlytics settings, RevenueCat, and Play Store traffic. On 2026-10-10 the full profile saved on the rootable image (Privatia Rigatoni, born 2026-03-14 22:25, Girl); that proxy window held only Google and Play flows with no name marker, but a root packet capture on the same device caught DNS and TLS to app.pebbi.co plus Crashlytics lookups, so the app talks outside the system HTTP proxy and a quiet window alone is not proof of silence. Pairip license check passes on the repaired system store.",
       "apk_hash": {
         "sha256": "2178136085fc16b74f8bc4c7e2a1c7dbb3b4e6e39b40617065a9b0433d345066",
         "timestamp": "2026-08-03T21:49:45Z",
