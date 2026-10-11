@@ -1,5 +1,16 @@
 # Changelog
 
+## 4.6.30 - 2026-10-10
+
+### Added
+- Pebbi 4.4.1 app file pulled from the real Play Store into `apks/com.pebbi.android-4.4.1.apk` (gitignored evidence tree), plus per-step uiautomator dumps and dashboard screenshots under `results/pebbi-test-20261010/artifacts/`.
+
+### Changed
+- Pebbi date-of-birth blocker resolved: build 3.2.1 now refuses to start ("Update required"), but 4.4.1 on the `apk-test-play` AVD opens the baby form with a wheel-picker date, saves the full profile (Privatia Rigatoni, born 2026-03-14 18:30, Girl), and lands on the dashboard. Recipe proven end to end and recorded in ROADMAP.
+
+### Known
+- The full-window Pebbi transmission capture is still owed: `apk-test-play` is a production build (no root, no system CA, device lock blocks the user-CA path), and `apk-test-api29` (rootable, mitm CA installed as `c8750f0d.0`) has a damaged Play Store after the 2026-10-10 uninstall, so the Pairip license dialog blocks the app there. A 115 KB license-only capture is kept for the record. Recovery needs the operator-supplied Phonesky 30.3.21 APK or the 2026-09-20 GApps zip.
+
 ## 4.6.29 - 2026-10-10
 
 ### Added
