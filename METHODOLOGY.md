@@ -191,7 +191,7 @@ The fictional profile is one identity: "Privatia Rigatoni", born 2026-03-14 at 6
    `bash scripts/scan-synthetic-baby-data.sh results/<app>-test-<date>/artifacts/captures/<app>.mitm`
 
    The script reads the markers from `results/synthetic-baby-profile.json`, greps the raw capture for each one, and reports which fictional values appear in a request body, a response body, or a request URL, with the recipient host, path, method, and status. It emits no adjacent body content, so its report is safe to commit. If you entered a non-sentinel amount or unit because the UI forced it, also search the raw capture for that exact string and record the result.
-9. Record the verdict per app in the Final Report: `transmission_observed` (a marker left the device) or `no_transmission_detected` (the capture shows the entered values did not leave). Name the exact amounts and units that were entered, and say whether those strings left the device. If the capture does not contain the body, say the body was not read. That window is neither verdict.
+9. Record the verdict per app in the Final Report: `transmission_observed` (a marker left the device) or `no_transmission_detected` (the capture shows the entered values did not leave). Name the exact amounts and units that were entered, and say whether those strings left the device. If the capture has no body, write that the body was not read. Do not use either verdict name for that window.
 
 ### Environment blockers (not privacy verdicts)
 

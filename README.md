@@ -131,7 +131,7 @@ An app with no privacy claim cannot fail, because there is no promise to break. 
 
 Every failed app links to its own sanitized network log (`results/network-log-<app>.json`). The logs list hosts, redacted paths, status codes, flow counts, request and response sizes, JSON body keys, header-flag names, and redaction slugs for each captured flow. They contain no query strings, header values, or body values. The slugs state what was removed and why. The method, host, path, status, count, and sizes remain, so the record still proves that the call was sent. The logs are generated from the raw `.mitm` captures by `scripts/build-network-logs.sh`; the raw captures stay local only.
 
-The machine-readable summary is [results/RESULTS-20260803.json](results/RESULTS-20260803.json). Each app row carries an `evidence_source`: `raw-replay` (every flow in the preserved capture was replayed and mined) or `session-summary` (the row is not promoted to a replayed capture). Two apps remain `session-summary`: Baby Buddy, because the PASS is the Django web session, and MimiLog, because its license window is still closed. Nubo and Baby+ joined Amila at `raw-replay` on 2026-08-25; Baby Daybook, Nurture Lock, and Pebbi followed on 2026-10-04 after the Play-enabled recapture. See [ROADMAP.md](ROADMAP.md) and [CHANGELOG.md](CHANGELOG.md).
+The machine-readable summary is [results/RESULTS-20260803.json](results/RESULTS-20260803.json). Each app row carries an `evidence_source`: `raw-replay` (the preserved capture was replayed) or `session-summary` (the row is not a replayed capture). Baby Buddy and MimiLog are still `session-summary`. Nubo and Baby+ joined Amila at `raw-replay` on 2026-08-25. Baby Daybook, Nurture Lock, and Pebbi followed on 2026-10-04. See [ROADMAP.md](ROADMAP.md) and [CHANGELOG.md](CHANGELOG.md).
 
 | App | Privacy claim | Result | Privacy | Confidence | Key findings |
 | --- | --- | --- | --- | --- | --- |
@@ -170,10 +170,10 @@ This project tests baby and parenting apps against their privacy claims. The cur
 
 ### What is next
 
-* **Written limits, not a recapture queue.** Baby Buddy stays `session-summary`: the PASS is the Django web session, not the Android companion. MimiLog stays `session-summary`: the license window is closed on an account-review hold, and the writeup says the package has no `INTERNET`. That hold is not a privacy fail. See `ROADMAP.md`.
-* **Pebbi:** the committed capture is still the 2026-10-04 file (51 flows, profile not saved that day). On 2026-10-10 the profile saved. The proxy file had no Pebbi flows. A packet capture saw `app.pebbi.co` and the body was not read, so that window has no marker verdict.
-* **Independent verification welcome:** the harness and method are open for others to confirm the findings.
-* The git repo is already public. A separate article site is not required to read the report.
+* Baby Buddy is still `session-summary`. The PASS is the Django web session. MimiLog is still `session-summary`. The license window is closed on an account-review hold, and the package declares no `INTERNET`. See `ROADMAP.md`.
+* Pebbi's committed capture is the 2026-10-04 file (51 flows, profile not saved). On 2026-10-10 the profile saved. The mitm file has no Pebbi flows. tcpdump saw `app.pebbi.co`. We did not read the TLS.
+* I welcome checks of the method and the findings.
+* This git repo is already public.
 
 If you have suggestions for coverage or issues with the method, I welcome them.
 
