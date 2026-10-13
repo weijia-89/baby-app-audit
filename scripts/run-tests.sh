@@ -271,6 +271,12 @@ preflight() {
     fi
     rm -f "$fanout_output"
 
+    # Marker-scan reports: relative paths, finding lists, and claim limits.
+    if ! python3 "$repo_root/scripts/check-marker-scans.py"; then
+        error "Marker-scan report check failed"
+        return 1
+    fi
+
     if [ "$failed" -eq 1 ]; then
         warn "Some required tools are missing. Running in BEST_EFFORT mode."
         echo "TOOLS_MISSING" > "$ARTIFACTS_DIR/logs/preflight-status.txt"

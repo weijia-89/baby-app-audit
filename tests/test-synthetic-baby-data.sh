@@ -87,8 +87,9 @@ cat > "$tmp_dir/capture-negative.json" <<'EOF'
 }
 EOF
 
-out_a="$tmp_dir/positive.json"
-out_b="$tmp_dir/negative.json"
+mkdir -p "$tmp_dir/reports"
+out_a="$tmp_dir/reports/positive.json"
+out_b="$tmp_dir/reports/negative.json"
 
 bash "$scanner" "$tmp_dir/capture-positive.json" "$out_a"
 bash "$scanner" "$tmp_dir/capture-negative.json" "$out_b"
@@ -129,10 +130,41 @@ assert all(f["host"] != "storage.googleapis.com" for f in app["findings"])
 assert any(f["side"] == "response" for f in app["findings"])
 assert any(f["side"] in ("request", "url") for f in app["findings"])
 
-# Negative fixture: no transmission.
-assert b["apps"][0]["transmission_observed"] is False
-assert b["apps"][0]["verdict"] == "no_transmission_detected"
-assert b["apps"][0]["findings"] == []
+# Negative fixture: no transmission. The finding list stays present and empty.
+neg = b["apps"][0]
+assert neg["transmission_observed"] is False
+assert neg["verdict"] == "no_transmission_detected"
+assert neg["findings"] == []
+assert neg["flows_scanned"] == 1
+assert neg["claim_limit"].startswith("not observed in this capture window")
+assert "does not prove the app never sends" in neg["claim_limit"]
+assert not neg["capture"].startswith("/")
+assert not b["profile_source"].startswith("/")
+assert b["profile_source"] == "results/synthetic-baby-profile.json"
+assert b["method"].startswith("marker search of the raw local capture")
+assert not app["capture"].startswith("/")
+assert app["claim_limit"].startswith("a high or medium name")
 
 print("Synthetic baby-data scan test passed")
 PY
+
+python3 "$repo_root/scripts/check-marker-scans.py" "$tmp_dir/reports"
+if python3 -c 'import jsonschema' >/dev/null 2>&1; then
+    python3 "$repo_root/scripts/check-marker-scans.py" --strict "$tmp_dir/reports"
+fi
+
+# An absolute capture path must fail the checker.
+bad_dir="$tmp_dir/bad"
+mkdir -p "$bad_dir"
+python3 - "$out_b" "$bad_dir/absolute.json" <<'PY'
+import json
+import os
+import sys
+report = json.load(open(sys.argv[1]))
+report["apps"][0]["capture"] = "/tmp/secret-capture.mitm"
+json.dump(report, open(sys.argv[2], "w"))
+PY
+if python3 "$repo_root/scripts/check-marker-scans.py" "$bad_dir"; then
+    echo "ERROR: absolute capture path was accepted" >&2
+    exit 1
+fi

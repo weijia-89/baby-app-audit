@@ -1,5 +1,15 @@
 # Changelog
 
+## 4.6.33 - 2026-10-13
+
+### Added
+- `results/synthetic-baby-data.schema.json` is the schema for a marker-scan report.
+- `scripts/check-marker-scans.py` checks each JSON file in `results/marker-scans/`. It rejects an absolute path. A negative row must keep its finding list and its claim limit. CI runs the same check in strict mode.
+- `scripts/scan-synthetic-baby-data.sh` writes the capture path relative to the repo. It also writes the scan method. Each app row has a claim limit.
+
+### Known
+- The 2026-10-04 marker-scan files (Baby Daybook, Nurture Lock, Pebbi two windows, MimiLog) are not in this checkout. Git history never stored them. `results/marker-scans/` has no app report. A later run has to scan those raw captures again. This slice does not invent those rows.
+
 ## 4.6.32 - 2026-10-13
 
 ### Changed

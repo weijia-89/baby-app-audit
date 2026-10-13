@@ -70,7 +70,9 @@ jobs:
            python3 -m json.tool results/decode-traffic.schema.json > /dev/null
            python3 -m json.tool results/network-log.schema.json > /dev/null
            python3 -m json.tool results/analytics-pii.schema.json > /dev/null
+           python3 -m json.tool results/synthetic-baby-data.schema.json > /dev/null
            python3 -m json.tool results/analytics-pii-20260803.json > /dev/null
+           python3 -m py_compile scripts/check-marker-scans.py
            python3 -m json.tool results/RESULTS-20260803.json > /dev/null
           for log in results/network-log-*.json; do
             python3 -m json.tool "$log" > /dev/null
@@ -231,6 +233,12 @@ jobs:
           analytics_schema = json.loads((root / "results/analytics-pii.schema.json").read_text())
           validator = Draft7Validator(analytics_schema)
           validator.validate(json.loads((root / "results/analytics-pii-20260803.json").read_text()))
+
+          import subprocess
+          import sys
+          strict = subprocess.run([sys.executable, "scripts/check-marker-scans.py", "--strict"], check=False)
+          if strict.returncode != 0:
+              raise SystemExit(strict.returncode)
           PY
           echo "New schemas and sanitized network logs are valid"
 
