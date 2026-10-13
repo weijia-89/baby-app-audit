@@ -1,0 +1,173 @@
+{
+  "$schema": "synthetic-baby-data/1.0",
+  "schema_version": "1.0",
+  "profile_name": "Privatia Rigatoni",
+  "profile_source": "results/synthetic-baby-profile.json",
+  "captures_scanned": 1,
+  "apps_with_transmission": 0,
+  "method": "marker search of the raw local capture (request body, response body, and URL). Sanitized network logs are not searched.",
+  "scope": "Markers come from the fictional synthetic baby profile. A match in a request body or URL proves the entered value left the device. The committed, sanitized network logs are not searched because their bodies are redacted.",
+  "apps": [
+    {
+      "app": "mimilog",
+      "package_name": "",
+      "capture": "results/mimilog-test-20261004/artifacts/captures/mimilog.mitm",
+      "flows_scanned": 54,
+      "markers_matched": 12,
+      "transmission_observed": false,
+      "recipients": [
+        "firebaseinstallations.googleapis.com",
+        "play-lh.googleusercontent.com",
+        "playstoregatewayadapter-pa.googleapis.com"
+      ],
+      "verdict": "no_transmission_detected",
+      "claim_limit": "not observed in this capture window under marker search of the raw file. This does not prove the app never sends the value.",
+      "findings": [
+        {
+          "marker_id": "formula_click_increment",
+          "marker_type": "numeric",
+          "marker_confidence": "low",
+          "method": "GET",
+          "host": "play-lh.googleusercontent.com",
+          "path": "https://play-lh.googleusercontent.com/lVjRHHVseNHDT6gGc3737A0yHUcwqwtDK3Lj7SgxWdlMkZF8AVfSuKPTLqiLEY491v6BABJzArFAGn0n=rw-w570-v1-e15",
+          "status": 200,
+          "vendor": "Unclassified host",
+          "recipient_class": "unknown_host",
+          "side": "response"
+        },
+        {
+          "marker_id": "nursing_timeout_min",
+          "marker_type": "numeric",
+          "marker_confidence": "low",
+          "method": "GET",
+          "host": "play-lh.googleusercontent.com",
+          "path": "https://play-lh.googleusercontent.com/lVjRHHVseNHDT6gGc3737A0yHUcwqwtDK3Lj7SgxWdlMkZF8AVfSuKPTLqiLEY491v6BABJzArFAGn0n=rw-w570-v1-e15",
+          "status": 200,
+          "vendor": "Unclassified host",
+          "recipient_class": "unknown_host",
+          "side": "response"
+        },
+        {
+          "marker_id": "formula_click_increment",
+          "marker_type": "numeric",
+          "marker_confidence": "low",
+          "method": "POST",
+          "host": "playstoregatewayadapter-pa.googleapis.com",
+          "path": "https://playstoregatewayadapter-pa.googleapis.com/play.gateway.adapter.phonesky.BrowseService/GetBulkPrefetch",
+          "status": 200,
+          "vendor": "Google/Firebase",
+          "recipient_class": "known_third_party",
+          "side": "response"
+        },
+        {
+          "marker_id": "nursing_timeout_min",
+          "marker_type": "numeric",
+          "marker_confidence": "low",
+          "method": "POST",
+          "host": "playstoregatewayadapter-pa.googleapis.com",
+          "path": "https://playstoregatewayadapter-pa.googleapis.com/play.gateway.adapter.phonesky.BrowseService/GetBulkPrefetch",
+          "status": 200,
+          "vendor": "Google/Firebase",
+          "recipient_class": "known_third_party",
+          "side": "response"
+        },
+        {
+          "marker_id": "nursing_timeout_min",
+          "marker_type": "numeric",
+          "marker_confidence": "low",
+          "method": "GET",
+          "host": "play-lh.googleusercontent.com",
+          "path": "https://play-lh.googleusercontent.com/84SCX7HSGqYdfytJnYGVBH_XBBaOMxWRQ2h7Rab9RkY-K0Ni9JWcKJTYPL_MZePUVIdZ4rmPcgE2tulnYwEn=rw-h244-v1-e15",
+          "status": 200,
+          "vendor": "Unclassified host",
+          "recipient_class": "unknown_host",
+          "side": "response"
+        },
+        {
+          "marker_id": "formula_click_increment",
+          "marker_type": "numeric",
+          "marker_confidence": "low",
+          "method": "GET",
+          "host": "play-lh.googleusercontent.com",
+          "path": "https://play-lh.googleusercontent.com/BVYkThKXvw4j8VnpCbqCj-IVdKC1WvK035gEge9WsgMtgNu3TWv6Z9s2rMR6NPMdShxKT69yqyw=rw-h585-v1-e15",
+          "status": 200,
+          "vendor": "Unclassified host",
+          "recipient_class": "unknown_host",
+          "side": "response"
+        },
+        {
+          "marker_id": "nursing_timeout_min",
+          "marker_type": "numeric",
+          "marker_confidence": "low",
+          "method": "GET",
+          "host": "play-lh.googleusercontent.com",
+          "path": "https://play-lh.googleusercontent.com/BVYkThKXvw4j8VnpCbqCj-IVdKC1WvK035gEge9WsgMtgNu3TWv6Z9s2rMR6NPMdShxKT69yqyw=rw-h585-v1-e15",
+          "status": 200,
+          "vendor": "Unclassified host",
+          "recipient_class": "unknown_host",
+          "side": "response"
+        },
+        {
+          "marker_id": "formula_click_increment",
+          "marker_type": "numeric",
+          "marker_confidence": "low",
+          "method": "GET",
+          "host": "play-lh.googleusercontent.com",
+          "path": "https://play-lh.googleusercontent.com/ymoNIvUqOseE9ElyAKUQY8mN88OGt2EjW20xGPGtXkSSpUikIjDP2edzpzHO8hewEV4JXzVAde4=rw-h585-v1-e15",
+          "status": 200,
+          "vendor": "Unclassified host",
+          "recipient_class": "unknown_host",
+          "side": "response"
+        },
+        {
+          "marker_id": "formula_click_increment",
+          "marker_type": "numeric",
+          "marker_confidence": "low",
+          "method": "GET",
+          "host": "play-lh.googleusercontent.com",
+          "path": "https://play-lh.googleusercontent.com/5xh8WrjPyMD7bT-nkpHEYbp_1RUIETbNFbMz9yuv3vVuOsQ6ti7m6zeGCYZfqNsdEkM2i0JcDlI=rw-h598-v1-e15",
+          "status": 200,
+          "vendor": "Unclassified host",
+          "recipient_class": "unknown_host",
+          "side": "response"
+        },
+        {
+          "marker_id": "nursing_timeout_min",
+          "marker_type": "numeric",
+          "marker_confidence": "low",
+          "method": "GET",
+          "host": "play-lh.googleusercontent.com",
+          "path": "https://play-lh.googleusercontent.com/5xh8WrjPyMD7bT-nkpHEYbp_1RUIETbNFbMz9yuv3vVuOsQ6ti7m6zeGCYZfqNsdEkM2i0JcDlI=rw-h598-v1-e15",
+          "status": 200,
+          "vendor": "Unclassified host",
+          "recipient_class": "unknown_host",
+          "side": "response"
+        },
+        {
+          "marker_id": "nursing_timeout_min",
+          "marker_type": "numeric",
+          "marker_confidence": "low",
+          "method": "GET",
+          "host": "play-lh.googleusercontent.com",
+          "path": "https://play-lh.googleusercontent.com/O8VG1Th42cBlvqzKsdvI5RAQv3LSFifkXu_jvnmQlUj2XzI2lRLMCBWSEEDPMCaUxNPq1qDw4zrH=rw-h585-v1-e15",
+          "status": 200,
+          "vendor": "Unclassified host",
+          "recipient_class": "unknown_host",
+          "side": "response"
+        },
+        {
+          "marker_id": "formula_click_increment",
+          "marker_type": "numeric",
+          "marker_confidence": "low",
+          "method": "POST",
+          "host": "firebaseinstallations.googleapis.com",
+          "path": "https://firebaseinstallations.googleapis.com/v1/projects/baby-daybook-app/installations",
+          "status": 200,
+          "vendor": "Google/Firebase",
+          "recipient_class": "known_third_party",
+          "side": "response"
+        }
+      ]
+    }
+  ]
+}
