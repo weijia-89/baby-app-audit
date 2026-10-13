@@ -1,7 +1,7 @@
 # Final Report - Which Baby Apps Keep Their Privacy Promises
 
 **Test run:** baby-app-audit-20260803
-**Dates:** 2026-08-03 to 2026-10-04
+**Dates:** 2026-08-03 to 2026-10-10
 **Harness version:** 3.3.0
 **Author:** Wei Jia
 **License:** GPL-3.0
@@ -22,7 +22,7 @@ Host, path, status, count, and sizes live in the sanitized network logs. This re
 | Nara | "Complete privacy" | FAIL | 🚫 | 90% | Nine Facebook calls at launch, plus a Google crash report |
 | Nubo | "Local-first" | FAIL | 🚫 | 95% | First launch sends an install register, crash settings, and push registers to Google |
 | Nurture Lock | "100% offline" | FAIL | 🚫 | 95% | RevenueCat call tagged to the app; onboarding window shows ad and measurement hosts. Eight tracking companies in the APK |
-| Pebbi | No claim (control) | No claim | 🚫 | 100% | Own server and Firebase again on 2026-10-04; profile form blocked by a dead date field |
+| Pebbi | No claim (control) | No claim | 🚫 | 100% | Own server and Firebase on 2026-10-04, when the profile did not save. On 2026-10-10 the profile saved; the proxy file had no Pebbi flows; a packet capture saw `app.pebbi.co` and the body was not read |
 | Pixy | "Bank-level encryption" | FAIL | 🚫 | 90% | Three Facebook calls at launch to load tracking rules |
 | BabyCenter | No claim | No claim | 🚫 | 95% | **Microsoft Clarity receives screen content, text, pictures, and taps.** Ads and attribution too |
 | BellyBloom | No claim | No claim | 🚫 | 90% | Advertising ID, usage, and which advert brought you, to many companies |
@@ -95,7 +95,8 @@ We enter one fictional baby (Privatia Rigatoni). Markers are in `results/synthet
 | Nurture Lock | 2026-08-17 | no inject | Pairip CLOSE only. Environment blocker |
 | Baby Daybook | 2026-10-04 full profile inject | `no_transmission_detected` | Name saved on-device (local SQLite row); home shows **Privatia Rigatoni**. Numeric marker hits were low-confidence coincidences in Google auth replies |
 | Nurture Lock | 2026-10-04 onboarding name | `no_transmission_detected` | Home shows **Privatia Rigatoni**. RevenueCat tagged to the package; no name marker in the capture |
-| Pebbi | 2026-10-04 profile form, two windows | `no_transmission_detected` | Name typed, but the date field took no input; Complete Setup never fired; profile not saved |
+| Pebbi | 2026-10-04 profile form, two windows | `no_transmission_detected` | Name typed, but the date field took no input; Complete Setup never fired; profile not saved. This verdict is only that window |
+| Pebbi | 2026-10-10 saved profile | not a marker verdict | Profile saved. Mitm file had no Pebbi flows. Tcpdump saw `app.pebbi.co`. The body was not read, so the sentinel was neither found nor ruled out |
 | MimiLog | 2026-10-04 Play-gated window | `no_transmission_detected` | App has no `INTERNET` permission; capture holds Play Store and Google hosts only |
 
 ## Proprietary apps - long report
@@ -372,8 +373,8 @@ Baby Buddy is the only open-source app in this test.
 
 - **Claim:** No claim (control app)
 - **Result:** No claim
-- **Confidence:** 100%. The 2026-10-04 window holds 51 flows: the capture tags Firebase Installations and the `app.pebbi.co` version-policy call to the package, with Crashlytics settings, RevenueCat, and Play Store traffic around them. Heavy volume keeps the 🚫 mark. We reached the profile form, but the date-of-birth field took no input, so Complete Setup never fired and no profile saved.
-- **Capture:** 2026-10-04, profile-form window, 51 flows. Evidence source promoted to `raw-replay`. Launch window: 2026-08-03.
+- **Confidence:** 100%. The 2026-10-04 window holds 51 flows: the capture tags Firebase Installations and the `app.pebbi.co` version-policy call to the package, with Crashlytics settings, RevenueCat, and Play Store traffic around them. Heavy volume keeps the 🚫 mark. That day the date-of-birth field took no input, so the profile was not saved, and the marker scan on that capture is `no_transmission_detected`.
+- **Capture:** 2026-10-04, profile-form window, 51 flows. Evidence source `raw-replay`. That file stays the committed capture. Launch window: 2026-08-03. On 2026-10-10 the profile did save. Changelog 4.6.30 records 18:30 on the Play image; changelog 4.6.31 records 22:25 on the later api29 inject. The mitm file from that inject (`pebbi-4.4.1-full.mitm`, 8 flows) held Google and Play hosts only. A tcpdump saw DNS and TLS to `app.pebbi.co`. The body was not read. That is not a marker verdict, and it does not replace the 51-flow file.
 
 | Service | What we saw |
 | --- | --- |
@@ -396,8 +397,8 @@ Four of the five long-report apps ship install and ad programs (Facebook, Adjust
 - Captures are launch and early use. Later sessions can differ.
 - We removed response bodies and header values because they can carry tokens. Logs keep method, host, path, status, count, and sizes. A scrubbed body is not proof that PII was absent.
 - Evidence depth is not equal. Fourteen apps are `raw-replay` (Nubo and Baby+ promoted 2026-08-25; Baby Daybook, Nurture Lock, and Pebbi promoted 2026-10-04). Two are still `session-summary` in `results/RESULTS-20260803.json`: Baby Buddy and MimiLog.
-- Treat session-summary rows as a lower bound. Later local `.mitm` files can exist and still not change a mark. Recapture plan: `ROADMAP.md` Sprint 5.
-- Pairip blocked all four apps until 2026-09-20, when a real Play Store on the test emulator made the license checks pass. We recaptured Baby Daybook, Nurture Lock, and Pebbi on 2026-10-04. MimiLog's own window never opened: without a signed-in Google account the Play license check fails, and the package has no `INTERNET` permission anyway. These are environment facts, not privacy marks.
+- Baby Buddy stays `session-summary` because the PASS is the Django web session, not the Android companion. MimiLog stays `session-summary`: changelog 4.6.31 says the store reinstall is blocked by an account-review hold, and the writeup says the package has no `INTERNET`. Those are written limits, not an open recapture queue. A license dialog is not a privacy mark.
+- Pairip blocked all four apps until 2026-09-20, when a real Play Store on the test emulator made the license checks pass. We recaptured Baby Daybook, Nurture Lock, and Pebbi on 2026-10-04. Pebbi's 2026-10-10 saved profile is a separate window: the proxy file had no Pebbi flows, and the packet capture's TLS body was not read. MimiLog's own window never opened. These are environment facts, not privacy marks.
 - baby-track, cradle, and dymn-baby had no usable APK. No captures.
 
 ## Advice
