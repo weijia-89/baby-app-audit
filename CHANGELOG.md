@@ -1,5 +1,14 @@
 # Changelog
 
+## 4.6.32 - 2026-10-13
+
+### Changed
+- Pebbi, 2026-10-04: still the committed file, 51 flows. The date field took no input. The profile did not save. Marker scan on that file: `no_transmission_detected`.
+- Pebbi, 2026-10-10: the profile saved. `pebbi-4.4.1-full.mitm` has 8 flows, all Google and Play. tcpdump saw DNS and TLS to `app.pebbi.co`. We did not read that TLS. Play-image OCR time is 18:30 (4.6.30). The api29 inject time in 4.6.31 is 22:25. Those two entries were not edited.
+- Class, evidence source, flow file, destinations, and flow counts are the same.
+- Roadmap: the api29 store repair from 4.6.31 is back in the current notes. Burst 5 is done. Baby Buddy and MimiLog stay `session-summary`.
+- Methodology: if a capture has no body, say so. Do not call that window `transmission_observed` or `no_transmission_detected`.
+
 ## 4.6.31 - 2026-10-10
 
 ### Added

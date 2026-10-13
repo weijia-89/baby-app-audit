@@ -166,7 +166,7 @@
       "verdict": "fail",
       "privacy_class": "major",
       "verdict_confidence": 100,
-      "evidence": "Positive control. The 2026-10-04 capture (51 flows) attributes Firebase Installations and the app.pebbi.co version-policy call to the package; the window also holds Crashlytics settings, RevenueCat, and Play Store traffic. The baby profile form was reached, but the date-of-birth field took no input, so Complete Setup never fired and the profile was not saved. Pairip license check passes on the Play-enabled image.",
+      "evidence": "Positive control. The 2026-10-04 capture (51 flows) attributes Firebase Installations and the app.pebbi.co version-policy call to the package. The same window holds Crashlytics settings, RevenueCat, and Play Store traffic. That day the date field took no input, so the profile did not save. On 2026-10-10 the profile saved. The mitm file has 8 flows, all Google and Play. tcpdump saw DNS and TLS to app.pebbi.co and a Crashlytics settings lookup. We did not read that TLS. The committed flow_file is still the 2026-10-04 capture. Pairip license check passes on the Play-enabled image.",
       "apk_hash": {
         "sha256": "2178136085fc16b74f8bc4c7e2a1c7dbb3b4e6e39b40617065a9b0433d345066",
         "timestamp": "2026-08-03T21:49:45Z",
