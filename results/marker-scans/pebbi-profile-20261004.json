@@ -1,0 +1,39 @@
+{
+  "$schema": "synthetic-baby-data/1.0",
+  "schema_version": "1.0",
+  "profile_name": "Privatia Rigatoni",
+  "profile_source": "results/synthetic-baby-profile.json",
+  "captures_scanned": 1,
+  "apps_with_transmission": 0,
+  "method": "marker search of the raw local capture (request body, response body, and URL). Sanitized network logs are not searched.",
+  "scope": "Markers come from the fictional synthetic baby profile. A match in a request body or URL proves the entered value left the device. The committed, sanitized network logs are not searched because their bodies are redacted.",
+  "apps": [
+    {
+      "app": "pebbi-profile",
+      "package_name": "",
+      "capture": "results/pebbi-test-20261004/artifacts/captures/pebbi-profile.mitm",
+      "flows_scanned": 7,
+      "markers_matched": 1,
+      "transmission_observed": false,
+      "recipients": [
+        "app-measurement.com"
+      ],
+      "verdict": "no_transmission_detected",
+      "claim_limit": "not observed in this capture window under marker search of the raw file. This does not prove the app never sends the value.",
+      "findings": [
+        {
+          "marker_id": "nursing_timeout_min",
+          "marker_type": "numeric",
+          "marker_confidence": "low",
+          "method": "GET",
+          "host": "app-measurement.com",
+          "path": "https://app-measurement.com/config/app/1%3A341351821472%3Aandroid%3A14124c1ebb45d70fc499c5?platform=android&gmp_version=106000&runtime_version=0",
+          "status": 200,
+          "vendor": "Google/Firebase",
+          "recipient_class": "known_third_party",
+          "side": "response"
+        }
+      ]
+    }
+  ]
+}

@@ -220,6 +220,25 @@ def load_flows(path):
     return flows
 
 
+def public_path(path):
+    """Repo-relative path, or the file name if the file sits outside the repo.
+
+    A committed report must not carry an absolute machine path.
+    """
+    try:
+        resolved = Path(path).resolve()
+    except OSError:
+        resolved = Path(path)
+    try:
+        rel = resolved.relative_to(repo_root_path)
+    except ValueError:
+        rel = Path(resolved.name)
+    text = rel.as_posix()
+    if text.startswith("/") or text == ".." or text.startswith("../") or "/../" in text:
+        return resolved.name
+    return text
+
+
 def main():
     # Validate profile path is within repo_root to avoid path traversal via SYNTHETIC_PROFILE
     profile_path_resolved = Path(profile_path).resolve()
@@ -310,15 +329,26 @@ def main():
         if high_transmission:
             total_transmissions += 1
         verdict = "transmission_observed" if high_transmission else "no_transmission_detected"
+        if verdict == "no_transmission_detected":
+            claim_limit = (
+                "not observed in this capture window under marker search of the raw file. "
+                "This does not prove the app never sends the value."
+            )
+        else:
+            claim_limit = (
+                "a high or medium name, note, or string marker was in a request or URL "
+                "in this capture window."
+            )
         apps.append({
             "app": app_name,
             "package_name": package,
-            "capture": str(cap_path),
+            "capture": public_path(cap_path),
             "flows_scanned": len(flows),
             "markers_matched": len(findings),
             "transmission_observed": high_transmission,
             "recipients": recipients,
             "verdict": verdict,
+            "claim_limit": claim_limit,
             "findings": findings,
         })
 
@@ -326,9 +356,13 @@ def main():
         "$schema": "synthetic-baby-data/1.0",
         "schema_version": "1.0",
         "profile_name": profile.get("profile_name", ""),
-        "profile_source": str(profile_path),
+        "profile_source": public_path(profile_path),
         "captures_scanned": len(captures),
         "apps_with_transmission": total_transmissions,
+        "method": (
+            "marker search of the raw local capture (request body, response body, and URL). "
+            "Sanitized network logs are not searched."
+        ),
         "scope": "Markers come from the fictional synthetic baby profile. A match in a request body or URL proves the entered value left the device. The committed, sanitized network logs are not searched because their bodies are redacted.",
         "apps": apps,
     }

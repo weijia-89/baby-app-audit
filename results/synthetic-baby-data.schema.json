@@ -1,0 +1,126 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/weijia-89/baby-app-audit/results/synthetic-baby-data.schema.json",
+  "title": "Synthetic baby marker-scan report",
+  "description": "Commit-safe marker search of one raw capture window. A negative verdict is a lower bound for that window and that method. The report has no request or response body text.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "$schema",
+    "schema_version",
+    "profile_name",
+    "profile_source",
+    "captures_scanned",
+    "apps_with_transmission",
+    "method",
+    "scope",
+    "apps"
+  ],
+  "properties": {
+    "$schema": { "const": "synthetic-baby-data/1.0" },
+    "schema_version": { "const": "1.0" },
+    "profile_name": { "type": "string", "minLength": 1 },
+    "profile_source": { "type": "string", "pattern": "^(?!/)(?!.*\\.\\.).+$" },
+    "captures_scanned": { "type": "integer", "minimum": 0 },
+    "apps_with_transmission": { "type": "integer", "minimum": 0 },
+    "method": {
+      "const": "marker search of the raw local capture (request body, response body, and URL). Sanitized network logs are not searched."
+    },
+    "scope": { "type": "string", "minLength": 1 },
+    "apps": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "app",
+          "package_name",
+          "capture",
+          "flows_scanned",
+          "markers_matched",
+          "transmission_observed",
+          "recipients",
+          "verdict",
+          "claim_limit",
+          "findings"
+        ],
+        "properties": {
+          "app": { "type": "string" },
+          "package_name": { "type": "string" },
+          "capture": { "type": "string", "pattern": "^(?!/)(?!.*\\.\\.).+$" },
+          "flows_scanned": { "type": "integer", "minimum": 0 },
+          "markers_matched": { "type": "integer", "minimum": 0 },
+          "transmission_observed": { "type": "boolean" },
+          "recipients": { "type": "array", "items": { "type": "string" } },
+          "verdict": {
+            "enum": ["transmission_observed", "no_transmission_detected"]
+          },
+          "claim_limit": { "type": "string", "minLength": 1 },
+          "findings": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "marker_id",
+                "marker_type",
+                "marker_confidence",
+                "method",
+                "host",
+                "path",
+                "status",
+                "vendor",
+                "recipient_class",
+                "side"
+              ],
+              "properties": {
+                "marker_id": { "type": "string" },
+                "marker_type": { "type": "string" },
+                "marker_confidence": { "enum": ["high", "medium", "low"] },
+                "method": { "type": "string" },
+                "host": { "type": "string" },
+                "path": { "type": "string" },
+                "status": { "type": "integer" },
+                "vendor": { "type": "string" },
+                "recipient_class": {
+                  "enum": ["known_third_party", "first_party_suspected", "unknown_host"]
+                },
+                "side": { "enum": ["request", "response", "url"] }
+              }
+            }
+          }
+        },
+        "allOf": [
+          {
+            "if": {
+              "properties": { "verdict": { "const": "no_transmission_detected" } },
+              "required": ["verdict"]
+            },
+            "then": {
+              "properties": {
+                "transmission_observed": { "const": false },
+                "claim_limit": {
+                  "const": "not observed in this capture window under marker search of the raw file. This does not prove the app never sends the value."
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": { "verdict": { "const": "transmission_observed" } },
+              "required": ["verdict"]
+            },
+            "then": {
+              "properties": {
+                "transmission_observed": { "const": true },
+                "claim_limit": {
+                  "const": "a high or medium name, note, or string marker was in a request or URL in this capture window."
+                }
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+}
