@@ -2,7 +2,7 @@
 
 **Test run:** baby-app-audit-20260803
 **Dates:** 2026-08-03 to 2026-10-10
-**Harness version:** 3.3.0
+**Harness version:** 3.2.0
 **Author:** Wei Jia
 **License:** GPL-3.0
 **Repository:** https://github.com/weijia-89/baby-app-audit

@@ -49,7 +49,7 @@ Define these once before starting. They eliminate magic numbers and hardcoded pa
 #!/usr/bin/env bash
 set -euo pipefail
 
-export HARNESS_VERSION="3.1.0"
+export HARNESS_VERSION="3.2.0"
 export WORK_DIR="${HOME}/apk-privacy-test-$(date -u +%Y%m%d-%H%M%S)"
 export PROXY_HOST="10.0.2.2"
 export PROXY_PORT="8080"
