@@ -95,7 +95,7 @@ Apps that make privacy/offline claims but cannot be acquired via APKPure or F-Dr
 **Goal:** Prove or disprove that entered baby data leaves the device, and to which recipient.
 
 - Fictional profile is fixed: "Privatia Rigatoni", born 2026-03-14 at 6 lbs 8 oz, with sentinel feeding (482 mL), sleep (777 min), and diaper (1234 g) values. The profile and its marker strings are in `results/synthetic-baby-profile.json`.
-- `scripts/scan-synthetic-baby-data.sh` greps the raw local capture (`.mitm` or `decode-traffic-*.json`) for the marker strings and reports which fictional values appear in a request body, a response body, or a request URL, with the recipient host, path, method, and status. It emits no adjacent body content, so the report is safe to commit. Commit that report as `results/marker-scans/<name>.json`. `scripts/check-marker-scans.py` rejects an absolute path. `results/synthetic-scan-*.json` stays off git. A `no_transmission_detected` row means the markers were not observed in that window under that scan. It does not mean the app never sends the value. The 2026-10-04 scan files are not in this checkout, so that folder does not hold them yet.
+- `scripts/scan-synthetic-baby-data.sh` greps the raw local capture (`.mitm` or `decode-traffic-*.json`) for the marker strings and reports which fictional values appear in a request body, a response body, or a request URL, with the recipient host, path, method, and status. It emits no adjacent body content, so the report is safe to commit. Commit that report as `results/marker-scans/<name>.json`. `scripts/check-marker-scans.py` rejects an absolute path. `results/synthetic-scan-*.json` stays off git. A `no_transmission_detected` row means the markers were not observed in that window under that scan. It does not mean the app never sends the value. PR 66 committed five 2026-10-04 reports under `results/marker-scans/`: Baby Daybook, Nurture Lock, Pebbi (two windows), and MimiLog.
 - The committed, sanitized network logs are NOT searched: their bodies are redacted, so the fictional values would be invisible there. Only the raw local capture can show exfiltration.
 - Procedure is documented in `METHODOLOGY.md` (Synthetic baby-data transmission test).
 
@@ -120,7 +120,7 @@ Example: Nubo 2026-08-23 entered formula-per-click **15** (90 did not stick). Th
 | --- | --- | --- |
 | D | Pairip / Play stub tooling-only: docs and harness messaging so Pairip CLOSE and Baby Daybook native crash are never read as privacy PASS/FAIL. No fake verdicts. | Done (PR 50). |
 | Nubo Backup Now | Optional live pass: finish or document GMS consent. Formula 90 optional; **15** already counts. Shut qemu when the pass ends. | Done (PR 51). Last backup time `08/24/2026 18:49:05`. |
-| Sprint 5 | Legacy re-capture and evidence parity (see section below). | Baby Buddy and MimiLog are still `session-summary`. |
+| Sprint 5 | Legacy re-capture and evidence parity (see section below). | Done with two standing exceptions (2026-10-24). Baby Buddy and MimiLog stay `session-summary`. |
 
 ### Per-app injection flows (automated, in progress)
 
@@ -148,7 +148,9 @@ Example: Nubo 2026-08-23 entered formula-per-click **15** (90 did not stick). Th
 
 Note: the earlier generic heuristic injector still works for apps whose onboarding form is reachable from launch, but the per-app `steps` flows are what make the verdicts meaningful and repeatable (no re-driving the app by hand).
 
-## Sprint 5  -  Planned  -  Legacy re-capture and evidence parity
+## Sprint 5  -  Done with two standing exceptions  -  Legacy re-capture and evidence parity
+
+**Status (2026-10-24):** Done with two standing exceptions. Fourteen of sixteen apps are `raw-replay` on the capture each row names. Baby Buddy stays `session-summary`; the PASS is the Django web session. MimiLog stays `session-summary` until the Google account review on the test account clears. Keep zero-byte `.mitm` files.
 
 **Goal:** Bring the apps that `results/RESULTS-20260803.json` still marks `session-summary` up to the same committed evidence depth as the `raw-replay` apps. After the 2026-08-25 overnight batch, five names remained: MimiLog, Nurture Lock, Pebbi, Baby Buddy, and Baby Daybook. After the 2026-10-04 Play-enabled recapture, two remain: Baby Buddy and MimiLog. This section names priorities. It does not invent a privacy PASS or FAIL.
 

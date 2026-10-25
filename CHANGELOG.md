@@ -1,5 +1,15 @@
 # Changelog
 
+## 4.6.34 - 2026-10-24
+
+### Changed
+- Sprint 5 closed with two standing exceptions. Fourteen of sixteen apps are `raw-replay` on the capture each row names in `results/RESULTS-20260803.json`. Baby Buddy stays `session-summary`; the PASS is the Django web session. MimiLog stays `session-summary` until the Google account review on the test account clears; the package declares no `INTERNET`.
+- ROADMAP: the Sprint 5 header moved from Planned to Done with two standing exceptions, and the stale note that the 2026-10-04 marker-scan files were not in the checkout is replaced. PR 66 committed five reports under `results/marker-scans/`.
+- FINAL-REPORT: the synthetic-data section now states the claim limit next to the negative verdicts. A `no_transmission_detected` row means the markers were not observed in that capture window. It does not prove the app never sends the value.
+
+### Known
+- MimiLog's capture window stays closed. Store reinstall is blocked by "Complete account setup / Review your account". The operator has to finish that review; the harness does not bypass it.
+
 ## 4.6.33 - 2026-10-13
 
 ### Added
