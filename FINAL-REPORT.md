@@ -78,7 +78,7 @@ BellyBloom, Pregnancy+, Nara, and Pixy contacted Facebook. Scrubbing removed req
 
 Launch captures had no entered feeding, sleep, or diaper values. This test adds them. It does not replace the launch verdicts.
 
-We enter one fictional baby (Privatia Rigatoni). Markers are in `results/synthetic-baby-profile.json`. We type them while the proxy is live. Short lists keep the value that sticks. The scan greps the raw local capture, not the redacted network logs. Method: `METHODOLOGY.md`. How much of each app we opened: `ROADMAP.md`.
+We enter one fictional baby (Privatia Rigatoni). Markers are in `results/synthetic-baby-profile.json`. We type them while the proxy is live. Short lists keep the value that sticks. The scan greps the raw local capture, not the redacted network logs. A `no_transmission_detected` row means the markers were not observed in that capture window under this scan. It does not prove the app never sends the value. Method: `METHODOLOGY.md`. How much of each app we opened: `ROADMAP.md`.
 
 | App | Inject window | Marker result | Notes |
 | --- | --- | --- | --- |
