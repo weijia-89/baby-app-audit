@@ -35,6 +35,7 @@ ROADMAP-PROMPT-v*.md
 
 # Internal review artifacts
 .agent/
+.trainer/
 
 # Prompts are local-only working material (research/closeout drafts). Never commit.
 prompts/
@@ -49,3 +50,4 @@ prompts/
 .cursor/
 **/__pycache__/
 *.pyc
+.DS_Store
