@@ -67,7 +67,49 @@ Precedence: trainer > the repo's own AGENTS.md loop > form-check/verification > 
 2. Read `ROADMAP.md` for the current sprint and burst, `TESTING-PHASES.md` for the burst plan, and `FINAL-REPORT.md`'s open items.
 3. Confirm harness prerequisites: `python3 --version`, `bash scripts/evidence-inventory.sh --help` (or the current inventory entry point), and whether an APK/emulator path exists. Do not boot an emulator unattended.
 4. Write `/tmp/babyaudit-sprint-<date>/brief.md`: SHA, current burst, apps in scope, criteria version, exact commands, and the evidence paths that already exist.
-5. If the current burst is complete and no next burst is declared in the roadmap, **do not invent a burst**: report "no burst declared, operator decision needed" and stop.
+
+### Phase 0.5: roadmap triage (mandatory, before any decision to stop)
+
+A run may **never** stop for lack of scope without first producing a triage report. "Burst complete" is a finding to explain, not a reason to exit.
+
+Dispatch one subagent (type `product-reviewer`) with the brief path and the roadmap sources, and require a triage report at `/tmp/babyaudit-sprint-<date>/triage.md` that answers, for **every** candidate app and harness item:
+
+1. **Is it still real?** Check whether it already shipped or was already tested. If a prior burst covered it, say so with the evidence path that proves it.
+2. **Is it agent-eligible?** An item is agent-eligible only if a machine can complete it end to end from evidence that already exists: write the finding, cite the evidence path, run the harness, open the PR, and have CI verify the format. Anything requiring new capture from a live device is not.
+3. **If not eligible, which blocker?** Use exactly one of:
+   - `blocked-operator-approval`: needs a human decision, criteria sign-off, or scope choice
+   - `blocked-operator-merge`: waiting on a human to review and merge an open PR
+   - `blocked-operator-runtime`: needs a live emulator, a login flow, or device interaction
+   - `blocked-operator-credential`: needs an account, API key, or paid service
+   - `blocked-evidence`: the capture does not exist yet; name the expected path
+   - `needs-spec`: no testable acceptance criteria tied to the Sprint 3 criteria yet
+4. **What would unblock it?** One sentence naming the smallest human action.
+
+Then, from a **principal PM perspective**:
+- Which candidate apps are mis-prioritized given what has already been tested?
+- Which Sprint 3 criterion has the thinnest evidence coverage across the corpus?
+- Which single app, if evidenced, most strengthens the cross-app comparison?
+
+### Phase 0.6: proceed or report (never silently stop)
+
+- If **two or more** items are agent-eligible, continue to Phase 1.
+- If **fewer than two** are eligible, write `/tmp/babyaudit-sprint-<date>/NEEDS_OPERATOR.md` with the blocker table and the principal-PM recommendation, post its summary on the most recent PR or as an issue, and stop.
+
+That report is the deliverable. Ending with "no burst declared" and nothing else is a failed run.
+
+## 4b. Work an agent must never do (hard boundary)
+
+These are never agent-eligible. An agent may prepare the artifact; it may not perform the human act.
+
+| Not agent work | Why |
+|---|---|
+| Merging a pull request | merge is the operator's acceptance |
+| Approving a review, criteria set, or scope change | the gate exists because a human owns the decision |
+| Driving a login, MFA, or browser flow on a real account | unsafe to automate and should not be |
+| Capturing new evidence from a live device unattended | a machine can run steps but cannot attest to what it observed |
+| Inventing, inferring, or extrapolating a finding | an audit's value is that every claim has an evidence path |
+| Contacting a vendor, filing a complaint, or publishing a report | outward-facing and irreversible |
+| Entering credentials or paid-service keys | never handled by an agent |
 
 ### Phase 1: PM wave (1 subagent, `product-reviewer`)
 
@@ -100,8 +142,10 @@ Hard rule for this repo: a worker may **update metadata and write findings from 
 | Missing evidence for an app | `BLOCKED: missing evidence <path>`; do not drive the emulator unattended; list it for the operator |
 | A worker's finding has no evidence path | CRITICAL; the finding is rejected, not softened |
 | Two workers write the same file | The later dispatcher yields; re-scope or cancel |
-| Burst complete, no next burst declared | Stop and ask; never invent |
-| Nothing legitimate to do | Report "sprint not warranted" |
+| Burst complete, no next burst declared | Run Phase 0.5 triage, write `NEEDS_OPERATOR.md` with the blocker table and principal-PM recommendation, post its summary, and stop |
+| Fewer than two agent-eligible items | Same: triage report then `NEEDS_OPERATOR.md`. Never stop with a bare "no burst declared" |
+| The only work left requires a human decision | Label it with the correct `blocked-operator-*` reason, state the one action that unblocks it, and stop |
+| Nothing legitimate to do | Phase 0.5 triage, then `NEEDS_OPERATOR.md`. The report is the deliverable, not the stop |
 
 ## 6. What a good run looks like
 
