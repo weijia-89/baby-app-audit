@@ -39,6 +39,9 @@ ROADMAP-PROMPT-v*.md
 
 # Prompts are local-only working material (research/closeout drafts). Never commit.
 prompts/
+# Exception: the sprint scheduler's run prompts are committed configuration, not working drafts.
+!scripts/scheduler/prompts/
+!scripts/scheduler/prompts/*.txt
 
 # Local secrets (Google test-account creds for emulator sign-in). NEVER commit.
 .secrets/
