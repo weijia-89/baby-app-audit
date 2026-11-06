@@ -184,6 +184,9 @@ jobs:
       - name: Run results artifact tests
         run: bash tests/test-results-artifacts.sh
 
+      - name: Run sprint scheduler kit tests
+        run: bash scripts/scheduler/tests/test-scheduler.sh
+
       - name: Install lzip (GApps fixture and tarball extraction need it)
         run: sudo apt-get update -qq && sudo apt-get install -y -qq lzip
 
