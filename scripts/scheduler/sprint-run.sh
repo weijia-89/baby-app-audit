@@ -9,6 +9,16 @@ set -uo pipefail
 PROJECT="${1:?usage: sprint-run.sh <project-slug> <sat|sun>}"
 PHASE="${2:?usage: sprint-run.sh <project-slug> <sat|sun>}"
 
+# --- environment (resolved BEFORE any path is used) ------------------------
+# launchd gives a minimal environment; do not assume HOME or a login shell profile is set.
+# This block must run first: every log and state path below derives from HOME, so a later
+# fallback would leave the early writes pointing at /Library and silently discarding them.
+if [[ -z "${HOME:-}" ]] || [[ ! -d "${HOME:-}" ]]; then
+  HOME="$(dscl . -read "/Users/$(id -un)" NFSHomeDirectory 2>/dev/null | awk '{print $2}')"
+  [[ -n "${HOME:-}" ]] || HOME="/Users/$(id -un)"
+  export HOME
+fi
+
 ROOT="/Users/dubs/Projects"
 SCHED="$(cd "$(dirname "$0")" && pwd)"
 LOG_DIR="$HOME/Library/Logs/weekend-sprint"
@@ -22,7 +32,12 @@ LOG="$LOG_DIR/$PROJECT-$PHASE-$STAMP.log"
 # encoded in the slug itself (grok-4.7-medium, grok-4.7-medium-fast), so no bracket override is used.
 MODEL="${SPRINT_MODEL:-grok-4.7-medium}"
 
-mkdir -p "$LOG_DIR" "$STATE_DIR"
+mkdir -p "$LOG_DIR" "$STATE_DIR" || {
+  # With no writable log directory there is nowhere to report a failure; say it on stderr so
+  # launchd's StandardErrorPath captures it rather than losing the reason entirely.
+  printf 'sprint-run: cannot create log or state directory under %s\n' "$HOME" >&2
+  exit 1
+}
 # Logs can contain repo content and paths; keep them private to this user.
 umask 077
 touch "$LOG" 2>/dev/null || true
@@ -33,6 +48,8 @@ case "$PROJECT" in
   toebeans)
     REPO="$ROOT/toebeans"
     CONTRACT="$REPO/docs/orchestration/sprint-orchestrator.md"
+    # Prompt resolves beside this script, so the driver always reads its own repo's copy
+    # even if an older plist still points at a different checkout.
     PROMPT="$SCHED/prompts/toebeans-$PHASE.txt"
     ;;
   baby-app-audit)
@@ -68,18 +85,29 @@ model_available() {
   grep -qi -- "$needle" "$cache"
 }
 
+# A prompt must come from this kit's own directory. If a stale plist points the driver at
+# another repo's kit, it would run the wrong instructions for the wrong project.
+case "$SCHED" in
+  */toebeans/scripts/scheduler) EXPECTED_KIT="toebeans" ;;
+  */baby-app-audit-sprint4/scripts/scheduler) EXPECTED_KIT="baby-app-audit" ;;
+  *) EXPECTED_KIT="" ;;
+esac
+if [[ -n "$EXPECTED_KIT" ]] && [[ "$EXPECTED_KIT" != "$PROJECT" ]]; then
+  fail "driver kit is for '$EXPECTED_KIT' but was asked to run '$PROJECT' (stale plist? reinstall from the matching repo)"
+fi
+
 # --- preflight -------------------------------------------------------------
 [[ -x "$AGENT_BIN" ]] || fail "agent CLI missing at $AGENT_BIN (install: curl https://cursor.com/install -fsS | bash)"
 [[ -d "$REPO" ]] || fail "repo missing: $REPO"
 [[ -f "$CONTRACT" ]] || fail "contract missing: $CONTRACT (merge the sprint-orchestrator PR first)"
 [[ -f "$PROMPT" ]] || fail "prompt missing: $PROMPT"
 
-# Auth: probe, but never block on the probe. It has produced false negatives (a sandboxed or
-# worker-owned process reports "not logged in" while the account is fine), and a false negative
-# cancels a legitimate run. The real `agent --print` call below fails loudly with a nonzero exit
-# and an "Authentication required" line, which is the authoritative signal and is checked after.
+# Auth: probe, but never block on the probe. Note the probe reads environment-dependent state:
+# a sandboxed or worker-owned process reports "not logged in" while the account is fine, and the
+# real run then succeeds. The authoritative signal is the `agent --print` call itself, whose
+# failure text is caught after the run.
 if "$AGENT_BIN" status 2>&1 | grep -qi "not logged in\|no user\|unauthenticated"; then
-  log "WARN auth probe says not logged in; continuing, the run itself will fail loudly if true"
+  log "NOTE auth probe says not logged in here; proceeding (the probe reflects this process's view, not the launchd job's)"
 fi
 
 # Model must exist on this account before we spend a request on it.
@@ -123,28 +151,33 @@ trap 'release_lock; exit 130' INT TERM
 # Keep the log dir from growing without bound.
 find "$LOG_DIR" -name '*.log' -mtime +45 -delete 2>/dev/null || true
 
-# --- environment -----------------------------------------------------------
-# launchd gives a minimal environment; do not assume HOME or a login shell profile is set.
-# Falling back to the passwd entry keeps log and state paths stable even under a bare launchd.
-if [[ -z "${HOME:-}" ]] || [[ ! -d "${HOME:-}" ]]; then
-  HOME="$(dscl . -read "/Users/$(id -un)" NFSHomeDirectory 2>/dev/null | awk '{print $2}')"
-  [[ -n "$HOME" ]] || HOME="/Users/$(id -un)"
-  export HOME
-fi
-LOG_DIR="$HOME/Library/Logs/weekend-sprint"
-STATE_DIR="$HOME/Library/Application Support/weekend-sprint"
-LOG="$LOG_DIR/$PROJECT-$PHASE-$STAMP.log"
-
+# --- toolchain -------------------------------------------------------------
 export PATH="$HOME/.local/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
-export JAVA_HOME="/opt/homebrew/opt/openjdk@17/libexec/openjdk.jdk/Contents/Home"
-export ANDROID_HOME="$HOME/Library/Android/sdk"
-export PATH="$JAVA_HOME/bin:$ANDROID_HOME/platform-tools:$ANDROID_HOME/emulator:$PATH"
+# Toolchain paths differ per project: toebeans is Gradle + Android, baby-app-audit is a Python
+# harness. Exporting a JDK for a repo with no Gradle build is harmless but misleading, so the
+# dependency is declared per project instead of globally.
+case "$PROJECT" in
+  toebeans)
+    export JAVA_HOME="/opt/homebrew/opt/openjdk@17/libexec/openjdk.jdk/Contents/Home"
+    export ANDROID_HOME="$HOME/Library/Android/sdk"
+    export PATH="$JAVA_HOME/bin:$ANDROID_HOME/platform-tools:$ANDROID_HOME/emulator:$PATH"
+    ;;
+  baby-app-audit)
+    export ANDROID_HOME="$HOME/Library/Android/sdk"
+    export PATH="$ANDROID_HOME/platform-tools:$PATH"
+    ;;
+esac
 
 PROMPT_TEXT="$(cat "$PROMPT")"
 
 log "START project=$PROJECT phase=$PHASE model=$MODEL head=$(git -C "$REPO" rev-parse --short HEAD 2>/dev/null || echo unknown)"
 log "CONTRACT=$CONTRACT"
 log "PROMPT=$PROMPT"
+
+# Byte offset of this run's start, so post-run log scanning cannot be polluted by earlier runs.
+RUN_START_BYTES="$(wc -c <"$LOG" 2>/dev/null | tr -d ' ')"
+[[ -n "$RUN_START_BYTES" ]] || RUN_START_BYTES=0
+log "RUN_START_BYTES=$RUN_START_BYTES"
 
 if [[ "${SPRINT_DRY_RUN:-0}" == "1" ]]; then
   log "DRY RUN: would invoke agent --print --output-format stream-json"
@@ -160,22 +193,55 @@ if [[ ! -d "$REPO/.git" ]]; then
   fail "repo is not a git checkout: $REPO"
 fi
 
-"$AGENT_BIN" --print \
-  --output-format stream-json \
-  --model "$MODEL" \
-  --force \
-  --trust \
-  --workspace "$REPO" \
-  "$PROMPT_TEXT" >>"$LOG" 2>&1
+# Bound the run. Without a ceiling, a stalled agent holds the lock indefinitely and silently
+# blocks the next scheduled slot, which is worse than a failed run because nothing reports it.
+# SPRINT_TIMEOUT_SECONDS defaults to 2 hours: long enough for a multi-wave sprint, short enough
+# that a hang is reported the same day.
+TIMEOUT_SECONDS="${SPRINT_TIMEOUT_SECONDS:-7200}"
 
+run_with_deadline() {
+  # No dependency on coreutils: launch the agent in the background, poll until it exits or the
+  # deadline passes, then TERM and escalate to KILL. A watchdog is needed because the agent can
+  # block indefinitely on a subagent that never returns.
+  "$AGENT_BIN" --print \
+    --output-format stream-json \
+    --model "$MODEL" \
+    --force \
+    --trust \
+    --workspace "$REPO" \
+    "$PROMPT_TEXT" >>"$LOG" 2>&1 &
+  local agent_pid=$!
+  local waited=0
+  while kill -0 "$agent_pid" 2>/dev/null; do
+    if (( waited >= TIMEOUT_SECONDS )); then
+      log "FAIL timed out after ${TIMEOUT_SECONDS}s; terminating agent pid $agent_pid"
+      kill -TERM "$agent_pid" 2>/dev/null
+      sleep 10
+      kill -KILL "$agent_pid" 2>/dev/null
+      wait "$agent_pid" 2>/dev/null
+      return 124
+    fi
+    sleep 5
+    waited=$((waited + 5))
+  done
+  wait "$agent_pid"
+}
+
+run_with_deadline
 RC=$?
+
+if [[ $RC -eq 124 ]] || [[ $RC -eq 137 ]]; then
+  log "FAIL timed out after ${TIMEOUT_SECONDS}s (rc=$RC); the lock will be released"
+fi
 
 # stream-json can report a clean exit while the run itself failed (auth failure, tool error,
 # contract contradiction). Treat an explicit failure record in the log as a failure too, so a
-# broken run is never announced as clean.
-if [[ $RC -eq 0 ]] && tail -c 400000 "$LOG" 2>/dev/null | grep -qiE '"type":"error"|Authentication required'; then
+# broken run is never announced as clean. Scope the scan to this run: the log is append-only and
+# shared across runs of the same day, so an old error record must not condemn a good run.
+RUN_START_BYTES="${RUN_START_BYTES:-0}"
+if [[ $RC -eq 0 ]] && tail -c +$((RUN_START_BYTES + 1)) "$LOG" 2>/dev/null | grep -qiE '"type":"error"|Authentication required'; then
   RC=1
-  log "WARN rc was 0 but the stream contains an error record; treating as failure"
+  log "WARN rc was 0 but this run's stream contains an error record; treating as failure"
 fi
 
 if [[ $RC -eq 0 ]]; then
