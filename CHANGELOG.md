@@ -1,5 +1,13 @@
 # Changelog
 
+## 4.6.35 - 2026-11-07
+
+### Fixed
+- Path redaction now decodes a percent-encoded segment before it looks for an id. A RevenueCat subscriber id hidden as `%24RCAnonymousID%3A` plus hex no longer stays in a committed path. The same ids were removed from the Nurture Lock, Baby Daybook, and Pebbi network logs, from `results/analytics-pii-20260803.json`, and from the old Nurture Lock rows in `results/RESULTS-20260803.md`.
+
+### Changed
+- FINAL-REPORT and the README verdict table now use the same rows. A call counts as the app only when the log says `origin` app. RevenueCat in the Nurture Lock 2026-10-04 log is session, so that claim row is Inconclusive. The advertising-id sentence, the HIPAA program, and the encryption sentence are Not measured. Clarity rows name the tag keys or the collect call. They do not say the capture showed pixels.
+
 ## 4.6.34 - 2026-10-24
 
 ### Changed
