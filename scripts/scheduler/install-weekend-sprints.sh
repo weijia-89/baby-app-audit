@@ -86,6 +86,23 @@ esac
 
 echo "own project:     $OWN_PROJECT (installing ${#JOBS[@]} jobs)"
 
+# Model and timeout are written into the plist so the scheduled job does not depend on a shell
+# profile or an inherited variable. Both are overridable at install time:
+#   SPRINT_MODEL=grok-4.7-high bash install-weekend-sprints.sh
+# The value is validated against the CLI's own list before it is written, so a typo fails here
+# rather than at 07:00 on a Saturday.
+SPRINT_MODEL_VALUE="${SPRINT_MODEL:-grok-4.7-high}"
+SPRINT_TIMEOUT_VALUE="${SPRINT_TIMEOUT_SECONDS:-7200}"
+AGENT_BIN="$HOME/.local/bin/agent"
+if [[ "$MODE" != "--remove" ]] && [[ -x "$AGENT_BIN" ]]; then
+  if ! "$AGENT_BIN" models 2>/dev/null | grep -qi -- "${SPRINT_MODEL_VALUE}"; then
+    echo "model not found on this account: $SPRINT_MODEL_VALUE" >&2
+    echo "run: $AGENT_BIN models | grep -i grok   (or whatever family you want)" >&2
+    exit 2
+  fi
+fi
+echo "orchestrator:    $SPRINT_MODEL_VALUE (timeout ${SPRINT_TIMEOUT_VALUE}s)"
+
 install_one() {
   local label="$1" project="$2" phase="$3" dow="$4"
   local plist="$AGENTS/$label.plist"
@@ -127,6 +144,10 @@ install_one() {
   <dict>
     <key>PATH</key>
     <string>/Users/dubs/.local/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin</string>
+    <key>SPRINT_MODEL</key>
+    <string>$SPRINT_MODEL_VALUE</string>
+    <key>SPRINT_TIMEOUT_SECONDS</key>
+    <string>$SPRINT_TIMEOUT_VALUE</string>
   </dict>
   <key>ProcessType</key>
   <string>Background</string>
