@@ -69,17 +69,59 @@ else
 fi
 
 # The auth probe must not gate the run: a false negative cancels a legitimate run.
-if grep -q "WARN auth probe says not logged in; continuing" "$HERE/sprint-run.sh"; then
-  ok "auth probe warns instead of blocking (probe has false negatives)"
+if grep -q "the probe reflects this process's view, not the launchd job's" "$HERE/sprint-run.sh"; then
+  ok "auth probe logs a note instead of blocking (probe has false negatives)"
 else
   bad "auth probe can cancel a run on a false negative"
 fi
 
-# HOME must be resolved if launchd does not provide it.
-if grep -q "NFSHomeDirectory" "$HERE/sprint-run.sh"; then
-  ok "HOME fallback when launchd omits it"
+# HOME must be resolved before any path derives from it, or early writes land in /Library.
+if grep -q "resolved BEFORE any path is used" "$HERE/sprint-run.sh"; then
+  ok "HOME is resolved before log/state paths are used"
 else
-  bad "relies on HOME being set by launchd"
+  bad "HOME fallback runs after paths are set (dead code)"
+fi
+
+# The installer must refuse an unversioned directory, or launchd runs unreviewed code.
+if grep -q "refusing to install" "$HERE/install-weekend-sprints.sh"; then
+  ok "installer refuses to install from a non-git directory"
+else
+  bad "installer can point launchd at unreviewed code"
+fi
+
+# Toolchain exports must be per project, not global: a JDK in a Python repo is misleading.
+if grep -q 'case "$PROJECT" in' "$HERE/sprint-run.sh" && grep -q 'baby-app-audit)' "$HERE/sprint-run.sh"; then
+  ok "toolchain is exported per project"
+else
+  bad "toolchain exported globally (wrong assumptions for one repo)"
+fi
+
+# A stalled agent must not hold the lock forever and silently block the next slot.
+if grep -q "run_with_deadline" "$HERE/sprint-run.sh" && grep -q "SPRINT_TIMEOUT_SECONDS" "$HERE/sprint-run.sh"; then
+  ok "run has a deadline watchdog"
+else
+  bad "an unbounded run can hold the lock indefinitely"
+fi
+
+# Each repo's kit must install only its own jobs, or two repos clobber each other's plists.
+if grep -q "OWN_PROJECT" "$HERE/install-weekend-sprints.sh"; then
+  ok "installer scopes jobs to its own repo"
+else
+  bad "installer installs jobs for both repos (last install wins)"
+fi
+
+# A mismatched kit/project pairing must be refused, not silently run the wrong prompt.
+if grep -q "stale plist" "$HERE/sprint-run.sh"; then
+  ok "driver refuses a kit/project mismatch"
+else
+  bad "driver can run one repo's prompt against another repo"
+fi
+
+# Stream-error scanning must be scoped to the current run, or an old failure condemns a good run.
+if grep -q "RUN_START_BYTES" "$HERE/sprint-run.sh"; then
+  ok "stream-error scan is scoped to the current run"
+else
+  bad "an old error record in an appended log would fail a good run"
 fi
 
 # The driver must treat stream errors as failures, so a broken run is never announced clean.
