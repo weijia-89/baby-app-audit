@@ -199,17 +199,35 @@ fi
 # that a hang is reported the same day.
 TIMEOUT_SECONDS="${SPRINT_TIMEOUT_SECONDS:-7200}"
 
-run_with_deadline() {
-  # No dependency on coreutils: launch the agent in the background, poll until it exits or the
-  # deadline passes, then TERM and escalate to KILL. A watchdog is needed because the agent can
-  # block indefinitely on a subagent that never returns.
-  "$AGENT_BIN" --print \
-    --output-format stream-json \
-    --model "$MODEL" \
-    --force \
-    --trust \
-    --workspace "$REPO" \
-    "$PROMPT_TEXT" >>"$LOG" 2>&1 &
+# Extract the session id from this run's slice of the log, so a stalled run can be resumed
+# rather than restarted from scratch (which would duplicate any PRs it already opened).
+run_session_id() {
+  tail -c +$((RUN_START_BYTES + 1)) "$LOG" 2>/dev/null \
+    | grep -o '"session_id":"[^"]*"' \
+    | head -1 \
+    | sed 's/.*:"//; s/"$//'
+}
+
+# Did this run's slice end in a transient transport failure? The CLI prints these as plain
+# text, not as a stream-json error record, so the stream-error check alone misses them.
+run_had_transient_failure() {
+  tail -c +$((RUN_START_BYTES + 1)) "$LOG" 2>/dev/null \
+    | grep -qiE 'RetriableError|Connection stalled|ECONNRESET|socket hang up|network error'
+}
+
+run_once() {
+  # $1 empty = fresh run; otherwise the chat id to resume.
+  local resume_id="${1:-}"
+  local -a args=(--print --output-format stream-json --model "$MODEL" --force --trust
+                 --workspace "$REPO")
+  if [[ -n "$resume_id" ]]; then
+    args+=(--resume "$resume_id")
+    log "RESUME session=$resume_id"
+  else
+    args+=("$PROMPT_TEXT")
+  fi
+
+  "$AGENT_BIN" "${args[@]}" >>"$LOG" 2>&1 &
   local agent_pid=$!
   local waited=0
   while kill -0 "$agent_pid" 2>/dev/null; do
@@ -226,6 +244,26 @@ run_with_deadline() {
   done
   wait "$agent_pid"
 }
+
+# One retry, and only for a transient transport failure: those resume cleanly. A logic or tool
+# failure is not retried, because repeating it produces the same result and doubles the cost.
+run_with_deadline() {
+  run_once ""
+  local rc=$?
+  if [[ $rc -ne 0 ]] && run_had_transient_failure; then
+    local sid
+    sid="$(run_session_id)"
+    if [[ -n "$sid" ]] && (( TRANSIENT_RETRIES > 0 )); then
+      log "WARN transient transport failure detected; resuming session once after 30s"
+      sleep 30
+      run_once "$sid"
+      return $?
+    fi
+    log "WARN transient failure but no session id recoverable; not retrying"
+  fi
+  return $rc
+}
+TRANSIENT_RETRIES="${SPRINT_TRANSIENT_RETRIES:-1}"
 
 run_with_deadline
 RC=$?
@@ -248,8 +286,15 @@ if [[ $RC -eq 0 ]]; then
   log "OK rc=0 head=$(git -C "$REPO" rev-parse --short HEAD 2>/dev/null || echo unknown)"
   /usr/bin/osascript -e "display notification \"$PROJECT $PHASE finished clean\" with title \"Weekend sprint\"" 2>/dev/null || true
 else
-  log "FAIL rc=$RC"
-  /usr/bin/osascript -e "display notification \"$PROJECT $PHASE exited rc=$RC - see $LOG\" with title \"Weekend sprint failed\"" 2>/dev/null || true
+  # A failed run may still have done real work: this exact case produced a merged-quality PR
+  # before the connection dropped. Say so instead of implying nothing happened.
+  POSSIBLE_WORK=""
+  if git -C "$REPO" for-each-ref --count=1 --sort=-committerdate \
+       --format='%(refname:short) %(committerdate:relative)' 'refs/heads/sprint-*' 2>/dev/null | grep -q .; then
+    POSSIBLE_WORK=" (a branch may hold partial work; check PRs before re-running)"
+  fi
+  log "FAIL rc=$RC$POSSIBLE_WORK"
+  /usr/bin/osascript -e "display notification \"$PROJECT $PHASE failed rc=$RC$POSSIBLE_WORK - see $LOG\" with title \"Weekend sprint failed\"" 2>/dev/null || true
 fi
 
 exit $RC
