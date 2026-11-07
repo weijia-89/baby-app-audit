@@ -1,0 +1,39 @@
+{
+  "$schema": "synthetic-baby-data/1.0",
+  "schema_version": "1.0",
+  "profile_name": "Privatia Rigatoni",
+  "profile_source": "results/synthetic-baby-profile.json",
+  "captures_scanned": 1,
+  "apps_with_transmission": 1,
+  "method": "marker search of the raw local capture (request body, response body, and URL). Sanitized network logs are not searched.",
+  "scope": "Markers come from the fictional synthetic baby profile. A match in a request body or URL proves the entered value left the device. The committed, sanitized network logs are not searched because their bodies are redacted.",
+  "apps": [
+    {
+      "app": "Baby+-about-you",
+      "package_name": "",
+      "capture": "results/baby-plus-test-20260816/artifacts/captures/Baby+-about-you.mitm",
+      "flows_scanned": 1,
+      "markers_matched": 1,
+      "transmission_observed": true,
+      "recipients": [
+        "appserver.health-and-parenting.com"
+      ],
+      "verdict": "transmission_observed",
+      "claim_limit": "a high or medium name, note, or string marker was in a request or URL in this capture window.",
+      "findings": [
+        {
+          "marker_id": "name",
+          "marker_type": "name",
+          "marker_confidence": "high",
+          "method": "PUT",
+          "host": "appserver.health-and-parenting.com",
+          "path": "https://appserver.health-and-parenting.com/server/classes/_User/o6F4AdTP3TB0PQCbvAZbPIRKX3cZ2eMb",
+          "status": 200,
+          "vendor": "Unclassified host",
+          "recipient_class": "unknown_host",
+          "side": "request"
+        }
+      ]
+    }
+  ]
+}
