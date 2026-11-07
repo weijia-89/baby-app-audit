@@ -84,6 +84,31 @@ for name, cls in expected.items():
     row = next(line for line in report_lines if line.startswith(f"| {name} |"))
     assert emoji_for[cls] in row, f"report row for {name} does not show class {emoji_for[cls]}"
 
+def first_verdict_rows(text):
+    rows = {}
+    in_table = False
+    for line in text.splitlines():
+        if line.startswith("| App | Privacy claim |"):
+            in_table = True
+            continue
+        if not in_table:
+            continue
+        if not line.startswith("|"):
+            break
+        name = line.split("|")[1].strip()
+        if name in ("App", "") or set(name) <= {"-", " "}:
+            continue
+        rows.setdefault(name, line.strip())
+    return rows
+
+report_rows = first_verdict_rows(report)
+readme_rows = first_verdict_rows((root / "README.md").read_text())
+for name in expected:
+    assert name in readme_rows, f"README verdict table missing {name}"
+    assert report_rows[name] == readme_rows[name], (
+        f"verdict row drift for {name}\nreport: {report_rows[name]}\nreadme: {readme_rows[name]}"
+    )
+
 network_logs = {
     log["package_name"]: log
     for log in (

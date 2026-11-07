@@ -900,7 +900,7 @@
         {
           "method": "GET",
           "host": "api.revenuecat.com",
-          "path": "/v1/subscribers/$RCAnonymousID:[REDACTED]/offerings",
+          "path": "/v1/subscribers/[REDACTED:path-token-or-id]/offerings",
           "status": 200,
           "count": 1,
           "vendor": "RevenueCat",
@@ -920,7 +920,7 @@
         {
           "method": "GET",
           "host": "api.revenuecat.com",
-          "path": "/v1/subscribers/$RCAnonymousID:[REDACTED]",
+          "path": "/v1/subscribers/[REDACTED:path-token-or-id]",
           "status": 201,
           "count": 1,
           "vendor": "RevenueCat",
@@ -960,7 +960,7 @@
         {
           "method": "GET",
           "host": "api.revenuecat.com",
-          "path": "/v1/subscribers/$RCAnonymousID:[REDACTED]/offerings",
+          "path": "/v1/subscribers/[REDACTED:path-token-or-id]/offerings",
           "status": 304,
           "count": 1,
           "vendor": "RevenueCat",
