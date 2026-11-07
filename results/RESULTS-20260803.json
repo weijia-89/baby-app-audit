@@ -24,7 +24,7 @@
       "verdict": "fail",
       "privacy_class": "major",
       "verdict_confidence": 95,
-      "evidence": "RevenueCat subscriber calls are attributed to the package during onboarding (2 flows). The 70-flow window also shows Adapty, OneSignal, AppsFlyer, Comscore Scorecard, Microsoft Clarity, Facebook graph, Google ads, Philips first-party hosts, and Firebase. Static analysis found 8 tracking libraries. The claim of '100% offline' is false.",
+      "evidence": "RevenueCat subscriber calls in the 2026-10-04 log are origin session, not the app. The 70-flow window also shows Adapty, OneSignal, AppsFlyer, Comscore Scorecard, Microsoft Clarity, Facebook graph, Google ads, Philips first-party hosts, and Firebase, without an app package header. Static analysis found 8 tracking libraries. The live calls do not prove the app sent them. Claim row is Inconclusive.",
       "apk_hash": {
         "sha256": "d0f2219c6f2a8bfa2f1dec67bb2cc0dd1685495417aa8695e2ec8da013f8bf31",
         "timestamp": "2026-08-03T21:49:16Z",
@@ -166,7 +166,7 @@
       "verdict": "fail",
       "privacy_class": "major",
       "verdict_confidence": 100,
-      "evidence": "Positive control. The 2026-10-04 capture (51 flows) attributes Firebase Installations and the app.pebbi.co version-policy call to the package. The same window holds Crashlytics settings, RevenueCat, and Play Store traffic. That day the date field took no input, so the profile did not save. On 2026-10-10 the profile saved. The mitm file has 8 flows, all Google and Play. tcpdump saw DNS and TLS to app.pebbi.co and a Crashlytics settings lookup. We did not read that TLS. The committed flow_file is still the 2026-10-04 capture. Pairip license check passes on the Play-enabled image.",
+      "evidence": "Positive control. The 2026-10-04 capture (51 flows) attributes Firebase Installations to the package. The app.pebbi.co version-policy call is origin session. The same window holds Crashlytics settings, RevenueCat, and Play Store traffic. That day the date field took no input, so the profile did not save. On 2026-10-10 the profile saved. The mitm file has 8 flows, all Google and Play. tcpdump saw DNS and TLS to app.pebbi.co and a Crashlytics settings lookup. The TLS was not read. The committed flow_file is still the 2026-10-04 capture. Pairip license check passes on the Play-enabled image.",
       "apk_hash": {
         "sha256": "2178136085fc16b74f8bc4c7e2a1c7dbb3b4e6e39b40617065a9b0433d345066",
         "timestamp": "2026-08-03T21:49:45Z",
@@ -258,7 +258,7 @@
       "verdict": "fail",
       "privacy_class": "major",
       "verdict_confidence": 90,
-      "evidence": "The 2026-10-04 onboarding capture (132 flows, emulator-wide window) attributes nine flows to the package: Firebase Installations, Remote Config, realtime Remote Config, Firelog, FCM register, three RevenueCat subscriber reads, and one Sentry envelope. The window also carries a Facebook graph destination; static analysis found the Facebook SDK. The synthetic profile saved on-device (local SQLite) and the marker scan found no name in traffic. The AdID claim does not cover this traffic.",
+      "evidence": "The 2026-10-04 onboarding capture (132 flows, emulator-wide window) attributes three flows to the package: Firebase Installations, Remote Config, and the realtime config stream. Firelog, the FCM register, RevenueCat subscriber reads, and the Sentry envelope in that window are origin session. The window also carries a Facebook graph destination; static analysis found the Facebook SDK. The synthetic profile saved on-device (local SQLite) and the marker scan found no name in traffic. The advertising-id setting was not measured.",
       "offline_test": {
         "outbound_requests_count": 132,
         "outbound_destinations": [
@@ -361,7 +361,7 @@
       "verdict": "fail",
       "privacy_class": "minor",
       "verdict_confidence": 90,
-      "evidence": "The launch capture shows one Firebase logging batch and four Android connectivity checks. No identifying user data was observed in the sanitized capture.",
+      "evidence": "The launch capture shows one Firebase logging batch and four Android connectivity checks. No identifying user data was observed in the sanitized capture. The HIPAA program was not reviewed.",
       "offline_test": {
         "outbound_requests_count": 5,
         "outbound_destinations": [
@@ -378,7 +378,7 @@
       "verdict": "fail",
       "privacy_class": "major",
       "verdict_confidence": 90,
-      "evidence": "The launch capture shows three Facebook Graph API calls. The bank-level encryption claim does not cover this traffic.",
+      "evidence": "The launch capture shows three Facebook Graph API calls. Request bodies were empty. Encryption was not measured.",
       "offline_test": {
         "outbound_requests_count": 3,
         "outbound_destinations": [
