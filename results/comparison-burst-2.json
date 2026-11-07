@@ -4,20 +4,11 @@
     "com.drillyapps.babydaybook",
     "com.hp.babyapp"
   ],
-  "comparison_timestamp": "2026-08-09T13:56:38Z",
-  "shared_trackers": [],
+  "comparison_timestamp": "2026-11-07T12:45:01Z",
+  "shared_trackers": [
+    "Google"
+  ],
   "similar_endpoints": [
-    {
-      "host": "android.apis.google.com",
-      "apps": [
-        "com.drillyapps.babydaybook",
-        "com.hp.babyapp"
-      ],
-      "flow_counts": {
-        "com.drillyapps.babydaybook": 1,
-        "com.hp.babyapp": 1
-      }
-    },
     {
       "host": "firebaseinstallations.googleapis.com",
       "apps": [
@@ -45,22 +36,22 @@
   ],
   "data_volume": {
     "com.amila.parenting": {
-      "total_flows": 6,
-      "tracker_flows": 0,
-      "total_request_bytes": 1429,
-      "total_response_bytes": 176016
+      "total_flows": 4,
+      "tracker_flows": 4,
+      "total_request_bytes": 1917,
+      "total_response_bytes": 2811
     },
     "com.drillyapps.babydaybook": {
-      "total_flows": 8,
-      "tracker_flows": 4,
-      "total_request_bytes": 1839,
-      "total_response_bytes": 14301
+      "total_flows": 9,
+      "tracker_flows": 9,
+      "total_request_bytes": 5924,
+      "total_response_bytes": 14535
     },
     "com.hp.babyapp": {
-      "total_flows": 3,
-      "tracker_flows": 0,
-      "total_request_bytes": 1040,
-      "total_response_bytes": 14146
+      "total_flows": 12,
+      "tracker_flows": 11,
+      "total_request_bytes": 3565,
+      "total_response_bytes": 862672
     }
   },
   "regime_coverage": {

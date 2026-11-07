@@ -4,15 +4,15 @@
     "com.heartfulsprout.baby",
     "com.pixykid.app"
   ],
-  "comparison_timestamp": "2026-08-11T02:27:30Z",
+  "comparison_timestamp": "2026-11-07T12:45:03Z",
   "shared_trackers": [],
   "similar_endpoints": [],
   "data_volume": {
     "com.naraorganics.nara": {
-      "total_flows": 0,
-      "tracker_flows": 0,
-      "total_request_bytes": 0,
-      "total_response_bytes": 0
+      "total_flows": 1,
+      "tracker_flows": 1,
+      "total_request_bytes": 60387,
+      "total_response_bytes": 233
     },
     "com.heartfulsprout.baby": {
       "total_flows": 0,
