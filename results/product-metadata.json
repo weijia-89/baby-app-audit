@@ -1,145 +1,502 @@
 {
   "products": {
     "com.angry.shark.studio.nurturelock": {
-      "retention_schedule": {"policy_days": 0, "policy_description": "Claimed offline - no retention claimed", "indefinite": false},
-      "security_eol": {"eol_date": "unknown", "device_model": "Nurture Lock", "eol_confidence": "unknown"},
+      "retention_schedule": {
+        "policy_days": 0,
+        "policy_description": "Claimed offline - no retention claimed",
+        "indefinite": false
+      },
+      "security_eol": {
+        "eol_date": "unknown",
+        "device_model": "Nurture Lock",
+        "eol_confidence": "unknown"
+      },
       "cve_list": [],
       "regulatory_regime": "unknown",
-      "device_identity": {"basic_udi_di": "", "model_number": "", "regime": "unknown"},
+      "device_identity": {
+        "basic_udi_di": "",
+        "model_number": "",
+        "regime": "unknown"
+      },
       "burst_tested": "1",
       "static_analysis_complete": true,
       "static_analysis_notes": "jadx decompiled 2026-08-07",
       "dynamic_capture_complete": true
     },
     "com.clicksie.nuboapp": {
-      "retention_schedule": {"policy_days": 30, "policy_description": "Sight 30 days", "indefinite": false},
-      "security_eol": {"eol_date": "unknown", "device_model": "Nubo", "eol_confidence": "unknown"},
+      "retention_schedule": {
+        "policy_days": 30,
+        "policy_description": "Sight 30 days",
+        "indefinite": false
+      },
+      "security_eol": {
+        "eol_date": "unknown",
+        "device_model": "Nubo",
+        "eol_confidence": "unknown"
+      },
       "cve_list": [],
       "regulatory_regime": "unknown",
-      "device_identity": {"basic_udi_di": "", "model_number": "", "regime": "unknown"},
+      "device_identity": {
+        "basic_udi_di": "",
+        "model_number": "",
+        "regime": "unknown"
+      },
       "burst_tested": "1",
       "static_analysis_complete": true,
       "static_analysis_notes": "jadx decompiled 2026-08-07",
       "dynamic_capture_complete": true
     },
     "com.pebbi.android": {
-      "retention_schedule": {"policy_days": 14, "policy_description": "Clips 14 days", "indefinite": false},
-      "security_eol": {"eol_date": "2027-12-31", "device_model": "Pebbi Cam 2", "eol_confidence": "confirmed"},
+      "retention_schedule": {
+        "policy_days": 14,
+        "policy_description": "Clips 14 days",
+        "indefinite": false
+      },
+      "security_eol": {
+        "eol_date": "2027-12-31",
+        "device_model": "Pebbi Cam 2",
+        "eol_confidence": "confirmed"
+      },
       "cve_list": [
-        {"cve_id": "CVE-2023-6321", "severity": "high", "description": "Buffer overflow in video stream handler"},
-        {"cve_id": "CVE-2023-6323", "severity": "medium", "description": "Authentication bypass in admin panel"},
-        {"cve_id": "CVE-2023-6324", "severity": "high", "description": "Information disclosure in log files"}
+        {
+          "cve_id": "CVE-2023-6321",
+          "severity": "high",
+          "description": "Buffer overflow in video stream handler"
+        },
+        {
+          "cve_id": "CVE-2023-6323",
+          "severity": "medium",
+          "description": "Authentication bypass in admin panel"
+        },
+        {
+          "cve_id": "CVE-2023-6324",
+          "severity": "high",
+          "description": "Information disclosure in log files"
+        }
       ],
       "regulatory_regime": "RED",
-      "device_identity": {"basic_udi_di": "", "model_number": "Pebbi-Cam-2", "regime": "RED"},
+      "device_identity": {
+        "basic_udi_di": "",
+        "model_number": "Pebbi-Cam-2",
+        "regime": "RED"
+      },
       "burst_tested": "1",
       "static_analysis_complete": true,
       "static_analysis_notes": "jadx decompiled 2026-08-07",
-      "dynamic_capture_complete": true
+      "dynamic_capture_complete": true,
+      "notes": "Row describes Pebbi Cam 2 hardware; no evidence path in this repo; operator to confirm or strike (triage 2026-11-07 H2)."
     },
     "org.babybuddy.babybuddy": {
-      "retention_schedule": {"policy_days": 0, "policy_description": "Self-hosted - operator controls retention", "indefinite": false},
-      "security_eol": {"eol_date": "N/A", "device_model": "Baby Buddy", "eol_confidence": "N/A"},
+      "retention_schedule": {
+        "policy_days": 0,
+        "policy_description": "Self-hosted - operator controls retention",
+        "indefinite": false
+      },
+      "security_eol": {
+        "eol_date": "N/A",
+        "device_model": "Baby Buddy",
+        "eol_confidence": "N/A"
+      },
       "cve_list": [],
       "regulatory_regime": "N/A",
-      "device_identity": {"basic_udi_di": "", "model_number": "", "regime": "N/A"},
+      "device_identity": {
+        "basic_udi_di": "",
+        "model_number": "",
+        "regime": "N/A"
+      },
       "burst_tested": "1",
       "source_audit_complete": true,
       "source_audit_notes": "Cloned 2026-08-07, commit 7a2b2dfb, 67 network refs, 2 tracker refs",
       "dynamic_capture_complete": true
     },
     "com.babytrack.app": {
-      "retention_schedule": {"policy_days": 0, "policy_description": "unknown", "indefinite": false},
-      "security_eol": {"eol_date": "unknown", "device_model": "BabyTrack", "eol_confidence": "unknown"},
+      "retention_schedule": {
+        "policy_days": 0,
+        "policy_description": "unknown",
+        "indefinite": false
+      },
+      "security_eol": {
+        "eol_date": "unknown",
+        "device_model": "BabyTrack",
+        "eol_confidence": "unknown"
+      },
       "cve_list": [],
       "regulatory_regime": "unknown",
-      "device_identity": {"basic_udi_di": "", "model_number": "", "regime": "unknown"},
+      "device_identity": {
+        "basic_udi_di": "",
+        "model_number": "",
+        "regime": "unknown"
+      },
       "burst_tested": "2",
       "claim": "Claims offline",
       "status": "pending"
     },
-    "com.amila.babytracker": {
-      "retention_schedule": {"policy_days": 0, "policy_description": "unknown", "indefinite": false},
-      "security_eol": {"eol_date": "unknown", "device_model": "Amila", "eol_confidence": "unknown"},
+    "com.amila.parenting": {
+      "retention_schedule": {
+        "policy_days": 0,
+        "policy_description": "unknown",
+        "indefinite": false
+      },
+      "security_eol": {
+        "eol_date": "unknown",
+        "device_model": "Amila",
+        "eol_confidence": "unknown"
+      },
       "cve_list": [],
       "regulatory_regime": "unknown",
-      "device_identity": {"basic_udi_di": "", "model_number": "", "regime": "unknown"},
+      "device_identity": {
+        "basic_udi_di": "",
+        "model_number": "",
+        "regime": "unknown"
+      },
       "burst_tested": "2",
       "claim": "Unknown posture",
       "status": "pending"
     },
     "com.wachanga.babymilestones": {
-      "retention_schedule": {"policy_days": 0, "policy_description": "unknown", "indefinite": false},
-      "security_eol": {"eol_date": "unknown", "device_model": "Wachanga", "eol_confidence": "unknown"},
+      "retention_schedule": {
+        "policy_days": 0,
+        "policy_description": "unknown",
+        "indefinite": false
+      },
+      "security_eol": {
+        "eol_date": "unknown",
+        "device_model": "Wachanga",
+        "eol_confidence": "unknown"
+      },
       "cve_list": [],
       "regulatory_regime": "unknown",
-      "device_identity": {"basic_udi_di": "", "model_number": "", "regime": "unknown"},
+      "device_identity": {
+        "basic_udi_di": "",
+        "model_number": "",
+        "regime": "unknown"
+      },
       "burst_tested": "2",
       "claim": "Milestone tracker",
-      "status": "pending"
+      "status": "dropped"
     },
-    "com.babydaybook.app": {
-      "retention_schedule": {"policy_days": 0, "policy_description": "unknown", "indefinite": false},
-      "security_eol": {"eol_date": "unknown", "device_model": "Baby Daybook", "eol_confidence": "unknown"},
+    "com.drillyapps.babydaybook": {
+      "retention_schedule": {
+        "policy_days": 0,
+        "policy_description": "unknown",
+        "indefinite": false
+      },
+      "security_eol": {
+        "eol_date": "unknown",
+        "device_model": "Baby Daybook",
+        "eol_confidence": "unknown"
+      },
       "cve_list": [],
       "regulatory_regime": "unknown",
-      "device_identity": {"basic_udi_di": "", "model_number": "", "regime": "unknown"},
+      "device_identity": {
+        "basic_udi_di": "",
+        "model_number": "",
+        "regime": "unknown"
+      },
       "burst_tested": "2",
       "claim": "AdID not auto-enabled; no US processing",
       "status": "pending",
       "notes": "Piranesi-verified (Pybus C-010)"
     },
-    "com.babyplus.app": {
-      "retention_schedule": {"policy_days": 0, "policy_description": "unknown", "indefinite": false},
-      "security_eol": {"eol_date": "unknown", "device_model": "Baby+", "eol_confidence": "unknown"},
+    "com.hp.babyapp": {
+      "retention_schedule": {
+        "policy_days": 0,
+        "policy_description": "unknown",
+        "indefinite": false
+      },
+      "security_eol": {
+        "eol_date": "unknown",
+        "device_model": "Baby+",
+        "eol_confidence": "unknown"
+      },
       "cve_list": [],
       "regulatory_regime": "unknown",
-      "device_identity": {"basic_udi_di": "", "model_number": "", "regime": "unknown"},
+      "device_identity": {
+        "basic_udi_di": "",
+        "model_number": "",
+        "regime": "unknown"
+      },
       "burst_tested": "2",
       "claim": "AdID not auto-enabled; no US processing",
       "status": "pending",
       "notes": "Piranesi-verified (Pybus C-010)"
     },
     "com.cradly.app": {
-      "retention_schedule": {"policy_days": 0, "policy_description": "unknown", "indefinite": false},
-      "security_eol": {"eol_date": "unknown", "device_model": "Cradly", "eol_confidence": "unknown"},
+      "retention_schedule": {
+        "policy_days": 0,
+        "policy_description": "unknown",
+        "indefinite": false
+      },
+      "security_eol": {
+        "eol_date": "unknown",
+        "device_model": "Cradly",
+        "eol_confidence": "unknown"
+      },
       "cve_list": [],
       "regulatory_regime": "unknown",
-      "device_identity": {"basic_udi_di": "", "model_number": "", "regime": "unknown"},
+      "device_identity": {
+        "basic_udi_di": "",
+        "model_number": "",
+        "regime": "unknown"
+      },
       "burst_tested": "2",
       "claim": "Privacy-first, local-first, AES-256, no account",
       "status": "pending"
     },
     "com.owletcare.sock": {
-      "retention_schedule": {"policy_days": 0, "policy_description": "Indefinite - health data retained until account deletion", "indefinite": true},
-      "security_eol": {"eol_date": "unknown", "device_model": "Owlet Dream Sock", "eol_confidence": "unknown"},
+      "retention_schedule": {
+        "policy_days": 0,
+        "policy_description": "Indefinite - health data retained until account deletion",
+        "indefinite": true
+      },
+      "security_eol": {
+        "eol_date": "unknown",
+        "device_model": "Owlet Dream Sock",
+        "eol_confidence": "unknown"
+      },
       "cve_list": [],
       "regulatory_regime": "MDR",
-      "device_identity": {"basic_udi_di": "unknown", "model_number": "Dream-Sock", "regime": "MDR"},
+      "device_identity": {
+        "basic_udi_di": "unknown",
+        "model_number": "Dream-Sock",
+        "regime": "MDR"
+      },
       "burst_tested": "6",
       "status": "pending",
       "notes": "FDA cleared 510(k) K223279"
     },
     "com.owletcare.cam": {
-      "retention_schedule": {"policy_days": 30, "policy_description": "Sight clips 30 days", "indefinite": false},
-      "security_eol": {"eol_date": "unknown", "device_model": "Owlet Cam 2", "eol_confidence": "unknown"},
+      "retention_schedule": {
+        "policy_days": 30,
+        "policy_description": "Sight clips 30 days",
+        "indefinite": false
+      },
+      "security_eol": {
+        "eol_date": "unknown",
+        "device_model": "Owlet Cam 2",
+        "eol_confidence": "unknown"
+      },
       "cve_list": [
-        {"cve_id": "CVE-2023-6321", "severity": "high", "description": "Command injection in OTA update IOCTL"},
-        {"cve_id": "CVE-2023-6323", "severity": "medium", "description": "Kalay SDK message authentication bypass"}
+        {
+          "cve_id": "CVE-2023-6321",
+          "severity": "high",
+          "description": "Command injection in OTA update IOCTL"
+        },
+        {
+          "cve_id": "CVE-2023-6323",
+          "severity": "medium",
+          "description": "Kalay SDK message authentication bypass"
+        }
       ],
       "regulatory_regime": "RED",
-      "device_identity": {"basic_udi_di": "", "model_number": "Cam-2", "regime": "RED"},
+      "device_identity": {
+        "basic_udi_di": "",
+        "model_number": "Cam-2",
+        "regime": "RED"
+      },
       "burst_tested": "6",
       "status": "pending",
       "notes": "Verified CVEs from NVD/Bitdefender"
+    },
+    "com.mimiapp.mimilog": {
+      "retention_schedule": {
+        "policy_days": 0,
+        "policy_description": "unknown",
+        "indefinite": false
+      },
+      "security_eol": {
+        "eol_date": "unknown",
+        "device_model": "MimiLog",
+        "eol_confidence": "unknown"
+      },
+      "cve_list": [],
+      "regulatory_regime": "unknown",
+      "device_identity": {
+        "basic_udi_di": "",
+        "model_number": "",
+        "regime": "unknown"
+      },
+      "status": "pending"
+    },
+    "com.naraorganics.nara": {
+      "retention_schedule": {
+        "policy_days": 0,
+        "policy_description": "unknown",
+        "indefinite": false
+      },
+      "security_eol": {
+        "eol_date": "unknown",
+        "device_model": "Nara",
+        "eol_confidence": "unknown"
+      },
+      "cve_list": [],
+      "regulatory_regime": "unknown",
+      "device_identity": {
+        "basic_udi_di": "",
+        "model_number": "",
+        "regime": "unknown"
+      },
+      "status": "pending"
+    },
+    "com.heartfulsprout.baby": {
+      "retention_schedule": {
+        "policy_days": 0,
+        "policy_description": "unknown",
+        "indefinite": false
+      },
+      "security_eol": {
+        "eol_date": "unknown",
+        "device_model": "Heartful Baby",
+        "eol_confidence": "unknown"
+      },
+      "cve_list": [],
+      "regulatory_regime": "unknown",
+      "device_identity": {
+        "basic_udi_di": "",
+        "model_number": "",
+        "regime": "unknown"
+      },
+      "status": "pending"
+    },
+    "com.pixykid.app": {
+      "retention_schedule": {
+        "policy_days": 0,
+        "policy_description": "unknown",
+        "indefinite": false
+      },
+      "security_eol": {
+        "eol_date": "unknown",
+        "device_model": "Pixy",
+        "eol_confidence": "unknown"
+      },
+      "cve_list": [],
+      "regulatory_regime": "unknown",
+      "device_identity": {
+        "basic_udi_di": "",
+        "model_number": "",
+        "regime": "unknown"
+      },
+      "status": "pending"
+    },
+    "com.babycenter.pregnancytracker": {
+      "retention_schedule": {
+        "policy_days": 0,
+        "policy_description": "unknown",
+        "indefinite": false
+      },
+      "security_eol": {
+        "eol_date": "unknown",
+        "device_model": "BabyCenter",
+        "eol_confidence": "unknown"
+      },
+      "cve_list": [],
+      "regulatory_regime": "unknown",
+      "device_identity": {
+        "basic_udi_di": "",
+        "model_number": "",
+        "regime": "unknown"
+      },
+      "status": "pending"
+    },
+    "com.bellyBloom.pregnancy.tracker": {
+      "retention_schedule": {
+        "policy_days": 0,
+        "policy_description": "unknown",
+        "indefinite": false
+      },
+      "security_eol": {
+        "eol_date": "unknown",
+        "device_model": "BellyBloom",
+        "eol_confidence": "unknown"
+      },
+      "cve_list": [],
+      "regulatory_regime": "unknown",
+      "device_identity": {
+        "basic_udi_di": "",
+        "model_number": "",
+        "regime": "unknown"
+      },
+      "status": "pending"
+    },
+    "com.nanit.baby": {
+      "retention_schedule": {
+        "policy_days": 0,
+        "policy_description": "unknown",
+        "indefinite": false
+      },
+      "security_eol": {
+        "eol_date": "unknown",
+        "device_model": "Nanit",
+        "eol_confidence": "unknown"
+      },
+      "cve_list": [],
+      "regulatory_regime": "unknown",
+      "device_identity": {
+        "basic_udi_di": "",
+        "model_number": "",
+        "regime": "unknown"
+      },
+      "status": "pending"
+    },
+    "com.hp.pregnancy.lite": {
+      "retention_schedule": {
+        "policy_days": 0,
+        "policy_description": "unknown",
+        "indefinite": false
+      },
+      "security_eol": {
+        "eol_date": "unknown",
+        "device_model": "Pregnancy+",
+        "eol_confidence": "unknown"
+      },
+      "cve_list": [],
+      "regulatory_regime": "unknown",
+      "device_identity": {
+        "basic_udi_di": "",
+        "model_number": "",
+        "regime": "unknown"
+      },
+      "status": "pending"
+    },
+    "com.wte.view": {
+      "retention_schedule": {
+        "policy_days": 0,
+        "policy_description": "unknown",
+        "indefinite": false
+      },
+      "security_eol": {
+        "eol_date": "unknown",
+        "device_model": "What to Expect",
+        "eol_confidence": "unknown"
+      },
+      "cve_list": [],
+      "regulatory_regime": "unknown",
+      "device_identity": {
+        "basic_udi_di": "",
+        "model_number": "",
+        "regime": "unknown"
+      },
+      "status": "pending"
     }
   },
   "default": {
-    "retention_schedule": {"policy_days": 0, "policy_description": "unknown", "indefinite": false},
-    "security_eol": {"eol_date": "unknown", "device_model": "unknown", "eol_confidence": "unknown"},
+    "retention_schedule": {
+      "policy_days": 0,
+      "policy_description": "unknown",
+      "indefinite": false
+    },
+    "security_eol": {
+      "eol_date": "unknown",
+      "device_model": "unknown",
+      "eol_confidence": "unknown"
+    },
     "cve_list": [],
     "regulatory_regime": "unknown",
-    "device_identity": {"basic_udi_di": "", "model_number": "", "regime": "unknown"},
+    "device_identity": {
+      "basic_udi_di": "",
+      "model_number": "",
+      "regime": "unknown"
+    },
     "status": "pending"
   }
 }
