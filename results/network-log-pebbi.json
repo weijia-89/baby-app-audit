@@ -242,7 +242,7 @@
     {
       "method": "GET",
       "host": "api.revenuecat.com",
-      "path": "https://api.revenuecat.com/v1/subscribers/[REDACTED:path-token-or-id]",
+      "path": "https://api.revenuecat.com/v1/subscribers/%24RCAnonymousID%3Ac9ed0e26903a4121883d0aa4ac9b870c",
       "status": 201,
       "origin": "session",
       "count": 1,
@@ -264,7 +264,6 @@
         ]
       },
       "redactions": [
-        "[REDACTED:path-token-or-id:secret-or-PII]",
         "[REDACTED:request-header-values:secret-or-PII]",
         "[REDACTED:response-body-values:secret-or-PII]",
         "[REDACTED:response-header-values:secret-or-PII]"

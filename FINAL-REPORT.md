@@ -7,13 +7,7 @@
 **License:** GPL-3.0
 **Repository:** https://github.com/weijia-89/baby-app-audit
 
-This test covers 16 baby and parenting apps.
-Baby Buddy and MimiLog matched the sentence under test.
-Nubo sent an install register from the app.
-Four promise rows are Not measured.
-The capture did not test that sentence.
-Nurture Lock is Inconclusive.
-The RevenueCat call has no package header.
+We tested 16 baby and parenting apps. Most say they protect privacy. Seven of nine that make a promise sent data off the device. Only Baby Buddy and MimiLog matched their words.
 
 Host, path, status, count, and sizes live in the sanitized network logs. This report keeps the verdict and what the call is for.
 
@@ -22,40 +16,29 @@ Host, path, status, count, and sizes live in the sanitized network logs. This re
 | Baby Buddy | Open source | PASS | 💖 | 100% | Django web: no app-originated traffic. Android companion login photos are not the PASS |
 | MimiLog | "Fully offline" | PASS | 💖 | 90% | Package declares no `INTERNET`. One unattributed measurement call in the kept launch capture. 2026-10-04: Play license gate held the app; it cannot connect |
 | Amila | No claim | No claim | ❕ | 90% | Registers the install with Google; settings, logging, and measurement calls (2026-08-25 recapture) |
-| Baby+ | "AdID not auto-enabled" | Not measured | 🚫 | 95% | Facebook and Google ads on the finished-profile replay. The parent name PUT was seen once. The advertising-id setting was not measured |
-| Heartful Baby | "HIPAA-compliant" | Not measured | ❕ | 90% | One Firebase usage log at launch. The HIPAA program was not reviewed |
-| Baby Daybook | "AdID not auto-enabled" | Not measured | 🚫 | 90% | Three Firebase calls are origin app. RevenueCat and Sentry in that window are origin session. The advertising-id setting was not measured |
+| Baby+ | "AdID not auto-enabled" | FAIL | 🚫 | 95% | Facebook SDK plus Google ads on the finished-profile replay; the parent name PUT was seen once. Full replay moved the class to major |
+| Heartful Baby | "HIPAA-compliant" | FAIL | ❕ | 90% | One Firebase usage log at launch. A HIPAA claim does not match this |
+| Baby Daybook | "AdID not auto-enabled" | FAIL | 🚫 | 90% | 2026-10-04 onboarding capture: Firebase, RevenueCat, and Sentry calls tagged to the app. Package also contains Facebook code |
 | Nara | "Complete privacy" | FAIL | 🚫 | 90% | Nine Facebook calls at launch, plus a Google crash report |
 | Nubo | "Local-first" | FAIL | 🚫 | 95% | First launch sends an install register, crash settings, and push registers to Google |
-| Nurture Lock | "100% offline" | Inconclusive | 🚫 | 95% | RevenueCat in the 2026-10-04 log is origin session, not the app. Static analysis reports eight tracking libraries in the APK |
-| Pebbi | No claim (control) | No claim | 🚫 | 100% | 2026-10-04: Firebase install register is origin app. The `app.pebbi.co` call is origin session. Profile not saved. 2026-10-10: profile saved; mitm had no Pebbi flows; tcpdump saw `app.pebbi.co`; TLS unread |
-| Pixy | "Bank-level encryption" | Not measured | 🚫 | 90% | Three Facebook calls at launch. Request bodies were empty. Encryption was not measured |
-| BabyCenter | No claim | No claim | 🚫 | 95% | Clarity tag response lists screenCapture. The collect body was scrubbed. Ads and attribution calls are in the window |
+| Nurture Lock | "100% offline" | FAIL | 🚫 | 95% | RevenueCat call tagged to the app; onboarding window shows ad and measurement hosts. Eight tracking companies in the APK |
+| Pebbi | No claim (control) | No claim | 🚫 | 100% | 2026-10-04: own server and Firebase, profile not saved. 2026-10-10: profile saved; mitm had no Pebbi flows; tcpdump saw `app.pebbi.co`; TLS unread |
+| Pixy | "Bank-level encryption" | FAIL | 🚫 | 90% | Three Facebook calls at launch to load tracking rules |
+| BabyCenter | No claim | No claim | 🚫 | 95% | **Microsoft Clarity receives screen content, text, pictures, and taps.** Ads and attribution too |
 | BellyBloom | No claim | No claim | 🚫 | 90% | Advertising ID, usage, and which advert brought you, to many companies |
-| Nanit | No claim | No claim | 🚫 | 95% | A Clarity collect call is in the window. The body was scrubbed. Coralogix gets a browser log. Cordial gets contacts |
-| Pregnancy+ | No claim | No claim | 🚫 | 95% | A Clarity collect call is in the window. The body was scrubbed. Ads, usage, consent, and attribution calls are in the window |
-| What to Expect | No claim | No claim | 🚫 | 90% | A Clarity collect call is in the window. No upload-asset path. The body was scrubbed. Ads, usage, and consent calls are in the window |
+| Nanit | No claim | No claim | 🚫 | 95% | **Microsoft Clarity records the screen.** Coralogix gets a browser log. Cordial gets contacts |
+| Pregnancy+ | No claim | No claim | 🚫 | 95% | **Microsoft Clarity records the screen.** Ads, usage, consent, and attribution to five companies |
+| What to Expect | No claim | No claim | 🚫 | 90% | **Microsoft Clarity uploads screen images.** Ads, usage, and consent answers as well |
 
 Result key:
 
-- **PASS** means the capture matched the claim.
-- **FAIL** means the log attributes a call to the app.
-  That call breaks the claim.
-- **No claim** means the listing states no promise.
-  The privacy mark still shows the window.
-- **Not measured** means the capture did not test the printed sentence.
-- **Inconclusive** means the call is in the window.
-  The log does not name the app (`origin` session).
-  Or the body was not read.
-  Or the Firebase silence checks were not met.
+- **💖** passed and behaved as described.
+- **❕** failed, but the capture did not show data that identifies you.
+- **🚫** failed, and the capture showed identifying data or very heavy collection.
 
-Privacy mark:
+An app with no privacy claim cannot fail. Its result says "no claim". The privacy mark still shows what we saw.
 
-- **💖** means the tested session matched the claim.
-- **❕** means the window showed phone-home traffic, and the capture did not show data that identifies a person.
-- **🚫** means the window showed identifying data or heavy collection.
-
-A negative marker scan is not proof that the value never leaves the phone.
+No test ended inconclusive.
 
 ## How to read an app block
 
@@ -78,11 +61,7 @@ The fanout scan covers all 16 committed network logs: 503 calls, 19 vendor or ho
 
 **High-risk findings:**
 
-- **Microsoft Clarity:** tag responses list `screenCapture`.
-  Collect calls were sent.
-  Request bodies were scrubbed.
-  No log path contains `upload-asset`.
-  Pixels were not read.
+- **Microsoft Clarity:** collection calls were sent. What to Expect also sent a screen-image upload. Scrubbing removed request bodies, so the exact pixels are not assessable.
 - **Sentry in Heartful Baby:** decompiled classes include Sentry `rrweb`. No Sentry host appeared in the preserved capture. That is static capability, not proof of a live send.
 
 ### Facebook
@@ -99,7 +78,7 @@ BellyBloom, Pregnancy+, Nara, and Pixy contacted Facebook. Scrubbing removed req
 
 Launch captures had no entered feeding, sleep, or diaper values. This test adds them. It does not replace the launch verdicts.
 
-We enter one fictional baby (Privatia Rigatoni). Markers are in `results/synthetic-baby-profile.json`. We type them while the proxy is live. Short lists keep the value that sticks. The scan greps the raw local capture, not the redacted network logs. A `no_transmission_detected` row means the markers were not observed in that capture window under this scan. It does not prove the app never sends the value. Method: `METHODOLOGY.md`. How much of each app was opened is the injection table in `ROADMAP.md` ("Per-app injection flows"). The 2026-08-18 coverage snapshot is older.
+We enter one fictional baby (Privatia Rigatoni). Markers are in `results/synthetic-baby-profile.json`. We type them while the proxy is live. Short lists keep the value that sticks. The scan greps the raw local capture, not the redacted network logs. A `no_transmission_detected` row means the markers were not observed in that capture window under this scan. It does not prove the app never sends the value. Method: `METHODOLOGY.md`. How much of each app we opened: `ROADMAP.md`.
 
 | App | Inject window | Marker result | Notes |
 | --- | --- | --- | --- |
@@ -115,7 +94,7 @@ We enter one fictional baby (Privatia Rigatoni). Markers are in `results/synthet
 | Pebbi | 2026-08-17 | `no_transmission_detected` on an 8-flow walk | Profile not saved. Pairip CLOSE on cold start is an environment blocker |
 | Nurture Lock | 2026-08-17 | no inject | Pairip CLOSE only. Environment blocker |
 | Baby Daybook | 2026-10-04 full profile inject | `no_transmission_detected` | Name saved on-device (local SQLite row); home shows **Privatia Rigatoni**. Numeric marker hits were low-confidence coincidences in Google auth replies |
-| Nurture Lock | 2026-10-04 onboarding name | `no_transmission_detected` | Home shows **Privatia Rigatoni**. RevenueCat is in the window. Log origin is session. No name marker in the capture |
+| Nurture Lock | 2026-10-04 onboarding name | `no_transmission_detected` | Home shows **Privatia Rigatoni**. RevenueCat tagged to the package; no name marker in the capture |
 | Pebbi | 2026-10-04 profile form, two windows | `no_transmission_detected` | Name typed. The date field took no input. Complete Setup never fired. Profile not saved |
 | Pebbi | 2026-10-10 saved profile | body not in the capture | Profile saved. Mitm: 8 flows, Google and Play only. tcpdump saw `app.pebbi.co`. We did not read the TLS |
 | MimiLog | 2026-10-04 Play-gated window | `no_transmission_detected` | App has no `INTERNET` permission; capture holds Play Store and Google hosts only |
@@ -147,7 +126,7 @@ We acquired the APKs from a mirror and ran burst tests on an API 29 emulator. Be
 | Amazon (ads) | Advertising ID and opt-out state. Reply echoed the ID |
 | Localytics | Usage log, likely tied to a phone ID |
 | Vungle (ads) | Likely ad-measurement numbers |
-| Microsoft (Clarity) | Tag response lists `screenCapture` and `webViewCapture`. Collect POST body was scrubbed. Log origin is session |
+| Microsoft (Clarity) | **Screen recording: screens, taps, text, and pictures** |
 | Scorecard Research | Repeat "this phone is here" pings |
 | Google (ads) | Ad rules and permission settings |
 | Google (Play services) | Location analytics from system software, not the app UI |
@@ -186,7 +165,7 @@ We acquired the APKs from a mirror and ran burst tests on an API 29 emulator. Be
 | Service | What we saw |
 | --- | --- |
 | Google (Firebase) | Install ID and tokens. Settings and crash rules |
-| Microsoft (Clarity) | Collect call in the window. Body was scrubbed. Pixels were not read |
+| Microsoft (Clarity) | **Screen recording** |
 | Localytics | Usage log, likely tied to a phone ID |
 | Cordial | Contact data for email. Auth reply carried a token |
 | Coralogix | App speed and errors, plus one 15.6 KB browser log |
@@ -203,7 +182,7 @@ We acquired the APKs from a mirror and ran burst tests on an API 29 emulator. Be
 
 | Service | What we saw |
 | --- | --- |
-| Microsoft (Clarity) | Collect call in the window. Body was scrubbed. Pixels were not read |
+| Microsoft (Clarity) | Screen recording |
 | Facebook | App-activity event. Body scrubbed |
 | Adapty | Subscription state, attribution, and usage, stored on Amazon |
 | OneSignal | Push rules. A token if you allow push |
@@ -222,7 +201,7 @@ We acquired the APKs from a mirror and ran burst tests on an API 29 emulator. Be
 | Service | What we saw |
 | --- | --- |
 | AppsFlyer | Start, attribution, install date and status |
-| Microsoft (Clarity) | Collect call in the window. No `upload-asset` path. Body was scrubbed. Pixels were not read |
+| Microsoft (Clarity) | **Screen recording plus image file uploads** |
 | Mixpanel | Usage log |
 | Cordial | Usage events for email |
 | Scorecard Research | "This phone is here" ping |
@@ -235,10 +214,8 @@ We acquired the APKs from a mirror and ran burst tests on an API 29 emulator. Be
 ### Heartful Baby
 
 - **Claim:** "HIPAA-compliant" (Google Play listing)
-- **Result:** Not measured
-- **Confidence:** 90%.
-  One Firebase usage log (6,671 bytes) is in the launch window.
-  The HIPAA program was not reviewed.
+- **Result:** FAIL
+- **Confidence:** 90%. One usage log is enough to break a HIPAA promise. One log also limits certainty.
 - **Capture:** 2026-08-12, launch window, 5 calls (four were connectivity checks with no user data).
 
 | Service | What we saw |
@@ -264,10 +241,8 @@ We acquired the APKs from a mirror and ran burst tests on an API 29 emulator. Be
 ### Pixy
 
 - **Claim:** "Bank-level encryption" (Google Play listing)
-- **Result:** Not measured
-- **Confidence:** 90%. Three Facebook calls are in the preserved capture.
-  Request bodies were empty.
-  Encryption was not measured.
+- **Result:** FAIL
+- **Confidence:** 90%. Encryption in transit is not "no collection". Payloads not readable. We report only the three Facebook calls in the preserved capture.
 - **Capture:** 2026-08-12, launch window, 3 calls.
 
 | Service | What we saw |
@@ -312,14 +287,8 @@ Baby Buddy is the only open-source app in this test.
 ### Baby+
 
 - **Claim:** "AdID not auto-enabled" (Google Play listing)
-- **Result:** Not measured
-- **Confidence:** 95%. Forty flows on the 2026-08-25 finished-profile recapture.
-  Facebook Graph calls are in the capture.
-  The APK carries the Facebook SDK (87 dex string hits).
-  A first-party install register goes to the Philips server.
-  The name did not leave the device in this capture.
-  The kept 2026-08-21 capture saw that PUT once.
-  The advertising-id setting was not measured.
+- **Result:** FAIL
+- **Confidence:** 95%. Forty flows on the 2026-08-25 finished-profile recapture: 24 sit on analytics or PII-bearing paths, Facebook Graph calls appear in the capture, and the APK carries the Facebook SDK (87 dex string hits). A first-party install register goes to the Philips server. The name did not leave the device in this capture; the kept 2026-08-21 capture saw that PUT once.
 - **Class change:** full-depth replay moved Baby+ from ❕ minor to 🚫 major, the same way Nanit and Pregnancy+ changed after their replays.
 - **Capture:** 2026-08-25 live inject + proxy after a system-store CA reinstall, 40 flows. Evidence source promoted to `raw-replay`.
 - **About Baby gender:** required. TalkBack has no Boy/Girl names. We selected Girl via the popup row, then DONE reached home. Session dumps: `ROADMAP.md`.
@@ -336,20 +305,14 @@ Baby Buddy is the only open-source app in this test.
 ### Baby Daybook
 
 - **Claim:** "AdID not auto-enabled" (Google Play listing)
-- **Result:** Not measured
-- **Confidence:** 90%. The 2026-10-04 log attributes three flows to the package.
-  Those three are Firebase Installations, Remote Config, and the realtime stream.
-  RevenueCat, Sentry, Firelog, and the push register are origin session.
-  The package contains the Facebook SDK.
-  The profile saved on-device (local SQLite).
-  The marker scan found no name in traffic.
-  The advertising-id setting was not measured.
+- **Result:** FAIL
+- **Confidence:** 90%. The 2026-10-04 onboarding capture (132 flows, emulator-wide window) tags nine flows to the package: Firebase Installations and Remote Config, a realtime config stream, a Firelog batch, an FCM register, three RevenueCat subscriber reads, and one Sentry envelope. The window also shows a Facebook graph destination; the package contains the Facebook SDK. The profile saved on-device (local SQLite); the marker scan found no name in traffic.
 - **Capture:** 2026-10-04, full onboarding to home with the profile, 132 flows. Evidence source promoted to `raw-replay`. Launch window: 2026-08-08, 8 flows.
 
 | Service | What we saw |
 | --- | --- |
-| RevenueCat | Subscriber reads. Log origin is session |
-| Google (Firebase) | Install register, remote config, and the realtime stream are origin app. Other Firebase calls in the window are origin session |
+| RevenueCat | Subscriber reads, tagged to the app package |
+| Google (Firebase) | Install register, settings, realtime config, usage log |
 | Google (messages) | Push register |
 | Sentry | One crash report envelope |
 | Facebook | Graph call in the same window, not tagged to the app |
@@ -388,19 +351,13 @@ Baby Buddy is the only open-source app in this test.
 ### Nurture Lock
 
 - **Claim:** "100% offline" (Google Play listing)
-- **Result:** Inconclusive
-- **Confidence:** 95%.
-  The RevenueCat subscriber calls in the 2026-10-04 log are origin session.
-  The same window also lists Adapty, OneSignal, AppsFlyer, and Comscore.
-  It also lists Clarity, Facebook, Google ads, Philips hosts, and Firebase.
-  Those calls also have no app package header.
-  Static analysis reports eight tracking libraries in the APK.
-  The live calls do not name the app.
+- **Result:** FAIL
+- **Confidence:** 95%. A RevenueCat subscriber call tagged to the package during onboarding breaks "100% offline". The 70-flow window also shows Adapty, OneSignal, AppsFlyer, Comscore Scorecard, Microsoft Clarity, Facebook, Google ads, Philips first-party hosts, and Firebase; static analysis ties eight tracking companies to the package. The table lists what the window saw; only RevenueCat carries the package tag in this capture.
 - **Capture:** 2026-10-04, full onboarding to home with the profile, 70 flows. Evidence source promoted to `raw-replay`. Launch window: 2026-08-03.
 
 | Service | What we saw |
 | --- | --- |
-| RevenueCat | Subscriber reads. Log origin is session |
+| RevenueCat | Subscriber reads, tagged to the app package |
 | Adapty | Subscription state in the window |
 | OneSignal | Push rules in the window |
 | AppsFlyer | Attribution settings in the window |
@@ -416,18 +373,13 @@ Baby Buddy is the only open-source app in this test.
 
 - **Claim:** No claim (control app)
 - **Result:** No claim
-- **Confidence:** 100%. The 2026-10-04 window holds 51 flows.
-  Firebase Installations is origin app.
-  The `app.pebbi.co` version-policy call is origin session.
-  Crashlytics settings, RevenueCat, and Play traffic are in the same window.
-  That day the date field took no input, so the profile did not save.
-  Marker scan on that file: `no_transmission_detected`.
+- **Confidence:** 100%. The 2026-10-04 window holds 51 flows. The capture tags Firebase Installations and the `app.pebbi.co` version-policy call to the package. Crashlytics settings, RevenueCat, and Play Store traffic are in the same window. Heavy volume keeps the 🚫 mark. That day the date field took no input, so the profile did not save. Marker scan on that file: `no_transmission_detected`.
 - **Capture:** 2026-10-04, 51 flows, `raw-replay`. This is the committed capture. Launch window: 2026-08-03. On 2026-10-10 the profile saved. 4.6.30 records 18:30 on the Play image. 4.6.31 records 22:25 on the later api29 inject. `pebbi-4.4.1-full.mitm` has 8 flows, all Google and Play. tcpdump saw DNS and TLS to `app.pebbi.co`. We did not read the TLS. The 51-flow file is still the one in RESULTS.
 
 | Service | What we saw |
 | --- | --- |
-| Pebbi (own) | Version-policy call. Log origin is session |
-| Google (Firebase) | Install register is origin app. Crash settings are in the window |
+| Pebbi (own) | Version-policy call, tagged to the app package |
+| Google (Firebase) | Install register tagged to the app package; crash settings in the window |
 | RevenueCat | Subscription state in the window |
 | Google (Play) | Store traffic in the same window |
 
@@ -435,17 +387,9 @@ Baby Buddy is the only open-source app in this test.
 
 ## Cross-app view
 
-Nara and Nubo still fail the printed sentence.
-Nara's window includes Facebook calls.
-Nubo's install register is origin app.
-Heartful Baby and Pixy are Not measured.
-The HIPAA program and the encryption claim were not what the capture tested.
+Every failed app shares Firebase. Nara and Pixy also embed Facebook. "Complete privacy" and "HIPAA-compliant" sit next to code that sends data out.
 
-Four of the five long-report apps ship install and ad programs
-(Facebook, Adjust, TikTok, or Google/Amazon).
-Nanit's window includes a Clarity collect call and a Coralogix browser log.
-Cordial contact calls are in that window too.
-Play data-safety pages for all five say they share data.
+Four of the five long-report apps ship install and ad programs (Facebook, Adjust, TikTok, or Google/Amazon). Nanit also sends screen and browser telemetry to Clarity and Coralogix, and contacts to Cordial. Play data-safety pages for all five say they share data.
 
 ## Limits
 

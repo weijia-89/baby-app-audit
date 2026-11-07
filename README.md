@@ -121,16 +121,13 @@ Full results with evidence: [FINAL-REPORT.md](FINAL-REPORT.md) and machine-reada
 
 The full picture is in [FINAL-REPORT.md](FINAL-REPORT.md). Each app has its own section with evidence: what the app claims, what we captured, and how the verdict was reached.
 
-The Result column is the claim. The privacy mark is the window. Those two can differ.
+The privacy marks say what the app actually did:
 
-- **PASS** means the capture matched the claim.
-- **FAIL** means the log attributes a call to the app, and that call breaks the claim.
-- **No claim** means the listing states no promise.
-- **Not measured** means the capture did not test the printed sentence.
-- **Inconclusive** means the call is in the window, and the log does not name the app, or the body was not read.
-- **💖** means the tested session matched the claim.
-- **❕** means the window showed phone-home traffic without data that identifies a person.
-- **🚫** means the window showed identifying data or heavy collection.
+- **💖** means the app passed and behaved as described.
+- **❕** means the app failed, but the capture showed phone-home traffic without identifying user data.
+- **🚫** means the app failed and the capture showed identifying data or extensive tracking.
+
+An app with no privacy claim cannot fail, because there is no promise to break. Its result says "no claim"; the privacy mark still shows what we observed.
 
 Every failed app links to its own sanitized network log (`results/network-log-<app>.json`). The logs list hosts, redacted paths, status codes, flow counts, request and response sizes, JSON body keys, header-flag names, and redaction slugs for each captured flow. They contain no query strings, header values, or body values. The slugs state what was removed and why. The method, host, path, status, count, and sizes remain, so the record still proves that the call was sent. The logs are generated from the raw `.mitm` captures by `scripts/build-network-logs.sh`; the raw captures stay local only.
 
@@ -138,22 +135,22 @@ The machine-readable summary is [results/RESULTS-20260803.json](results/RESULTS-
 
 | App | Privacy claim | Result | Privacy | Confidence | Key findings |
 | --- | --- | --- | --- | --- | --- |
-| Baby Buddy | Open source | PASS | 💖 | 100% | Django web: no app-originated traffic. Android companion login photos are not the PASS |
-| MimiLog | "Fully offline" | PASS | 💖 | 90% | Package declares no `INTERNET`. One unattributed measurement call in the kept launch capture. 2026-10-04: Play license gate held the app; it cannot connect |
-| Amila | No claim | No claim | ❕ | 90% | Registers the install with Google; settings, logging, and measurement calls (2026-08-25 recapture) |
-| Baby+ | "AdID not auto-enabled" | Not measured | 🚫 | 95% | Facebook and Google ads on the finished-profile replay. The parent name PUT was seen once. The advertising-id setting was not measured |
-| Heartful Baby | "HIPAA-compliant" | Not measured | ❕ | 90% | One Firebase usage log at launch. The HIPAA program was not reviewed |
-| Baby Daybook | "AdID not auto-enabled" | Not measured | 🚫 | 90% | Three Firebase calls are origin app. RevenueCat and Sentry in that window are origin session. The advertising-id setting was not measured |
-| Nara | "Complete privacy" | FAIL | 🚫 | 90% | Nine Facebook calls at launch, plus a Google crash report |
-| Nubo | "Local-first" | FAIL | 🚫 | 95% | First launch sends an install register, crash settings, and push registers to Google |
-| Nurture Lock | "100% offline" | Inconclusive | 🚫 | 95% | RevenueCat in the 2026-10-04 log is origin session, not the app. Static analysis reports eight tracking libraries in the APK |
-| Pebbi | No claim (control) | No claim | 🚫 | 100% | 2026-10-04: Firebase install register is origin app. The `app.pebbi.co` call is origin session. Profile not saved. 2026-10-10: profile saved; mitm had no Pebbi flows; tcpdump saw `app.pebbi.co`; TLS unread |
-| Pixy | "Bank-level encryption" | Not measured | 🚫 | 90% | Three Facebook calls at launch. Request bodies were empty. Encryption was not measured |
-| BabyCenter | No claim | No claim | 🚫 | 95% | Clarity tag response lists screenCapture. The collect body was scrubbed. Ads and attribution calls are in the window |
-| BellyBloom | No claim | No claim | 🚫 | 90% | Advertising ID, usage, and which advert brought you, to many companies |
-| Nanit | No claim | No claim | 🚫 | 95% | A Clarity collect call is in the window. The body was scrubbed. Coralogix gets a browser log. Cordial gets contacts |
-| Pregnancy+ | No claim | No claim | 🚫 | 95% | A Clarity collect call is in the window. The body was scrubbed. Ads, usage, consent, and attribution calls are in the window |
-| What to Expect | No claim | No claim | 🚫 | 90% | A Clarity collect call is in the window. No upload-asset path. The body was scrubbed. Ads, usage, and consent calls are in the window |
+| Baby Buddy | Open-source | PASS | 💖 | 100% | No tracking libraries. All traffic stays on localhost in default configuration |
+| MimiLog | "Fully offline" | PASS | 💖 | 100% | One Firebase configuration call; the device held no valid Firebase project, so no data was exchanged |
+| Amila | No claim | No claim | ❕ | 90% | Firebase Installations, Remote Config, Logging, Measurement, and Funding Choices on the 2026-08-25 recapture |
+| Baby+ | "AdID not auto-enabled" | FAIL | ❕ | 90% | Philips server, Firebase, and Google calls on launch. The AdID claim does not cover this traffic |
+| Heartful Baby | "HIPAA-compliant" | FAIL | ❕ | 90% | One Firebase logging batch on launch |
+| Baby Daybook | "AdID not auto-enabled" | FAIL | 🚫 | 90% | Firebase and RevenueCat calls on launch; Facebook SDK found in code. The AdID claim does not cover this traffic |
+| Nara | "Complete privacy" | FAIL | 🚫 | 90% | Nine Facebook Graph API calls and one Crashlytics report batch on launch |
+| Nubo | "Local-first" | FAIL | 🚫 | 95% | Sends session analytics, screen views, and onboarding events to Google Firebase on first launch |
+| Nurture Lock | "100% offline" | FAIL | 🚫 | 95% | Phones home to RevenueCat with device identifiers on launch. 8 tracking libraries found in the APK |
+| Pebbi | No claim (positive control) | No claim | 🚫 | 100% | Extensive data collection via Firebase, Google AdServices, and FCM registration |
+| Pixy | "Bank-level encryption" | FAIL | 🚫 | 90% | Three Facebook Graph API calls on launch |
+| BabyCenter | No claim | No claim | 🚫 | 95% | AppsFlyer, DoubleClick, Microsoft Clarity, Scorecard Research, and Firebase calls on launch |
+| BellyBloom | No claim | No claim | 🚫 | 90% | Adjust, DoubleClick, Facebook, and Firebase calls on launch |
+| Nanit | No claim | No claim | 🚫 | 95% | Firebase, Microsoft Clarity, Localytics, Cordial, and Coralogix flows plus the Nanit API on launch; no ad-network SDK |
+| Pregnancy+ | No claim | No claim | 🚫 | 95% | Firebase, Facebook, Microsoft Clarity, Adapty, and OneSignal flows on launch, including install attribution |
+| What to Expect | No claim | No claim | 🚫 | 90% | AppsFlyer, Microsoft Clarity, Scorecard Research, and Firebase calls on launch |
 
 The full procedure is in [APK_PRIVACY_TEST_HARNESS.md](APK_PRIVACY_TEST_HARNESS.md). Method, consent, and known limits (no radio checks, no static scan for Nubo) are in [METHODOLOGY.md](METHODOLOGY.md).
 

@@ -24,7 +24,7 @@ import json
 import os
 import re
 import sys
-from urllib.parse import unquote, urlparse
+from urllib.parse import urlparse
 
 # Redact a path part if it looks like an ID (12+ chars, not a plain word).
 # Prefer over-redact. Under-redact can leak secrets.
@@ -71,21 +71,6 @@ HEADERS_OF_NOTE = {"x-android-package", "x-android-cert", "x-goog-api-key",
                    "x-firebase-client", "authorization", "x-apikey"}
 
 
-def segment_has_token(seg):
-    """True when the segment, or a piece of it, looks like an id.
-
-    Percent-encoding can hide '$' and ':' inside one path segment.
-    Decode first. Then test the whole segment and each id-shaped piece.
-    A plain word (letters only) stays.
-    """
-    decoded = unquote(seg)
-    pieces = [decoded, *re.split(r"[^A-Za-z0-9._\-]+", decoded)]
-    for piece in pieces:
-        if piece and TOKEN_RE.match(piece) and not piece.isalpha():
-            return True
-    return False
-
-
 def redact_path(url):
     query_removed = "?" in url
     if query_removed:
@@ -94,7 +79,8 @@ def redact_path(url):
     path_redactions = 0
     # Redact path segments only (keep scheme and host).
     for i in range(3, len(segs)):
-        if segment_has_token(segs[i]):
+        seg = segs[i]
+        if TOKEN_RE.match(seg) and not seg.isalpha():
             segs[i] = "[REDACTED:path-token-or-id]"
             path_redactions += 1
     return "/".join(segs), query_removed, path_redactions
