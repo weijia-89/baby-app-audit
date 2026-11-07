@@ -124,6 +124,29 @@ else
   bad "an old error record in an appended log would fail a good run"
 fi
 
+# A transient transport failure must be retried by resuming, not by restarting the whole run.
+if grep -q "run_had_transient_failure" "$HERE/sprint-run.sh" \
+   && grep -q "RetriableError" "$HERE/sprint-run.sh" \
+   && grep -q '\-\-resume' "$HERE/sprint-run.sh"; then
+  ok "transient transport failure resumes the session instead of restarting"
+else
+  bad "a stalled connection loses the whole run"
+fi
+
+# Retries must be bounded: an unbounded retry loop spends plan usage indefinitely.
+if grep -q 'SPRINT_TRANSIENT_RETRIES' "$HERE/sprint-run.sh"; then
+  ok "transient retries are bounded and configurable"
+else
+  bad "transient retry count is unbounded or hardcoded"
+fi
+
+# A failed run may still have produced a PR; the failure message must not imply otherwise.
+if grep -q "may hold partial work" "$HERE/sprint-run.sh"; then
+  ok "failure message warns that partial work may exist"
+else
+  bad "failure message implies no work was done"
+fi
+
 # The driver must treat stream errors as failures, so a broken run is never announced clean.
 if grep -q '"type":"error"' "$HERE/sprint-run.sh"; then
   ok "stream-level errors count as failures"
