@@ -2,3 +2,4 @@
 set -euo pipefail
 root="$(cd "$(dirname "$0")/.." && pwd)"
 python3 "$root/tests/test_har_dump_postdata.py"
+python3 "$root/tests/test_har_dump_flows.py"

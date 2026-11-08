@@ -73,8 +73,19 @@
           "status": {
             "oneOf": [
               { "type": "integer" },
-              { "const": "unknown" }
+              { "const": "unknown" },
+              { "type": "null" }
             ]
+          },
+          "outcome": {
+            "const": "no_response"
+          },
+          "x_android_package": {
+            "type": ["string", "null"]
+          },
+          "query_params": {
+            "type": "array",
+            "items": { "type": "string" }
           },
           "origin": {
             "type": "string",
@@ -94,6 +105,12 @@
                 "type": ["array", "null"],
                 "items": { "type": "string" }
               },
+              "body_decoder": {
+                "type": ["string", "null"]
+              },
+              "unscannable": {
+                "type": "boolean"
+              },
               "headers": {
                 "type": "array",
                 "items": { "type": "string" }
@@ -109,6 +126,12 @@
               "body_keys": {
                 "type": ["array", "null"],
                 "items": { "type": "string" }
+              },
+              "body_decoder": {
+                "type": ["string", "null"]
+              },
+              "unscannable": {
+                "type": "boolean"
               }
             }
           },
@@ -119,6 +142,14 @@
           }
         }
       }
+    },
+    "tls_unread": {
+      "type": "array",
+      "items": { "type": "object" }
+    },
+    "non_http": {
+      "type": "array",
+      "items": { "type": "object" }
     },
     "summary": {
       "type": "object",

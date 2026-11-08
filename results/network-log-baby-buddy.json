@@ -4,13 +4,62 @@
   "app": "Baby Buddy",
   "package_name": "org.babybuddy.babybuddy",
   "capture_date": "2026-08-03",
-  "capture": "2026-08-03 capture; raw capture kept local",
-  "redaction": "Query strings, headers, and bodies stripped. Project numbers and subscriber IDs replaced with [REDACTED].",
-  "flows": [],
-  "summary": {
-    "total_flows": 0,
-    "unique_destinations": [],
-    "tracked": "Hosts listed are carriers of tracking or analytics SDKs (Facebook, Firebase, RevenueCat, Crashlytics, FCM). Font and system checks are marked by origin."
+  "capture": "results/baby-buddy-test-20260803/artifacts/captures/baby-buddy.mitm",
+  "tls_unread": [],
+  "non_http": [],
+  "redaction": {
+    "policy": "Sensitive values never appear. Call metadata remains so the sent call can be assessed.",
+    "slugs": {
+      "query": "[REDACTED:query-string:privacy]",
+      "path": "[REDACTED:path-token-or-id:secret-or-PII]",
+      "request_body": "[REDACTED:request-body-values:secret-or-PII]",
+      "request_headers": "[REDACTED:request-header-values:secret-or-PII]",
+      "response_body": "[REDACTED:response-body-values:secret-or-PII]",
+      "response_headers": "[REDACTED:response-header-values:secret-or-PII]"
+    },
+    "body_keys": "Names only. Values are scrubbed."
   },
-  "note": "All traffic stayed on localhost between the app and its own server. No outbound flows."
+  "flows": [
+    {
+      "method": "GET",
+      "host": "httpbin.org",
+      "path": "http://httpbin.org/get",
+      "status": 200,
+      "origin": "session",
+      "x_android_package": null,
+      "query_params": [],
+      "count": 1,
+      "request": {
+        "size": 0,
+        "content_type": null,
+        "headers": [],
+        "body_keys": null,
+        "body_decoder": null,
+        "unscannable": false
+      },
+      "response": {
+        "size": 292,
+        "content_type": "application/json",
+        "body_keys": [
+          "args",
+          "headers",
+          "origin",
+          "url"
+        ],
+        "body_decoder": "json",
+        "unscannable": false
+      },
+      "redactions": [
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-body-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
+    }
+  ],
+  "summary": {
+    "total_flows": 1,
+    "unique_destinations": [
+      "httpbin.org"
+    ]
+  }
 }

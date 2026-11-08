@@ -8,7 +8,7 @@
 
 Parents use baby tracking apps to record feeding, sleep, and diaper changes. These apps hold sensitive data about babies. Some apps claim that data never leaves the phone. I wanted to know if that claim is true.
 
-If an app says "100% offline" but sends data to a server, the claim is false. One outbound packet is enough to prove it false.
+An offline claim fails only when a flow is attributed by a UID, a decoded body field that names the package, or an R4 line. A session row is not an app finding. A negative stays untested until the verdict file stores gates G1 through G10. No stored record has those flags.
 
 ---
 
@@ -40,7 +40,7 @@ The test environment included these tools:
 * **mitmproxy** - captures network traffic between the phone and the internet.
 * **adb** - connects to the Android emulator.
 * **jadx** - decompiles APK files to read the source code.
-* **objection** - available to bypass certificate pinning if needed. Not required in this run because the system certificate was installed directly.
+* **objection** - available to bypass certificate pinning if needed. This note does not say a system certificate was installed. The API 28 Play image has no system CA. API level is per capture.
 
 exodus-standalone is documented in the harness but was not run on this platform (the Docker image is linux/amd64 only).
 
@@ -146,7 +146,7 @@ The test harness does not use real baby data. All traffic captured on the emulat
 * **Data minimization:** I captured only app traffic, not all emulator traffic.
 * **Purpose limitation:** I used the data only for privacy testing.
 * **Retention:** Raw captures, decode files, and network logs are permanent evidence. They stay on disk indefinitely under `results/` (gitignored because they contain live tokens) and are never swept or deleted. The harness deletes only its own work directory under `${HOME}/apk-privacy-test-*`, which it created; `KEEP_WORK_DIR=1` preserves even that. `scripts/evidence-inventory.sh --check` enforces the inventory on every harness run.
-* **Redaction:** Captures that contain tokens or identifiers (Firebase installation IDs, JWTs, anonymous IDs) are kept only under `results/mitm-capture/`, which is excluded from the repository by `.gitignore`. Public documents redact such values. Committed network logs are generated from the raw `.mitm` captures by `scripts/build-network-logs.sh`. The builder replaces removed values with slugs such as `[REDACTED:request-body-values:secret-or-PII]`. It keeps the method, host, path, status, count, sizes, body-key names, and header names, so the sent call remains visible. A scrubbed body is not evidence that PII was absent.
+* **Redaction:** Captures that contain tokens or identifiers (Firebase installation IDs, JWTs, anonymous IDs) are kept only under `results/mitm-capture/`, which is excluded from the repository by `.gitignore`. Public documents redact such values. Committed network logs are generated from the raw `.mitm` captures by `scripts/build-network-logs.sh`. The builder replaces removed values with slugs such as `[REDACTED:request-body-values:secret-or-PII]`. It keeps the method, host, path, status (null when the call has no response), count, sizes, body-key names, header names, the package header, and query names, and it marks a non-JSON body unscannable, so the sent call remains visible. A scrubbed body is not evidence that PII was absent.
 * **No consent requirement:** Because no real user data was used, no parent consent was needed or obtained. No claims of consent are made.
 
 ---

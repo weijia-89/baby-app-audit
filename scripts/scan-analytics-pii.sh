@@ -247,7 +247,7 @@ def pii_categories(vendor, host, path, flow, roles):
             categories.add("screen_content_and_interactions")
         if "/collect" in path.lower():
             categories.add("screen_content_and_interactions")
-        if "upload-asset" in path.lower():
+        if "upload-asset" in path.lower() or "upload/asset" in path.lower():
             categories.add("screen_images_or_assets")
     if "/contacts" in path.lower():
         categories.add("contact_data")

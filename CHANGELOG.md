@@ -7,6 +7,32 @@
 - `scripts/firebase_verdict.py` computes those flags from the records. It stores the flags, the sha256 of each record, and its path and version. It does not assign a UID.
 - Amila `amila-test-20260825-silence` and Nubo `nubo-test-20260825` are re-derived as `untested`. The old files stored no flags. Gate G3 fails because there is no per-UID record. METHODOLOGY now requires gates G1 through G10 before a negative sentence.
 
+## 4.7.1 - 2026-11-08
+
+### Changed
+- A committed network-log row is one request shape. The builder keys each row by method, host, path, status, origin, and the package header. The builder keeps query names and removes query values. The builder keeps a call that has no response and sets status null. The builder marks a non-JSON body unscannable.
+- `scripts/har_dump.py` records query names. The script writes calls with no response, plus raw TCP, raw UDP, and TLS failures, to a sidecar next to the HAR.
+- The asset-upload check matches both `upload-asset` and `upload/asset`.
+- This slice rebuilt the 16 committed network logs from the raw captures on disk. The analytics fanout counts 507 calls. Source: `results/analytics-pii-20260803.json`. The public report stays as it was.
+
+### Fixed
+- The network-log build stops when the app package is unknown.
+
+## 4.7.0 - 2026-11-08
+
+### Changed
+- FINAL-REPORT and the README print one verdict table. Each claim has an axis: pass, fail, untested, not-assessable, or inconclusive. The gate column says the negative-gate flags are not stored. Confidence percents are gone.
+- `results/RESULTS-20260803.json` stores the same axis. `privacy_class` comes from the committed network log. It stays `untested` while no flow stores a UID or a body key that names the package. The package header is not that key.
+- The run-level API integer is gone. The 2026-08-14 Clarity captures are API 29 by User-Agent. Other windows are unknown until a per-capture manifest exists.
+- Pebbi's 2026-10-04 mitm window is untested. The report cites the 2026-10-10 mitm and tcpdump files. The TLS was not read.
+- Clarity lines stay inside the bytes. What to Expect has one asset-upload call, and the content was not decoded. Pregnancy+, Nanit, and Nurture Lock say the Clarity traffic is unattributed.
+- BabyCenter and Nara are inconclusive. The log does not attribute their flows to the app.
+- Baby Buddy, MimiLog, Nurture Lock, the advertising-id rows, and Pixy do not get a pass or a fail. Heartful Baby is not-assessable. The logging batch stays a fact.
+- Each Firebase sentence adds "RTDB hosts only; flags not stored."
+
+### Fixed
+- The result file no longer pairs API 28 with a system certificate. The API 28 Play image has no system CA.
+
 ## 4.6.35 - 2026-11-07
 
 ### Fixed
