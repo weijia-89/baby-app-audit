@@ -5,6 +5,8 @@
   "package_name": "com.heartfulsprout.baby",
   "capture_date": "2026-08-12",
   "capture": "results/heartful-baby-test-20260812/artifacts/captures/Heartful-baby.mitm",
+  "tls_unread": [],
+  "non_http": [],
   "redaction": {
     "policy": "Sensitive values never appear. Call metadata remains so the sent call can be assessed.",
     "slugs": {
@@ -24,17 +26,23 @@
       "path": "http://connectivitycheck.gstatic.com/[REDACTED:path-token-or-id]",
       "status": 204,
       "origin": "session",
+      "x_android_package": null,
+      "query_params": [],
       "count": 2,
       "request": {
         "size": 0,
         "content_type": null,
+        "headers": [],
         "body_keys": null,
-        "headers": []
+        "body_decoder": null,
+        "unscannable": false
       },
       "response": {
         "size": 0,
         "content_type": "",
-        "body_keys": null
+        "body_keys": null,
+        "body_decoder": null,
+        "unscannable": false
       },
       "redactions": [
         "[REDACTED:path-token-or-id:secret-or-PII]",
@@ -48,17 +56,23 @@
       "path": "https://www.google.com/[REDACTED:path-token-or-id]",
       "status": 204,
       "origin": "session",
+      "x_android_package": null,
+      "query_params": [],
       "count": 2,
       "request": {
         "size": 0,
         "content_type": null,
+        "headers": [],
         "body_keys": null,
-        "headers": []
+        "body_decoder": null,
+        "unscannable": false
       },
       "response": {
         "size": 0,
         "content_type": "",
-        "body_keys": null
+        "body_keys": null,
+        "body_decoder": null,
+        "unscannable": false
       },
       "redactions": [
         "[REDACTED:path-token-or-id:secret-or-PII]",
@@ -72,14 +86,20 @@
       "path": "https://firebaselogging.googleapis.com/v0cc/log/batch",
       "status": 200,
       "origin": "session",
+      "x_android_package": null,
+      "query_params": [
+        "format"
+      ],
       "count": 1,
       "request": {
         "size": 6671,
         "content_type": "application/json",
+        "headers": [],
         "body_keys": [
           "logRequest"
         ],
-        "headers": []
+        "body_decoder": "json",
+        "unscannable": false
       },
       "response": {
         "size": 352,
@@ -88,7 +108,9 @@
           "logSourceBatchingDenylist",
           "nextRequestWaitMillis",
           "qosTier"
-        ]
+        ],
+        "body_decoder": "json",
+        "unscannable": false
       },
       "redactions": [
         "[REDACTED:query-string:privacy]",
@@ -97,13 +119,41 @@
         "[REDACTED:response-body-values:secret-or-PII]",
         "[REDACTED:response-header-values:secret-or-PII]"
       ]
+    },
+    {
+      "method": "PRI",
+      "host": "telephonyspamprotect-pa.googleapis.com",
+      "path": "https://telephonyspamprotect-pa.googleapis.com",
+      "status": null,
+      "origin": "session",
+      "x_android_package": null,
+      "query_params": [],
+      "count": 1,
+      "request": {
+        "size": 0,
+        "content_type": null,
+        "headers": [],
+        "body_keys": null,
+        "body_decoder": null,
+        "unscannable": false
+      },
+      "response": {
+        "size": 0,
+        "content_type": null,
+        "body_keys": null,
+        "body_decoder": null,
+        "unscannable": false
+      },
+      "redactions": [],
+      "outcome": "no_response"
     }
   ],
   "summary": {
-    "total_flows": 5,
+    "total_flows": 6,
     "unique_destinations": [
       "connectivitycheck.gstatic.com",
       "firebaselogging.googleapis.com",
+      "telephonyspamprotect-pa.googleapis.com",
       "www.google.com"
     ]
   }

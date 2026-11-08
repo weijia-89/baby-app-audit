@@ -5,6 +5,8 @@
   "package_name": "com.pebbi.android",
   "capture_date": "2026-10-04",
   "capture": "results/pebbi-test-20261004/artifacts/captures/pebbi.mitm",
+  "tls_unread": [],
+  "non_http": [],
   "redaction": {
     "policy": "Sensitive values never appear. Call metadata remains so the sent call can be assessed.",
     "slugs": {
@@ -24,17 +26,23 @@
       "path": "https://connectivitycheck.gstatic.com/[REDACTED:path-token-or-id]",
       "status": 204,
       "origin": "session",
+      "x_android_package": null,
+      "query_params": [],
       "count": 1,
       "request": {
         "size": 0,
         "content_type": null,
+        "headers": [],
         "body_keys": null,
-        "headers": []
+        "body_decoder": null,
+        "unscannable": false
       },
       "response": {
         "size": 0,
         "content_type": "",
-        "body_keys": null
+        "body_keys": null,
+        "body_decoder": null,
+        "unscannable": false
       },
       "redactions": [
         "[REDACTED:path-token-or-id:secret-or-PII]",
@@ -45,15 +53,24 @@
     {
       "method": "GET",
       "host": "firebase-settings.crashlytics.com",
-      "path": "https://firebase-settings.crashlytics.com/spi/v2/platforms/android/gmp/1:341351821472:android:14124c1ebb45d70fc499c5/settings",
+      "path": "https://firebase-settings.crashlytics.com/spi/v2/platforms/android/gmp/[REDACTED:path-token-or-id]/settings",
       "status": 200,
       "origin": "session",
+      "x_android_package": null,
+      "query_params": [
+        "instance",
+        "build_version",
+        "display_version",
+        "source"
+      ],
       "count": 1,
       "request": {
         "size": 0,
         "content_type": null,
+        "headers": [],
         "body_keys": null,
-        "headers": []
+        "body_decoder": null,
+        "unscannable": false
       },
       "response": {
         "size": 743,
@@ -69,9 +86,12 @@
           "on_demand_thread_recording_suspension_enabled",
           "on_demand_upload_rate_per_minute",
           "settings_version"
-        ]
+        ],
+        "body_decoder": "json",
+        "unscannable": false
       },
       "redactions": [
+        "[REDACTED:path-token-or-id:secret-or-PII]",
         "[REDACTED:query-string:privacy]",
         "[REDACTED:request-header-values:secret-or-PII]",
         "[REDACTED:response-body-values:secret-or-PII]",
@@ -84,19 +104,26 @@
       "path": "https://play.googleapis.com/play/log",
       "status": 200,
       "origin": "session",
+      "x_android_package": null,
+      "query_params": [
+        "format",
+        "proto_v2"
+      ],
       "count": 31,
       "request": {
         "size": 44437,
         "content_type": "application/x-gzip",
-        "body_keys": null,
         "headers": [
           "authorization"
-        ]
+        ],
+        "body_decoder": "unknown",
+        "unscannable": true
       },
       "response": {
         "size": 11,
         "content_type": "text/plain; charset=utf-8",
-        "body_keys": null
+        "body_decoder": "unknown",
+        "unscannable": true
       },
       "redactions": [
         "[REDACTED:query-string:privacy]",
@@ -112,22 +139,26 @@
       "path": "https://firebaseinstallations.googleapis.com/v1/projects/pebbi-app/installations",
       "status": 200,
       "origin": "app",
+      "x_android_package": "com.pebbi.android",
+      "query_params": [],
       "count": 1,
       "request": {
         "size": 135,
         "content_type": "application/json",
+        "headers": [
+          "x-android-cert",
+          "x-android-package",
+          "x-firebase-client",
+          "x-goog-api-key"
+        ],
         "body_keys": [
           "appId",
           "authVersion",
           "fid",
           "sdkVersion"
         ],
-        "headers": [
-          "x-android-cert",
-          "x-android-package",
-          "x-firebase-client",
-          "x-goog-api-key"
-        ]
+        "body_decoder": "json",
+        "unscannable": false
       },
       "response": {
         "size": 630,
@@ -137,7 +168,9 @@
           "fid",
           "name",
           "refreshToken"
-        ]
+        ],
+        "body_decoder": "json",
+        "unscannable": false
       },
       "redactions": [
         "[REDACTED:request-body-values:secret-or-PII]",
@@ -149,15 +182,22 @@
     {
       "method": "GET",
       "host": "firebase-settings.crashlytics.com",
-      "path": "https://firebase-settings.crashlytics.com/spi/v2/platforms/android/gmp/1%3A341351821472%3Aandroid%3A14124c1ebb45d70fc499c5/settings",
+      "path": "https://firebase-settings.crashlytics.com/spi/v2/platforms/android/gmp/[REDACTED:path-token-or-id]/settings",
       "status": 200,
       "origin": "session",
+      "x_android_package": null,
+      "query_params": [
+        "build_version",
+        "display_version"
+      ],
       "count": 1,
       "request": {
         "size": 0,
         "content_type": null,
+        "headers": [],
         "body_keys": null,
-        "headers": []
+        "body_decoder": null,
+        "unscannable": false
       },
       "response": {
         "size": 743,
@@ -173,9 +213,12 @@
           "on_demand_thread_recording_suspension_enabled",
           "on_demand_upload_rate_per_minute",
           "settings_version"
-        ]
+        ],
+        "body_decoder": "json",
+        "unscannable": false
       },
       "redactions": [
+        "[REDACTED:path-token-or-id:secret-or-PII]",
         "[REDACTED:query-string:privacy]",
         "[REDACTED:request-header-values:secret-or-PII]",
         "[REDACTED:response-body-values:secret-or-PII]",
@@ -188,12 +231,19 @@
       "path": "https://app.pebbi.co/app/[REDACTED:path-token-or-id]",
       "status": 200,
       "origin": "session",
+      "x_android_package": null,
+      "query_params": [
+        "platform",
+        "currentVersion"
+      ],
       "count": 1,
       "request": {
         "size": 0,
         "content_type": null,
+        "headers": [],
         "body_keys": null,
-        "headers": []
+        "body_decoder": null,
+        "unscannable": false
       },
       "response": {
         "size": 260,
@@ -206,7 +256,9 @@
           "minSupportedVersionAndroid",
           "minSupportedVersionIos",
           "storeUrl"
-        ]
+        ],
+        "body_decoder": "json",
+        "unscannable": false
       },
       "redactions": [
         "[REDACTED:path-token-or-id:secret-or-PII]",
@@ -222,17 +274,23 @@
       "path": "http://www.google.com/gen_204",
       "status": 204,
       "origin": "session",
+      "x_android_package": null,
+      "query_params": [],
       "count": 1,
       "request": {
         "size": 0,
         "content_type": null,
+        "headers": [],
         "body_keys": null,
-        "headers": []
+        "body_decoder": null,
+        "unscannable": false
       },
       "response": {
         "size": 0,
         "content_type": "text/html; charset=UTF-8",
-        "body_keys": null
+        "body_keys": null,
+        "body_decoder": null,
+        "unscannable": false
       },
       "redactions": [
         "[REDACTED:request-header-values:secret-or-PII]",
@@ -245,14 +303,18 @@
       "path": "https://api.revenuecat.com/v1/subscribers/[REDACTED:path-token-or-id]",
       "status": 201,
       "origin": "session",
+      "x_android_package": null,
+      "query_params": [],
       "count": 1,
       "request": {
         "size": 0,
         "content_type": "application/json",
-        "body_keys": null,
         "headers": [
           "authorization"
-        ]
+        ],
+        "body_keys": null,
+        "body_decoder": null,
+        "unscannable": false
       },
       "response": {
         "size": 400,
@@ -261,7 +323,9 @@
           "request_date",
           "request_date_ms",
           "subscriber"
-        ]
+        ],
+        "body_decoder": "json",
+        "unscannable": false
       },
       "redactions": [
         "[REDACTED:path-token-or-id:secret-or-PII]",
@@ -276,19 +340,23 @@
       "path": "https://play-fe.googleapis.com/fdfe/getBillingConfig",
       "status": 200,
       "origin": "session",
+      "x_android_package": null,
+      "query_params": [],
       "count": 12,
       "request": {
         "size": 102,
         "content_type": "application/x-protobuf",
-        "body_keys": null,
         "headers": [
           "authorization"
-        ]
+        ],
+        "body_decoder": "unknown",
+        "unscannable": true
       },
       "response": {
         "size": 66,
         "content_type": "application/protobuf",
-        "body_keys": null
+        "body_decoder": "unknown",
+        "unscannable": true
       },
       "redactions": [
         "[REDACTED:request-body-values:secret-or-PII]",
@@ -303,19 +371,23 @@
       "path": "https://play-fe.googleapis.com/fdfe/getPrefetchableItems",
       "status": 200,
       "origin": "session",
+      "x_android_package": null,
+      "query_params": [],
       "count": 1,
       "request": {
         "size": 32,
         "content_type": "application/x-protobuf",
-        "body_keys": null,
         "headers": [
           "authorization"
-        ]
+        ],
+        "body_decoder": "unknown",
+        "unscannable": true
       },
       "response": {
         "size": 44,
         "content_type": "application/protobuf",
-        "body_keys": null
+        "body_decoder": "unknown",
+        "unscannable": true
       },
       "redactions": [
         "[REDACTED:request-body-values:secret-or-PII]",

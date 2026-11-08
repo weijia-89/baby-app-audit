@@ -5,6 +5,8 @@
   "package_name": "com.naraorganics.nara",
   "capture_date": "2026-08-14",
   "capture": "results/nara-test-20260812/artifacts/captures/Nara.mitm",
+  "tls_unread": [],
+  "non_http": [],
   "redaction": {
     "policy": "Sensitive values never appear. Call metadata remains so the sent call can be assessed.",
     "slugs": {
@@ -24,12 +26,21 @@
       "path": "https://graph.facebook.com/v16.0/app",
       "status": 200,
       "origin": "session",
+      "x_android_package": null,
+      "query_params": [
+        "access_token",
+        "fields",
+        "format",
+        "sdk"
+      ],
       "count": 4,
       "request": {
         "size": 0,
         "content_type": "application/x-www-form-urlencoded",
+        "headers": [],
         "body_keys": null,
-        "headers": []
+        "body_decoder": null,
+        "unscannable": false
       },
       "response": {
         "size": 7678,
@@ -50,7 +61,9 @@
           "smart_login_menu_icon_url",
           "suggested_events_setting",
           "supports_implicit_sdk_logging"
-        ]
+        ],
+        "body_decoder": "json",
+        "unscannable": false
       },
       "redactions": [
         "[REDACTED:query-string:privacy]",
@@ -65,19 +78,32 @@
       "path": "https://graph.facebook.com/v16.0/app/[REDACTED:path-token-or-id]",
       "status": 200,
       "origin": "session",
+      "x_android_package": null,
+      "query_params": [
+        "access_token",
+        "fields",
+        "format",
+        "sdk_version",
+        "sdk",
+        "platform"
+      ],
       "count": 4,
       "request": {
         "size": 0,
         "content_type": "application/x-www-form-urlencoded",
+        "headers": [],
         "body_keys": null,
-        "headers": []
+        "body_decoder": null,
+        "unscannable": false
       },
       "response": {
         "size": 3698,
         "content_type": "application/json; charset=utf-8",
         "body_keys": [
           "data"
-        ]
+        ],
+        "body_decoder": "json",
+        "unscannable": false
       },
       "redactions": [
         "[REDACTED:path-token-or-id:secret-or-PII]",
@@ -93,14 +119,20 @@
       "path": "https://crashlyticsreports-pa.googleapis.com/v1/firelog/legacy/batchlog",
       "status": 200,
       "origin": "session",
+      "x_android_package": null,
+      "query_params": [],
       "count": 1,
       "request": {
         "size": 60387,
         "content_type": "application/json",
-        "body_keys": null,
         "headers": [
           "x-goog-api-key"
-        ]
+        ],
+        "body_keys": [
+          "logRequest"
+        ],
+        "body_decoder": "json",
+        "unscannable": false
       },
       "response": {
         "size": 233,
@@ -108,7 +140,9 @@
         "body_keys": [
           "logResponseDetails",
           "nextRequestWaitMillis"
-        ]
+        ],
+        "body_decoder": "json",
+        "unscannable": false
       },
       "redactions": [
         "[REDACTED:request-body-values:secret-or-PII]",
@@ -123,19 +157,30 @@
       "path": "https://graph.facebook.com/v16.0/app/model_asset",
       "status": 200,
       "origin": "session",
+      "x_android_package": null,
+      "query_params": [
+        "access_token",
+        "fields",
+        "format",
+        "sdk"
+      ],
       "count": 1,
       "request": {
         "size": 0,
         "content_type": "application/x-www-form-urlencoded",
+        "headers": [],
         "body_keys": null,
-        "headers": []
+        "body_decoder": null,
+        "unscannable": false
       },
       "response": {
         "size": 11,
         "content_type": "text/javascript; charset=UTF-8",
         "body_keys": [
           "data"
-        ]
+        ],
+        "body_decoder": "json",
+        "unscannable": false
       },
       "redactions": [
         "[REDACTED:query-string:privacy]",

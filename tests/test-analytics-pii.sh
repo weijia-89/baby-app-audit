@@ -81,10 +81,48 @@ cat > "$tmp_dir/network-log-fixture.json" <<'EOF'
         "[REDACTED:request-body-values:secret-or-PII]",
         "[REDACTED:request-header-values:secret-or-PII]"
       ]
+    },
+    {
+      "method": "POST",
+      "host": "www.clarity.ms",
+      "path": "https://www.clarity.ms/c/upload/asset",
+      "status": 200,
+      "origin": "session",
+      "count": 1,
+      "request": {
+        "size": 10,
+        "content_type": "application/octet-stream",
+        "body_keys": null,
+        "headers": []
+      },
+      "response": {
+        "size": 0,
+        "content_type": null,
+        "body_keys": null
+      }
+    },
+    {
+      "method": "POST",
+      "host": "www.clarity.ms",
+      "path": "https://www.clarity.ms/c/upload-asset",
+      "status": 200,
+      "origin": "session",
+      "count": 1,
+      "request": {
+        "size": 11,
+        "content_type": "application/octet-stream",
+        "body_keys": null,
+        "headers": []
+      },
+      "response": {
+        "size": 0,
+        "content_type": null,
+        "body_keys": null
+      }
     }
   ],
   "summary": {
-    "total_flows": 3,
+    "total_flows": 5,
     "unique_destinations": [
       "graph.facebook.com",
       "www.clarity.ms",
@@ -163,13 +201,13 @@ import os
 
 data = json.load(open(os.environ["OUTPUT"]))
 assert data["scope"]["apps_scanned"] == 2
-assert data["scope"]["calls_scanned"] == 7
+assert data["scope"]["calls_scanned"] == 9
 assert "likely" not in json.dumps(data).lower()
 
 app = data["apps"][0]
-assert app["call_count"] == 3
-assert app["pii_call_count"] == 3
-assert app["unassessed_call_count"] == 2
+assert app["call_count"] == 5
+assert app["pii_call_count"] == 5
+assert app["unassessed_call_count"] == 4
 
 calls = {call["host"]: call for call in app["calls"]}
 facebook = calls["graph.facebook.com"]
@@ -177,9 +215,14 @@ assert facebook["sent_call"] is True
 assert "app_activity_events" in facebook["pii_categories"]
 assert "call_sent_body_scrubbed" in facebook["assessments"]
 
-clarity = calls["www.clarity.ms"]
+clarity_calls = [call for call in app["calls"] if call["host"] == "www.clarity.ms"]
+clarity = next(call for call in clarity_calls if call["path"].endswith("/tag/mobile/test"))
 assert "screen_content_and_interactions" in clarity["pii_categories"]
 assert "capability_observed" in clarity["assessments"]
+upload_slash = next(call for call in clarity_calls if call["path"].endswith("/upload/asset"))
+upload_dash = next(call for call in clarity_calls if call["path"].endswith("/upload-asset"))
+assert "screen_images_or_assets" in upload_slash["pii_categories"], upload_slash
+assert "screen_images_or_assets" in upload_dash["pii_categories"], upload_dash
 
 unknown = calls["ingest.unknown-analytics.example"]
 assert unknown["vendor"] == "Unclassified host"

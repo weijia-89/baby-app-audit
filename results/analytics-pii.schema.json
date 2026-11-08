@@ -69,7 +69,7 @@
                 "method": { "type": "string" },
                 "host": { "type": "string" },
                 "path": { "type": "string" },
-                "status": { "oneOf": [{ "type": "integer" }, { "const": "unknown" }] },
+                "status": { "oneOf": [{ "type": "integer" }, { "const": "unknown" }, { "type": "null" }] },
                 "count": { "type": "integer", "minimum": 1 },
                 "vendor": { "type": "string" },
                 "roles": { "type": "array", "items": { "type": "string" } },

@@ -5,6 +5,8 @@
   "package_name": "com.nanit.baby",
   "capture_date": "2026-08-14",
   "capture": "results/nanit-test-20260814/artifacts/captures/Nanit.mitm",
+  "tls_unread": [],
+  "non_http": [],
   "redaction": {
     "policy": "Sensitive values never appear. Call metadata remains so the sent call can be assessed.",
     "slugs": {
@@ -24,17 +26,22 @@
       "path": "https://r.clarity.ms/collect",
       "status": 204,
       "origin": "session",
+      "x_android_package": null,
+      "query_params": [],
       "count": 1,
       "request": {
         "size": 1108,
         "content_type": "application/json",
-        "body_keys": null,
-        "headers": []
+        "headers": [],
+        "body_decoder": "unknown",
+        "unscannable": true
       },
       "response": {
         "size": 0,
         "content_type": "",
-        "body_keys": null
+        "body_keys": null,
+        "body_decoder": null,
+        "unscannable": false
       },
       "redactions": [
         "[REDACTED:request-body-values:secret-or-PII]",
@@ -45,15 +52,24 @@
     {
       "method": "GET",
       "host": "firebase-settings.crashlytics.com",
-      "path": "https://firebase-settings.crashlytics.com/spi/v2/platforms/android/gmp/1:25705829844:android:83a90cd56c7431e0/settings",
+      "path": "https://firebase-settings.crashlytics.com/spi/v2/platforms/android/gmp/[REDACTED:path-token-or-id]/settings",
       "status": 200,
       "origin": "session",
+      "x_android_package": null,
+      "query_params": [
+        "instance",
+        "build_version",
+        "display_version",
+        "source"
+      ],
       "count": 1,
       "request": {
         "size": 0,
         "content_type": null,
+        "headers": [],
         "body_keys": null,
-        "headers": []
+        "body_decoder": null,
+        "unscannable": false
       },
       "response": {
         "size": 740,
@@ -69,9 +85,12 @@
           "on_demand_thread_recording_suspension_enabled",
           "on_demand_upload_rate_per_minute",
           "settings_version"
-        ]
+        ],
+        "body_decoder": "json",
+        "unscannable": false
       },
       "redactions": [
+        "[REDACTED:path-token-or-id:secret-or-PII]",
         "[REDACTED:query-string:privacy]",
         "[REDACTED:request-header-values:secret-or-PII]",
         "[REDACTED:response-body-values:secret-or-PII]",
@@ -84,17 +103,26 @@
       "path": "https://firebaseinstallations.googleapis.com/v1/projects/[REDACTED:path-token-or-id]/installations",
       "status": 200,
       "origin": "app",
+      "x_android_package": "com.nanit.baby",
+      "query_params": [],
       "count": 1,
       "request": {
         "size": 128,
         "content_type": "application/json",
-        "body_keys": null,
         "headers": [
           "x-android-cert",
           "x-android-package",
           "x-firebase-client",
           "x-goog-api-key"
-        ]
+        ],
+        "body_keys": [
+          "appId",
+          "authVersion",
+          "fid",
+          "sdkVersion"
+        ],
+        "body_decoder": "json",
+        "unscannable": false
       },
       "response": {
         "size": 618,
@@ -104,7 +132,9 @@
           "fid",
           "name",
           "refreshToken"
-        ]
+        ],
+        "body_decoder": "json",
+        "unscannable": false
       },
       "redactions": [
         "[REDACTED:path-token-or-id:secret-or-PII]",
@@ -117,15 +147,22 @@
     {
       "method": "GET",
       "host": "firebase-settings.crashlytics.com",
-      "path": "https://firebase-settings.crashlytics.com/spi/v2/platforms/android/gmp/1%3A25705829844%3Aandroid%3A83a90cd56c7431e0/settings",
+      "path": "https://firebase-settings.crashlytics.com/spi/v2/platforms/android/gmp/[REDACTED:path-token-or-id]/settings",
       "status": 200,
       "origin": "session",
+      "x_android_package": null,
+      "query_params": [
+        "build_version",
+        "display_version"
+      ],
       "count": 1,
       "request": {
         "size": 0,
         "content_type": null,
+        "headers": [],
         "body_keys": null,
-        "headers": []
+        "body_decoder": null,
+        "unscannable": false
       },
       "response": {
         "size": 740,
@@ -141,9 +178,12 @@
           "on_demand_thread_recording_suspension_enabled",
           "on_demand_upload_rate_per_minute",
           "settings_version"
-        ]
+        ],
+        "body_decoder": "json",
+        "unscannable": false
       },
       "redactions": [
+        "[REDACTED:path-token-or-id:secret-or-PII]",
         "[REDACTED:query-string:privacy]",
         "[REDACTED:request-header-values:secret-or-PII]",
         "[REDACTED:response-body-values:secret-or-PII]",
@@ -156,19 +196,25 @@
       "path": "https://api.nanit.com/plans",
       "status": 200,
       "origin": "session",
+      "x_android_package": null,
+      "query_params": [],
       "count": 1,
       "request": {
         "size": 0,
         "content_type": null,
+        "headers": [],
         "body_keys": null,
-        "headers": []
+        "body_decoder": null,
+        "unscannable": false
       },
       "response": {
         "size": 56833,
         "content_type": "application/json",
         "body_keys": [
           "plans"
-        ]
+        ],
+        "body_decoder": "json",
+        "unscannable": false
       },
       "redactions": [
         "[REDACTED:request-header-values:secret-or-PII]",
@@ -182,21 +228,27 @@
       "path": "https://api.nanit.com/cards",
       "status": 401,
       "origin": "session",
+      "x_android_package": null,
+      "query_params": [],
       "count": 1,
       "request": {
         "size": 0,
         "content_type": null,
-        "body_keys": null,
         "headers": [
           "authorization"
-        ]
+        ],
+        "body_keys": null,
+        "body_decoder": null,
+        "unscannable": false
       },
       "response": {
         "size": 28,
         "content_type": "application/json",
         "body_keys": [
           "message"
-        ]
+        ],
+        "body_decoder": "json",
+        "unscannable": false
       },
       "redactions": [
         "[REDACTED:request-header-values:secret-or-PII]",
@@ -210,17 +262,22 @@
       "path": "https://analytics.localytics.com/api/v4/applications/[REDACTED:path-token-or-id]/uploads",
       "status": 202,
       "origin": "session",
+      "x_android_package": null,
+      "query_params": [],
       "count": 1,
       "request": {
         "size": 1327,
         "content_type": "application/x-gzip",
-        "body_keys": null,
-        "headers": []
+        "headers": [],
+        "body_decoder": "unknown",
+        "unscannable": true
       },
       "response": {
         "size": 0,
         "content_type": "text/plain;charset=utf-8",
-        "body_keys": null
+        "body_keys": null,
+        "body_decoder": null,
+        "unscannable": false
       },
       "redactions": [
         "[REDACTED:path-token-or-id:secret-or-PII]",
@@ -235,16 +292,34 @@
       "path": "https://firebaseremoteconfig.googleapis.com/v1/projects/25705829844/namespaces/firebase:fetch",
       "status": 200,
       "origin": "app",
+      "x_android_package": "com.nanit.baby",
+      "query_params": [],
       "count": 1,
       "request": {
         "size": 687,
         "content_type": "application/json",
-        "body_keys": null,
         "headers": [
           "x-android-cert",
           "x-android-package",
           "x-goog-api-key"
-        ]
+        ],
+        "body_keys": [
+          "analyticsUserProperties",
+          "appBuild",
+          "appId",
+          "appInstanceId",
+          "appInstanceIdToken",
+          "appVersion",
+          "countryCode",
+          "firstOpenTime",
+          "languageCode",
+          "packageName",
+          "platformVersion",
+          "sdkVersion",
+          "timeZone"
+        ],
+        "body_decoder": "json",
+        "unscannable": false
       },
       "response": {
         "size": 60447,
@@ -256,7 +331,9 @@
           "rolloutMetadata",
           "state",
           "templateVersion"
-        ]
+        ],
+        "body_decoder": "json",
+        "unscannable": false
       },
       "redactions": [
         "[REDACTED:request-body-values:secret-or-PII]",
@@ -271,12 +348,16 @@
       "path": "https://events-stream-svc.usw2.cordial.com/mobile/auth/[REDACTED:path-token-or-id]",
       "status": 200,
       "origin": "session",
+      "x_android_package": null,
+      "query_params": [],
       "count": 1,
       "request": {
         "size": 0,
         "content_type": "application/json",
+        "headers": [],
         "body_keys": null,
-        "headers": []
+        "body_decoder": null,
+        "unscannable": false
       },
       "response": {
         "size": 236,
@@ -284,7 +365,9 @@
         "body_keys": [
           "success",
           "token"
-        ]
+        ],
+        "body_decoder": "json",
+        "unscannable": false
       },
       "redactions": [
         "[REDACTED:path-token-or-id:secret-or-PII]",
@@ -299,21 +382,29 @@
       "path": "https://events-stream-svc.usw2.cordial.com/mobile/contacts",
       "status": 200,
       "origin": "session",
+      "x_android_package": null,
+      "query_params": [],
       "count": 1,
       "request": {
         "size": 496,
         "content_type": "application/json",
-        "body_keys": null,
         "headers": [
           "authorization"
-        ]
+        ],
+        "body_keys": [
+          "[list of 2]"
+        ],
+        "body_decoder": "json",
+        "unscannable": false
       },
       "response": {
         "size": 16,
         "content_type": "application/json",
         "body_keys": [
           "success"
-        ]
+        ],
+        "body_decoder": "json",
+        "unscannable": false
       },
       "redactions": [
         "[REDACTED:request-body-values:secret-or-PII]",
@@ -328,21 +419,30 @@
       "path": "https://ingress.eu1.rum-ingress-coralogix.com/browser/v1beta/logs",
       "status": 202,
       "origin": "session",
+      "x_android_package": null,
+      "query_params": [],
       "count": 1,
       "request": {
         "size": 15634,
         "content_type": "application/json; charset=utf-8",
-        "body_keys": null,
         "headers": [
           "authorization"
-        ]
+        ],
+        "body_keys": [
+          "logs",
+          "skip_enrichment_with_ip"
+        ],
+        "body_decoder": "json",
+        "unscannable": false
       },
       "response": {
         "size": 31,
         "content_type": "application/json",
         "body_keys": [
           "error"
-        ]
+        ],
+        "body_decoder": "json",
+        "unscannable": false
       },
       "redactions": [
         "[REDACTED:request-body-values:secret-or-PII]",
@@ -357,21 +457,34 @@
       "path": "https://firebaseremoteconfigrealtime.googleapis.com/v1/projects/25705829844/namespaces/firebase:streamFetchInvalidations",
       "status": 200,
       "origin": "app",
+      "x_android_package": "com.nanit.baby",
+      "query_params": [],
       "count": 1,
       "request": {
         "size": 189,
         "content_type": "application/json",
-        "body_keys": null,
         "headers": [
           "x-android-cert",
           "x-android-package",
           "x-goog-api-key"
-        ]
+        ],
+        "body_keys": [
+          "appId",
+          "appInstanceId",
+          "lastKnownVersionNumber",
+          "namespace",
+          "project",
+          "sdkVersion"
+        ],
+        "body_decoder": "json",
+        "unscannable": false
       },
       "response": {
         "size": 0,
         "content_type": "application/json; charset=UTF-8",
-        "body_keys": null
+        "body_keys": null,
+        "body_decoder": null,
+        "unscannable": false
       },
       "redactions": [
         "[REDACTED:request-body-values:secret-or-PII]",
