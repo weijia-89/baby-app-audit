@@ -1,5 +1,13 @@
 # Changelog
 
+## 4.7.3 - 2026-11-08
+
+### Added
+- `scripts/scan-adtest-on.py` searches raw `.mitm` files for the literal `adtest=on` and writes `results/adtest-on-scan.json`. The file names each capture and the hit count. A hit count is a search result. It is not a privacy verdict.
+
+### Changed
+- METHODOLOGY records the re-counted 2026-08-14 Clarity headers, the shared `assets/clarity.js` version string 0.7.1, the file type of the What to Expect 2,753 byte `upload-asset` body, and the `adtest=on` search of the raw captures on disk.
+
 ## 4.7.1 - 2026-11-08
 
 ### Changed
