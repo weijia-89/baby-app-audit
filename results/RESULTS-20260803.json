@@ -6,25 +6,24 @@
   "test_environment": {
     "host_os": "macOS 26.5.1",
     "host_arch": "arm64",
-    "android_api_level": 28,
     "emulator_arch": "arm64-v8a",
     "tool_versions": {
       "adb": "37.0.1",
       "mitmproxy": "12.2.3",
       "jadx": "1.5.6",
       "docker": "installed (exodus scan not run: linux/amd64 only)",
-      "objection": "1.12.5 (not required: system certificate installed)"
-    }
+      "objection": "1.12.5 (not a system-CA claim; the API 28 Play image has no system CA)"
+    },
+    "api_level": "per capture. API 29 for the 2026-08-14 Clarity captures by User-Agent Dalvik/2.1.0 (Android 10). Other windows unknown until per-capture manifests exist."
   },
   "apps": [
     {
       "name": "Nurture Lock",
       "package_name": "com.angry.shark.studio.nurturelock",
       "app_type": "native",
-      "verdict": "fail",
-      "privacy_class": "major",
-      "verdict_confidence": 95,
-      "evidence": "RevenueCat subscriber calls in the 2026-10-04 log are origin session, not the app. The 70-flow window also shows Adapty, OneSignal, AppsFlyer, Comscore Scorecard, Microsoft Clarity, Facebook graph, Google ads, Philips first-party hosts, and Firebase, without an app package header. Static analysis found 8 tracking libraries. The live calls do not prove the app sent them. Claim row is Inconclusive.",
+      "verdict": "untested",
+      "privacy_class": "untested",
+      "evidence": "100% offline is untested. RevenueCat in the 2026-10-04 log is session. Unattributed Clarity traffic in window; source unresolved. Static scan shows SDK code in the package.",
       "apk_hash": {
         "sha256": "d0f2219c6f2a8bfa2f1dec67bb2cc0dd1685495417aa8695e2ec8da013f8bf31",
         "timestamp": "2026-08-03T21:49:16Z",
@@ -90,16 +89,16 @@
         ],
         "source_hits": "decompiled/nurture-lock (9,817 Java files, jadx 1.5.6)"
       },
-      "evidence_source": "raw-replay"
+      "evidence_source": "raw-replay",
+      "gate": "G1-G10 not stored"
     },
     {
       "name": "Nubo",
       "package_name": "com.clicksie.nuboapp",
       "app_type": "native",
-      "verdict": "fail",
-      "privacy_class": "major",
-      "verdict_confidence": 95,
-      "evidence": "Replay of the preserved 2026-08-03 launch capture: Firebase Installations register sent by the app itself, Crashlytics settings fetch, push and message registers, and App Measurement. The 2026-08-18 finished-use soak is also kept on disk and shows Google device traffic only. privacy_class stays major.",
+      "verdict": "inconclusive",
+      "privacy_class": "untested",
+      "evidence": "Local-first is inconclusive. A Firebase Installations POST is in the 2026-08-03 window. The package header is not origin proof. RTDB hosts only; flags not stored.",
       "apk_hash": {
         "sha256": "4612efb6152c4069f8d08a07ef546fbf1c46e062d2d41dd6e2701cdf064b5c1e",
         "timestamp": "2026-08-03T22:03:44Z",
@@ -157,16 +156,16 @@
         "pinning_bypass_required": false,
         "flow_file": "results/nubo-test-20260803/artifacts/captures/nubo.mitm"
       },
-      "evidence_source": "raw-replay"
+      "evidence_source": "raw-replay",
+      "gate": "G1-G10 not stored"
     },
     {
       "name": "Pebbi",
       "package_name": "com.pebbi.android",
       "app_type": "native",
-      "verdict": "fail",
-      "privacy_class": "major",
-      "verdict_confidence": 100,
-      "evidence": "Positive control. The 2026-10-04 capture (51 flows) attributes Firebase Installations to the package. The app.pebbi.co version-policy call is origin session. The same window holds Crashlytics settings, RevenueCat, and Play Store traffic. That day the date field took no input, so the profile did not save. On 2026-10-10 the profile saved. The mitm file has 8 flows, all Google and Play. tcpdump saw DNS and TLS to app.pebbi.co and a Crashlytics settings lookup. The TLS was not read. The committed flow_file is still the 2026-10-04 capture. Pairip license check passes on the Play-enabled image.",
+      "verdict": "untested",
+      "privacy_class": "untested",
+      "evidence": "No printed promise. The committed flow_file is the 2026-10-04 mitm-only window and that window is untested. 2026-10-10 records are results/pebbi-test-20261010/artifacts/captures/pebbi-4.4.1-full.mitm and pebbi-tcpdump-coldstart.pcap. tcpdump saw DNS and TLS to app.pebbi.co; contents not read.",
       "apk_hash": {
         "sha256": "2178136085fc16b74f8bc4c7e2a1c7dbb3b4e6e39b40617065a9b0433d345066",
         "timestamp": "2026-08-03T21:49:45Z",
@@ -205,16 +204,16 @@
         ],
         "source_hits": "decompiled/pebbi (17,231 Java files, jadx 1.5.6)"
       },
-      "evidence_source": "raw-replay"
+      "evidence_source": "raw-replay",
+      "gate": "G1-G10 not stored"
     },
     {
       "name": "Baby Buddy",
       "package_name": "org.babybuddy.babybuddy",
       "app_type": "foss",
-      "verdict": "pass",
-      "privacy_class": "pass",
-      "verdict_confidence": 100,
-      "evidence": "Source audit of github.com/babybuddy/babybuddy at commit 16b8848c7bc2031fc5936f8da89c8056ec5624d2: 67 network references all in documentation comments or config examples, 0 tracker libraries. Dynamic test: all traffic on localhost only.",
+      "verdict": "untested",
+      "privacy_class": "untested",
+      "evidence": "Open-source claim is untested for the Android app. The tested session was the localhost Django site. evidence_source stays session-summary.",
       "source_audit": {
         "repository_url": "https://github.com/babybuddy/babybuddy",
         "commit_hash": "16b8848c7bc2031fc5936f8da89c8056ec5624d2",
@@ -227,16 +226,16 @@
         "outbound_destinations": [],
         "flow_file": "results/baby-buddy-test-20260803/baby-buddy-flows.mitm"
       },
-      "evidence_source": "session-summary"
+      "evidence_source": "session-summary",
+      "gate": "G1-G10 not stored"
     },
     {
       "name": "Amila",
       "package_name": "com.amila.parenting",
       "app_type": "native",
-      "verdict": "fail",
-      "privacy_class": "minor",
-      "verdict_confidence": 95,
-      "evidence": "Full-depth re-audit confirms the 2026-08-25 recapture: 13 flows, nine on analytics or PII-bearing paths, every one of them Google/Firebase endpoints; zero third-party vendor calls in the fanout and zero tracker strings across all dex files of the archived APK. No synthetic marker left the device. privacy_class stays minor.",
+      "verdict": "inconclusive",
+      "privacy_class": "untested",
+      "evidence": "No printed promise. Firebase calls are in the 2026-08-25 window. The package header is not origin proof. RTDB hosts only; flags not stored.",
       "offline_test": {
         "outbound_requests_count": 13,
         "outbound_destinations": [
@@ -249,16 +248,16 @@
         ],
         "flow_file": "results/amila-test-20260825/artifacts/captures/Amila.mitm"
       },
-      "evidence_source": "raw-replay"
+      "evidence_source": "raw-replay",
+      "gate": "G1-G10 not stored"
     },
     {
       "name": "Baby Daybook",
       "package_name": "com.drillyapps.babydaybook",
       "app_type": "native",
-      "verdict": "fail",
-      "privacy_class": "major",
-      "verdict_confidence": 90,
-      "evidence": "The 2026-10-04 onboarding capture (132 flows, emulator-wide window) attributes three flows to the package: Firebase Installations, Remote Config, and the realtime config stream. Firelog, the FCM register, RevenueCat subscriber reads, and the Sentry envelope in that window are origin session. The window also carries a Facebook graph destination; static analysis found the Facebook SDK. The synthetic profile saved on-device (local SQLite) and the marker scan found no name in traffic. The advertising-id setting was not measured.",
+      "verdict": "untested",
+      "privacy_class": "untested",
+      "evidence": "AdID not auto-enabled is untested. Firebase calls in the 2026-10-04 log carry the package header only. RevenueCat and Sentry in that window are session. RTDB hosts only; flags not stored.",
       "offline_test": {
         "outbound_requests_count": 132,
         "outbound_destinations": [
@@ -291,16 +290,16 @@
         ],
         "flow_file": "results/baby-daybook-test-20261004/artifacts/captures/baby-daybook.mitm"
       },
-      "evidence_source": "raw-replay"
+      "evidence_source": "raw-replay",
+      "gate": "G1-G10 not stored"
     },
     {
       "name": "Baby+",
       "package_name": "com.hp.babyapp",
       "app_type": "native",
-      "verdict": "fail",
-      "privacy_class": "major",
-      "verdict_confidence": 95,
-      "evidence": "Full-depth re-audit of the 2026-08-25 finished-profile capture: 40 flows, 24 on analytics or PII-bearing paths, Facebook Graph calls in the capture and the Facebook SDK present in the APK (87 dex string hits), a first-party install register with installation ID plus locale and time zone, and Google advertising hosts. The kept 2026-08-21 capture saw the parent name PUT once. privacy_class moves minor -> major on this full replay.",
+      "verdict": "untested",
+      "privacy_class": "untested",
+      "evidence": "AdID not auto-enabled is untested. Facebook and Google ad calls are in the finished-profile window. The advertising-id setting was not measured.",
       "offline_test": {
         "outbound_requests_count": 40,
         "outbound_destinations": [
@@ -317,16 +316,16 @@
         ],
         "flow_file": "results/baby-plus-test-20260825/artifacts/captures/BabyPlus-final.mitm"
       },
-      "evidence_source": "raw-replay"
+      "evidence_source": "raw-replay",
+      "gate": "G1-G10 not stored"
     },
     {
       "name": "MimiLog",
       "package_name": "com.mimiapp.mimilog",
       "app_type": "native",
-      "verdict": "pass",
-      "privacy_class": "pass",
-      "verdict_confidence": 90,
-      "evidence": "The manifest requests no INTERNET permission (permission dump kept in artifacts), so the app cannot open its own connections. The preserved 2026-08-16 launch capture holds one completed Google App Measurement call with no app package header, so the caller cannot be attributed from the capture alone. The 2026-10-04 window shows only Play Store and Google hosts while a license gate held the app. Synthetic-marker scan found nothing. Stays session-summary: the capture window never held an app session.",
+      "verdict": "untested",
+      "privacy_class": "untested",
+      "evidence": "Fully offline is untested. The package declares no INTERNET. The kept launch capture has one measurement call and no package header. evidence_source stays session-summary.",
       "offline_test": {
         "outbound_requests_count": 1,
         "outbound_destinations": [
@@ -334,16 +333,16 @@
         ],
         "flow_file": "results/mimilog-test-20260816/artifacts/captures/mimilog.mitm"
       },
-      "evidence_source": "session-summary"
+      "evidence_source": "session-summary",
+      "gate": "G1-G10 not stored"
     },
     {
       "name": "Nara",
       "package_name": "com.naraorganics.nara",
       "app_type": "native",
-      "verdict": "fail",
-      "privacy_class": "major",
-      "verdict_confidence": 90,
-      "evidence": "The launch capture shows nine Facebook Graph API calls and one Crashlytics report batch. The complete privacy claim is false.",
+      "verdict": "inconclusive",
+      "privacy_class": "untested",
+      "evidence": "Complete privacy is inconclusive. Insufficient attribution. Facebook and Crashlytics calls in the launch window are session.",
       "offline_test": {
         "outbound_requests_count": 10,
         "outbound_destinations": [
@@ -352,16 +351,16 @@
         ],
         "flow_file": "results/nara-test-20260812/artifacts/captures/Nara.mitm"
       },
-      "evidence_source": "raw-replay"
+      "evidence_source": "raw-replay",
+      "gate": "G1-G10 not stored"
     },
     {
       "name": "Heartful Baby",
       "package_name": "com.heartfulsprout.baby",
       "app_type": "native",
-      "verdict": "fail",
-      "privacy_class": "minor",
-      "verdict_confidence": 90,
-      "evidence": "The launch capture shows one Firebase logging batch and four Android connectivity checks. No identifying user data was observed in the sanitized capture. The HIPAA program was not reviewed.",
+      "verdict": "not-assessable",
+      "privacy_class": "untested",
+      "evidence": "HIPAA-compliant is not-assessable. One firebaselogging batch is in the launch window. RTDB hosts only; flags not stored.",
       "offline_test": {
         "outbound_requests_count": 5,
         "outbound_destinations": [
@@ -369,16 +368,16 @@
         ],
         "flow_file": "results/heartful-baby-test-20260812/artifacts/captures/Heartful-baby.mitm"
       },
-      "evidence_source": "raw-replay"
+      "evidence_source": "raw-replay",
+      "gate": "G1-G10 not stored"
     },
     {
       "name": "Pixy",
       "package_name": "com.pixykid.app",
       "app_type": "native",
-      "verdict": "fail",
-      "privacy_class": "major",
-      "verdict_confidence": 90,
-      "evidence": "The launch capture shows three Facebook Graph API calls. Request bodies were empty. Encryption was not measured.",
+      "verdict": "untested",
+      "privacy_class": "untested",
+      "evidence": "Bank-level encryption is untested. Facebook calls in the launch window are session. Encryption sub-claims were not measured.",
       "offline_test": {
         "outbound_requests_count": 3,
         "outbound_destinations": [
@@ -386,16 +385,16 @@
         ],
         "flow_file": "results/pixy-test-20260812/artifacts/captures/Pixy.mitm"
       },
-      "evidence_source": "raw-replay"
+      "evidence_source": "raw-replay",
+      "gate": "G1-G10 not stored"
     },
     {
       "name": "BabyCenter",
       "package_name": "com.babycenter.pregnancytracker",
       "app_type": "native",
-      "verdict": "fail",
-      "privacy_class": "major",
-      "verdict_confidence": 95,
-      "evidence": "No claim. Launch capture shows AppsFlyer, DoubleClick, Microsoft Clarity, Scorecard Research, and Google Firebase calls on first open. The manifest declares ACCESS_ADSERVICES_AD_ID plus an install-referrer receiver.",
+      "verdict": "inconclusive",
+      "privacy_class": "untested",
+      "evidence": "No printed promise. Insufficient attribution. The Clarity config endpoint was fetched; the project config enables capture features. Clarity collect call(s) observed; contents not assessable (body not JSON-parseable).",
       "apk_hash": {
         "sha256": "d2ba70b2a757605f557c74507c60e4791f853fb747cc18200bc28acf81bfdc82",
         "timestamp": "2026-08-14T12:55:00Z",
@@ -434,16 +433,16 @@
         ],
         "source_hits": "decompiled/babycenter (jadx 1.5.6)"
       },
-      "evidence_source": "raw-replay"
+      "evidence_source": "raw-replay",
+      "gate": "G1-G10 not stored"
     },
     {
       "name": "BellyBloom",
       "package_name": "com.bellyBloom.pregnancy.tracker",
       "app_type": "native",
-      "verdict": "fail",
-      "privacy_class": "major",
-      "verdict_confidence": 90,
-      "evidence": "No claim. Launch capture shows Adjust, DoubleClick, Facebook, and Google Firebase calls on first open. Version 1.0.8 tested because 1.0.9 requires Android 12L (API 32); both builds share the same package signature.",
+      "verdict": "inconclusive",
+      "privacy_class": "untested",
+      "evidence": "No printed promise. Ad and attribution calls are in the window. The package header is not origin proof. RTDB hosts only; flags not stored.",
       "apk_hash": {
         "sha256": "4fa303d3d99814f2b80aa76c905179e74aca22e77d2cb3e684287087afcee5a0",
         "timestamp": "2026-08-14T12:55:00Z",
@@ -480,16 +479,16 @@
         ],
         "source_hits": "decompiled/bellybloom (jadx 1.5.6)"
       },
-      "evidence_source": "raw-replay"
+      "evidence_source": "raw-replay",
+      "gate": "G1-G10 not stored"
     },
     {
       "name": "Nanit",
       "package_name": "com.nanit.baby",
       "app_type": "native",
-      "verdict": "fail",
-      "privacy_class": "major",
-      "verdict_confidence": 95,
-      "evidence": "No claim. Launch capture shows Firebase (Installations, Remote Config, Crashlytics settings), Microsoft Clarity session tracking (r.clarity.ms/collect), Localytics analytics, Cordial email-messaging events, and Coralogix RUM, plus the Nanit first-party API (plans, cards, mobile auth and contacts with authorization header, browser logs 15.6 kB). Multiple tracking and first-party data-sharing flows observed on first open; no dedicated ad-network SDK observed in the launch window.",
+      "verdict": "inconclusive",
+      "privacy_class": "untested",
+      "evidence": "No printed promise. Unattributed Clarity traffic in window; source unresolved.",
       "apk_hash": {
         "sha256": "18b284fd0fb83949d9660eca34ac89fe52de699fe47e9f81a0a853c7b7a66902",
         "timestamp": "2026-08-14T12:55:00Z",
@@ -534,16 +533,16 @@
         ],
         "source_hits": "decompiled/nanit (jadx 1.5.6)"
       },
-      "evidence_source": "raw-replay"
+      "evidence_source": "raw-replay",
+      "gate": "G1-G10 not stored"
     },
     {
       "name": "Pregnancy+",
       "package_name": "com.hp.pregnancy.lite",
       "app_type": "native",
-      "verdict": "fail",
-      "privacy_class": "major",
-      "verdict_confidence": 95,
-      "evidence": "No claim. Launch capture shows Firebase (Installations, Remote Config, logging, Crashlytics settings), Microsoft Clarity session tracking (b.clarity.ms/collect), Facebook app configuration plus activities beacon (app id 546319842074484), Adapty paywall analytics with install attribution (install attribution POST, analytics events), OneSignal push configuration, and first-party Philips APIs (iam-api.philips-digital.com) with Amazon Cognito/S3 in the Adapty flow. Sensitivity was disabled and consent screens accepted via automation. Multiple analytics and attribution SDK flows observed on first open.",
+      "verdict": "inconclusive",
+      "privacy_class": "untested",
+      "evidence": "No printed promise. Unattributed Clarity traffic in window; source unresolved.",
       "apk_hash": {
         "sha256": "6ebcbecea0dcaf2be725976810fc0929765fe9bc261de1338e46f079b09fe73e",
         "timestamp": "2026-08-14T12:55:00Z",
@@ -596,16 +595,16 @@
         ],
         "source_hits": "decompiled/pregnancyplus (jadx 1.5.6)"
       },
-      "evidence_source": "raw-replay"
+      "evidence_source": "raw-replay",
+      "gate": "G1-G10 not stored"
     },
     {
       "name": "What to Expect",
       "package_name": "com.wte.view",
       "app_type": "native",
-      "verdict": "fail",
-      "privacy_class": "major",
-      "verdict_confidence": 90,
-      "evidence": "No claim. Launch capture shows AppsFlyer (six endpoints), Microsoft Clarity, Scorecard Research, and Google Firebase calls on first open. The manifest declares ACCESS_ADSERVICES_AD_ID and AD_SERVICES_CONFIG.",
+      "verdict": "inconclusive",
+      "privacy_class": "untested",
+      "evidence": "No printed promise. The Clarity config endpoint was fetched; the project config enables capture features. Clarity collect call(s) observed; contents not assessable (body not JSON-parseable). One Clarity asset-upload call observed; content not decoded.",
       "apk_hash": {
         "sha256": "d64f195c828d251d07f21f7413a591d2a2220382385003f081a8c0b86dcc044c",
         "timestamp": "2026-08-14T12:55:00Z",
@@ -652,7 +651,8 @@
         ],
         "source_hits": "decompiled/whattoexpect (jadx 1.5.6)"
       },
-      "evidence_source": "raw-replay"
+      "evidence_source": "raw-replay",
+      "gate": "G1-G10 not stored"
     }
   ],
   "audit_log": {

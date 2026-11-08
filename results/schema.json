@@ -24,7 +24,14 @@
       "properties": {
         "host_os": { "type": "string" },
         "host_arch": { "type": "string" },
-        "android_api_level": { "type": "integer" },
+        "android_api_level": {
+          "type": "integer",
+          "description": "Do not set this on a mixed run. API level is per capture. Use api_level."
+        },
+        "api_level": {
+          "type": "string",
+          "description": "Per-capture API note. Do not invent a level for a window with no manifest."
+        },
         "emulator_arch": { "type": "string" },
         "tool_versions": {
           "type": "object",
@@ -63,12 +70,17 @@
           },
           "verdict": {
             "type": "string",
-            "enum": ["pass", "fail", "untested", "provisional_pass"]
+            "enum": ["pass", "fail", "untested", "not-assessable", "inconclusive", "provisional_pass"],
+            "description": "Claim axis. pass only when the tested sentence is met. fail only with UID, a body field that names the package, or an R4 line."
           },
           "privacy_class": {
             "type": "string",
-            "enum": ["pass", "minor", "major"],
-            "description": "Report class: pass, phone-home without observed identifying data, or identifying/extensive sharing"
+            "enum": ["pass", "minor", "major", "untested"],
+            "description": "Derived from the committed network log. untested when no flow stores a UID or a body key that names the package. Not taken from the report emoji."
+          },
+          "gate": {
+            "type": "string",
+            "description": "Stored negative-gate status. G1-G10 not stored until a verdict file records the flags."
           },
           "verdict_confidence": {
             "type": "number",

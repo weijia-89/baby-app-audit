@@ -1,5 +1,20 @@
 # Changelog
 
+## 4.7.0 - 2026-11-08
+
+### Changed
+- FINAL-REPORT and the README print one verdict table. Each claim has an axis: pass, fail, untested, not-assessable, or inconclusive. The gate column says the negative-gate flags are not stored. Confidence percents are gone.
+- `results/RESULTS-20260803.json` stores the same axis. `privacy_class` comes from the committed network log. It stays `untested` while no flow stores a UID or a body key that names the package. The package header is not that key.
+- The run-level API integer is gone. The 2026-08-14 Clarity captures are API 29 by User-Agent. Other windows are unknown until a per-capture manifest exists.
+- Pebbi's 2026-10-04 mitm window is untested. The report cites the 2026-10-10 mitm and tcpdump files. The TLS was not read.
+- Clarity lines stay inside the bytes. What to Expect has one asset-upload call, and the content was not decoded. Pregnancy+, Nanit, and Nurture Lock say the Clarity traffic is unattributed.
+- BabyCenter and Nara are inconclusive. The log does not attribute their flows to the app.
+- Baby Buddy, MimiLog, Nurture Lock, the advertising-id rows, and Pixy do not get a pass or a fail. Heartful Baby is not-assessable. The logging batch stays a fact.
+- Each Firebase sentence adds "RTDB hosts only; flags not stored."
+
+### Fixed
+- The result file no longer pairs API 28 with a system certificate. The API 28 Play image has no system CA.
+
 ## 4.6.35 - 2026-11-07
 
 ### Fixed
