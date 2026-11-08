@@ -210,7 +210,7 @@ Raw captures, decode files, and network logs are permanent evidence. Never delet
 - The only legitimate deletion is the harness's own `WORK_DIR` under `${HOME}/apk-privacy-test-*` (it deletes only what it created). `KEEP_WORK_DIR=1` preserves even that.
 - Never sweep or run a "git tree clean of test artifacts" pass unless a verified backup restores the files.
 - Mechanical backstop: `scripts/evidence-inventory.sh --check` fails the harness pre-flight when a committed network log is missing. Zero-byte `.mitm` files only warn (they are kept when a first mitmdump start dies). It warns on rotted decode files. Run it directly before any deletion: `bash scripts/evidence-inventory.sh --check`.
-- Lost-capture knowledge: the pre-2026-08-14 legacy sessions (nurture-lock, nubo, pebbi, amila, baby-buddy, baby-daybook, baby-plus, mimilog) have NO raw captures left on disk. Their results are decode-level (`evidence_source: session-summary`); do not re-derive full-depth claims from them, and never describe them as raw-replay evidence. See ROADMAP.md for the recapture milestone.
+- Raw captures for nurture-lock, nubo, pebbi, amila, baby-buddy, baby-daybook, baby-plus, and mimilog are on disk. The 2026-11-08 rebuild used the file named in each log. Baby Buddy's log did not name a path, so that rebuild used `results/baby-buddy-test-20260803/artifacts/captures/baby-buddy.mitm`. A rebuilt row is not a new privacy verdict.
 
 ## Secret hygiene - result artifacts
 

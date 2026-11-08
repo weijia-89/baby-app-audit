@@ -1,5 +1,16 @@
 # Changelog
 
+## 4.7.1 - 2026-11-08
+
+### Changed
+- A committed network-log row is one request shape. The builder keys each row by method, host, path, status, origin, and the package header. The builder keeps query names and removes query values. The builder keeps a call that has no response and sets status null. The builder marks a non-JSON body unscannable.
+- `scripts/har_dump.py` records query names. The script writes calls with no response, plus raw TCP, raw UDP, and TLS failures, to a sidecar next to the HAR.
+- The asset-upload check matches both `upload-asset` and `upload/asset`.
+- This slice rebuilt the 16 committed network logs from the raw captures on disk. The analytics fanout counts 507 calls. Source: `results/analytics-pii-20260803.json`. The public report stays as it was.
+
+### Fixed
+- The network-log build stops when the app package is unknown.
+
 ## 4.7.0 - 2026-11-08
 
 ### Changed

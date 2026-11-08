@@ -5,6 +5,8 @@
   "package_name": "com.babycenter.pregnancytracker",
   "capture_date": "2026-08-14",
   "capture": "results/babycenter-test-20260814/artifacts/captures/Babycenter.mitm",
+  "tls_unread": [],
+  "non_http": [],
   "redaction": {
     "policy": "Sensitive values never appear. Call metadata remains so the sent call can be assessed.",
     "slugs": {
@@ -24,21 +26,26 @@
       "path": "https://semanticlocation-pa.googleapis.com/[REDACTED:path-token-or-id]/GetDevicePlaceInferenceModel",
       "status": 200,
       "origin": "device",
+      "x_android_package": "com.google.android.gms",
+      "query_params": [],
       "count": 1,
       "request": {
         "size": 22,
         "content_type": "application/grpc",
-        "body_keys": null,
         "headers": [
           "x-android-cert",
           "x-android-package",
           "x-goog-api-key"
-        ]
+        ],
+        "body_decoder": "unknown",
+        "unscannable": true
       },
       "response": {
         "size": 0,
         "content_type": "application/grpc",
-        "body_keys": null
+        "body_keys": null,
+        "body_decoder": null,
+        "unscannable": false
       },
       "redactions": [
         "[REDACTED:path-token-or-id:secret-or-PII]",
@@ -53,12 +60,16 @@
       "path": "https://2snoab.cdn-settings.appsflyersdk.com/android/v2/[REDACTED:path-token-or-id]/settings",
       "status": 200,
       "origin": "session",
+      "x_android_package": null,
+      "query_params": [],
       "count": 3,
       "request": {
         "size": 0,
         "content_type": "application/json",
+        "headers": [],
         "body_keys": null,
-        "headers": []
+        "body_decoder": null,
+        "unscannable": false
       },
       "response": {
         "size": 45,
@@ -66,7 +77,9 @@
         "body_keys": [
           "features",
           "ver"
-        ]
+        ],
+        "body_decoder": "json",
+        "unscannable": false
       },
       "redactions": [
         "[REDACTED:path-token-or-id:secret-or-PII]",
@@ -81,12 +94,16 @@
       "path": "https://mobile-data.onetrust.io/cfw/cmp/v1/banner",
       "status": 200,
       "origin": "session",
+      "x_android_package": null,
+      "query_params": [],
       "count": 1,
       "request": {
         "size": 0,
         "content_type": "application/json",
+        "headers": [],
         "body_keys": null,
-        "headers": []
+        "body_decoder": null,
+        "unscannable": false
       },
       "response": {
         "size": 5900,
@@ -98,7 +115,9 @@
           "groupsHierarchy",
           "otConsentString",
           "storageKeys"
-        ]
+        ],
+        "body_decoder": "json",
+        "unscannable": false
       },
       "redactions": [
         "[REDACTED:request-header-values:secret-or-PII]",
@@ -112,12 +131,16 @@
       "path": "https://c.amazon-adsystem.com/[REDACTED:path-token-or-id]",
       "status": 200,
       "origin": "session",
+      "x_android_package": null,
+      "query_params": [],
       "count": 1,
       "request": {
         "size": 0,
         "content_type": null,
+        "headers": [],
         "body_keys": null,
-        "headers": []
+        "body_decoder": null,
+        "unscannable": false
       },
       "response": {
         "size": 463,
@@ -127,7 +150,9 @@
           "metrics",
           "om_sdk_feature",
           "sample_rates"
-        ]
+        ],
+        "body_decoder": "json",
+        "unscannable": false
       },
       "redactions": [
         "[REDACTED:path-token-or-id:secret-or-PII]",
@@ -142,12 +167,15 @@
       "path": "https://s.amazon-adsystem.com/api3/[REDACTED:path-token-or-id]",
       "status": 200,
       "origin": "session",
+      "x_android_package": null,
+      "query_params": [],
       "count": 1,
       "request": {
         "size": 1047,
         "content_type": "application/x-www-form-urlencoded",
-        "body_keys": null,
-        "headers": []
+        "headers": [],
+        "body_decoder": "unknown",
+        "unscannable": true
       },
       "response": {
         "size": 86,
@@ -158,7 +186,9 @@
           "msg",
           "opt-out",
           "rcode"
-        ]
+        ],
+        "body_decoder": "json",
+        "unscannable": false
       },
       "redactions": [
         "[REDACTED:path-token-or-id:secret-or-PII]",
@@ -174,12 +204,16 @@
       "path": "https://www.clarity.ms/tag/mobile/vnmy25t03u",
       "status": 200,
       "origin": "session",
+      "x_android_package": null,
+      "query_params": [],
       "count": 1,
       "request": {
         "size": 0,
         "content_type": null,
+        "headers": [],
         "body_keys": null,
-        "headers": []
+        "body_decoder": null,
+        "unscannable": false
       },
       "response": {
         "size": 595,
@@ -202,7 +236,9 @@
           "webMask",
           "webUnmask",
           "webViewCapture"
-        ]
+        ],
+        "body_decoder": "json",
+        "unscannable": false
       },
       "redactions": [
         "[REDACTED:request-header-values:secret-or-PII]",
@@ -216,17 +252,22 @@
       "path": "https://analytics.localytics.com/api/v4/applications/[REDACTED:path-token-or-id]/uploads",
       "status": 202,
       "origin": "session",
+      "x_android_package": null,
+      "query_params": [],
       "count": 1,
       "request": {
         "size": 3872,
         "content_type": "application/x-gzip",
-        "body_keys": null,
-        "headers": []
+        "headers": [],
+        "body_decoder": "unknown",
+        "unscannable": true
       },
       "response": {
         "size": 0,
         "content_type": "text/plain;charset=utf-8",
-        "body_keys": null
+        "body_keys": null,
+        "body_decoder": null,
+        "unscannable": false
       },
       "redactions": [
         "[REDACTED:path-token-or-id:secret-or-PII]",
@@ -241,12 +282,16 @@
       "path": "https://manifest.localytics.com/api/v5/applications/[REDACTED:path-token-or-id]",
       "status": 200,
       "origin": "session",
+      "x_android_package": null,
+      "query_params": [],
       "count": 1,
       "request": {
         "size": 0,
         "content_type": "application/json; charset=utf-8",
+        "headers": [],
         "body_keys": null,
-        "headers": []
+        "body_decoder": null,
+        "unscannable": false
       },
       "response": {
         "size": 77,
@@ -255,7 +300,9 @@
           "config",
           "inboxes",
           "places"
-        ]
+        ],
+        "body_decoder": "json",
+        "unscannable": false
       },
       "redactions": [
         "[REDACTED:path-token-or-id:secret-or-PII]",
@@ -270,12 +317,20 @@
       "path": "https://profile.localytics.com/v1/apps/[REDACTED:path-token-or-id]/profiles/[REDACTED:path-token-or-id]",
       "status": 202,
       "origin": "session",
+      "x_android_package": null,
+      "query_params": [],
       "count": 1,
       "request": {
         "size": 1207,
         "content_type": "application/json",
-        "body_keys": null,
-        "headers": []
+        "headers": [],
+        "body_keys": [
+          "changes",
+          "customer_id",
+          "database"
+        ],
+        "body_decoder": "json",
+        "unscannable": false
       },
       "response": {
         "size": 49,
@@ -283,7 +338,9 @@
         "body_keys": [
           "message",
           "success"
-        ]
+        ],
+        "body_decoder": "json",
+        "unscannable": false
       },
       "redactions": [
         "[REDACTED:path-token-or-id:secret-or-PII]",
@@ -299,17 +356,23 @@
       "path": "https://analytics.localytics.com/api/v4/applications/[REDACTED:path-token-or-id]/amp",
       "status": 200,
       "origin": "session",
+      "x_android_package": null,
+      "query_params": [],
       "count": 1,
       "request": {
         "size": 0,
         "content_type": "application/json; charset=utf-8",
+        "headers": [],
         "body_keys": null,
-        "headers": []
+        "body_decoder": null,
+        "unscannable": false
       },
       "response": {
         "size": 0,
         "content_type": "text/plain;charset=utf-8",
-        "body_keys": null
+        "body_keys": null,
+        "body_decoder": null,
+        "unscannable": false
       },
       "redactions": [
         "[REDACTED:path-token-or-id:secret-or-PII]",
@@ -323,17 +386,22 @@
       "path": "https://r.clarity.ms/collect",
       "status": 204,
       "origin": "session",
+      "x_android_package": null,
+      "query_params": [],
       "count": 4,
       "request": {
         "size": 745,
         "content_type": "application/json",
-        "body_keys": null,
-        "headers": []
+        "headers": [],
+        "body_decoder": "unknown",
+        "unscannable": true
       },
       "response": {
         "size": 0,
         "content_type": "",
-        "body_keys": null
+        "body_keys": null,
+        "body_decoder": null,
+        "unscannable": false
       },
       "redactions": [
         "[REDACTED:request-body-values:secret-or-PII]",
@@ -347,12 +415,22 @@
       "path": "https://googleads.g.doubleclick.net/getconfig/pubsetting",
       "status": 200,
       "origin": "session",
+      "x_android_package": null,
+      "query_params": [
+        "app_name",
+        "vnm",
+        "js",
+        "client",
+        "admob_appcc"
+      ],
       "count": 1,
       "request": {
         "size": 0,
         "content_type": null,
+        "headers": [],
         "body_keys": null,
-        "headers": []
+        "body_decoder": null,
+        "unscannable": false
       },
       "response": {
         "size": 341,
@@ -363,7 +441,9 @@
           "odf_settings",
           "publisher_permissions",
           "status"
-        ]
+        ],
+        "body_decoder": "json",
+        "unscannable": false
       },
       "redactions": [
         "[REDACTED:query-string:privacy]",
@@ -378,17 +458,22 @@
       "path": "https://geo.babycenter.com/v1",
       "status": 200,
       "origin": "session",
+      "x_android_package": null,
+      "query_params": [],
       "count": 1,
       "request": {
         "size": 0,
         "content_type": null,
+        "headers": [],
         "body_keys": null,
-        "headers": []
+        "body_decoder": null,
+        "unscannable": false
       },
       "response": {
         "size": 5,
         "content_type": "text/html",
-        "body_keys": null
+        "body_decoder": "unknown",
+        "unscannable": true
       },
       "redactions": [
         "[REDACTED:request-header-values:secret-or-PII]",
@@ -402,12 +487,16 @@
       "path": "https://www.babycenter.com/app_config/android/en-US/[REDACTED:path-token-or-id]",
       "status": 200,
       "origin": "session",
+      "x_android_package": null,
+      "query_params": [],
       "count": 1,
       "request": {
         "size": 0,
         "content_type": null,
+        "headers": [],
         "body_keys": null,
-        "headers": []
+        "body_decoder": null,
+        "unscannable": false
       },
       "response": {
         "size": 5207,
@@ -416,7 +505,9 @@
           "variations",
           "variationsCustomStorePage",
           "welcomeScreenTestEnabled"
-        ]
+        ],
+        "body_decoder": "json",
+        "unscannable": false
       },
       "redactions": [
         "[REDACTED:path-token-or-id:secret-or-PII]",
@@ -431,12 +522,18 @@
       "path": "https://2snoab.launches.appsflyersdk.com/api/v6.18/androidevent",
       "status": 200,
       "origin": "session",
+      "x_android_package": null,
+      "query_params": [
+        "app_id",
+        "buildnumber"
+      ],
       "count": 1,
       "request": {
         "size": 2136,
         "content_type": "application/octet-stream",
-        "body_keys": null,
-        "headers": []
+        "headers": [],
+        "body_decoder": "unknown",
+        "unscannable": true
       },
       "response": {
         "size": 63,
@@ -445,7 +542,9 @@
           "ol_domain",
           "ol_id",
           "ol_ver"
-        ]
+        ],
+        "body_decoder": "json",
+        "unscannable": false
       },
       "redactions": [
         "[REDACTED:query-string:privacy]",
@@ -461,12 +560,18 @@
       "path": "https://r.clarity.ms/vnmy25t03u/check-asset",
       "status": 200,
       "origin": "session",
+      "x_android_package": null,
+      "query_params": [],
       "count": 1,
       "request": {
         "size": 136,
         "content_type": "application/json",
-        "body_keys": null,
-        "headers": []
+        "headers": [],
+        "body_keys": [
+          "[list of 3]"
+        ],
+        "body_decoder": "json",
+        "unscannable": false
       },
       "response": {
         "size": 97,
@@ -475,7 +580,9 @@
           "PLs4UMkTK193XpR0XPZjUw==",
           "VrdOUQ1kl_3kv_TIlSO33w==",
           "zm3OmRMGPHMf86b0PNsq5w=="
-        ]
+        ],
+        "body_decoder": "json",
+        "unscannable": false
       },
       "redactions": [
         "[REDACTED:request-body-values:secret-or-PII]",
@@ -490,17 +597,25 @@
       "path": "https://bcsp.babycenter.com/[REDACTED:path-token-or-id]/tp2",
       "status": 200,
       "origin": "session",
+      "x_android_package": null,
+      "query_params": [],
       "count": 1,
       "request": {
         "size": 4854,
         "content_type": "application/json; charset=utf-8",
-        "body_keys": null,
-        "headers": []
+        "headers": [],
+        "body_keys": [
+          "data",
+          "schema"
+        ],
+        "body_decoder": "json",
+        "unscannable": false
       },
       "response": {
         "size": 2,
         "content_type": "text/plain; charset=UTF-8",
-        "body_keys": null
+        "body_decoder": "unknown",
+        "unscannable": true
       },
       "redactions": [
         "[REDACTED:path-token-or-id:secret-or-PII]",
@@ -516,12 +631,15 @@
       "path": "https://logs.ads.vungle.com/sdk/metrics",
       "status": 200,
       "origin": "session",
+      "x_android_package": null,
+      "query_params": [],
       "count": 1,
       "request": {
         "size": 419,
         "content_type": "application/x-protobuf",
-        "body_keys": null,
-        "headers": []
+        "headers": [],
+        "body_decoder": "unknown",
+        "unscannable": true
       },
       "response": {
         "size": 23,
@@ -529,7 +647,9 @@
         "body_keys": [
           "code",
           "msg"
-        ]
+        ],
+        "body_decoder": "json",
+        "unscannable": false
       },
       "redactions": [
         "[REDACTED:request-body-values:secret-or-PII]",
@@ -544,17 +664,148 @@
       "path": "https://census-app.scorecardresearch.com/p2",
       "status": 200,
       "origin": "session",
-      "count": 12,
+      "x_android_package": null,
+      "query_params": [
+        "c1",
+        "c2",
+        "ns_ap_an",
+        "ns_ap_pn",
+        "ns_ap_pfv",
+        "c12",
+        "ns_ak",
+        "name",
+        "ns_ap_ec",
+        "ns_ap_ev",
+        "ns_ap_device",
+        "ns_ap_id",
+        "ns_ap_csf",
+        "ns_ap_bi",
+        "ns_ap_pfm",
+        "ns_ap_pv",
+        "ns_ap_ver",
+        "ns_ap_sv",
+        "ns_ap_bv",
+        "ns_ap_smv",
+        "ns_type",
+        "ns_ap_gs",
+        "ns_ap_ie",
+        "ns_ts",
+        "ns_ap_cfg",
+        "ns_ap_env",
+        "ns_ap_ais",
+        "ns_ap_ut",
+        "ns_ap_ar",
+        "ns_ap_cs",
+        "ns_ap_fg",
+        "ns_ap_dft",
+        "ns_ap_dbt",
+        "ns_ap_dit",
+        "ns_ap_as",
+        "ns_ap_das",
+        "ns_ap_usage",
+        "ns_radio",
+        "ns_ap_i3",
+        "cs_ucfr",
+        "ns_ap_install",
+        "ns_ap_lastrun",
+        "ns_ap_ft",
+        "ns_ap_bt",
+        "ns_ap_it",
+        "ns_ap_res",
+        "ns_ap_sd",
+        "ns_ap_po",
+        "ns_ap_lang",
+        "ns_ap_jb"
+      ],
+      "count": 1,
       "request": {
         "size": 0,
         "content_type": null,
+        "headers": [],
         "body_keys": null,
-        "headers": []
+        "body_decoder": null,
+        "unscannable": false
       },
       "response": {
         "size": 43,
         "content_type": "image/gif",
-        "body_keys": null
+        "body_decoder": "unknown",
+        "unscannable": true
+      },
+      "redactions": [
+        "[REDACTED:query-string:privacy]",
+        "[REDACTED:request-header-values:secret-or-PII]",
+        "[REDACTED:response-body-values:secret-or-PII]",
+        "[REDACTED:response-header-values:secret-or-PII]"
+      ]
+    },
+    {
+      "method": "GET",
+      "host": "census-app.scorecardresearch.com",
+      "path": "https://census-app.scorecardresearch.com/p2",
+      "status": 200,
+      "origin": "session",
+      "x_android_package": null,
+      "query_params": [
+        "c1",
+        "c2",
+        "ns_ap_an",
+        "ns_ap_pn",
+        "ns_ap_pfv",
+        "c12",
+        "ns_ak",
+        "name",
+        "ns_ap_ec",
+        "ns_ap_ev",
+        "ns_ap_device",
+        "ns_ap_id",
+        "ns_ap_bi",
+        "ns_ap_pfm",
+        "ns_ap_pv",
+        "ns_ap_ver",
+        "ns_ap_sv",
+        "ns_ap_bv",
+        "ns_ap_smv",
+        "ns_type",
+        "ns_ap_ie",
+        "ns_ts",
+        "ns_ap_env",
+        "ns_ap_ais",
+        "ns_ap_ut",
+        "ns_ap_ar",
+        "ns_ap_cs",
+        "ns_ap_fg",
+        "ns_ap_dft",
+        "ns_ap_dbt",
+        "ns_ap_dit",
+        "ns_ap_as",
+        "ns_ap_das",
+        "ns_ap_usage",
+        "ns_radio",
+        "ns_ap_i3",
+        "cs_ucfr",
+        "ns_ap_ft",
+        "ns_ap_bt",
+        "ns_ap_it",
+        "ns_ap_res",
+        "ns_ap_sd",
+        "ns_ap_po",
+        "ns_ap_lang"
+      ],
+      "count": 11,
+      "request": {
+        "size": 0,
+        "content_type": null,
+        "headers": [],
+        "body_keys": null,
+        "body_decoder": null,
+        "unscannable": false
+      },
+      "response": {
+        "size": 43,
+        "content_type": "image/gif",
+        "body_decoder": "unknown",
+        "unscannable": true
       },
       "redactions": [
         "[REDACTED:query-string:privacy]",

@@ -5,6 +5,8 @@
   "package_name": "com.angry.shark.studio.nurturelock",
   "capture_date": "2026-10-04",
   "capture": "results/nurture-lock-test-20261004/artifacts/captures/nurture-lock.mitm",
+  "tls_unread": [],
+  "non_http": [],
   "redaction": {
     "policy": "Sensitive values never appear. Call metadata remains so the sent call can be assessed.",
     "slugs": {
@@ -24,14 +26,18 @@
       "path": "https://api.revenuecat.com/v1/subscribers/[REDACTED:path-token-or-id]/offerings",
       "status": 200,
       "origin": "session",
+      "x_android_package": null,
+      "query_params": [],
       "count": 1,
       "request": {
         "size": 0,
         "content_type": "application/json",
-        "body_keys": null,
         "headers": [
           "authorization"
-        ]
+        ],
+        "body_keys": null,
+        "body_decoder": null,
+        "unscannable": false
       },
       "response": {
         "size": 322,
@@ -41,7 +47,9 @@
           "custom_web_checkout_enabled",
           "offerings",
           "placements"
-        ]
+        ],
+        "body_decoder": "json",
+        "unscannable": false
       },
       "redactions": [
         "[REDACTED:path-token-or-id:secret-or-PII]",
@@ -56,21 +64,27 @@
       "path": "https://api.revenuecat.com/v1/[REDACTED:path-token-or-id]",
       "status": 200,
       "origin": "session",
+      "x_android_package": null,
+      "query_params": [],
       "count": 1,
       "request": {
         "size": 0,
         "content_type": "application/json",
-        "body_keys": null,
         "headers": [
           "authorization"
-        ]
+        ],
+        "body_keys": null,
+        "body_decoder": null,
+        "unscannable": false
       },
       "response": {
         "size": 130,
         "content_type": "application/json",
         "body_keys": [
           "product_entitlement_mapping"
-        ]
+        ],
+        "body_decoder": "json",
+        "unscannable": false
       },
       "redactions": [
         "[REDACTED:path-token-or-id:secret-or-PII]",
@@ -85,17 +99,23 @@
       "path": "https://connectivitycheck.gstatic.com/[REDACTED:path-token-or-id]",
       "status": 204,
       "origin": "session",
+      "x_android_package": null,
+      "query_params": [],
       "count": 1,
       "request": {
         "size": 0,
         "content_type": null,
+        "headers": [],
         "body_keys": null,
-        "headers": []
+        "body_decoder": null,
+        "unscannable": false
       },
       "response": {
         "size": 0,
         "content_type": "",
-        "body_keys": null
+        "body_keys": null,
+        "body_decoder": null,
+        "unscannable": false
       },
       "redactions": [
         "[REDACTED:path-token-or-id:secret-or-PII]",
@@ -109,17 +129,21 @@
       "path": "https://android.googleapis.com/auth",
       "status": 200,
       "origin": "session",
+      "x_android_package": null,
+      "query_params": [],
       "count": 6,
       "request": {
         "size": 808,
         "content_type": "application/x-www-form-urlencoded",
-        "body_keys": null,
-        "headers": []
+        "headers": [],
+        "body_decoder": "unknown",
+        "unscannable": true
       },
       "response": {
         "size": 598,
         "content_type": "text/plain; charset=utf-8",
-        "body_keys": null
+        "body_decoder": "unknown",
+        "unscannable": true
       },
       "redactions": [
         "[REDACTED:request-body-values:secret-or-PII]",
@@ -134,17 +158,21 @@
       "path": "https://android.googleapis.com/auth/devicekey",
       "status": 400,
       "origin": "session",
+      "x_android_package": null,
+      "query_params": [],
       "count": 1,
       "request": {
         "size": 7539,
         "content_type": "application/octet-stream",
-        "body_keys": null,
-        "headers": []
+        "headers": [],
+        "body_decoder": "unknown",
+        "unscannable": true
       },
       "response": {
         "size": 1664,
         "content_type": "text/html; charset=utf-8",
-        "body_keys": null
+        "body_decoder": "unknown",
+        "unscannable": true
       },
       "redactions": [
         "[REDACTED:request-body-values:secret-or-PII]",
@@ -159,19 +187,25 @@
       "path": "https://googleads.g.doubleclick.net/pagead/drt/m",
       "status": 200,
       "origin": "session",
+      "x_android_package": null,
+      "query_params": [],
       "count": 1,
       "request": {
         "size": 0,
         "content_type": null,
-        "body_keys": null,
         "headers": [
           "authorization"
-        ]
+        ],
+        "body_keys": null,
+        "body_decoder": null,
+        "unscannable": false
       },
       "response": {
         "size": 0,
         "content_type": "text/html; charset=ISO-8859-1",
-        "body_keys": null
+        "body_keys": null,
+        "body_decoder": null,
+        "unscannable": false
       },
       "redactions": [
         "[REDACTED:request-header-values:secret-or-PII]",
@@ -184,19 +218,26 @@
       "path": "https://www.googleapis.com/experimentsandconfigs/v1/getExperimentsAndConfigs",
       "status": 200,
       "origin": "session",
+      "x_android_package": null,
+      "query_params": [
+        "r",
+        "c"
+      ],
       "count": 1,
       "request": {
         "size": 2603,
         "content_type": "application/x-protobuf",
-        "body_keys": null,
         "headers": [
           "authorization"
-        ]
+        ],
+        "body_decoder": "unknown",
+        "unscannable": true
       },
       "response": {
         "size": 397623,
         "content_type": "application/octet-stream",
-        "body_keys": null
+        "body_decoder": "unknown",
+        "unscannable": true
       },
       "redactions": [
         "[REDACTED:query-string:privacy]",
@@ -212,17 +253,23 @@
       "path": "http://play.googleapis.com/[REDACTED:path-token-or-id]",
       "status": 204,
       "origin": "session",
+      "x_android_package": null,
+      "query_params": [],
       "count": 2,
       "request": {
         "size": 0,
         "content_type": null,
+        "headers": [],
         "body_keys": null,
-        "headers": []
+        "body_decoder": null,
+        "unscannable": false
       },
       "response": {
         "size": 0,
         "content_type": "",
-        "body_keys": null
+        "body_keys": null,
+        "body_decoder": null,
+        "unscannable": false
       },
       "redactions": [
         "[REDACTED:path-token-or-id:secret-or-PII]",
@@ -236,17 +283,23 @@
       "path": "http://connectivitycheck.gstatic.com/[REDACTED:path-token-or-id]",
       "status": 204,
       "origin": "session",
+      "x_android_package": null,
+      "query_params": [],
       "count": 1,
       "request": {
         "size": 0,
         "content_type": null,
+        "headers": [],
         "body_keys": null,
-        "headers": []
+        "body_decoder": null,
+        "unscannable": false
       },
       "response": {
         "size": 0,
         "content_type": "",
-        "body_keys": null
+        "body_keys": null,
+        "body_decoder": null,
+        "unscannable": false
       },
       "redactions": [
         "[REDACTED:path-token-or-id:secret-or-PII]",
@@ -260,17 +313,23 @@
       "path": "https://www.google.com/[REDACTED:path-token-or-id]",
       "status": 204,
       "origin": "session",
+      "x_android_package": null,
+      "query_params": [],
       "count": 1,
       "request": {
         "size": 0,
         "content_type": null,
+        "headers": [],
         "body_keys": null,
-        "headers": []
+        "body_decoder": null,
+        "unscannable": false
       },
       "response": {
         "size": 0,
         "content_type": "",
-        "body_keys": null
+        "body_keys": null,
+        "body_decoder": null,
+        "unscannable": false
       },
       "redactions": [
         "[REDACTED:path-token-or-id:secret-or-PII]",
@@ -284,14 +343,20 @@
       "path": "https://firebaselogging.googleapis.com/v0cc/log/batch",
       "status": 200,
       "origin": "session",
+      "x_android_package": null,
+      "query_params": [
+        "format"
+      ],
       "count": 4,
       "request": {
         "size": 2984,
         "content_type": "application/json",
+        "headers": [],
         "body_keys": [
           "logRequest"
         ],
-        "headers": []
+        "body_decoder": "json",
+        "unscannable": false
       },
       "response": {
         "size": 352,
@@ -300,7 +365,9 @@
           "logSourceBatchingDenylist",
           "nextRequestWaitMillis",
           "qosTier"
-        ]
+        ],
+        "body_decoder": "json",
+        "unscannable": false
       },
       "redactions": [
         "[REDACTED:query-string:privacy]",
@@ -316,17 +383,23 @@
       "path": "https://android.googleapis.com/auth/lookup/[REDACTED:path-token-or-id]",
       "status": 200,
       "origin": "session",
+      "x_android_package": null,
+      "query_params": [
+        "rt"
+      ],
       "count": 1,
       "request": {
         "size": 295,
         "content_type": "application/protobuf",
-        "body_keys": null,
-        "headers": []
+        "headers": [],
+        "body_decoder": "unknown",
+        "unscannable": true
       },
       "response": {
         "size": 12391,
         "content_type": "application/octet-stream",
-        "body_keys": null
+        "body_decoder": "unknown",
+        "unscannable": true
       },
       "redactions": [
         "[REDACTED:path-token-or-id:secret-or-PII]",
@@ -343,19 +416,28 @@
       "path": "https://android.clients.google.com/gsync/sub",
       "status": 403,
       "origin": "session",
+      "x_android_package": null,
+      "query_params": [
+        "routinginfo",
+        "max-results",
+        "gms_version"
+      ],
       "count": 2,
       "request": {
         "size": 0,
         "content_type": null,
-        "body_keys": null,
         "headers": [
           "authorization"
-        ]
+        ],
+        "body_keys": null,
+        "body_decoder": null,
+        "unscannable": false
       },
       "response": {
         "size": 50,
         "content_type": "text/html; charset=UTF-8",
-        "body_keys": null
+        "body_decoder": "unknown",
+        "unscannable": true
       },
       "redactions": [
         "[REDACTED:query-string:privacy]",
@@ -370,19 +452,23 @@
       "path": "https://userlocation.googleapis.com/[REDACTED:path-token-or-id]/GetApiSettings",
       "status": 200,
       "origin": "session",
+      "x_android_package": null,
+      "query_params": [],
       "count": 1,
       "request": {
         "size": 339,
         "content_type": "application/grpc",
-        "body_keys": null,
         "headers": [
           "authorization"
-        ]
+        ],
+        "body_decoder": "unknown",
+        "unscannable": true
       },
       "response": {
         "size": 18,
         "content_type": "application/grpc",
-        "body_keys": null
+        "body_decoder": "unknown",
+        "unscannable": true
       },
       "redactions": [
         "[REDACTED:path-token-or-id:secret-or-PII]",
@@ -398,17 +484,23 @@
       "path": "https://youtubei.googleapis.com/[REDACTED:path-token-or-id]",
       "status": 204,
       "origin": "session",
+      "x_android_package": null,
+      "query_params": [],
       "count": 1,
       "request": {
         "size": 0,
         "content_type": null,
+        "headers": [],
         "body_keys": null,
-        "headers": []
+        "body_decoder": null,
+        "unscannable": false
       },
       "response": {
         "size": 0,
         "content_type": "",
-        "body_keys": null
+        "body_keys": null,
+        "body_decoder": null,
+        "unscannable": false
       },
       "redactions": [
         "[REDACTED:path-token-or-id:secret-or-PII]",
@@ -422,17 +514,23 @@
       "path": "https://youtubei.googleapis.com/youtubei/v1/visitor_id",
       "status": 200,
       "origin": "session",
+      "x_android_package": null,
+      "query_params": [
+        "key"
+      ],
       "count": 2,
       "request": {
         "size": 565,
         "content_type": "application/x-protobuf",
-        "body_keys": null,
-        "headers": []
+        "headers": [],
+        "body_decoder": "unknown",
+        "unscannable": true
       },
       "response": {
         "size": 801,
         "content_type": "application/x-protobuf",
-        "body_keys": null
+        "body_decoder": "unknown",
+        "unscannable": true
       },
       "redactions": [
         "[REDACTED:query-string:privacy]",
@@ -448,17 +546,34 @@
       "path": "https://www.googleadservices.com/pagead/conversion/1001680686/",
       "status": 200,
       "origin": "session",
+      "x_android_package": null,
+      "query_params": [
+        "bundleid",
+        "appversion",
+        "osversion",
+        "sdkversion",
+        "gms",
+        "muid",
+        "timestamp",
+        "remarketing_only",
+        "usage_tracking_enabled",
+        "data.screen_name"
+      ],
       "count": 1,
       "request": {
         "size": 0,
         "content_type": null,
+        "headers": [],
         "body_keys": null,
-        "headers": []
+        "body_decoder": null,
+        "unscannable": false
       },
       "response": {
         "size": 0,
         "content_type": "text/html; charset=ISO-8859-1",
-        "body_keys": null
+        "body_keys": null,
+        "body_decoder": null,
+        "unscannable": false
       },
       "redactions": [
         "[REDACTED:query-string:privacy]",
@@ -472,17 +587,43 @@
       "path": "https://www.youtube.com/csi_204",
       "status": 204,
       "origin": "session",
+      "x_android_package": null,
+      "query_params": [
+        "v",
+        "s",
+        "action",
+        "yt_lt",
+        "yt_fi",
+        "mod_li",
+        "conn",
+        "it",
+        "cplatform",
+        "cbr",
+        "c",
+        "cmodel",
+        "cos",
+        "csdk",
+        "cbrver",
+        "cver",
+        "cosver",
+        "cbrand",
+        "proc"
+      ],
       "count": 1,
       "request": {
         "size": 0,
         "content_type": null,
+        "headers": [],
         "body_keys": null,
-        "headers": []
+        "body_decoder": null,
+        "unscannable": false
       },
       "response": {
         "size": 0,
         "content_type": "text/html; charset=UTF-8",
-        "body_keys": null
+        "body_keys": null,
+        "body_decoder": null,
+        "unscannable": false
       },
       "redactions": [
         "[REDACTED:query-string:privacy]",
@@ -496,17 +637,23 @@
       "path": "https://youtubei.googleapis.com/youtubei/v1/account/get_setting",
       "status": 400,
       "origin": "session",
+      "x_android_package": null,
+      "query_params": [
+        "key"
+      ],
       "count": 1,
       "request": {
         "size": 593,
         "content_type": "application/x-protobuf",
-        "body_keys": null,
-        "headers": []
+        "headers": [],
+        "body_decoder": "unknown",
+        "unscannable": true
       },
       "response": {
         "size": 30,
         "content_type": "application/x-protobuf",
-        "body_keys": null
+        "body_decoder": "unknown",
+        "unscannable": true
       },
       "redactions": [
         "[REDACTED:query-string:privacy]",
@@ -522,17 +669,23 @@
       "path": "https://youtubei.googleapis.com/youtubei/v1/browse",
       "status": 400,
       "origin": "session",
+      "x_android_package": null,
+      "query_params": [
+        "key"
+      ],
       "count": 1,
       "request": {
         "size": 584,
         "content_type": "application/x-protobuf",
-        "body_keys": null,
-        "headers": []
+        "headers": [],
+        "body_decoder": "unknown",
+        "unscannable": true
       },
       "response": {
         "size": 30,
         "content_type": "application/x-protobuf",
-        "body_keys": null
+        "body_decoder": "unknown",
+        "unscannable": true
       },
       "redactions": [
         "[REDACTED:query-string:privacy]",
@@ -548,17 +701,47 @@
       "path": "https://www.google.com/complete/search",
       "status": 200,
       "origin": "session",
+      "x_android_package": null,
+      "query_params": [
+        "oe",
+        "gcc",
+        "ctzn",
+        "ctf",
+        "v",
+        "ntyp",
+        "ram_mb",
+        "ar",
+        "inm",
+        "hl",
+        "noj",
+        "client",
+        "qsubts",
+        "padt",
+        "padb",
+        "gs_pcr",
+        "q",
+        "cp",
+        "psi",
+        "ech",
+        "dpr",
+        "gs_pcrt",
+        "xssi",
+        "getexp"
+      ],
       "count": 1,
       "request": {
         "size": 0,
         "content_type": null,
+        "headers": [],
         "body_keys": null,
-        "headers": []
+        "body_decoder": null,
+        "unscannable": false
       },
       "response": {
         "size": 22065,
         "content_type": "application/x-protobuffer",
-        "body_keys": null
+        "body_decoder": "unknown",
+        "unscannable": true
       },
       "redactions": [
         "[REDACTED:query-string:privacy]",
@@ -570,15 +753,24 @@
     {
       "method": "GET",
       "host": "firebase-settings.crashlytics.com",
-      "path": "https://firebase-settings.crashlytics.com/spi/v2/platforms/android/gmp/1:1073993904376:android:f4c2e1baecc62ade/settings",
+      "path": "https://firebase-settings.crashlytics.com/spi/v2/platforms/android/gmp/[REDACTED:path-token-or-id]/settings",
       "status": 200,
       "origin": "session",
-      "count": 1,
+      "x_android_package": null,
+      "query_params": [
+        "instance",
+        "build_version",
+        "display_version",
+        "source"
+      ],
+      "count": 2,
       "request": {
         "size": 0,
         "content_type": null,
+        "headers": [],
         "body_keys": null,
-        "headers": []
+        "body_decoder": null,
+        "unscannable": false
       },
       "response": {
         "size": 747,
@@ -594,45 +786,12 @@
           "on_demand_thread_recording_suspension_enabled",
           "on_demand_upload_rate_per_minute",
           "settings_version"
-        ]
+        ],
+        "body_decoder": "json",
+        "unscannable": false
       },
       "redactions": [
-        "[REDACTED:query-string:privacy]",
-        "[REDACTED:request-header-values:secret-or-PII]",
-        "[REDACTED:response-body-values:secret-or-PII]",
-        "[REDACTED:response-header-values:secret-or-PII]"
-      ]
-    },
-    {
-      "method": "GET",
-      "host": "firebase-settings.crashlytics.com",
-      "path": "https://firebase-settings.crashlytics.com/spi/v2/platforms/android/gmp/1:179542082127:android:06856a46f97260e1/settings",
-      "status": 200,
-      "origin": "session",
-      "count": 1,
-      "request": {
-        "size": 0,
-        "content_type": null,
-        "body_keys": null,
-        "headers": []
-      },
-      "response": {
-        "size": 738,
-        "content_type": "application/json; charset=utf-8",
-        "body_keys": [
-          "app",
-          "app_quality",
-          "cache_duration",
-          "fabric",
-          "features",
-          "on_demand_backoff_base",
-          "on_demand_backoff_step_duration_seconds",
-          "on_demand_thread_recording_suspension_enabled",
-          "on_demand_upload_rate_per_minute",
-          "settings_version"
-        ]
-      },
-      "redactions": [
+        "[REDACTED:path-token-or-id:secret-or-PII]",
         "[REDACTED:query-string:privacy]",
         "[REDACTED:request-header-values:secret-or-PII]",
         "[REDACTED:response-body-values:secret-or-PII]",
@@ -645,20 +804,24 @@
       "path": "https://firebaseinstallations.googleapis.com/v1/projects/[REDACTED:path-token-or-id]/installations/[REDACTED:path-token-or-id]/authTokens:generate",
       "status": 200,
       "origin": "device",
+      "x_android_package": "com.hp.pregnancy.lite",
+      "query_params": [],
       "count": 2,
       "request": {
         "size": 42,
         "content_type": "application/json",
-        "body_keys": [
-          "installation"
-        ],
         "headers": [
           "authorization",
           "x-android-cert",
           "x-android-package",
           "x-firebase-client",
           "x-goog-api-key"
-        ]
+        ],
+        "body_keys": [
+          "installation"
+        ],
+        "body_decoder": "json",
+        "unscannable": false
       },
       "response": {
         "size": 358,
@@ -666,7 +829,9 @@
         "body_keys": [
           "expiresIn",
           "token"
-        ]
+        ],
+        "body_decoder": "json",
+        "unscannable": false
       },
       "redactions": [
         "[REDACTED:path-token-or-id:secret-or-PII]",
@@ -679,15 +844,22 @@
     {
       "method": "GET",
       "host": "firebase-settings.crashlytics.com",
-      "path": "https://firebase-settings.crashlytics.com/spi/v2/platforms/android/gmp/1%3A179542082127%3Aandroid%3A06856a46f97260e1/settings",
+      "path": "https://firebase-settings.crashlytics.com/spi/v2/platforms/android/gmp/[REDACTED:path-token-or-id]/settings",
       "status": 200,
       "origin": "session",
-      "count": 1,
+      "x_android_package": null,
+      "query_params": [
+        "build_version",
+        "display_version"
+      ],
+      "count": 3,
       "request": {
         "size": 0,
         "content_type": null,
+        "headers": [],
         "body_keys": null,
-        "headers": []
+        "body_decoder": null,
+        "unscannable": false
       },
       "response": {
         "size": 738,
@@ -703,45 +875,12 @@
           "on_demand_thread_recording_suspension_enabled",
           "on_demand_upload_rate_per_minute",
           "settings_version"
-        ]
+        ],
+        "body_decoder": "json",
+        "unscannable": false
       },
       "redactions": [
-        "[REDACTED:query-string:privacy]",
-        "[REDACTED:request-header-values:secret-or-PII]",
-        "[REDACTED:response-body-values:secret-or-PII]",
-        "[REDACTED:response-header-values:secret-or-PII]"
-      ]
-    },
-    {
-      "method": "GET",
-      "host": "firebase-settings.crashlytics.com",
-      "path": "https://firebase-settings.crashlytics.com/spi/v2/platforms/android/gmp/1%3A1073993904376%3Aandroid%3Af4c2e1baecc62ade/settings",
-      "status": 200,
-      "origin": "session",
-      "count": 1,
-      "request": {
-        "size": 0,
-        "content_type": null,
-        "body_keys": null,
-        "headers": []
-      },
-      "response": {
-        "size": 747,
-        "content_type": "application/json; charset=utf-8",
-        "body_keys": [
-          "app",
-          "app_quality",
-          "cache_duration",
-          "fabric",
-          "features",
-          "on_demand_backoff_base",
-          "on_demand_backoff_step_duration_seconds",
-          "on_demand_thread_recording_suspension_enabled",
-          "on_demand_upload_rate_per_minute",
-          "settings_version"
-        ]
-      },
-      "redactions": [
+        "[REDACTED:path-token-or-id:secret-or-PII]",
         "[REDACTED:query-string:privacy]",
         "[REDACTED:request-header-values:secret-or-PII]",
         "[REDACTED:response-body-values:secret-or-PII]",
@@ -754,12 +893,16 @@
       "path": "https://mobile-data.onetrust.io/cfw/cmp/v1/banner",
       "status": 200,
       "origin": "session",
+      "x_android_package": null,
+      "query_params": [],
       "count": 1,
       "request": {
         "size": 0,
         "content_type": "application/json",
+        "headers": [],
         "body_keys": null,
-        "headers": []
+        "body_decoder": null,
+        "unscannable": false
       },
       "response": {
         "size": 5723,
@@ -771,7 +914,9 @@
           "groupsHierarchy",
           "otConsentString",
           "storageKeys"
-        ]
+        ],
+        "body_decoder": "json",
+        "unscannable": false
       },
       "redactions": [
         "[REDACTED:request-header-values:secret-or-PII]",
@@ -785,12 +930,16 @@
       "path": "https://a2lve5.cdn-settings.appsflyersdk.com/android/v2/[REDACTED:path-token-or-id]/settings",
       "status": 200,
       "origin": "session",
+      "x_android_package": null,
+      "query_params": [],
       "count": 1,
       "request": {
         "size": 0,
         "content_type": "application/json",
+        "headers": [],
         "body_keys": null,
-        "headers": []
+        "body_decoder": null,
+        "unscannable": false
       },
       "response": {
         "size": 45,
@@ -798,7 +947,9 @@
         "body_keys": [
           "features",
           "ver"
-        ]
+        ],
+        "body_decoder": "json",
+        "unscannable": false
       },
       "redactions": [
         "[REDACTED:path-token-or-id:secret-or-PII]",
@@ -813,19 +964,32 @@
       "path": "https://graph.facebook.com/v16.0/app/[REDACTED:path-token-or-id]",
       "status": 200,
       "origin": "session",
+      "x_android_package": null,
+      "query_params": [
+        "access_token",
+        "fields",
+        "format",
+        "sdk_version",
+        "sdk",
+        "platform"
+      ],
       "count": 2,
       "request": {
         "size": 0,
         "content_type": "application/x-www-form-urlencoded",
+        "headers": [],
         "body_keys": null,
-        "headers": []
+        "body_decoder": null,
+        "unscannable": false
       },
       "response": {
         "size": 3824,
         "content_type": "application/json; charset=utf-8",
         "body_keys": [
           "data"
-        ]
+        ],
+        "body_decoder": "json",
+        "unscannable": false
       },
       "redactions": [
         "[REDACTED:path-token-or-id:secret-or-PII]",
@@ -841,12 +1005,21 @@
       "path": "https://graph.facebook.com/v16.0/app",
       "status": 200,
       "origin": "session",
+      "x_android_package": null,
+      "query_params": [
+        "access_token",
+        "fields",
+        "format",
+        "sdk"
+      ],
       "count": 1,
       "request": {
         "size": 0,
         "content_type": "application/x-www-form-urlencoded",
+        "headers": [],
         "body_keys": null,
-        "headers": []
+        "body_decoder": null,
+        "unscannable": false
       },
       "response": {
         "size": 1053,
@@ -865,7 +1038,9 @@
           "smart_login_menu_icon_url",
           "suggested_events_setting",
           "supports_implicit_sdk_logging"
-        ]
+        ],
+        "body_decoder": "json",
+        "unscannable": false
       },
       "redactions": [
         "[REDACTED:query-string:privacy]",
@@ -880,15 +1055,19 @@
       "path": "https://cognito-identity.us-east-1.amazonaws.com/",
       "status": 200,
       "origin": "session",
+      "x_android_package": null,
+      "query_params": [],
       "count": 2,
       "request": {
         "size": 75,
         "content_type": "application/x-amz-json-1.1",
+        "headers": [],
         "body_keys": [
           "IdentityId",
           "Logins"
         ],
-        "headers": []
+        "body_decoder": "json",
+        "unscannable": false
       },
       "response": {
         "size": 1756,
@@ -896,7 +1075,9 @@
         "body_keys": [
           "Credentials",
           "IdentityId"
-        ]
+        ],
+        "body_decoder": "json",
+        "unscannable": false
       },
       "redactions": [
         "[REDACTED:request-body-values:secret-or-PII]",
@@ -911,12 +1092,16 @@
       "path": "https://www.clarity.ms/tag/mobile/tgi1pxdmic",
       "status": 200,
       "origin": "session",
+      "x_android_package": null,
+      "query_params": [],
       "count": 1,
       "request": {
         "size": 0,
         "content_type": null,
+        "headers": [],
         "body_keys": null,
-        "headers": []
+        "body_decoder": null,
+        "unscannable": false
       },
       "response": {
         "size": 509,
@@ -939,45 +1124,11 @@
           "webMask",
           "webUnmask",
           "webViewCapture"
-        ]
+        ],
+        "body_decoder": "json",
+        "unscannable": false
       },
       "redactions": [
-        "[REDACTED:request-header-values:secret-or-PII]",
-        "[REDACTED:response-body-values:secret-or-PII]",
-        "[REDACTED:response-header-values:secret-or-PII]"
-      ]
-    },
-    {
-      "method": "GET",
-      "host": "firebase-settings.crashlytics.com",
-      "path": "https://firebase-settings.crashlytics.com/spi/v2/platforms/android/gmp/1%3A341351821472%3Aandroid%3A14124c1ebb45d70fc499c5/settings",
-      "status": 200,
-      "origin": "session",
-      "count": 1,
-      "request": {
-        "size": 0,
-        "content_type": null,
-        "body_keys": null,
-        "headers": []
-      },
-      "response": {
-        "size": 743,
-        "content_type": "application/json; charset=utf-8",
-        "body_keys": [
-          "app",
-          "app_quality",
-          "cache_duration",
-          "fabric",
-          "features",
-          "on_demand_backoff_base",
-          "on_demand_backoff_step_duration_seconds",
-          "on_demand_thread_recording_suspension_enabled",
-          "on_demand_upload_rate_per_minute",
-          "settings_version"
-        ]
-      },
-      "redactions": [
-        "[REDACTED:query-string:privacy]",
         "[REDACTED:request-header-values:secret-or-PII]",
         "[REDACTED:response-body-values:secret-or-PII]",
         "[REDACTED:response-header-values:secret-or-PII]"
@@ -989,17 +1140,25 @@
       "path": "https://api.onesignal.com/apps/[REDACTED:path-token-or-id]/[REDACTED:path-token-or-id]",
       "status": 304,
       "origin": "session",
+      "x_android_package": null,
+      "query_params": [
+        "player_id"
+      ],
       "count": 1,
       "request": {
         "size": 0,
         "content_type": null,
+        "headers": [],
         "body_keys": null,
-        "headers": []
+        "body_decoder": null,
+        "unscannable": false
       },
       "response": {
         "size": 0,
         "content_type": "",
-        "body_keys": null
+        "body_keys": null,
+        "body_decoder": null,
+        "unscannable": false
       },
       "redactions": [
         "[REDACTED:path-token-or-id:secret-or-PII]",
@@ -1014,19 +1173,30 @@
       "path": "https://graph.facebook.com/v16.0/app/model_asset",
       "status": 200,
       "origin": "session",
+      "x_android_package": null,
+      "query_params": [
+        "access_token",
+        "fields",
+        "format",
+        "sdk"
+      ],
       "count": 1,
       "request": {
         "size": 0,
         "content_type": "application/x-www-form-urlencoded",
+        "headers": [],
         "body_keys": null,
-        "headers": []
+        "body_decoder": null,
+        "unscannable": false
       },
       "response": {
         "size": 11,
         "content_type": "text/javascript; charset=UTF-8",
         "body_keys": [
           "data"
-        ]
+        ],
+        "body_decoder": "json",
+        "unscannable": false
       },
       "redactions": [
         "[REDACTED:query-string:privacy]",
@@ -1041,17 +1211,22 @@
       "path": "https://fallback.adapty.io/api/v1/sdk/company/[REDACTED:path-token-or-id]/app/[REDACTED:path-token-or-id]",
       "status": 404,
       "origin": "session",
+      "x_android_package": null,
+      "query_params": [],
       "count": 1,
       "request": {
         "size": 0,
         "content_type": null,
+        "headers": [],
         "body_keys": null,
-        "headers": []
+        "body_decoder": null,
+        "unscannable": false
       },
       "response": {
         "size": 27511,
         "content_type": "text/html",
-        "body_keys": null
+        "body_decoder": "unknown",
+        "unscannable": true
       },
       "redactions": [
         "[REDACTED:path-token-or-id:secret-or-PII]",
@@ -1066,12 +1241,19 @@
       "path": "https://www.global.api.philips.com/configService/appConfigurations",
       "status": 200,
       "origin": "session",
+      "x_android_package": null,
+      "query_params": [
+        "application",
+        "language"
+      ],
       "count": 1,
       "request": {
         "size": 0,
         "content_type": null,
+        "headers": [],
         "body_keys": null,
-        "headers": []
+        "body_decoder": null,
+        "unscannable": false
       },
       "response": {
         "size": 2641,
@@ -1079,7 +1261,9 @@
         "body_keys": [
           "data",
           "meta"
-        ]
+        ],
+        "body_decoder": "json",
+        "unscannable": false
       },
       "redactions": [
         "[REDACTED:query-string:privacy]",
@@ -1094,19 +1278,25 @@
       "path": "https://s3-us-west-1.amazonaws.com/[REDACTED:path-token-or-id]/",
       "status": 301,
       "origin": "session",
+      "x_android_package": null,
+      "query_params": [],
       "count": 1,
       "request": {
         "size": 0,
         "content_type": "application/octet-stream",
-        "body_keys": null,
         "headers": [
           "authorization"
-        ]
+        ],
+        "body_keys": null,
+        "body_decoder": null,
+        "unscannable": false
       },
       "response": {
         "size": 0,
         "content_type": "application/xml",
-        "body_keys": null
+        "body_keys": null,
+        "body_decoder": null,
+        "unscannable": false
       },
       "redactions": [
         "[REDACTED:path-token-or-id:secret-or-PII]",
@@ -1120,10 +1310,17 @@
       "path": "https://firebaseremoteconfig.googleapis.com/v1/projects/[REDACTED:path-token-or-id]/namespaces/firebase:fetch",
       "status": 200,
       "origin": "device",
+      "x_android_package": "com.wte.view",
+      "query_params": [],
       "count": 1,
       "request": {
         "size": 642,
         "content_type": "application/json",
+        "headers": [
+          "x-android-cert",
+          "x-android-package",
+          "x-goog-api-key"
+        ],
         "body_keys": [
           "analyticsUserProperties",
           "appBuild",
@@ -1138,11 +1335,8 @@
           "sdkVersion",
           "timeZone"
         ],
-        "headers": [
-          "x-android-cert",
-          "x-android-package",
-          "x-goog-api-key"
-        ]
+        "body_decoder": "json",
+        "unscannable": false
       },
       "response": {
         "size": 63347,
@@ -1152,7 +1346,9 @@
           "entries",
           "state",
           "templateVersion"
-        ]
+        ],
+        "body_decoder": "json",
+        "unscannable": false
       },
       "redactions": [
         "[REDACTED:path-token-or-id:secret-or-PII]",
@@ -1168,21 +1364,27 @@
       "path": "https://api-eu.adapty.io/api/v1/sdk/in-apps/[REDACTED:path-token-or-id]/products/play_store/",
       "status": 200,
       "origin": "session",
+      "x_android_package": null,
+      "query_params": [],
       "count": 1,
       "request": {
         "size": 0,
         "content_type": null,
-        "body_keys": null,
         "headers": [
           "authorization"
-        ]
+        ],
+        "body_keys": null,
+        "body_decoder": null,
+        "unscannable": false
       },
       "response": {
         "size": 2028,
         "content_type": "application/json",
         "body_keys": [
           "data"
-        ]
+        ],
+        "body_decoder": "json",
+        "unscannable": false
       },
       "redactions": [
         "[REDACTED:path-token-or-id:secret-or-PII]",
@@ -1197,21 +1399,27 @@
       "path": "https://api-eu.adapty.io/api/v1/sdk/analytics/profiles/[REDACTED:path-token-or-id]/",
       "status": 200,
       "origin": "session",
+      "x_android_package": null,
+      "query_params": [],
       "count": 1,
       "request": {
         "size": 0,
         "content_type": null,
-        "body_keys": null,
         "headers": [
           "authorization"
-        ]
+        ],
+        "body_keys": null,
+        "body_decoder": null,
+        "unscannable": false
       },
       "response": {
         "size": 11,
         "content_type": "application/vnd.api+json",
         "body_keys": [
           "data"
-        ]
+        ],
+        "body_decoder": "json",
+        "unscannable": false
       },
       "redactions": [
         "[REDACTED:path-token-or-id:secret-or-PII]",
@@ -1226,14 +1434,18 @@
       "path": "https://api-eu.adapty.io/api/v1/sdk/in-apps/[REDACTED:path-token-or-id]/paywall/variations/[REDACTED:path-token-or-id]/[REDACTED:path-token-or-id]/",
       "status": 200,
       "origin": "session",
+      "x_android_package": null,
+      "query_params": [],
       "count": 1,
       "request": {
         "size": 0,
         "content_type": null,
-        "body_keys": null,
         "headers": [
           "authorization"
-        ]
+        ],
+        "body_keys": null,
+        "body_decoder": null,
+        "unscannable": false
       },
       "response": {
         "size": 1298,
@@ -1241,7 +1453,9 @@
         "body_keys": [
           "data",
           "meta"
-        ]
+        ],
+        "body_decoder": "json",
+        "unscannable": false
       },
       "redactions": [
         "[REDACTED:path-token-or-id:secret-or-PII]",
@@ -1256,19 +1470,24 @@
       "path": "https://s3.amazonaws.com/[REDACTED:path-token-or-id]/85B/[REDACTED:path-token-or-id]/[REDACTED:path-token-or-id]",
       "status": 200,
       "origin": "session",
+      "x_android_package": null,
+      "query_params": [],
       "count": 4,
       "request": {
         "size": 3599,
         "content_type": "application/octet-stream",
-        "body_keys": null,
         "headers": [
           "authorization"
-        ]
+        ],
+        "body_decoder": "unknown",
+        "unscannable": true
       },
       "response": {
         "size": 0,
         "content_type": "",
-        "body_keys": null
+        "body_keys": null,
+        "body_decoder": null,
+        "unscannable": false
       },
       "redactions": [
         "[REDACTED:path-token-or-id:secret-or-PII]",
@@ -1283,23 +1502,29 @@
       "path": "https://user-engagement-prod.philips-digital.com/signed-jwt",
       "status": 200,
       "origin": "session",
+      "x_android_package": null,
+      "query_params": [],
       "count": 1,
       "request": {
         "size": 54,
         "content_type": "application/json; charset=utf-8",
+        "headers": [
+          "authorization"
+        ],
         "body_keys": [
           "external_id"
         ],
-        "headers": [
-          "authorization"
-        ]
+        "body_decoder": "json",
+        "unscannable": false
       },
       "response": {
         "size": 309,
         "content_type": "text/plain; charset=utf-8",
         "body_keys": [
           "token"
-        ]
+        ],
+        "body_decoder": "json",
+        "unscannable": false
       },
       "redactions": [
         "[REDACTED:request-body-values:secret-or-PII]",
@@ -1314,23 +1539,29 @@
       "path": "https://api-eu.adapty.io/api/v1/sdk/events/",
       "status": 200,
       "origin": "session",
+      "x_android_package": null,
+      "query_params": [],
       "count": 2,
       "request": {
         "size": 514,
         "content_type": "application/vnd.api+json",
+        "headers": [
+          "authorization"
+        ],
         "body_keys": [
           "data"
         ],
-        "headers": [
-          "authorization"
-        ]
+        "body_decoder": "json",
+        "unscannable": false
       },
       "response": {
         "size": 13,
         "content_type": "application/vnd.api+json",
         "body_keys": [
           "data"
-        ]
+        ],
+        "body_decoder": "json",
+        "unscannable": false
       },
       "redactions": [
         "[REDACTED:request-body-values:secret-or-PII]",
@@ -1345,16 +1576,20 @@
       "path": "https://crashlyticsreports-pa.googleapis.com/v1/firelog/legacy/batchlog",
       "status": 200,
       "origin": "session",
+      "x_android_package": null,
+      "query_params": [],
       "count": 2,
       "request": {
         "size": 37831,
         "content_type": "application/json",
+        "headers": [
+          "x-goog-api-key"
+        ],
         "body_keys": [
           "logRequest"
         ],
-        "headers": [
-          "x-goog-api-key"
-        ]
+        "body_decoder": "json",
+        "unscannable": false
       },
       "response": {
         "size": 233,
@@ -1362,7 +1597,9 @@
         "body_keys": [
           "logResponseDetails",
           "nextRequestWaitMillis"
-        ]
+        ],
+        "body_decoder": "json",
+        "unscannable": false
       },
       "redactions": [
         "[REDACTED:request-body-values:secret-or-PII]",
@@ -1377,16 +1614,20 @@
       "path": "https://firebaselogging-pa.googleapis.com/v1/firelog/legacy/batchlog",
       "status": 200,
       "origin": "session",
+      "x_android_package": null,
+      "query_params": [],
       "count": 2,
       "request": {
         "size": 4448,
         "content_type": "application/json",
+        "headers": [
+          "x-goog-api-key"
+        ],
         "body_keys": [
           "logRequest"
         ],
-        "headers": [
-          "x-goog-api-key"
-        ]
+        "body_decoder": "json",
+        "unscannable": false
       },
       "response": {
         "size": 233,
@@ -1394,7 +1635,9 @@
         "body_keys": [
           "logResponseDetails",
           "nextRequestWaitMillis"
-        ]
+        ],
+        "body_decoder": "json",
+        "unscannable": false
       },
       "redactions": [
         "[REDACTED:request-body-values:secret-or-PII]",
@@ -1409,17 +1652,73 @@
       "path": "https://census-app.scorecardresearch.com/p2",
       "status": 200,
       "origin": "session",
+      "x_android_package": null,
+      "query_params": [
+        "c1",
+        "c2",
+        "ns_ap_an",
+        "ns_ap_pn",
+        "ns_ap_pfv",
+        "c12",
+        "ns_ak",
+        "name",
+        "ns_ap_ec",
+        "ns_ap_ev",
+        "ns_ap_device",
+        "ns_ap_id",
+        "ns_ap_csf",
+        "ns_ap_bi",
+        "ns_ap_pfm",
+        "ns_ap_pv",
+        "ns_ap_ver",
+        "ns_ap_sv",
+        "ns_ap_bv",
+        "ns_ap_smv",
+        "ns_type",
+        "ns_ap_gs",
+        "ns_ap_ie",
+        "ns_ts",
+        "ns_ap_cfg",
+        "ns_ap_env",
+        "ns_ap_ais",
+        "ns_ap_ut",
+        "ns_ap_ar",
+        "ns_ap_cs",
+        "ns_ap_fg",
+        "ns_ap_dft",
+        "ns_ap_dbt",
+        "ns_ap_dit",
+        "ns_ap_as",
+        "ns_ap_das",
+        "ns_ap_usage",
+        "ns_radio",
+        "ns_ap_i3",
+        "cs_ucfr",
+        "ns_ap_install",
+        "ns_ap_lastrun",
+        "ns_ap_ft",
+        "ns_ap_bt",
+        "ns_ap_it",
+        "ns_ap_res",
+        "ns_ap_sd",
+        "ns_ap_po",
+        "ns_ap_lang",
+        "ns_ap_jb"
+      ],
       "count": 1,
       "request": {
         "size": 0,
         "content_type": null,
+        "headers": [],
         "body_keys": null,
-        "headers": []
+        "body_decoder": null,
+        "unscannable": false
       },
       "response": {
         "size": 43,
         "content_type": "image/gif",
-        "body_keys": null
+        "body_decoder": "unknown",
+        "unscannable": true
       },
       "redactions": [
         "[REDACTED:query-string:privacy]",
@@ -1434,17 +1733,25 @@
       "path": "https://udm.scorecardresearch.com/offline",
       "status": 200,
       "origin": "session",
+      "x_android_package": null,
+      "query_params": [
+        "c2",
+        "s"
+      ],
       "count": 1,
       "request": {
         "size": 10235,
         "content_type": "application/x-www-form-urlencoded",
-        "body_keys": null,
-        "headers": []
+        "headers": [],
+        "body_decoder": "unknown",
+        "unscannable": true
       },
       "response": {
         "size": 0,
         "content_type": "text/plain",
-        "body_keys": null
+        "body_keys": null,
+        "body_decoder": null,
+        "unscannable": false
       },
       "redactions": [
         "[REDACTED:query-string:privacy]",
@@ -1459,18 +1766,22 @@
       "path": "https://api.onesignal.com/apps/[REDACTED:path-token-or-id]/users",
       "status": 200,
       "origin": "session",
+      "x_android_package": null,
+      "query_params": [],
       "count": 1,
       "request": {
         "size": 163,
         "content_type": "application/json; charset=UTF-8",
+        "headers": [
+          "authorization"
+        ],
         "body_keys": [
           "identity",
           "properties",
           "refresh_device_metadata"
         ],
-        "headers": [
-          "authorization"
-        ]
+        "body_decoder": "json",
+        "unscannable": false
       },
       "response": {
         "size": 725,
@@ -1480,7 +1791,9 @@
           "properties",
           "ryw_delay",
           "ryw_token"
-        ]
+        ],
+        "body_decoder": "json",
+        "unscannable": false
       },
       "redactions": [
         "[REDACTED:path-token-or-id:secret-or-PII]",

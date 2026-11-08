@@ -25,6 +25,9 @@ for arg in "$@"; do
 done
 
 cp "$FAKE_HAR" "$har_output"
+if [ -n "${FAKE_SIDECAR:-}" ]; then
+    cp "$FAKE_SIDECAR" "${har_output}.sidecar.json"
+fi
 EOF
 chmod +x "$fake_bin/mitmdump"
 
@@ -66,7 +69,7 @@ cat > "$har" <<'EOF'
 EOF
 
 PATH="$fake_bin:$PATH" FAKE_HAR="$har" NETWORK_LOG_OUTPUT="$output" \
-    bash "$repo_root/scripts/build-network-logs.sh" fixture "$capture" 2026-08-14
+    bash "$repo_root/scripts/build-network-logs.sh" nara "$capture" 2026-08-14
 
 OUTPUT="$output" python3 - <<'PY'
 import json
@@ -93,6 +96,14 @@ assert "[REDACTED:request-body-values:secret-or-PII]" in flow["redactions"]
 assert "[REDACTED:request-header-values:secret-or-PII]" in flow["redactions"]
 assert "[REDACTED:response-body-values:secret-or-PII]" in flow["redactions"]
 assert "[REDACTED:response-header-values:secret-or-PII]" in flow["redactions"]
+assert flow["query_params"] == ["baby_name"]
+assert "?" not in flow["path"]
+assert flow["x_android_package"] is None
+assert flow["request"]["body_keys"] == ["baby_name", "token"]
+assert flow["request"]["body_decoder"] == "json"
+assert flow["request"]["unscannable"] is False
+assert flow["response"]["body_decoder"] == "json"
+assert flow["response"]["unscannable"] is False
 PY
 
 # Origin: same package => "app"; other => "device"; none => "session".
@@ -279,7 +290,7 @@ cat > "$har5" <<'EOF'
 }
 EOF
 PATH="$fake_bin:$PATH" FAKE_HAR="$har5" NETWORK_LOG_OUTPUT="$output5" \
-    bash "$repo_root/scripts/build-network-logs.sh" fixture "$capture5" 2026-08-14
+    bash "$repo_root/scripts/build-network-logs.sh" nara "$capture5" 2026-08-14
 
 OUTPUT5="$output5" python3 - <<'PY'
 import json
@@ -293,6 +304,150 @@ data = json.loads(text)
 path = data["flows"][0]["path"]
 assert path == "https://api.revenuecat.com/v1/subscribers/[REDACTED:path-token-or-id]/offerings", path
 assert "[REDACTED:path-token-or-id:secret-or-PII]" in data["flows"][0]["redactions"]
+PY
+
+# Unknown slug: no package means the build stops. A null package mislabels
+# the app's own calls.
+unknown_out="$tmp_dir/unknown.json"
+set +e
+PATH="$fake_bin:$PATH" FAKE_HAR="$har" NETWORK_LOG_OUTPUT="$unknown_out" \
+    bash "$repo_root/scripts/build-network-logs.sh" not-a-real-app "$capture" 2026-08-14 \
+    >"$tmp_dir/unknown.stdout" 2>"$tmp_dir/unknown.stderr"
+unknown_code=$?
+set -e
+if [ "$unknown_code" -eq 0 ]; then
+    echo "unknown slug exited 0; a missing package must fail the build"
+    exit 1
+fi
+if [ -f "$unknown_out" ]; then
+    echo "unknown slug wrote a log; a missing package must not write one"
+    exit 1
+fi
+
+# One request shape: package header, query names, unscannable bodies,
+# and a response-less row stay distinct.
+shape_har="$tmp_dir/shape.har"
+shape_capture="$tmp_dir/shape.mitm"
+shape_output="$tmp_dir/shape.json"
+shape_sidecar="$tmp_dir/shape.sidecar.json"
+: > "$shape_capture"
+cat > "$shape_har" <<'EOF'
+{
+  "log": {
+    "version": "1.2",
+    "creator": {"name": "test", "version": "1.0"},
+    "entries": [
+      {
+        "request": {
+          "method": "GET",
+          "url": "https://merge.example/item",
+          "headers": [{"name": "X-Android-Package", "value": "com.other.one"}],
+          "bodySize": 0
+        },
+        "response": {"status": 200, "headers": [], "content": {"size": 0, "mimeType": null}}
+      },
+      {
+        "request": {
+          "method": "GET",
+          "url": "https://merge.example/item",
+          "headers": [{"name": "X-Android-Package", "value": "com.other.two"}],
+          "bodySize": 0
+        },
+        "response": {"status": 200, "headers": [], "content": {"size": 0, "mimeType": null}}
+      },
+      {
+        "request": {
+          "method": "GET",
+          "url": "https://merge.example/item",
+          "headers": [],
+          "bodySize": 0
+        },
+        "response": {"status": 200, "headers": [], "content": {"size": 0, "mimeType": null}}
+      },
+      {
+        "request": {
+          "method": "GET",
+          "url": "https://merge.example/item",
+          "headers": [],
+          "bodySize": 0
+        },
+        "response": {"status": 200, "headers": [], "content": {"size": 0, "mimeType": null}}
+      },
+      {
+        "request": {
+          "method": "POST",
+          "url": "https://binary.example/collect",
+          "headers": [],
+          "postData": {"text": "not-json-body"},
+          "bodySize": 13
+        },
+        "response": {
+          "status": 200,
+          "headers": [],
+          "content": {"size": 4, "mimeType": "application/octet-stream", "text": "abcd"}
+        }
+      },
+      {
+        "request": {
+          "method": "GET",
+          "url": "https://dropped.example/path?baby_name=QueryValueZZZ",
+          "headers": [{"name": "X-Android-Package", "value": "com.naraorganics.nara"}],
+          "bodySize": 0
+        }
+      }
+    ]
+  }
+}
+EOF
+cat > "$shape_sidecar" <<'EOF'
+{
+  "response_less": [],
+  "non_http": [
+    {"kind": "tcp", "sni": "tcp.example.test", "host": "203.0.113.10", "port": 443, "reason": null}
+  ],
+  "tls_unread": [
+    {"side": "client", "sni": "tls.example.test", "host": "203.0.113.11", "port": 443, "reason": "handshake failed"}
+  ]
+}
+EOF
+PATH="$fake_bin:$PATH" FAKE_HAR="$shape_har" FAKE_SIDECAR="$shape_sidecar" \
+    NETWORK_LOG_OUTPUT="$shape_output" \
+    bash "$repo_root/scripts/build-network-logs.sh" nara "$shape_capture" 2026-08-14
+
+SHAPE_OUTPUT="$shape_output" python3 - <<'PY'
+import json
+import os
+
+text = open(os.environ["SHAPE_OUTPUT"]).read()
+assert "QueryValueZZZ" not in text
+assert "not-json-body" not in text
+data = json.loads(text)
+merged = [flow for flow in data["flows"] if flow["host"] == "merge.example"]
+assert len(merged) == 3, merged
+by_pkg = {flow.get("x_android_package"): flow for flow in merged}
+assert by_pkg["com.other.one"]["origin"] == "device"
+assert by_pkg["com.other.one"]["count"] == 1
+assert by_pkg["com.other.two"]["origin"] == "device"
+assert by_pkg[None]["origin"] == "session"
+assert by_pkg[None]["count"] == 2
+binary = next(flow for flow in data["flows"] if flow["host"] == "binary.example")
+assert binary["request"]["unscannable"] is True
+assert binary["request"]["body_decoder"]
+assert "body_keys" not in binary["request"]
+assert binary["response"]["unscannable"] is True
+assert binary["response"]["body_decoder"]
+dropped = next(flow for flow in data["flows"] if flow["host"] == "dropped.example")
+assert dropped["status"] is None
+assert dropped["outcome"] == "no_response"
+assert dropped["origin"] == "app"
+assert dropped["x_android_package"] == "com.naraorganics.nara"
+assert dropped["query_params"] == ["baby_name"]
+assert "?" not in dropped["path"]
+assert data["tls_unread"] == [
+    {"side": "client", "sni": "tls.example.test", "host": "203.0.113.11", "port": 443, "reason": "handshake failed"}
+]
+assert data["non_http"][0]["sni"] == "tcp.example.test"
+assert data["non_http"][0]["kind"] == "tcp"
 PY
 
 echo "Network log redaction test passed"

@@ -5,6 +5,8 @@
   "package_name": "com.clicksie.nuboapp",
   "capture_date": "2026-08-03",
   "capture": "results/nubo-test-20260803/artifacts/captures/nubo.mitm",
+  "tls_unread": [],
+  "non_http": [],
   "redaction": {
     "policy": "Sensitive values never appear. Call metadata remains so the sent call can be assessed.",
     "slugs": {
@@ -24,21 +26,25 @@
       "path": "https://infinitedata-pa.googleapis.com/[REDACTED:path-token-or-id]/Lookup",
       "status": 200,
       "origin": "device",
+      "x_android_package": "com.google.android.gms",
+      "query_params": [],
       "count": 1,
       "request": {
         "size": 58,
         "content_type": "application/grpc",
-        "body_keys": null,
         "headers": [
           "x-android-cert",
           "x-android-package",
           "x-goog-api-key"
-        ]
+        ],
+        "body_decoder": "unknown",
+        "unscannable": true
       },
       "response": {
         "size": 9,
         "content_type": "application/grpc",
-        "body_keys": null
+        "body_decoder": "unknown",
+        "unscannable": true
       },
       "redactions": [
         "[REDACTED:path-token-or-id:secret-or-PII]",
@@ -54,22 +60,26 @@
       "path": "https://firebaseinstallations.googleapis.com/v1/projects/nubo-47f2d/installations",
       "status": 200,
       "origin": "app",
+      "x_android_package": "com.clicksie.nuboapp",
+      "query_params": [],
       "count": 1,
       "request": {
         "size": 135,
         "content_type": "application/json",
+        "headers": [
+          "x-android-cert",
+          "x-android-package",
+          "x-firebase-client",
+          "x-goog-api-key"
+        ],
         "body_keys": [
           "appId",
           "authVersion",
           "fid",
           "sdkVersion"
         ],
-        "headers": [
-          "x-android-cert",
-          "x-android-package",
-          "x-firebase-client",
-          "x-goog-api-key"
-        ]
+        "body_decoder": "json",
+        "unscannable": false
       },
       "response": {
         "size": 631,
@@ -79,7 +89,9 @@
           "fid",
           "name",
           "refreshToken"
-        ]
+        ],
+        "body_decoder": "json",
+        "unscannable": false
       },
       "redactions": [
         "[REDACTED:request-body-values:secret-or-PII]",
@@ -91,15 +103,24 @@
     {
       "method": "GET",
       "host": "firebase-settings.crashlytics.com",
-      "path": "https://firebase-settings.crashlytics.com/spi/v2/platforms/android/gmp/1:286063999540:android:74f9280aa598b8afdb6861/settings",
+      "path": "https://firebase-settings.crashlytics.com/spi/v2/platforms/android/gmp/[REDACTED:path-token-or-id]/settings",
       "status": 200,
       "origin": "session",
+      "x_android_package": null,
+      "query_params": [
+        "instance",
+        "build_version",
+        "display_version",
+        "source"
+      ],
       "count": 1,
       "request": {
         "size": 0,
         "content_type": null,
+        "headers": [],
         "body_keys": null,
-        "headers": []
+        "body_decoder": null,
+        "unscannable": false
       },
       "response": {
         "size": 746,
@@ -115,9 +136,12 @@
           "on_demand_thread_recording_suspension_enabled",
           "on_demand_upload_rate_per_minute",
           "settings_version"
-        ]
+        ],
+        "body_decoder": "json",
+        "unscannable": false
       },
       "redactions": [
+        "[REDACTED:path-token-or-id:secret-or-PII]",
         "[REDACTED:query-string:privacy]",
         "[REDACTED:request-header-values:secret-or-PII]",
         "[REDACTED:response-body-values:secret-or-PII]",
@@ -130,19 +154,23 @@
       "path": "https://android.apis.google.com/c2dm/register3",
       "status": 200,
       "origin": "session",
+      "x_android_package": null,
+      "query_params": [],
       "count": 1,
       "request": {
         "size": 1289,
         "content_type": "application/x-www-form-urlencoded",
-        "body_keys": null,
         "headers": [
           "authorization"
-        ]
+        ],
+        "body_decoder": "unknown",
+        "unscannable": true
       },
       "response": {
         "size": 148,
         "content_type": "text/plain; charset=UTF-8",
-        "body_keys": null
+        "body_decoder": "unknown",
+        "unscannable": true
       },
       "redactions": [
         "[REDACTED:request-body-values:secret-or-PII]",
@@ -157,19 +185,23 @@
       "path": "https://android.apis.google.com/c2dm/register3",
       "status": 301,
       "origin": "session",
+      "x_android_package": null,
+      "query_params": [],
       "count": 2,
       "request": {
         "size": 251,
         "content_type": "application/x-www-form-urlencoded",
-        "body_keys": null,
         "headers": [
           "authorization"
-        ]
+        ],
+        "body_decoder": "unknown",
+        "unscannable": true
       },
       "response": {
         "size": 25,
         "content_type": "text/plain; charset=UTF-8",
-        "body_keys": null
+        "body_decoder": "unknown",
+        "unscannable": true
       },
       "redactions": [
         "[REDACTED:request-body-values:secret-or-PII]",
@@ -184,17 +216,22 @@
       "path": "https://app-measurement.com/a",
       "status": 204,
       "origin": "session",
+      "x_android_package": null,
+      "query_params": [],
       "count": 2,
       "request": {
         "size": 52266,
         "content_type": "application/x-www-form-urlencoded",
-        "body_keys": null,
-        "headers": []
+        "headers": [],
+        "body_decoder": "unknown",
+        "unscannable": true
       },
       "response": {
         "size": 0,
         "content_type": "image/gif",
-        "body_keys": null
+        "body_keys": null,
+        "body_decoder": null,
+        "unscannable": false
       },
       "redactions": [
         "[REDACTED:request-body-values:secret-or-PII]",
@@ -205,22 +242,33 @@
     {
       "method": "GET",
       "host": "app-measurement.com",
-      "path": "https://app-measurement.com/config/app/1%3A286063999540%3Aandroid%3A74f9280aa598b8afdb6861",
+      "path": "https://app-measurement.com/config/app/[REDACTED:path-token-or-id]",
       "status": 200,
       "origin": "session",
+      "x_android_package": null,
+      "query_params": [
+        "app_instance_id",
+        "platform",
+        "gmp_version",
+        "runtime_version"
+      ],
       "count": 1,
       "request": {
         "size": 0,
         "content_type": null,
+        "headers": [],
         "body_keys": null,
-        "headers": []
+        "body_decoder": null,
+        "unscannable": false
       },
       "response": {
         "size": 640,
         "content_type": "application/x-protobuf",
-        "body_keys": null
+        "body_decoder": "unknown",
+        "unscannable": true
       },
       "redactions": [
+        "[REDACTED:path-token-or-id:secret-or-PII]",
         "[REDACTED:query-string:privacy]",
         "[REDACTED:request-header-values:secret-or-PII]",
         "[REDACTED:response-body-values:secret-or-PII]",
@@ -233,19 +281,23 @@
       "path": "https://android.apis.google.com/c2dm/register3",
       "status": 400,
       "origin": "session",
+      "x_android_package": null,
+      "query_params": [],
       "count": 1,
       "request": {
         "size": 483,
         "content_type": "application/x-www-form-urlencoded",
-        "body_keys": null,
         "headers": [
           "authorization"
-        ]
+        ],
+        "body_decoder": "unknown",
+        "unscannable": true
       },
       "response": {
         "size": 19,
         "content_type": "text/plain; charset=UTF-8",
-        "body_keys": null
+        "body_decoder": "unknown",
+        "unscannable": true
       },
       "redactions": [
         "[REDACTED:request-body-values:secret-or-PII]",
@@ -260,17 +312,21 @@
       "path": "https://android.googleapis.com/auth/devicekey",
       "status": 400,
       "origin": "session",
+      "x_android_package": null,
+      "query_params": [],
       "count": 1,
       "request": {
         "size": 7293,
         "content_type": "application/octet-stream",
-        "body_keys": null,
-        "headers": []
+        "headers": [],
+        "body_decoder": "unknown",
+        "unscannable": true
       },
       "response": {
         "size": 1664,
         "content_type": "text/html; charset=utf-8",
-        "body_keys": null
+        "body_decoder": "unknown",
+        "unscannable": true
       },
       "redactions": [
         "[REDACTED:request-body-values:secret-or-PII]",
