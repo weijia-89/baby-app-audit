@@ -290,7 +290,6 @@ bad_dir.mkdir()
 doc = {k: "unknown" for k in schema["required"]}
 doc.pop("api_level")
 (bad_dir / "broken.json").write_text(json.dumps(doc))
-print(bad_dir)
 PY
 set +e
 CAPTURE_MANIFEST_DIR="$tmp2/bad-manifests" bash "$root/scripts/run-tests.sh" --check-capture-manifests \
