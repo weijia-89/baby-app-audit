@@ -1,5 +1,60 @@
 # Roadmap
 
+## Capture-fidelity sprint  -  Current (opened 2026-11-08)
+
+**Source:** the stage 4 decision canon, `stage4_reconcile_20261108_ingest.md`, kept outside this repo. The IDs below (CLM-S4-*, G1 to G10, W1 to W9, LM-01 to LM-15) point into that file. Where this roadmap and the canon disagree, the canon wins.
+
+**Goal:** stop printing negatives that the stored records cannot support, and build the records that could support one.
+
+**Rules from the canon charter:**
+
+- **R1** is a PCAPdroid per-UID capture with no app filter. It is the completeness record.
+- **R2** is a host-side emulator `-tcpdump` capture on API 28 or 29, or an in-guest root tcpdump on api29 only. The app cannot skip it.
+- **R3** is mitm decryption, used only where the app trusted the test certificate. Never use the PCAPdroid mitm addon in a lockdown window.
+- **R4** is `FA-SVC` logcat for analytics that Google Play services sends.
+- Verdict classes: V1 decrypted body, V2 TLS to a named host, V3 session or unattributed, V4 static only, V1-GMS a decoded Google upload that names the app. A V3 row is never an app finding.
+- A negative needs all ten gates (G1 to G10) to pass, with the flags stored in the verdict file. Until then the public word is untested or inconclusive. Never print "sent nothing", "no data was exchanged", or "silent".
+
+**Already measured (operator, 2026-11-08). Do not reopen:**
+
+- W1 is done. Both 2026-08-14 Clarity captures (BabyCenter, What to Expect) send User-Agent `Dalvik/2.1.0` with "Android 10", which is API 29. Neither User-Agent contains `; wv)`. Both send `Accept: application/x-clarity-gzip`. BabyCenter: 4 Accept, 6 plus 1 JSON Content-Type, 6 User-Agent lines. What to Expect: 3 Accept, 6 plus 2 JSON Content-Type, 1 `application/octet-stream`, 7 User-Agent lines.
+- `assets/clarity.js` in both APKs is clarity-js `0.7.1`, sha256 `b6e09b37ffa51fbc3ccb38da7f0d10e72b7f5501a6dd16baeff15a246c684c41`.
+- `Amila-silence-tcpdump.pcap` does not store its command. It is Ethernet, snaplen 262144, on the emulator NAT network 10.0.2.0/24 (guest 10.0.2.16, second address 10.0.2.20). That shape matches a host-side emulator `-tcpdump` capture, not PCAPdroid. Its only ping is ICMP echo from 10.0.2.16 to 8.8.8.8: four requests, four replies.
+- No production script calls `evaluate_silence`. `tests/test-firebase-silence.sh` is the only caller and passes the flags as literals. The two 2026-08-25 verdict files do not store the flags. Any flag value read from their reason text is an inference, not a stored flag.
+- `scripts/scan-analytics-pii.sh` matches the asset path only as `upload-asset` (line 250). The scan misses the `upload/asset` form (LM-13).
+
+**Prompt vs canon:** the sprint prompt put W4 with the live emulator windows. The canon defines W4 as a search of raw captures already on disk, so W4 runs offline in slice A.
+
+### Slices
+
+One pull request per slice. The operator merges. No slice pushes to main.
+
+| Slice | Outcome a reader can see | Done when | Stop rule | Files | Risk | Runs beside others? | Wave | State | PR |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| R | This plan is in the repo | Banned-vocabulary check and deai scan pass on `ROADMAP.md` | Plan only. No code, no verdict change | `ROADMAP.md` | Low | Yes. Only this slice edits `ROADMAP.md` | 0 | PR open | - |
+| D | `FINAL-REPORT.md` and `README.md` print one verdict table. Each printed claim has its own axis. No unsupported negative and no Clarity sentence past what the bytes show | A new test fails when the two tables differ or when a forbidden sentence appears. `bash scripts/run-tests.sh --check` passes. Each item in the canon reclassification checklist is done or marked already done with the commit that did it | No new negative. Firebase sentences use the canon interim wording ("RTDB hosts only; flags not stored") until slice C lands. Session traffic is never an app finding | `FINAL-REPORT.md`, `README.md`, `results/RESULTS-20260803.json`, `results/RESULTS-20260803.md`, `tests/test-results-artifacts.sh`, one new report-sync test | High: public verdicts change | Yes. Sole writer of the report files this sprint | 1 | Not started | - |
+| B1 | Each committed network-log row is one request shape. It keeps the package header, response-less flows, query names, and an unscannable flag | A failing test comes first for each pipeline-checklist item: flow key, `no_response`, query names with redacted values, fail on a missing package, `body_decoder` and `unscannable`, the `har_dump.py` sidecar and `queryString`, and both asset path forms. Logs are rebuilt only from raw captures on disk. The pull request shows row count and origin split before and after for each rebuilt log (W3) | No new negative from the rebuild. A log without a raw capture stays as it is, and the pull request names it | `scripts/build-network-logs.sh`, `scripts/har_dump.py`, `scripts/scan-analytics-pii.sh`, `results/network-log.schema.json`, `results/network-log-*.json`, `results/analytics-pii*.json`, `tests/test-har-dump.sh`, `tests/test-network-log-redaction.sh`, `tests/test-analytics-pii.sh` | Medium: counts the report cites can change (slice D2 picks them up) | Yes | 1 | Not started | - |
+| C | The Amila and Nubo 2026-08-25 Firebase verdicts come from a saved script that stores its flags and record hashes | A failing test comes first: a data hit with `control_seen` false or `window_profile_done` false returns `not_silent`. The verdict JSON stores both flags, record sha256 values, and the caller path and version. The script also checks Firestore and Storage hosts. New verdict files sit next to the old ones | Use no control host other than the 8.8.8.8 ping unless the records show one. These windows have no R1, so G1 cannot pass. The expected result is inconclusive or untested | `scripts/firebase_silence.py`, one new caller script, `tests/test-firebase-silence.sh`, the Firebase section of `METHODOLOGY.md`. Local verdict files are new and gitignored | Medium | Yes | 1 | Not started | - |
+| A | `METHODOLOGY.md` states what the raw captures show: the Clarity API floor reading (W1), clarity-js 0.7.1, the type of the What to Expect asset upload body (H-4), and whether `adtest=on` appears (W4) | Each fact names its source file and command. The W4 result is committed as sanitized JSON with a tested scanner. No web-view upload claim. The API 28 floor stays untested | No raw bytes committed. A body that does not decode is written as "not decoded" | `METHODOLOGY.md` (Clarity and emulator-condition parts), one new scanner and its test, one new results JSON | Low | Yes | 2 | Not started | - |
+| B2 | Each marker-scan report says which decoder read each body and how many bodies it could not read | A failing test comes first: a gzip body sent with `Accept: application/x-clarity-gzip` is decoded and a planted marker is found. A protobuf body is decoded raw with the standard library or counted unscannable. The strict checker rejects a negative without the count | No new tool install. The five committed reports are regenerated only to add the fields. Their verdict strings stay the same | `scripts/scan-synthetic-baby-data.sh`, `scripts/har_postdata.py`, `scripts/check-marker-scans.py`, `results/synthetic-baby-data.schema.json`, `results/marker-scans/*.json`, `tests/test-synthetic-baby-data.sh`, `tests/test_har_dump_postdata.py` | Medium | Yes | 2 | Not started | - |
+| E | Every new capture window writes a manifest next to it. Older windows get a backfilled manifest that says `unknown` where no record holds the value | A failing test comes first: the harness writes every canon manifest field. A schema validates the manifests. Each backfilled value names the record it came from, such as a captured User-Agent. `run-tests.sh --check` validates the manifests | No emulator run. No invented field. Does not edit `RESULTS-20260803.json` (slice D owns it) or CI workflow files | `scripts/run-tests.sh`, one new manifest schema, `results/capture-manifests/*.json`, one new test, the manifest parts of `APK_PRIVACY_TEST_HARNESS.md` and `METHODOLOGY.md` | Medium | Yes | 2 | Not started | - |
+| D2 | The report and README carry the results of slices A, B1, B2, C, and E | Same tests as slice D, re-run after those merges | Waits for those merges | Same as slice D | Medium | No. Report files have one writer | 3 | Waiting on merges | - |
+| F | Live windows W5 to W9 | See the table below | One window at a time on a visible emulator. Never in parallel. Shut the emulator down when the window ends | Evidence tree only | High: device state | No | Operator | Not run | - |
+
+**Merge order and conflicts:** merge R first. Inside a wave, any order works. `CHANGELOG.md` and `CONTEXT.md` will conflict between slice pull requests. After each merge, merge `origin/main` into the next branch. Do not rebase a pushed branch and do not force-push. Changelog versions are assigned up front: D 4.7.0, B1 4.7.1, C 4.7.2, A 4.7.3, B2 4.7.4, E 4.7.5, D2 4.7.6.
+
+### Live windows (slice F)  -  Not run
+
+| Window | What it settles | Blocker | Smallest unblock |
+| --- | --- | --- | --- |
+| W5 API 29 control batch (R1, R2, R3 over SOCKS5, R4, lockdown on, `captive_portal_mode 0`) | Firebase upload delay on this AVD, the R4 line format, the G5 allow-list, lockdown with R3 | PCAPdroid is not installed. Installing a new third-party APK needs operator approval of its source and hash | Approve a PCAPdroid build and a control app |
+| W6 API 28 host `-tcpdump` control | Whether R2 is valid on the Play image (G2 for API 28) | Needs `apk-test-play` restarted in a visible window with `-tcpdump`, then one request from the guest to a unique host | Operator time at the emulator. No new install |
+| W7 dart:io trust control on api29 | Whether a dart:io app trusts the system CA (Dart doc vs OWASP) | No Flutter test app and no toolchain chosen | Pick or build a small dart:io test app |
+| W8 Pebbi full R1 window on api29 | A Pebbi verdict that passes or fails the gate | Needs W5 to prove R1 on api29 first | W5 |
+| W9 platform Cronet proxy behavior | The Cronet leg of the falsifier | The canon says API 29. Android documents platform `HttpEngine` from API 34, so neither AVD may have it (not checked on these images) | Check the API 29 image for `android.net.http.HttpEngine`, or choose a newer image |
+
+MimiLog stays closed until the operator clears the Google account review on the test account.
+
 ## Sprint 1  -  Done
 
 - Live data collection pipeline with schema-valid output
@@ -19,7 +74,7 @@
 - Dark pattern detection automation - archived; no longer part of the current plan
 - Cross-app data comparison
 
-## Sprint 4  -  Current  -  Testing Phase
+## Sprint 4  -  Done  -  Testing Phase
 
 **Goal:** Systematically test all candidate apps in bursts, applying Sprint 3 criteria to both new and previously tested apps.
 
@@ -41,7 +96,7 @@
 - All 5 Tier 2 apps (NighP, Milli, Baby Connect, SNUGL, Talli Baby) dropped: none make privacy or offline promises
 
 ### Burst 4  -  Partial (1 of 2 apps tested, 1 backburner)
-- MimiLog (done): fully offline, no ads, no signup; no outbound flows in capture; 1 Firebase Remote Config attempt never completed
+- MimiLog (tested): the listing says fully offline, no ads, no signup. The kept launch capture holds one unattributed measurement call. The offline claim is untested under the 2026-11-08 canon (CLM-S4-04)
 - Dymn Baby (backburner): APK not on APKPure or F-Droid; pending GitHub release
 - Dropped: LunaTracker (WebDAV/cloud), Sara Baby Tracker (Firebase sync)
 
@@ -112,7 +167,7 @@ Example: Nubo 2026-08-23 entered formula-per-click **15** (90 did not stick). Th
 
 **Status:** Profile, scan tool, and unit test are committed. Live captures across the 16 apps are pending operator execution on the emulator, after which the per-app verdicts feed the Final Report. PR 49 merged the limited-picker rule into `AGENTS.md`, `METHODOLOGY.md`, and the Nubo live notes.
 
-**Success criterion:** Every app exercised with the fictional profile has a verdict in the Final Report: `transmission_observed` (a marker left the device, with recipient) or `no_transmission_detected` (the capture shows the entered values did not leave). When the entered amount or unit differs from the profile sentinel, the report also names that entered value and whether it left the device.
+**Success criterion:** Every app exercised with the fictional profile has a verdict in the Final Report: `transmission_observed` (a marker left the device, with recipient) or `no_transmission_detected` (the markers were not seen in that window). A `no_transmission_detected` result from a mitm-only window is untested as a negative until G1 to G10 pass (CLM-S4-04). When the entered amount or unit differs from the profile sentinel, the report also names that entered value and whether it left the device.
 
 ### Queue after PR 51 (2026-08-24)
 
@@ -132,7 +187,7 @@ Example: Nubo 2026-08-23 entered formula-per-click **15** (90 did not stick). Th
 3. **Build flow** - read the captured dumps/screenshots and write `scripts/inject-config/<package>.json` with a `steps` list (tap_text / fill / wait) that reaches the baby-profile form and taps save.
 4. **Inject + capture + scan** - `run-tests.sh --live` runs the flow while mitmdump + proxy are live; `scan-synthetic-baby-data.sh` gives the real verdict.
 
-**Per-app status (Batch 2 = pebbi, amila, baby-daybook, baby-plus, mimilog):**
+**Per-app status (Batch 2 = pebbi, amila, baby-daybook, baby-plus, mimilog):** every `no_transmission_detected` cell below comes from a mitm-only window. Each is untested as a negative under the 2026-11-08 canon (CLM-S4-04, LM-01).
 
 | App | Package | Baseline | UI/UX | Flow | Verdict |
 |-----|---------|----------|-------|------|---------|
@@ -158,9 +213,9 @@ Note: the earlier generic heuristic injector still works for apps whose onboardi
 
 
 ### Strict Firebase-silence protocol + BLE pairing attempt  -  Run 2026-08-25
-- New tooling: `scripts/firebase_silence.py` (tested, CI-wired) implements the METHODOLOGY bar: control traffic required, finished-profile window required, Firebase DATA endpoints checked across both pcap and proxy records, and telemetry reported separately so data-sync silence is never misread as total silence.
+- New tooling: `scripts/firebase_silence.py` (tested, CI-wired) checks part of the METHODOLOGY bar. It checks RTDB hosts only, takes no UID, and trusts flags its caller passes in. No saved production caller computes those flags (CLM-S4-11). Slice C of the capture-fidelity sprint fixes this.
 - **Nubo pair attempt** (`nubo-test-20260825`): drove Settings -> Devices -> Add a Nubo through both location permission dialogs (fine + background granted). Terminal state is the app's own "Pairing guide - press and hold Connect" screen: no physical device exists on the emulator. Capture: 27 flows including a NEW first-party host `appserver-prod.nubo.clicksie.io`; synthetic scan clean; zero Firebase endpoints in either record (verdict inconclusive-by-window, recorded).
-- **Amila finished-profile window** (`amila-test-20260825-silence`): control ping seen, window valid -> verdict `silent_in_window` for Firebase DATA endpoints with telemetry explicitly flagged present (logging/measurement/config). Machinery demonstrated end-to-end; formal MimiLog silence claim still waits on the Play-store unlock.
+- **Amila finished-profile window** (`amila-test-20260825-silence`): the verdict file says `silent_in_window` for Firebase DATA endpoints, with telemetry present (logging, measurement, config). The file stores no flags, and no saved script computed them, so the Amila Firebase negative is untested (CLM-S4-11). Slice C re-derives it.
 
 ### Full-depth class re-audits  -  Done 2026-08-25
 - **Baby+** moved minor -> major (PR-pending): finished-profile replay shows Facebook Graph calls plus the SDK in the APK (87 dex hits), a Philips install register with installation ID, and Google ad hosts; the 2026-08-21 capture holds the one observed parent-name PUT.
@@ -262,7 +317,7 @@ This is a planning report, not a new privacy verdict. Percents are rough from sc
 - Background the app, lock the phone, or reconnect Wi-Fi.
 - Tap Backup, Restore, Share, Collaborate, or Sign in (except Baby+ Google login for About You).
 - Pair hardware (Nubo device, Nanit camera, and similar).
-- A packet capture the app cannot skip (needed before we say Firebase sent nothing). See METHODOLOGY.md.
+- A packet capture the app cannot skip (needed before any Firebase negative). See METHODOLOGY.md.
 
 **Per-app snapshot**
 
@@ -283,5 +338,5 @@ This is a planning report, not a new privacy verdict. Percents are rough from sc
 1. Baby Buddy first-launch pictures are on disk (2026-08-23): GitHub `babybuddy-for-android` v2.6.4 sideloaded on emulator-5554. Login screen only. Did not connect a server. PASS is still the Django web capture, not this companion.
 2. Baby+ About You picture and capture are done (2026-08-21). Batch re-scan of preserved `.mitm` after HAR `postData` fix (2026-08-23): only Baby+ About You captures flip to `transmission_observed` (2026-08-16 and 2026-08-21). All other non-zero captures in the tree stayed `no_transmission_detected`. Force-upgrade still blocks home.
 3. For Nubo: Google sign-in for backup is done (2026-08-23, proxy off). Backup Now finished 2026-08-24 after GMS Drive Continue (last backup `08/24/2026 18:49:05`). Formula-per-click entered as **15** (preferred 90 did not stick). That entered value is enough under the limited-options rule above; name it and scan for it. `wlan0` pcaps exist; `eth0` is missing on this AVD. The 2026-08-23 0-byte `.mitm` is still kept. Do not treat HTTP-proxy silence or a TLS pcap as Firebase silence.
-4. Do not treat a 0-byte file, a 0-flow file, or a short emulator-wide HTTP-proxy file as "Firebase sent nothing." See METHODOLOGY.md.
+4. Do not treat a 0-byte file, a 0-flow file, or a short emulator-wide HTTP-proxy file as a Firebase negative. See METHODOLOGY.md.
 5. Slice D is merged (PR 50): Pairip CLOSE and Daybook crash are environment blockers, not privacy PASS/FAIL.
