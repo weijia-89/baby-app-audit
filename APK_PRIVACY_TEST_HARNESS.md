@@ -131,8 +131,8 @@ There is a simple way to test this.
 
 The rule:
 
-* If a "100% offline" app sends any data out, the claim is false.
-* One outbound packet is enough to fail it.
+* An offline claim fails only when a flow is attributed by a UID, a decoded body field that names the package, or an R4 line.
+* A session row is not an app finding. A negative stays untested until the verdict file stores gates G1 through G10.
 * **Exception:** localhost (127.0.0.1/::1), multicast (224.0.0.0/4), and NTP (port 123) do NOT count as failures. Log them but do not fail the app.
 
 This test is worth more than reading any privacy policy.
@@ -188,7 +188,7 @@ Step 4. Install the Android emulator and an ARM64 system image without full Andr
 
 Step 5. Pick the right system image. This choice matters a lot.
 
-* Best for easy traffic capture: Android 9 (API 28), Google APIs image, arm64-v8a. Older Android lets you write the system certificate the simple way.
+* Best for easy traffic capture: Android 9 (API 28), Google APIs image, arm64-v8a. Older Android lets you write the system certificate the simple way. The project's API 28 Play image has no system CA, and writable-system breaks its boot. A run-level API 28 label is not proof that step ran.
 * If you must use Android 14+ (API 34+) or Android 16: the simple certificate method does NOT work. You will need the Magisk module method in "If something breaks".
 * **Boundary coverage:** If time permits, also test on API 29–33 to detect version-specific behavior.
 
