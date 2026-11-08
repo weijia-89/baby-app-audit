@@ -13,6 +13,7 @@
       "package_name": "",
       "capture": "results/pebbi-test-20261004/artifacts/captures/pebbi.mitm",
       "flows_scanned": 51,
+      "unscannable_count": 0,
       "markers_matched": 4,
       "transmission_observed": false,
       "recipients": [

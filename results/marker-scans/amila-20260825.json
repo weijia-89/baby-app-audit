@@ -13,6 +13,7 @@
       "package_name": "",
       "capture": "results/amila-test-20260825/artifacts/captures/Amila.mitm",
       "flows_scanned": 13,
+      "unscannable_count": 0,
       "markers_matched": 6,
       "transmission_observed": false,
       "recipients": [

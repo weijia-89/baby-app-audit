@@ -13,6 +13,7 @@
       "package_name": "",
       "capture": "results/mimilog-test-20261004/artifacts/captures/mimilog.mitm",
       "flows_scanned": 54,
+      "unscannable_count": 0,
       "markers_matched": 12,
       "transmission_observed": false,
       "recipients": [

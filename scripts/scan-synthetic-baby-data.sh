@@ -51,7 +51,7 @@ captures = sys.argv[3:-1]
 output_file = sys.argv[-1] if sys.argv[-1] else None
 
 sys.path.insert(0, str(repo_root_path / "scripts"))
-from har_postdata import decode_har_text, is_under_directory  # noqa: E402
+from har_postdata import is_under_directory, prepare_scan_body  # noqa: E402
 
 # Vendor match: host equals domain or ends with "." + domain.
 VENDOR_SUFFIXES = (
@@ -173,14 +173,25 @@ def load_flows(path):
             url = req.get("url", "")
             post = req.get("postData") or {}
             content = res.get("content") or {}
+            req_text, req_unscannable = prepare_scan_body(
+                post.get("text", "") or "",
+                post.get("encoding"),
+                req.get("headers"),
+            )
+            resp_text, _resp_unscannable = prepare_scan_body(
+                content.get("text", "") or "",
+                content.get("encoding"),
+                res.get("headers"),
+            )
             flows.append({
                 "method": req.get("method", "GET"),
                 "url": url,
                 "host": urlparse(url).hostname or "",
                 "status": res.get("status", 0),
-                "req_text": decode_har_text(post.get("text", "") or "", post.get("encoding")),
-                "resp_text": decode_har_text(content.get("text", "") or "", content.get("encoding")),
+                "req_text": req_text,
+                "resp_text": resp_text,
                 "req_headers": " ".join(h.get("value", "") for h in req.get("headers", [])),
+                "req_unscannable": req_unscannable,
             })
         return flows
 
@@ -208,6 +219,12 @@ def load_flows(path):
             rbody = rbody or ""
         headers = req.get("headers") or {}
         header_text = " ".join(str(v) for v in headers.values())
+        req_unscannable = False
+        if isinstance(body, str):
+            body, req_unscannable = prepare_scan_body(body, None, headers)
+        resp_headers = res.get("headers") or {}
+        if isinstance(rbody, str):
+            rbody, _resp_unscannable = prepare_scan_body(rbody, None, resp_headers)
         flows.append({
             "method": req.get("method", "GET"),
             "url": req.get("url", ""),
@@ -216,6 +233,7 @@ def load_flows(path):
             "req_text": body,
             "resp_text": rbody,
             "req_headers": header_text,
+            "req_unscannable": req_unscannable,
         })
     return flows
 
@@ -277,6 +295,7 @@ def main():
         flows = load_flows(cap_path)
         import re
         findings = []
+        unscannable_count = sum(1 for flow in flows if flow.get("req_unscannable"))
         def marker_present(haystack, val):
             # Require word boundaries for alphanumeric markers.
             if not val:
@@ -344,6 +363,7 @@ def main():
             "package_name": package,
             "capture": public_path(cap_path),
             "flows_scanned": len(flows),
+            "unscannable_count": unscannable_count,
             "markers_matched": len(findings),
             "transmission_observed": high_transmission,
             "recipients": recipients,

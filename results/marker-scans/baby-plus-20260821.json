@@ -13,6 +13,7 @@
       "package_name": "",
       "capture": "results/baby-plus-test-20260821/artifacts/captures/BabyPlus-about-you-full.mitm",
       "flows_scanned": 14,
+      "unscannable_count": 0,
       "markers_matched": 17,
       "transmission_observed": true,
       "recipients": [

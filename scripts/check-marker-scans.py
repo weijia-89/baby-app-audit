@@ -89,6 +89,10 @@ def check_report(report, label):
         if not isinstance(app.get("flows_scanned"), int) or app.get("flows_scanned") < 0:
             errors.append(f"{prefix}: flows_scanned is missing")
         verdict = app.get("verdict")
+        count = app.get("unscannable_count")
+        count_ok = isinstance(count, int) and not isinstance(count, bool) and count >= 0
+        if verdict == "no_transmission_detected" and not count_ok:
+            errors.append(f"{prefix}: negative has no unscannable count")
         observed = app.get("transmission_observed")
         if verdict == "no_transmission_detected":
             if observed is not False:
