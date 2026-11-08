@@ -1,5 +1,15 @@
 # Changelog
 
+## 4.7.5 - 2026-11-08
+
+### Added
+- The harness writes a capture manifest beside each new window. The fields are avd_image, api_level, system_ca_present, http_proxy_readback, r1_mode, pcapdroid_version, uid_path, app_filter, r2_mode, r3_mode, lockdown_state, source, captive_portal_mode, private_dns_mode, firebase_debug_condition, r4_log, webview_version, user_agent, installed_packages, uid_unknown_count, conversion_events, and decoders. A missing value is the string unknown. The field source is the lockdown reading source.
+- `results/capture-manifest.schema.json` checks that field list. `scripts/run-tests.sh --check` rejects a manifest that drops a field, or that cites `results/RESULTS-20260803.json`.
+- Older windows have one backfill file each under `results/capture-manifests/`. A value other than unknown names the capture file it came from. The backfill sets API level only where that capture contains one Dalvik User-Agent. Android 10 is API 29. Android 9 is API 28. The BabyCenter and What to Expect Dalvik User-Agents do not contain "; wv)". A pcap is host_tcpdump only when it is Ethernet, snaplen 262144, and on 10.0.2.0/24. Image and system CA stay unknown. No window log names the image.
+
+### Changed
+- When the harness reads the emulator HTTP proxy, it stores that readback on the new window manifest and names the app log.
+
 ## 4.7.1 - 2026-11-08
 
 ### Changed
