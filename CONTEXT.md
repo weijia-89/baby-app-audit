@@ -19,7 +19,7 @@ Refreshed 2026-11-07 against `.github/workflows/test.yml` and repo `AGENTS.md`.
 - MimiLog's capture window is closed: Google's "Complete account setup / Review your account" hold on the test account blocks store reinstall. The operator clears that review; the harness does not bypass it. Package declares no `INTERNET`.
 - PR 66 merged the marker-scan schema (`results/synthetic-baby-data.schema.json`), the strict checker (`scripts/check-marker-scans.py`), and five committed 2026-10-04 reports under `results/marker-scans/`.
 - PR 68 synced the harness version citations in `FINAL-REPORT.md` and the `APK_PRIVACY_TEST_HARNESS.md` setup block to 3.2.0.
-- Pebbi finding on record: it talks to `app.pebbi.co` outside the system HTTP proxy (root tcpdump saw DNS+TLS). A quiet proxy window is not proof of silence for Pebbi. Contents unread (TLS).
+- Pebbi tcpdump saw DNS and TLS to `app.pebbi.co` outside the system HTTP proxy. Contents were not read. A quiet proxy window is not a negative for Pebbi.
 
 ## CI gates that must pass (from `.github/workflows/test.yml`)
 
@@ -61,7 +61,7 @@ Refreshed 2026-11-07 against `.github/workflows/test.yml` and repo `AGENTS.md`.
 
 - Raw captures, decode files, and network logs are permanent evidence. Never delete or sweep `results/`. Zero-byte `.mitm` files are kept.
 - A negative marker verdict means "not observed in this capture window under marker search of the raw file". It never proves the app never sends the value.
-- A 0-flow mitm capture is not proof an app stayed silent (apps can bypass the proxy; Pebbi does).
+- A 0-flow mitm capture is not a negative. Apps can bypass the proxy. Pebbi's tcpdump did.
 - Never commit gitignored evidence, `.secrets/`, `.trainer/`, raw `.mitm`, or decode JSON. Never read `.secrets/`.
 
 ## S4.2 canon summary

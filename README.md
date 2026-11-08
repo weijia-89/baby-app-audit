@@ -119,45 +119,43 @@ Full results with evidence: [FINAL-REPORT.md](FINAL-REPORT.md) and machine-reada
 
 ### How to read the results
 
-The full picture is in [FINAL-REPORT.md](FINAL-REPORT.md). Each app has its own section with evidence: what the app claims, what we captured, and how the verdict was reached.
+The full picture is in [FINAL-REPORT.md](FINAL-REPORT.md). Each app has its own section with evidence: what the app claims, what the capture showed, and which axis was stored.
 
-The Result column is the claim. The privacy mark is the window. Those two can differ.
+The Axis column is the claim. The gate column is the stored flag status. A session row is not an app finding.
 
-- **PASS** means the capture matched the claim.
-- **FAIL** means the log attributes a call to the app, and that call breaks the claim.
-- **No claim** means the listing states no promise.
-- **Not measured** means the capture did not test the printed sentence.
-- **Inconclusive** means the call is in the window, and the log does not name the app, or the body was not read.
-- **💖** means the tested session matched the claim.
-- **❕** means the window showed phone-home traffic without data that identifies a person.
-- **🚫** means the window showed identifying data or heavy collection.
+- **pass** means the tested sentence was met.
+- **fail** means a UID, a decoded body field that names the package, or an R4 line contradicts the sentence.
+- **untested** means the capture did not meet the gate for that sentence.
+- **not-assessable** means the sentence is not something this capture can decide.
+- **inconclusive** means the window holds traffic the records cannot attribute to the app.
+- **G1-G10 not stored** means the verdict file does not store the negative-gate flags.
 
 Every failed app links to its own sanitized network log (`results/network-log-<app>.json`). The logs list hosts, redacted paths, status codes, flow counts, request and response sizes, JSON body keys, header-flag names, and redaction slugs for each captured flow. They contain no query strings, header values, or body values. The slugs state what was removed and why. The method, host, path, status, count, and sizes remain, so the record still proves that the call was sent. The logs are generated from the raw `.mitm` captures by `scripts/build-network-logs.sh`; the raw captures stay local only.
 
 The machine-readable summary is [results/RESULTS-20260803.json](results/RESULTS-20260803.json). Each app row carries an `evidence_source`: `raw-replay` (the preserved capture was replayed) or `session-summary` (the row is not a replayed capture). Baby Buddy and MimiLog are still `session-summary`. Nubo and Baby+ joined Amila at `raw-replay` on 2026-08-25. Baby Daybook, Nurture Lock, and Pebbi followed on 2026-10-04. See [ROADMAP.md](ROADMAP.md) and [CHANGELOG.md](CHANGELOG.md).
 
-| App | Privacy claim | Result | Privacy | Confidence | Key findings |
-| --- | --- | --- | --- | --- | --- |
-| Baby Buddy | Open source | PASS | 💖 | 100% | Django web: no app-originated traffic. Android companion login photos are not the PASS |
-| MimiLog | "Fully offline" | PASS | 💖 | 90% | Package declares no `INTERNET`. One unattributed measurement call in the kept launch capture. 2026-10-04: Play license gate held the app; it cannot connect |
-| Amila | No claim | No claim | ❕ | 90% | Registers the install with Google; settings, logging, and measurement calls (2026-08-25 recapture) |
-| Baby+ | "AdID not auto-enabled" | Not measured | 🚫 | 95% | Facebook and Google ads on the finished-profile replay. The parent name PUT was seen once. The advertising-id setting was not measured |
-| Heartful Baby | "HIPAA-compliant" | Not measured | ❕ | 90% | One Firebase usage log at launch. The HIPAA program was not reviewed |
-| Baby Daybook | "AdID not auto-enabled" | Not measured | 🚫 | 90% | Three Firebase calls are origin app. RevenueCat and Sentry in that window are origin session. The advertising-id setting was not measured |
-| Nara | "Complete privacy" | FAIL | 🚫 | 90% | Nine Facebook calls at launch, plus a Google crash report |
-| Nubo | "Local-first" | FAIL | 🚫 | 95% | First launch sends an install register, crash settings, and push registers to Google |
-| Nurture Lock | "100% offline" | Inconclusive | 🚫 | 95% | RevenueCat in the 2026-10-04 log is origin session, not the app. Static analysis reports eight tracking libraries in the APK |
-| Pebbi | No claim (control) | No claim | 🚫 | 100% | 2026-10-04: Firebase install register is origin app. The `app.pebbi.co` call is origin session. Profile not saved. 2026-10-10: profile saved; mitm had no Pebbi flows; tcpdump saw `app.pebbi.co`; TLS unread |
-| Pixy | "Bank-level encryption" | Not measured | 🚫 | 90% | Three Facebook calls at launch. Request bodies were empty. Encryption was not measured |
-| BabyCenter | No claim | No claim | 🚫 | 95% | Clarity tag response lists screenCapture. The collect body was scrubbed. Ads and attribution calls are in the window |
-| BellyBloom | No claim | No claim | 🚫 | 90% | Advertising ID, usage, and which advert brought you, to many companies |
-| Nanit | No claim | No claim | 🚫 | 95% | A Clarity collect call is in the window. The body was scrubbed. Coralogix gets a browser log. Cordial gets contacts |
-| Pregnancy+ | No claim | No claim | 🚫 | 95% | A Clarity collect call is in the window. The body was scrubbed. Ads, usage, consent, and attribution calls are in the window |
-| What to Expect | No claim | No claim | 🚫 | 90% | A Clarity collect call is in the window. No upload-asset path. The body was scrubbed. Ads, usage, and consent calls are in the window |
+| App | Privacy claim | Axis | Gate | Key findings |
+| --- | --- | --- | --- | --- |
+| Baby Buddy | Open source | untested | G1-G10 not stored | Android app untested. The tested session was the localhost Django site. |
+| MimiLog | "Fully offline" | untested | G1-G10 not stored | Offline claim untested. The package declares no INTERNET. One measurement call in the window has no package header. |
+| Amila | No claim | inconclusive | G1-G10 not stored | Firebase calls are in the 2026-08-25 window. The package header is not origin proof. RTDB hosts only; flags not stored. |
+| Baby+ | "AdID not auto-enabled" | untested | G1-G10 not stored | Advertising-id setting untested. Facebook and Google ad calls are in the finished-profile window. |
+| Heartful Baby | "HIPAA-compliant" | not-assessable | G1-G10 not stored | HIPAA status is not assessable. One logging batch is in the launch window. RTDB hosts only; flags not stored. |
+| Baby Daybook | "AdID not auto-enabled" | untested | G1-G10 not stored | Advertising-id setting untested. Firebase calls carry the package header only. RTDB hosts only; flags not stored. RevenueCat and Sentry in that window are session. |
+| Nara | "Complete privacy" | inconclusive | G1-G10 not stored | Insufficient attribution. Facebook and Crashlytics calls in the launch window are session. |
+| Nubo | "Local-first" | inconclusive | G1-G10 not stored | A Firebase Installations POST is in the window. The package header is not origin proof. RTDB hosts only; flags not stored. |
+| Nurture Lock | "100% offline" | untested | G1-G10 not stored | Offline claim untested. RevenueCat in the 2026-10-04 log is session. Unattributed Clarity traffic in window; source unresolved. |
+| Pebbi | No claim (control) | untested | G1-G10 not stored | The 2026-10-04 mitm-only window is untested. 2026-10-10 records: pebbi-4.4.1-full.mitm and pebbi-tcpdump-coldstart.pcap. tcpdump saw DNS and TLS to app.pebbi.co; contents not read. |
+| Pixy | "Bank-level encryption" | untested | G1-G10 not stored | Encryption sub-claims untested. Facebook calls in the launch window are session. |
+| BabyCenter | No claim | inconclusive | G1-G10 not stored | Insufficient attribution. The Clarity config endpoint was fetched; the project config enables capture features. Clarity collect call(s) observed; contents not assessable (body not JSON-parseable). |
+| BellyBloom | No claim | inconclusive | G1-G10 not stored | Ad and attribution calls are in the window. The package header is not origin proof. RTDB hosts only; flags not stored. |
+| Nanit | No claim | inconclusive | G1-G10 not stored | Unattributed Clarity traffic in window; source unresolved. Coralogix and Cordial calls are in the window. |
+| Pregnancy+ | No claim | inconclusive | G1-G10 not stored | Unattributed Clarity traffic in window; source unresolved. |
+| What to Expect | No claim | inconclusive | G1-G10 not stored | The Clarity config endpoint was fetched; the project config enables capture features. Clarity collect call(s) observed; contents not assessable (body not JSON-parseable). One Clarity asset-upload call observed; content not decoded. |
 
 The full procedure is in [APK_PRIVACY_TEST_HARNESS.md](APK_PRIVACY_TEST_HARNESS.md). Method, consent, and known limits (no radio checks, no static scan for Nubo) are in [METHODOLOGY.md](METHODOLOGY.md).
 
-Pairip **CLOSE** (stub Play Store) and Pairip native crashes on this emulator are environment blockers. They are not privacy PASS or FAIL. Since 2026-09-20 a real Play Store on the test emulator makes all four license checks pass. See METHODOLOGY.md "Environment blockers".
+Pairip **CLOSE** (stub Play Store) and Pairip native crashes on this emulator are environment blockers. They are not a privacy axis. Since 2026-09-20 a real Play Store on the test emulator makes all four license checks pass. See METHODOLOGY.md "Environment blockers".
 
 ## Discussion and Roadmap
 
@@ -173,8 +171,8 @@ This project tests baby and parenting apps against their privacy claims. The cur
 
 ### What is next
 
-* Baby Buddy is still `session-summary`. The PASS is the Django web session. MimiLog is still `session-summary`. The license window is closed on an account-review hold, and the package declares no `INTERNET`. See `ROADMAP.md`.
-* Pebbi's committed capture is the 2026-10-04 file (51 flows, profile not saved). On 2026-10-10 the profile saved. The mitm file has no Pebbi flows. tcpdump saw `app.pebbi.co`. We did not read the TLS.
+* Baby Buddy is still `session-summary`. The tested session was the localhost Django site. The Android app is untested. MimiLog is still `session-summary`. The license window is closed on an account-review hold, and the package declares no `INTERNET`. See `ROADMAP.md`.
+* Pebbi's committed capture is the 2026-10-04 mitm file. That window is untested. On 2026-10-10 the profile saved. Cite `pebbi-4.4.1-full.mitm` and `pebbi-tcpdump-coldstart.pcap`. tcpdump saw `app.pebbi.co`. The TLS was not read.
 * I welcome checks of the method and the findings.
 * This git repo is already public.
 

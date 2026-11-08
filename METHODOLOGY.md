@@ -8,7 +8,7 @@
 
 Parents use baby tracking apps to record feeding, sleep, and diaper changes. These apps hold sensitive data about babies. Some apps claim that data never leaves the phone. I wanted to know if that claim is true.
 
-If an app says "100% offline" but sends data to a server, the claim is false. One outbound packet is enough to prove it false.
+An offline claim fails only when a flow is attributed by a UID, a decoded body field that names the package, or an R4 line. A session row is not an app finding. A negative stays untested until the verdict file stores gates G1 through G10. No stored record has those flags.
 
 ---
 
@@ -40,7 +40,7 @@ The test environment included these tools:
 * **mitmproxy** - captures network traffic between the phone and the internet.
 * **adb** - connects to the Android emulator.
 * **jadx** - decompiles APK files to read the source code.
-* **objection** - available to bypass certificate pinning if needed. Not required in this run because the system certificate was installed directly.
+* **objection** - available to bypass certificate pinning if needed. This note does not say a system certificate was installed. The API 28 Play image has no system CA. API level is per capture.
 
 exodus-standalone is documented in the harness but was not run on this platform (the Docker image is linux/amd64 only).
 
@@ -204,11 +204,13 @@ These are environment blockers. They are not privacy PASS. They are not privacy 
 
 The committed, sanitized network logs are NOT searched by this test. Their bodies are replaced by redaction slugs, so the fictional values would be invisible there. Only the raw local capture can prove exfiltration.
 
-### What proves Firebase is silent
+### What a Firebase negative needs
 
-A 0-byte capture through the Android system HTTP proxy does not prove Firebase (or Google Mobile Services) stayed quiet. Many apps ignore that proxy. Flutter apps often do. Google Play services can send traffic on a different path.
+A 0-byte capture through the Android system HTTP proxy does not prove Firebase (or Google Mobile Services) was quiet. Many apps ignore that proxy. Flutter apps often do. Google Play services can send traffic on a different path.
 
-To claim Firebase sent nothing in a test window, you need all of these:
+The stored checks cover RTDB hosts only; flags not stored. A Firebase negative stays untested until the verdict file stores the gate flags. After those gates pass, the permitted sentence is: no flow from UID u was observed in window W.
+
+To reach that sentence, you need all of these:
 
 1. A control that the Firebase hosts are reachable from the same device at the same time. If `firebaseinstallations.googleapis.com` and `app-measurement.com` cannot be reached, an empty capture can mean "no network", not "no SDK call".
 2. A capture the app cannot skip. Record packets on the emulator interface (`tcpdump` on `eth0`) or use a VPN that takes all TCP and UDP. Do not rely on the system HTTP proxy alone.
