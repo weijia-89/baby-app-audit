@@ -204,19 +204,21 @@ These are environment blockers. They are not privacy PASS. They are not privacy 
 
 The committed, sanitized network logs are NOT searched by this test. Their bodies are replaced by redaction slugs, so the fictional values would be invisible there. Only the raw local capture can prove exfiltration.
 
-### What proves Firebase is silent
+### Firebase negative gate
 
-A 0-byte capture through the Android system HTTP proxy does not prove Firebase (or Google Mobile Services) stayed quiet. Many apps ignore that proxy. Flutter apps often do. Google Play services can send traffic on a different path.
+A Firebase negative is allowed only after gates G1 through G10 pass. The verdict file stores the flags, the sha256 of each record, and the caller path and version. A data host returns `not_silent` even when a flag is false.
 
-To claim Firebase sent nothing in a test window, you need all of these:
+Data hosts are `firebaseio.com`, `firebasedatabase.googleapis.com`, `firestore.googleapis.com`, and `firebasestorage.googleapis.com`. Logging and measurement hosts are not data hosts.
 
-1. A control that the Firebase hosts are reachable from the same device at the same time. If `firebaseinstallations.googleapis.com` and `app-measurement.com` cannot be reached, an empty capture can mean "no network", not "no SDK call".
-2. A capture the app cannot skip. Record packets on the emulator interface (`tcpdump` on `eth0`) or use a VPN that takes all TCP and UDP. Do not rely on the system HTTP proxy alone.
-3. A host list check on that packet file: no TLS ClientHello or DNS lookup for Firebase and Crashlytics hosts during the window. Repeat the check for the app UID in `dumpsys netstats`.
-4. The window must cover a finished profile and at least one finished activity (start then stop or save). An empty launch-only window is too short.
-5. Two independent records that agree (packet file plus logcat Firebase lines, or packet file plus a second VPN capture).
+`scripts/firebase_verdict.py` sets `control_seen` from ICMP echo in the pcap. It sets `window_profile_done` only from a boolean field on a step log. No step log means the flag is false. The caller does not read a UID. `uid_available` stays false.
 
-If the APK has no Firebase SDK (no `FirebaseInitProvider`, no `google-services.json`, no Firebase classes), that is stronger than an empty proxy file. Still run the packet check, because Play services on the device can send on the app's behalf.
+The Amila window `amila-test-20260825-silence` has no per-UID record. The Nubo window `nubo-test-20260825` has none either. Gate G3 fails. Both re-derived verdicts are `untested`. The old verdict files stored no flags. Source: `silence-verdict-rederived.json` beside each old file.
+
+The permitted negative sentence follows. Use it only after G1 through G10 pass. "No flow from UID u was observed in window W (AVD, API, records R1+R2[+R3][+R4]); lower bound per Reyes 2018."
+
+Do not use "sent nothing", "no data was exchanged", or "silent" as the verdict.
+
+A 0-byte file from the system HTTP proxy does not pass this gate. Many apps ignore that proxy. Flutter apps often do. Play services can send on another path.
 
 Do not use real baby data. Do not infer consent pressure or user intent from this test.
 

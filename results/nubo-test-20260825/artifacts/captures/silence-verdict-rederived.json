@@ -1,0 +1,92 @@
+{
+  "caller_path": "scripts/firebase_verdict.py",
+  "caller_version": "1",
+  "control_hosts": [],
+  "control_seen": false,
+  "data_needles": [
+    "firebaseio.com",
+    "firebasedatabase.googleapis.com",
+    "firestore.googleapis.com",
+    "firebasestorage.googleapis.com"
+  ],
+  "failing_gates": [
+    "G1",
+    "G3",
+    "G4"
+  ],
+  "flags_from_reason_text": false,
+  "gates_not_run": [
+    "G2",
+    "G4a",
+    "G5",
+    "G6",
+    "G7",
+    "G8",
+    "G9"
+  ],
+  "hits": [],
+  "mitm_hosts": [
+    "192.168.68.50",
+    "192.168.68.56",
+    "android.apis.google.com",
+    "android.googleapis.com",
+    "appserver-prod.nubo.clicksie.io",
+    "connectivitycheck.gstatic.com",
+    "googleads.g.doubleclick.net",
+    "i.ytimg.com",
+    "inbox.google.com",
+    "mail.google.com",
+    "play.googleapis.com",
+    "www.google.com",
+    "www.googleadservices.com",
+    "youtubei.googleapis.com"
+  ],
+  "pcap": {
+    "echo_replies": [],
+    "echo_requests": [],
+    "linktype": 1,
+    "local_addresses_present": [
+      "10.0.2.16",
+      "10.0.2.20"
+    ],
+    "snaplen": 262144
+  },
+  "pcap_hosts": [
+    "android.apis.google.com",
+    "android.googleapis.com",
+    "connectivitycheck.gstatic.com",
+    "firebaseinstallations.googleapis.com",
+    "firebaseremoteconfig.googleapis.com",
+    "googleads.g.doubleclick.net",
+    "i.ytimg.com",
+    "inbox.google.com",
+    "mail.google.com",
+    "mtalk.google.com",
+    "play.googleapis.com",
+    "www.clarity.ms",
+    "www.google.com",
+    "www.googleadservices.com",
+    "youtubei.googleapis.com"
+  ],
+  "reasons": [
+    "No control host in Nubo-pair-tcpdump.pcap or Nubo-pair.mitm. control_seen is false.",
+    "G3 fails: these records have no per-UID capture. uid_available is false. A negative needs G1 through G10.",
+    "The step log is absent. window_profile_done is false."
+  ],
+  "records": [
+    {
+      "kind": "pcap",
+      "name": "Nubo-pair-tcpdump.pcap",
+      "sha256": "069a7f401e56465729ad9f635f2b8f4d5034923548971d8fde19dfdf108c8c15"
+    },
+    {
+      "kind": "mitm",
+      "name": "Nubo-pair.mitm",
+      "sha256": "55783fdc86da12f140b5b0ee1b2e95dce63e864dc8b05a65b025df3a30a9d7b6"
+    }
+  ],
+  "telemetry_present": true,
+  "uid_available": false,
+  "verdict": "untested",
+  "window_profile_done": false
+}

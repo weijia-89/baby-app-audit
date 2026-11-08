@@ -1,5 +1,12 @@
 # Changelog
 
+## 4.7.2 - 2026-11-08
+
+### Changed
+- The Firebase data-host check now includes Firestore and Storage. A data host returns `not_silent` when `control_seen` or `window_profile_done` is false, and the hit list is kept.
+- `scripts/firebase_verdict.py` computes those flags from the records. It stores the flags, the sha256 of each record, and its path and version. It does not assign a UID.
+- Amila `amila-test-20260825-silence` and Nubo `nubo-test-20260825` are re-derived as `untested`. The old files stored no flags. Gate G3 fails because there is no per-UID record. METHODOLOGY now requires gates G1 through G10 before a negative sentence.
+
 ## 4.6.35 - 2026-11-07
 
 ### Fixed
