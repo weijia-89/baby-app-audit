@@ -38,6 +38,7 @@ DETAIL: /tmp/babyaudit-sprint-<date>/<worker>.md
 
 8. **No evidence re-collection.** A burst consumes evidence already captured in `results/`. If evidence is missing for an app, the worker reports `BLOCKED: missing evidence <path>` and the run does not fabricate it by driving the emulator unattended.
 9. **Cap the burst.** 3 apps or 4 PRs per run, whichever comes first.
+10. **Shared docs wait.** A code worker does not edit `CHANGELOG.md`, `README.md`, `FINAL-REPORT.md`, `METHODOLOGY.md`, `ROADMAP.md`, `CONTEXT.md`, or `APK_PRIVACY_TEST_HARNESS.md`. After that wave's code pull requests have merged, one docs pull request updates them. The orchestrator writes `ROADMAP.md` only in that docs pull request.
 
 ## 2. Skill posture (invoke once, by name, in every worker prompt)
 
