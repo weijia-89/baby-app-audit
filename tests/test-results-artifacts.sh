@@ -135,7 +135,9 @@ required = (
     "Insufficient attribution",
     "The Clarity config endpoint was fetched; the project config enables capture features.",
     "Clarity collect call(s) observed; contents not assessable (body not JSON-parseable).",
-    "One Clarity asset-upload call observed; content not decoded.",
+    "One Clarity asset-upload call observed; 2,753 bytes, a 71 by 71 PNG.",
+    "507 request shapes",
+    "calls_scanned",
     "Unattributed Clarity traffic in window; source unresolved.",
     "pebbi-tcpdump-coldstart.pcap",
     "2026-10-04 mitm-only window is untested",
@@ -145,6 +147,10 @@ required = (
 for phrase in required:
     assert phrase in report, phrase
     assert phrase in readme, phrase
+assert "503 calls" not in report
+assert "503 calls" not in readme
+assert "content not decoded" not in report
+assert "content not decoded" not in readme
 
 for label, text in (("FINAL-REPORT.md", report), ("README.md", readme)):
     for line in text.splitlines():

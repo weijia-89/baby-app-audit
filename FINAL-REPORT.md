@@ -32,7 +32,7 @@ Host, path, status, count, and sizes live in the sanitized network logs. This re
 | BellyBloom | No claim | inconclusive | G1-G10 not stored | Ad and attribution calls are in the window. The package header is not origin proof. RTDB hosts only; flags not stored. |
 | Nanit | No claim | inconclusive | G1-G10 not stored | Unattributed Clarity traffic in window; source unresolved. Coralogix and Cordial calls are in the window. |
 | Pregnancy+ | No claim | inconclusive | G1-G10 not stored | Unattributed Clarity traffic in window; source unresolved. |
-| What to Expect | No claim | inconclusive | G1-G10 not stored | The Clarity config endpoint was fetched; the project config enables capture features. Clarity collect call(s) observed; contents not assessable (body not JSON-parseable). One Clarity asset-upload call observed; content not decoded. |
+| What to Expect | No claim | inconclusive | G1-G10 not stored | The Clarity config endpoint was fetched; the project config enables capture features. Clarity collect call(s) observed; contents not assessable (body not JSON-parseable). One Clarity asset-upload call observed; 2,753 bytes, a 71 by 71 PNG. |
 
 Axis key:
 
@@ -66,11 +66,11 @@ To check a host, path, or status code, open the network log for that app.
 
 ## Analytics and PII fanout
 
-The fanout scan covers all 16 committed network logs: 503 calls, 19 vendor or host groups. Machine output: [results/analytics-pii-20260803.json](results/analytics-pii-20260803.json).
+The fanout scan covers all 16 committed network logs. [results/analytics-pii-20260803.json](results/analytics-pii-20260803.json) field `calls_scanned` is 507 request shapes. That count is not 507 transmissions. The scan names 19 vendor or host groups.
 
 **High-risk findings:**
 
-- **Microsoft Clarity:** The Clarity config endpoint was fetched for BabyCenter and What to Expect. The project config enables capture features. Clarity collect call(s) observed; contents not assessable (body not JSON-parseable). One Clarity asset-upload call observed for What to Expect; content not decoded. Pregnancy+, Nanit, and Nurture Lock: Unattributed Clarity traffic in window; source unresolved.
+- **Microsoft Clarity:** The Clarity config endpoint was fetched for BabyCenter and What to Expect. The project config enables capture features. Clarity collect call(s) observed; contents not assessable (body not JSON-parseable). One Clarity asset-upload call observed; 2,753 bytes, a 71 by 71 PNG. That call is the What to Expect body. Pregnancy+, Nanit, and Nurture Lock: Unattributed Clarity traffic in window; source unresolved.
 - **Sentry in Heartful Baby:** decompiled classes include Sentry `rrweb`. No Sentry host appeared in the preserved capture. That is static capability, not proof of a live send.
 
 ### Facebook
@@ -108,7 +108,7 @@ The same fictional profile is used for every app that has an on-device form. Mar
 
 ## Proprietary apps - long report
 
-These five Play Store apps make no privacy promise. The axis is inconclusive where the log does not attribute the calls. The 2026-08-14 Clarity captures show API 29 by User-Agent. Other windows stay unknown until a per-capture manifest exists.
+These five Play Store apps make no privacy promise. The axis is inconclusive where the log does not attribute the calls. The 2026-08-14 Clarity captures show API 29 by User-Agent. Other windows have a per-capture manifest. A missing field is the string unknown. Most fields are unknown.
 
 The APKs came from a mirror. BellyBloom 1.0.9 needs Android 12L, so the tested build is 1.0.8 (same package signature).
 
@@ -208,7 +208,7 @@ The APKs came from a mirror. BellyBloom 1.0.9 needs Android 12L, so the tested b
 | Service | In the window |
 | --- | --- |
 | AppsFlyer | Start, attribution, install date and status |
-| Microsoft (Clarity) | The Clarity config endpoint was fetched; the project config enables capture features. Clarity collect call(s) observed; contents not assessable (body not JSON-parseable). One Clarity asset-upload call observed; content not decoded. |
+| Microsoft (Clarity) | The Clarity config endpoint was fetched; the project config enables capture features. Clarity collect call(s) observed; contents not assessable (body not JSON-parseable). One Clarity asset-upload call observed; 2,753 bytes, a 71 by 71 PNG. |
 | Mixpanel | Usage log |
 | Cordial | Usage events for email |
 | Scorecard Research | "This phone is here" ping |
@@ -281,7 +281,7 @@ Baby Buddy is the only open-source app in this test. The Android app was not the
 - **Claim:** No claim - [Play listing](https://play.google.com/store/apps/details?id=com.amila.parenting)
 - **Axis:** inconclusive
 - **Gate:** G1-G10 not stored
-- **Capture:** 2026-08-25 live inject. Evidence source is `raw-replay`. The package header is not origin proof.
+- **Capture:** 2026-08-25 live inject. Evidence source is `raw-replay`. The package header is not origin proof. A second record, `results/amila-test-20260825-silence/artifacts/captures/silence-verdict-rederived.json`, has verdict untested because `uid_available` is false. The control host in that file is 8.8.8.8. The table axis stays inconclusive. The result table does not store the gate flags.
 
 | Service | In the window |
 | --- | --- |
@@ -343,7 +343,7 @@ Baby Buddy is the only open-source app in this test. The Android app was not the
 - **Claim:** "Local-first" (Google Play listing)
 - **Axis:** inconclusive
 - **Gate:** G1-G10 not stored
-- **Capture:** 2026-08-03 first launch. Replayed through the pipeline on 2026-08-25. Evidence source is `raw-replay`.
+- **Capture:** 2026-08-03 first launch. Replayed through the pipeline on 2026-08-25. Evidence source is `raw-replay`. A second record, `results/nubo-test-20260825/artifacts/captures/silence-verdict-rederived.json`, has verdict untested because `uid_available` is false. `control_hosts` in that file is empty. The table axis stays inconclusive. The result table does not store the gate flags.
 - **Later use:** the kept 2026-08-18 finished-use soak shows Google device traffic only. 2026-08-24 Backup Now finished after Google Drive Continue. That backup is not a claim axis.
 
 | Service | In the window |
@@ -410,7 +410,7 @@ Play data-safety pages for the five long-report apps say they share data. That p
 - Evidence depth is not equal. Fourteen apps are `raw-replay`. Two are still `session-summary` in `results/RESULTS-20260803.json`: Baby Buddy and MimiLog.
 - Baby Buddy is still `session-summary`. The tested session was the localhost Django site. The Android companion pictures are a login screen only. MimiLog is still `session-summary`. The store reinstall waits on "Complete account setup / Review your account". The package declares no `INTERNET`. The license dialog is an environment fact.
 - Pairip blocked four apps until 2026-09-20, when a real Play Store made the license checks pass. Baby Daybook, Nurture Lock, and Pebbi were recaptured on 2026-10-04. Pebbi's 2026-10-04 mitm window is untested. The 2026-10-10 tcpdump saw TLS to `app.pebbi.co` and the TLS was not read. MimiLog's window did not open.
-- The run-level result file does not store one API level. The 2026-08-14 Clarity captures show API 29 by User-Agent. Other windows are unknown until per-capture manifests exist.
+- The run-level result file does not store one API level. The 2026-08-14 Clarity captures show API 29 by User-Agent. Other windows have a per-capture manifest. A missing field is the string unknown. Most fields are unknown.
 - baby-track, cradle, and dymn-baby had no usable APK. No captures.
 
 ## Advice

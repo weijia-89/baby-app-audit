@@ -1,5 +1,13 @@
 # Changelog
 
+## 4.7.6 - 2026-11-08
+
+### Changed
+- FINAL-REPORT and the README name 507 request shapes from `results/analytics-pii-20260803.json` field `calls_scanned`. That count is not 507 transmissions.
+- The What to Expect asset body in the report is 2,753 bytes, a 71 by 71 PNG. The report does not say the screen was recorded.
+- The Amila and Nubo findings name the rederived verdict files. Each verdict is untested because `uid_available` is false. The table axis stays inconclusive. The result table does not store the gate flags.
+- The report no longer says other windows lack a per-capture manifest. The manifests exist. A missing field is the string unknown. Most fields are unknown.
+
 ## 4.7.5 - 2026-11-08
 
 ### Added
