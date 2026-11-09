@@ -1,5 +1,15 @@
 # Changelog
 
+## 4.7.4 - 2026-11-08
+
+### Fixed
+- The marker scan gunzips a request body sent with Accept application/x-clarity-gzip before it searches for a profile marker.
+- The marker scan reads a protobuf body with the Python standard library. The scan counts an unreadable protobuf body in unscannable_count. The scan does not call protoc.
+- The marker-scan checker rejects a negative that has no unscannable_count.
+
+### Changed
+- Each committed marker-scan report stores unscannable_count. A rescan of the eight raw captures kept the same verdict on every report. Every count is 0.
+
 ## 4.7.3 - 2026-11-08
 
 ### Added

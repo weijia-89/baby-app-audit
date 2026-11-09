@@ -80,7 +80,7 @@ def main() -> int:
     assert '["postData"]' in har_dump or "['postData']" in har_dump
 
     scan_src = (repo / "scripts" / "scan-synthetic-baby-data.sh").read_text(encoding="utf-8")
-    assert "decode_har_text" in scan_src
+    assert "prepare_scan_body" in scan_src
     assert "is_under_directory" in scan_src
     assert "startswith(str(repo_root" not in scan_src
 
