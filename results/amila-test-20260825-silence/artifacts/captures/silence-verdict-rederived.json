@@ -1,0 +1,88 @@
+{
+  "caller_path": "scripts/firebase_verdict.py",
+  "caller_version": "1",
+  "control_hosts": [
+    "8.8.8.8"
+  ],
+  "control_seen": true,
+  "data_needles": [
+    "firebaseio.com",
+    "firebasedatabase.googleapis.com",
+    "firestore.googleapis.com",
+    "firebasestorage.googleapis.com"
+  ],
+  "failing_gates": [
+    "G3",
+    "G4"
+  ],
+  "flags_from_reason_text": false,
+  "gates_not_run": [
+    "G2",
+    "G4a",
+    "G5",
+    "G6",
+    "G7",
+    "G8",
+    "G9"
+  ],
+  "hits": [],
+  "mitm_hosts": [
+    "app-measurement.com",
+    "firebase-settings.crashlytics.com",
+    "firebaselogging-pa.googleapis.com",
+    "firebaselogging.googleapis.com",
+    "firebaseremoteconfig.googleapis.com",
+    "fundingchoicesmessages.google.com"
+  ],
+  "pcap": {
+    "echo_replies": [
+      {
+        "count": 4,
+        "dst": "10.0.2.16",
+        "src": "8.8.8.8"
+      }
+    ],
+    "echo_requests": [
+      {
+        "count": 4,
+        "dst": "8.8.8.8",
+        "src": "10.0.2.16"
+      }
+    ],
+    "linktype": 1,
+    "local_addresses_present": [
+      "10.0.2.16",
+      "10.0.2.20"
+    ],
+    "snaplen": 262144
+  },
+  "pcap_hosts": [
+    "app-measurement.com",
+    "firebase-settings.crashlytics.com",
+    "firebaselogging-pa.googleapis.com",
+    "firebaselogging.googleapis.com",
+    "firebaseremoteconfig.googleapis.com",
+    "fundingchoicesmessages.google.com"
+  ],
+  "reasons": [
+    "control_seen is true. Control host: 8.8.8.8.",
+    "G3 fails: these records have no per-UID capture. uid_available is false. A negative needs G1 through G10.",
+    "The step log is absent. window_profile_done is false."
+  ],
+  "records": [
+    {
+      "kind": "pcap",
+      "name": "Amila-silence-tcpdump.pcap",
+      "sha256": "61aaac0265ad9c01948eff8343ee0ae06d6bb474e6ac142a4a9845525ed9aa44"
+    },
+    {
+      "kind": "mitm",
+      "name": "Amila-silence.mitm",
+      "sha256": "003c9914e04c72cca6270435cb5dc2101c4caaee838a95262ea76acc4a14db1b"
+    }
+  ],
+  "telemetry_present": true,
+  "uid_available": false,
+  "verdict": "untested",
+  "window_profile_done": false
+}

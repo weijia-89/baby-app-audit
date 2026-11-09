@@ -28,6 +28,13 @@
 ### Changed
 - METHODOLOGY records the re-counted 2026-08-14 Clarity headers, the shared `assets/clarity.js` version string 0.7.1, the file type of the What to Expect 2,753 byte `upload-asset` body, and the `adtest=on` search of the raw captures on disk.
 
+## 4.7.2 - 2026-11-08
+
+### Changed
+- The Firebase data-host check now includes Firestore and Storage. A data host returns `not_silent` when `control_seen` or `window_profile_done` is false, and the hit list is kept.
+- `scripts/firebase_verdict.py` computes those flags from the records. It stores the flags, the sha256 of each record, and its path and version. It does not assign a UID.
+- Amila `amila-test-20260825-silence` and Nubo `nubo-test-20260825` are re-derived as `untested`. The old files stored no flags. Gate G3 fails because there is no per-UID record. METHODOLOGY now requires gates G1 through G10 before a negative sentence.
+
 ## 4.7.1 - 2026-11-08
 
 ### Changed
