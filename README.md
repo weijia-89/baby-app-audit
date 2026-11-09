@@ -151,7 +151,7 @@ The machine-readable summary is [results/RESULTS-20260803.json](results/RESULTS-
 | BellyBloom | No claim | inconclusive | G1-G10 not stored | Ad and attribution calls are in the window. The package header is not origin proof. RTDB hosts only; flags not stored. |
 | Nanit | No claim | inconclusive | G1-G10 not stored | Unattributed Clarity traffic in window; source unresolved. Coralogix and Cordial calls are in the window. |
 | Pregnancy+ | No claim | inconclusive | G1-G10 not stored | Unattributed Clarity traffic in window; source unresolved. |
-| What to Expect | No claim | inconclusive | G1-G10 not stored | The Clarity config endpoint was fetched; the project config enables capture features. Clarity collect call(s) observed; contents not assessable (body not JSON-parseable). One Clarity asset-upload call observed; content not decoded. |
+| What to Expect | No claim | inconclusive | G1-G10 not stored | The Clarity config endpoint was fetched; the project config enables capture features. Clarity collect call(s) observed; contents not assessable (body not JSON-parseable). One Clarity asset-upload call observed; 2,753 bytes, a 71 by 71 PNG. |
 
 The full procedure is in [APK_PRIVACY_TEST_HARNESS.md](APK_PRIVACY_TEST_HARNESS.md). Method, consent, and known limits (no radio checks, no static scan for Nubo) are in [METHODOLOGY.md](METHODOLOGY.md).
 
@@ -166,7 +166,7 @@ This project tests baby and parenting apps against their privacy claims. The cur
 * **Live data collection:** `scripts/decode-traffic.sh` decodes network captures into structured JSON with per-app metadata.
 * **Cross-app comparison:** `scripts/compare-apps.sh` compares network traffic across apps to find shared trackers.
 * **Test results:** `FINAL-REPORT.md` has the verdict table plus a short per-app block. Host, path, status, and sizes stay in `results/network-log-<app>.json`.
-* **Full analytics and PII fanout:** `scripts/scan-analytics-pii.sh` scans every committed network log, including unclassified hosts, for analytics roles and PII indicators.
+* **Full analytics and PII fanout:** `scripts/scan-analytics-pii.sh` scans every committed network log, including unclassified hosts, for analytics roles and PII indicators. `results/analytics-pii-20260803.json` field `calls_scanned` is 507 request shapes. That count is not 507 transmissions.
 * **CI checks:** the test matrix covers 16 apps, and unit tests check the decoder and comparison scripts.
 
 ### What is next
