@@ -90,6 +90,10 @@ I repeated the same actions from Step 3. I captured all network traffic. For eac
 
 If the app uses certificate pinning, I use objection to bypass it.
 
+### Capture manifest
+
+Each capture window has a manifest next to it. The manifest stores the canon fields for that window. A field the window does not record is the string unknown. A filled field names the file the value came from. I do not copy a run-level API label onto a window. Android 10 in a Dalvik User-Agent means API 29. Android 9 means API 28. The image name stays unknown unless that window's log names `apk-test-api29` or `apk-test-play`. The field `source` is the lockdown reading source, not the file name. The file name sits inside the filled value.
+
 ### Step 6: For Baby Buddy - source code audit and dynamic test
 
 Because Baby Buddy is open source, I cloned the repository from https://github.com/babybuddy/babybuddy. I searched the code for network calls, analytics libraries, and third-party SDKs.

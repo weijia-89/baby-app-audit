@@ -399,8 +399,10 @@ test_native_app() {
         jq --arg sha "$apk_sha" '.apk_hash = {sha256: $sha, source: "device", timestamp: "'"$(date -u +%Y-%m-%dT%H:%M:%SZ)"'"}' "$results_file" > "$results_file.tmp" && mv "$results_file.tmp" "$results_file"
     fi
     
-    # Step 3: Start mitmproxy.
+    # Step 3: Start mitmproxy. Write the manifest when the window opens.
     log "[$app_name] Starting mitmproxy..."
+    local manifest_path="$ARTIFACTS_DIR/captures/${app_name}.capture-manifest.json"
+    write_capture_manifest "$manifest_path"
     mitmdump --listen-port "$PROXY_PORT" \
         --save-stream-file "$ARTIFACTS_DIR/captures/${app_name}.mitm" 2>>"$log_file" &
     local mitm_pid=$!
@@ -435,6 +437,10 @@ test_native_app() {
     if [ "$proxy_set" != "10.0.2.2:$PROXY_PORT" ]; then
         warn "[$app_name] Proxy not set (got '${proxy_set:-empty}'). Traffic capture will be incomplete."
         jq --arg pb "${proxy_set:-empty}" '.status = "PROXY_NOT_SET" | .proxy_readback = $pb' "$results_file" > "$results_file.tmp" && mv "$results_file.tmp" "$results_file"
+    fi
+    if [ -n "${proxy_set:-}" ]; then
+        printf '%s\n' "http_proxy_readback=${proxy_set}" >>"$log_file"
+        record_manifest_field "$manifest_path" http_proxy_readback "${proxy_set} (source: ${log_file})"
     fi
     
     # Step 5: Start the app. Check that it runs.
@@ -654,8 +660,12 @@ main() {
     # Record tool versions.
     record_tool_versions
     
-    # --check: validate tools and config only (CI).
+    # --check: validate tools, config, and capture manifests (CI).
     if [ "${1:-}" = "--check" ]; then
+        if ! check_capture_manifests "$REPO_ROOT/results/capture-manifests"; then
+            error "Capture manifest check failed"
+            exit 1
+        fi
         log "Configuration check passed (tools + schema) - dry run complete"
         exit 0
     fi
@@ -757,5 +767,105 @@ main() {
     
     return $exit_code
 }
+
+# Canon capture-manifest fields. Missing values stay the string unknown.
+write_capture_manifest() {
+    local dest="$1"
+    python3 - "$REPO_ROOT/results/capture-manifest.schema.json" "$dest" <<'PY'
+import json
+import sys
+schema_path, dest = sys.argv[1:]
+schema = json.load(open(schema_path))
+doc = {key: "unknown" for key in schema["required"]}
+with open(dest, "w", encoding="utf-8") as fh:
+    json.dump(doc, fh, indent=2)
+    fh.write("\n")
+PY
+}
+
+write_capture_manifest_for_window() {
+    local window="$1"
+    if [ -z "$window" ]; then
+        echo "ERROR: window path required" >&2
+        return 1
+    fi
+    write_capture_manifest "${window%.*}.capture-manifest.json"
+}
+
+record_manifest_field() {
+    local dest="$1"
+    local key="$2"
+    local value="$3"
+    python3 - "$dest" "$key" "$value" <<'PY'
+import json
+import sys
+dest, key, value = sys.argv[1:]
+with open(dest, encoding="utf-8") as fh:
+    doc = json.load(fh)
+if key not in doc:
+    raise SystemExit("manifest field not in canon: " + key)
+doc[key] = value
+with open(dest, "w", encoding="utf-8") as fh:
+    json.dump(doc, fh, indent=2)
+    fh.write("\n")
+PY
+}
+
+check_capture_manifests() {
+    local dir="${1:-${CAPTURE_MANIFEST_DIR:-$REPO_ROOT/results/capture-manifests}}"
+    python3 - "$REPO_ROOT/results/capture-manifest.schema.json" "$dir" <<'PY'
+import json
+import re
+import sys
+from pathlib import Path
+schema = json.load(open(sys.argv[1]))
+man_dir = Path(sys.argv[2])
+required = schema["required"]
+sourced = re.compile(r"^.+ \(source: results/[^)]+\)$")
+if not man_dir.is_dir():
+    raise SystemExit("capture manifest dir missing: " + str(man_dir))
+files = sorted(man_dir.glob("*.json"))
+if not files:
+    raise SystemExit("no capture manifests in " + str(man_dir))
+errors = []
+for path in files:
+    try:
+        doc = json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        errors.append(f"{path.name}: {exc}")
+        continue
+    if list(doc) != required:
+        errors.append(path.name + ": fields do not match the canon list")
+    for key, value in doc.items():
+        if not isinstance(value, str):
+            errors.append(f"{path.name}: {key} is not a string")
+            continue
+        if value == "unknown":
+            continue
+        if not sourced.match(value):
+            errors.append(f"{path.name}: {key} missing source file")
+        if "RESULTS-20260803.json" in value:
+            errors.append(f"{path.name}: {key} cites the run-level results file")
+if errors:
+    print("\n".join(errors), file=sys.stderr)
+    raise SystemExit(1)
+print("capture manifests OK (" + str(len(files)) + ")")
+PY
+}
+
+case "${1:-}" in
+    --write-capture-manifest)
+        write_capture_manifest_for_window "${2:-}"
+        exit $?
+        ;;
+    --record-manifest-field)
+        record_manifest_field "${2:-}" "${3:-}" "${4:-}"
+        exit $?
+        ;;
+    --check-capture-manifests)
+        check_capture_manifests "${CAPTURE_MANIFEST_DIR:-$REPO_ROOT/results/capture-manifests}"
+        exit $?
+        ;;
+esac
 
 main "$@"
