@@ -1,5 +1,33 @@
 # Changelog
 
+## 4.7.5 - 2026-11-08
+
+### Added
+- The harness writes a capture manifest beside each new window. The fields are avd_image, api_level, system_ca_present, http_proxy_readback, r1_mode, pcapdroid_version, uid_path, app_filter, r2_mode, r3_mode, lockdown_state, source, captive_portal_mode, private_dns_mode, firebase_debug_condition, r4_log, webview_version, user_agent, installed_packages, uid_unknown_count, conversion_events, and decoders. A missing value is the string unknown. The field source is the lockdown reading source.
+- `results/capture-manifest.schema.json` checks that field list. `scripts/run-tests.sh --check` rejects a manifest that drops a field, or that cites `results/RESULTS-20260803.json`.
+- Older windows have one backfill file each under `results/capture-manifests/`. A value other than unknown names the capture file it came from. The backfill sets API level only where that capture contains one Dalvik User-Agent. Android 10 is API 29. Android 9 is API 28. The BabyCenter and What to Expect Dalvik User-Agents do not contain "; wv)". A pcap is host_tcpdump only when it is Ethernet, snaplen 262144, and on 10.0.2.0/24. Image and system CA stay unknown. No window log names the image.
+
+### Changed
+- When the harness reads the emulator HTTP proxy, it stores that readback on the new window manifest and names the app log.
+
+## 4.7.4 - 2026-11-08
+
+### Fixed
+- The marker scan gunzips a request body sent with Accept application/x-clarity-gzip before it searches for a profile marker.
+- The marker scan reads a protobuf body with the Python standard library. The scan counts an unreadable protobuf body in unscannable_count. The scan does not call protoc.
+- The marker-scan checker rejects a negative that has no unscannable_count.
+
+### Changed
+- Each committed marker-scan report stores unscannable_count. A rescan of the eight raw captures kept the same verdict on every report. Every count is 0.
+
+## 4.7.3 - 2026-11-08
+
+### Added
+- `scripts/scan-adtest-on.py` searches raw `.mitm` files for the literal `adtest=on` and writes `results/adtest-on-scan.json`. The file names each capture and the hit count. A hit count is a search result. It is not a privacy verdict.
+
+### Changed
+- METHODOLOGY records the re-counted 2026-08-14 Clarity headers, the shared `assets/clarity.js` version string 0.7.1, the file type of the What to Expect 2,753 byte `upload-asset` body, and the `adtest=on` search of the raw captures on disk.
+
 ## 4.7.2 - 2026-11-08
 
 ### Changed

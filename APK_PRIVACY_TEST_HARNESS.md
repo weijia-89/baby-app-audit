@@ -598,6 +598,10 @@ Two 2026 gotchas for pinning:
 
 **Audit chain:** Run `after_action "dynamic-capture-complete"` to log this checkpoint.
 
+### Capture manifest
+
+When a capture window opens, the harness writes `artifacts/captures/<app>.capture-manifest.json` beside the `.mitm` file. The file has the canon fields and no others. A missing value is the string unknown. The field `source` is the lockdown reading source. A filled value names the file it came from. Committed backfill files use `(source: results/...)`. Do not copy `results/RESULTS-20260803.json` into a window. That run-level label is wrong for an api29 window. `scripts/run-tests.sh --check` checks the committed files under `results/capture-manifests/`.
+
 ---
 
 ## Part 5  -  Write your results

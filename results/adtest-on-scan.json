@@ -1,0 +1,206 @@
+{
+  "flag": "adtest=on",
+  "limit": "A hit count is a search result. It is not a privacy verdict.",
+  "files": [
+    {
+      "file": "results/amila-test-20260816/artifacts/captures/amila-flow.mitm",
+      "hit_count": 0
+    },
+    {
+      "file": "results/amila-test-20260816/artifacts/captures/amila-inject.mitm",
+      "hit_count": 0
+    },
+    {
+      "file": "results/amila-test-20260816/artifacts/captures/amila.mitm",
+      "hit_count": 0
+    },
+    {
+      "file": "results/amila-test-20260817/artifacts/captures/Amila.mitm",
+      "hit_count": 0
+    },
+    {
+      "file": "results/amila-test-20260825-silence/artifacts/captures/Amila-silence.mitm",
+      "hit_count": 0
+    },
+    {
+      "file": "results/amila-test-20260825/artifacts/captures/Amila.mitm",
+      "hit_count": 0
+    },
+    {
+      "file": "results/baby-buddy-test-20260803/artifacts/captures/baby-buddy.mitm",
+      "hit_count": 0
+    },
+    {
+      "file": "results/baby-daybook-test-20260816/artifacts/captures/baby-daybook.mitm",
+      "hit_count": 0
+    },
+    {
+      "file": "results/baby-daybook-test-20260817/artifacts/captures/Baby-Daybook.mitm",
+      "hit_count": 0
+    },
+    {
+      "file": "results/baby-daybook-test-20261004/artifacts/captures/baby-daybook.mitm",
+      "hit_count": 0
+    },
+    {
+      "file": "results/baby-plus-test-20260816/artifacts/captures/Baby+-about-baby-done-attempt.mitm",
+      "hit_count": 0
+    },
+    {
+      "file": "results/baby-plus-test-20260816/artifacts/captures/Baby+-about-you.mitm",
+      "hit_count": 0
+    },
+    {
+      "file": "results/baby-plus-test-20260816/artifacts/captures/Baby+.mitm",
+      "hit_count": 0
+    },
+    {
+      "file": "results/baby-plus-test-20260816/artifacts/captures/baby-plus.mitm",
+      "hit_count": 0
+    },
+    {
+      "file": "results/baby-plus-test-20260819/artifacts/captures/BabyPlus-about-you-soak.mitm",
+      "hit_count": 0
+    },
+    {
+      "file": "results/baby-plus-test-20260819/artifacts/captures/BabyPlus-post-done-upgrade-soak.mitm",
+      "hit_count": 0
+    },
+    {
+      "file": "results/baby-plus-test-20260821/artifacts/captures/BabyPlus-about-you-capture.mitm",
+      "hit_count": 0
+    },
+    {
+      "file": "results/baby-plus-test-20260821/artifacts/captures/BabyPlus-about-you-full.mitm",
+      "hit_count": 1
+    },
+    {
+      "file": "results/baby-plus-test-20260821/artifacts/captures/BabyPlus-upgrade-soak.mitm",
+      "hit_count": 0
+    },
+    {
+      "file": "results/baby-plus-test-20260825/artifacts/captures/BabyPlus-final.mitm",
+      "hit_count": 1
+    },
+    {
+      "file": "results/baby-plus-test-20260825/artifacts/captures/BabyPlus-retry.mitm",
+      "hit_count": 0
+    },
+    {
+      "file": "results/baby-plus-test-20260825/artifacts/captures/BabyPlus.mitm",
+      "hit_count": 0
+    },
+    {
+      "file": "results/babycenter-test-20260814/artifacts/captures/Babycenter.mitm",
+      "hit_count": 0
+    },
+    {
+      "file": "results/bellybloom-test-20260814/artifacts/captures/Bellybloom.mitm",
+      "hit_count": 0
+    },
+    {
+      "file": "results/heartful-baby-test-20260812/artifacts/captures/Heartful-baby.mitm",
+      "hit_count": 0
+    },
+    {
+      "file": "results/mimilog-test-20260816/artifacts/captures/mimilog.mitm",
+      "hit_count": 0
+    },
+    {
+      "file": "results/mimilog-test-20260817/artifacts/captures/MimiLog-feeding.mitm",
+      "hit_count": 0
+    },
+    {
+      "file": "results/mimilog-test-20260817/artifacts/captures/MimiLog.mitm",
+      "hit_count": 0
+    },
+    {
+      "file": "results/mimilog-test-20260825/artifacts/captures/MimiLog.mitm",
+      "hit_count": 0
+    },
+    {
+      "file": "results/mimilog-test-20261004/artifacts/captures/mimilog.mitm",
+      "hit_count": 0
+    },
+    {
+      "file": "results/nanit-test-20260814/artifacts/captures/Nanit.mitm",
+      "hit_count": 0
+    },
+    {
+      "file": "results/nara-test-20260812/artifacts/captures/Nara.mitm",
+      "hit_count": 0
+    },
+    {
+      "file": "results/nubo-test-20260803/artifacts/captures/nubo.mitm",
+      "hit_count": 0
+    },
+    {
+      "file": "results/nubo-test-20260817/artifacts/captures/Nubo.mitm",
+      "hit_count": 0
+    },
+    {
+      "file": "results/nubo-test-20260818-soak/artifacts/captures/Nubo-finished-use-soak.mitm",
+      "hit_count": 0
+    },
+    {
+      "file": "results/nubo-test-20260823/artifacts/captures/Nubo-backup-google.mitm",
+      "hit_count": 0
+    },
+    {
+      "file": "results/nubo-test-20260825/artifacts/captures/Nubo-pair.mitm",
+      "hit_count": 0
+    },
+    {
+      "file": "results/nurture-lock-test-20260803/artifacts/captures/nurture-lock.mitm",
+      "hit_count": 0
+    },
+    {
+      "file": "results/nurture-lock-test-20261004/artifacts/captures/nurture-lock.mitm",
+      "hit_count": 0
+    },
+    {
+      "file": "results/pebbi-test-20260816/artifacts/captures/pebbi-inject.mitm",
+      "hit_count": 0
+    },
+    {
+      "file": "results/pebbi-test-20260816/artifacts/captures/pebbi.mitm",
+      "hit_count": 0
+    },
+    {
+      "file": "results/pebbi-test-20260817/artifacts/captures/Pebbi-profile.mitm",
+      "hit_count": 0
+    },
+    {
+      "file": "results/pebbi-test-20260817/artifacts/captures/Pebbi.mitm",
+      "hit_count": 0
+    },
+    {
+      "file": "results/pebbi-test-20261004/artifacts/captures/pebbi-profile.mitm",
+      "hit_count": 0
+    },
+    {
+      "file": "results/pebbi-test-20261004/artifacts/captures/pebbi.mitm",
+      "hit_count": 0
+    },
+    {
+      "file": "results/pebbi-test-20261010/artifacts/captures/pebbi-4.4.1-full.mitm",
+      "hit_count": 0
+    },
+    {
+      "file": "results/pebbi-test-20261010/artifacts/captures/pebbi.mitm",
+      "hit_count": 0
+    },
+    {
+      "file": "results/pixy-test-20260812/artifacts/captures/Pixy.mitm",
+      "hit_count": 0
+    },
+    {
+      "file": "results/pregnancyplus-test-20260814/artifacts/captures/Pregnancyplus.mitm",
+      "hit_count": 0
+    },
+    {
+      "file": "results/whattoexpect-test-20260814/artifacts/captures/Whattoexpect.mitm",
+      "hit_count": 0
+    }
+  ]
+}

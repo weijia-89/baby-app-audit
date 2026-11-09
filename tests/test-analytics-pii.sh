@@ -245,3 +245,37 @@ assert vcalls["ingress.eu1.rum-ingress-coralogix.com"] == "Coralogix"
 PY
 
 echo "Analytics PII fanout test passed"
+
+# Literal adtest=on search. A planted marker fails closed until the scanner exists.
+adtest_scanner="$repo_root/scripts/scan-adtest-on.py"
+adtest_dir="$(mktemp -d "${TMPDIR:-/tmp}/adtest-on-test.XXXXXX")"
+trap 'chmod u+rwx "$adtest_dir"/locked.mitm 2>/dev/null || true; rm -rf "$tmp_dir" "$adtest_dir"' EXIT
+adtest_out="$adtest_dir/adtest-on-scan.json"
+printf 'prefix adtest=on&sid=SECRETTOKENVALUE suffix' > "$adtest_dir/planted.mitm"
+printf 'notadtest=on adtest=online adtest=off' > "$adtest_dir/clean.mitm"
+printf 'locked' > "$adtest_dir/locked.mitm"
+chmod 000 "$adtest_dir/locked.mitm"
+
+python3 "$adtest_scanner" "$adtest_out" \
+  "$adtest_dir/planted.mitm" \
+  "$adtest_dir/clean.mitm" \
+  "$adtest_dir/locked.mitm"
+
+ADTEST_OUT="$adtest_out" python3 - <<'PY'
+import json
+import os
+
+data = json.load(open(os.environ["ADTEST_OUT"]))
+text = json.dumps(data)
+assert "SECRETTOKENVALUE" not in text
+assert "sid=" not in text
+files = {item["file"]: item for item in data["files"]}
+assert files["planted.mitm"]["hit_count"] == 1, files["planted.mitm"]
+assert files["clean.mitm"]["hit_count"] == 0, files["clean.mitm"]
+locked = files["locked.mitm"]
+assert locked.get("error"), locked
+assert locked.get("hit_count") in (None, 0) or "hit_count" not in locked
+assert "sent nothing" not in text.lower()
+PY
+
+echo "adtest=on scan test passed"
