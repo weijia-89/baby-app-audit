@@ -13,6 +13,7 @@
       "package_name": "",
       "capture": "results/baby-daybook-test-20261004/artifacts/captures/baby-daybook.mitm",
       "flows_scanned": 132,
+      "unscannable_count": 0,
       "markers_matched": 41,
       "transmission_observed": false,
       "recipients": [

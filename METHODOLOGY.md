@@ -40,9 +40,23 @@ The test environment included these tools:
 * **mitmproxy** - captures network traffic between the phone and the internet.
 * **adb** - connects to the Android emulator.
 * **jadx** - decompiles APK files to read the source code.
-* **objection** - available to bypass certificate pinning if needed. This note does not say a system certificate was installed. The API 28 Play image has no system CA. API level is per capture.
+* **objection** - available to bypass certificate pinning if needed. This note does not say a system certificate was installed. The API 28 Play image has no system CA. API level is per capture. Both 2026-08-14 captures, BabyCenter and What to Expect, use User-Agent Dalvik/2.1.0 with Android 10, which means API 29. Neither User-Agent contains `; wv)`. The API 28 floor stays untested.
 
 exodus-standalone is documented in the harness but was not run on this platform (the Docker image is linux/amd64 only).
+
+### Header counts, clarity.js, and the adtest search
+
+I re-counted Clarity headers on 2026-11-08 with `mitmdump -nr FILE --flow-detail 2 "~d clarity.ms"`, then counted User-Agent, Accept, and Content-Type lines.
+
+`results/babycenter-test-20260814/artifacts/captures/Babycenter.mitm` has 4 `Accept: application/x-clarity-gzip` lines, 6 `Content-Type: application/json` lines, 1 `Content-Type: application/json; charset=utf-8` line, and 6 User-Agent lines.
+
+`results/whattoexpect-test-20260814/artifacts/captures/Whattoexpect.mitm` has 3 `Accept: application/x-clarity-gzip` lines, 6 `Content-Type: application/json` lines, 2 `Content-Type: application/json; charset=utf-8` lines, 1 `Content-Type: application/octet-stream` line, and 7 User-Agent lines.
+
+`assets/clarity.js` in `apks/com.babycenter.pregnancytracker.apk` and in `apks/com.wte.view.apk` is version string 0.7.1. I hashed both files on 2026-11-08. Both sha256 values are `b6e09b37ffa51fbc3ccb38da7f0d10e72b7f5501a6dd16baeff15a246c684c41`.
+
+The What to Expect capture has one request whose path contains `upload-asset`. The body is 2,753 bytes and the Content-Type is `application/octet-stream`. `file` reports `PNG image data, 71 x 71, 8-bit/color RGBA, non-interlaced`. Source file: `results/whattoexpect-test-20260814/artifacts/captures/Whattoexpect.mitm`.
+
+I searched every raw `.mitm` file under `results/` with `scripts/scan-adtest-on.py`. The result is `results/adtest-on-scan.json`. The search read 50 files. It found the literal `adtest=on` once in `results/baby-plus-test-20260821/artifacts/captures/BabyPlus-about-you-full.mitm` and once in `results/baby-plus-test-20260825/artifacts/captures/BabyPlus-final.mitm`. Every other file in that result has a hit count of 0 in this byte search. A hit count is a search result. It is not a privacy verdict.
 
 ---
 
