@@ -87,9 +87,33 @@ cat > "$tmp_dir/capture-negative.json" <<'EOF'
 }
 EOF
 
+# Fixture F: a finding URL carries a query parameter named key, plus a token path segment.
+cat > "$tmp_dir/capture-query-key.json" <<'EOF'
+{
+  "$schema": "decode-traffic/2.0",
+  "schema_version": "2.0",
+  "package_name": "com.example.querykey",
+  "capture_timestamp": "2026-08-14T00:00:00Z",
+  "flows": [
+    {
+      "timestamp": "2026-08-14T00:00:01Z",
+      "request": {
+        "method": "POST",
+        "url": "https://maps.googleapis.com/maps/api/Ab12cd34Ef56/json?key=fixture-query-value",
+        "host": "maps.googleapis.com",
+        "headers": {"content-type": "application/json"},
+        "body": "{\"baby_name\":\"Privatia Rigatoni\"}"
+      },
+      "response": {"status": 200, "body": ""}
+    }
+  ]
+}
+EOF
+
 mkdir -p "$tmp_dir/reports"
 out_a="$tmp_dir/reports/positive.json"
 out_b="$tmp_dir/reports/negative.json"
+out_key="$tmp_dir/reports/query-key.json"
 
 # Fixture C: Clarity gzip body. The marker is inside the gzip bytes, not the base64 text.
 # Fixture D: raw protobuf with the name marker. Fixture E: protobuf that cannot be decoded.
@@ -156,6 +180,7 @@ PY
 
 bash "$scanner" "$tmp_dir/capture-positive.json" "$out_a"
 bash "$scanner" "$tmp_dir/capture-negative.json" "$out_b"
+bash "$scanner" "$tmp_dir/capture-query-key.json" "$out_key"
 out_c="$tmp_dir/reports/clarity-gzip.json"
 out_d="$tmp_dir/reports/protobuf.json"
 out_e="$tmp_dir/reports/protobuf-bad.json"
@@ -163,12 +188,30 @@ bash "$scanner" "$tmp_dir/capture-clarity-gzip.json" "$out_c"
 bash "$scanner" "$tmp_dir/capture-protobuf.json" "$out_d"
 bash "$scanner" "$tmp_dir/capture-protobuf-bad.json" "$out_e"
 
-OUT_A="$out_a" OUT_B="$out_b" python3 - <<'PY'
+OUT_A="$out_a" OUT_B="$out_b" OUT_KEY="$out_key" python3 - <<'PY'
 import json
 import os
 
 a = json.load(open(os.environ["OUT_A"]))
 b = json.load(open(os.environ["OUT_B"]))
+key_report = json.load(open(os.environ["OUT_KEY"]))
+
+# Query parameter named key must not survive into the written finding URL.
+key_blob = json.dumps(key_report)
+if "key=" in key_blob or "?key" in key_blob:
+    print("FAIL: query parameter named key is still in the written JSON")
+    raise SystemExit(1)
+key_path = key_report["apps"][0]["findings"][0]["path"]
+if "?" in key_path:
+    print("FAIL: query string is still in the finding path")
+    raise SystemExit(1)
+if "Ab12cd34Ef56" in key_path:
+    print("FAIL: token path segment is still in the written JSON")
+    raise SystemExit(1)
+if "[REDACTED:path-token-or-id]" not in key_path:
+    print("FAIL: path token was not redacted")
+    raise SystemExit(1)
+assert key_report["apps"][0]["verdict"] == "transmission_observed"
 
 # Positive fixture: must report transmission.
 assert a["captures_scanned"] == 1

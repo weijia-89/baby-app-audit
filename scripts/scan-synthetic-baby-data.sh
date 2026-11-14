@@ -42,8 +42,10 @@ fi
 python3 - "$PROFILE_FILE" "$repo_root" "${captures[@]}" "$output_file" <<'PY'
 import json
 import os
+import re
 import sys
 from pathlib import Path
+from urllib.parse import parse_qsl, unquote
 
 profile_path = sys.argv[1]
 repo_root_path = Path(sys.argv[2])
@@ -104,6 +106,53 @@ def vendor_for_host(host):
         if any(host_lower == s or host_lower.endswith("." + s) for s in suffixes):
             return vendor
     return "Unclassified host"
+
+
+# Same rules as redact_path in build-network-logs.sh.
+# Prefer over-redact. Under-redact can leak secrets.
+# shortcut: copied from that shell heredoc, extract one helper if a third caller appears
+TOKEN_RE = re.compile(r'^[A-Za-z0-9._\-]{12,}$')
+
+
+def segment_has_token(seg):
+    """True when the segment, or a piece of it, looks like an id.
+
+    Percent-encoding can hide '$' and ':' inside one path segment.
+    Decode first. Then test the whole segment and each id-shaped piece.
+    A plain word (letters only) stays.
+    """
+    decoded = unquote(seg)
+    pieces = [decoded, *re.split(r"[^A-Za-z0-9._\-]+", decoded)]
+    for piece in pieces:
+        if piece and TOKEN_RE.match(piece) and not piece.isalpha():
+            return True
+    return False
+
+
+def redact_path(url):
+    """Return path, whether a query was removed, redaction count, and names.
+
+    The path has no query string. Names are kept. Values are not returned.
+    """
+    query_removed = "?" in url
+    base = url
+    raw_query = ""
+    if query_removed:
+        base, raw_query = url.split("?", 1)
+        raw_query = raw_query.split("#", 1)[0]
+    query_names = []
+    if raw_query:
+        query_names = [
+            name for name, _value in parse_qsl(raw_query, keep_blank_values=True)
+        ]
+    segs = base.split("/")
+    path_redactions = 0
+    # Redact path segments only (keep scheme and host).
+    for i in range(3, len(segs)):
+        if segment_has_token(segs[i]):
+            segs[i] = "[REDACTED:path-token-or-id]"
+            path_redactions += 1
+    return "/".join(segs), query_removed, path_redactions, query_names
 
 
 def recipient_class(host, package):
@@ -247,8 +296,10 @@ def public_path(path):
         resolved = Path(path).resolve()
     except OSError:
         resolved = Path(path)
+    # Resolve the repo root too. /tmp is a symlink to /private/tmp on this Mac,
+    # and an unresolved root makes every committed path fall back to a file name.
     try:
-        rel = resolved.relative_to(repo_root_path)
+        rel = resolved.relative_to(repo_root_path.resolve())
     except ValueError:
         rel = Path(resolved.name)
     text = rel.as_posix()
@@ -328,7 +379,7 @@ def main():
                     "marker_confidence": marker.get("confidence"),
                     "method": flow["method"],
                     "host": flow["host"],
-                    "path": flow["url"],
+                    "path": redact_path(flow["url"])[0],
                     "status": flow["status"],
                     "vendor": vendor_for_host(flow["host"]),
                     "recipient_class": recipient_class(flow["host"], package),
