@@ -1,0 +1,65 @@
+{
+  "$schema": "synthetic-baby-data/1.0",
+  "schema_version": "1.0",
+  "profile_name": "Privatia Rigatoni",
+  "profile_source": "results/synthetic-baby-profile.json",
+  "captures_scanned": 1,
+  "apps_with_transmission": 0,
+  "method": "marker search of the raw local capture (request body, response body, and URL). Sanitized network logs are not searched.",
+  "scope": "Markers come from the fictional synthetic baby profile. A match in a request body or URL proves the entered value left the device. The committed, sanitized network logs are not searched because their bodies are redacted.",
+  "apps": [
+    {
+      "app": "Amila",
+      "package_name": "",
+      "capture": "results/amila-test-20260817/artifacts/captures/Amila.mitm",
+      "flows_scanned": 9,
+      "unscannable_count": 0,
+      "markers_matched": 3,
+      "transmission_observed": false,
+      "recipients": [
+        "app-measurement.com",
+        "youtubei.googleapis.com"
+      ],
+      "verdict": "no_transmission_detected",
+      "claim_limit": "not observed in this capture window under marker search of the raw file. This does not prove the app never sends the value.",
+      "findings": [
+        {
+          "marker_id": "formula_click_increment",
+          "marker_type": "numeric",
+          "marker_confidence": "low",
+          "method": "GET",
+          "host": "app-measurement.com",
+          "path": "https://app-measurement.com/config/app/[REDACTED:path-token-or-id]",
+          "status": 200,
+          "vendor": "Google/Firebase",
+          "recipient_class": "known_third_party",
+          "side": "url"
+        },
+        {
+          "marker_id": "formula_click_increment",
+          "marker_type": "numeric",
+          "marker_confidence": "low",
+          "method": "POST",
+          "host": "app-measurement.com",
+          "path": "https://app-measurement.com/a",
+          "status": 204,
+          "vendor": "Google/Firebase",
+          "recipient_class": "known_third_party",
+          "side": "request"
+        },
+        {
+          "marker_id": "formula_click_increment",
+          "marker_type": "numeric",
+          "marker_confidence": "low",
+          "method": "POST",
+          "host": "youtubei.googleapis.com",
+          "path": "https://youtubei.googleapis.com/youtubei/v1/log_event",
+          "status": 200,
+          "vendor": "Google/Firebase",
+          "recipient_class": "known_third_party",
+          "side": "request"
+        }
+      ]
+    }
+  ]
+}
