@@ -1,5 +1,13 @@
 # Changelog
 
+## 4.7.7 - 2026-11-15
+
+### Added
+- Four marker-scan reports from captures on disk: `results/marker-scans/nubo-20260818.json`, `results/marker-scans/baby-plus-20260819.json`, `results/marker-scans/baby-plus-20260825.json`, and `results/marker-scans/amila-20260817.json`. The verdict string in each file is `no_transmission_detected`.
+
+### Fixed
+- Pull request 89 makes the synthetic-baby scanner drop the query string from a finding path before it writes the scan report.
+
 ## 4.7.6 - 2026-11-08
 
 ### Changed
